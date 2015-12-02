@@ -1,0 +1,52 @@
+calc_snr
+    # 
+    # calc signal-to-noise ratio
+    # 
+    # Usage:
+    #     macro read analyze_snr.sm calc_snr
+    # 
+    
+    !mkdir "analyze_snr"
+    
+    chdir "../Catalog/"
+    
+    load rfile.sm
+    rfile "RadioOwenMIPS24_priors_201500_v2_c.txt"
+    
+    set id = _id
+    set dfRadio = eradio
+    set fRadio = radio
+    foreach imax {16 24 Radio} {
+        set snr = f$imax*0.0
+        set coo = df$imax>0.0 && f$imax>-99
+        set uid = 0,dimen(f$imax)-1
+        set uid = uid if(coo)
+        set snr[uid] = f$imax[uid]/df$imax[uid]
+        set snr$imax = snr
+    }
+    set snrIR = f100*0.0
+    foreach imax {100 160 250 350 500 1160} {
+        set snr = f$imax*0.0
+        set coo = df$imax>0.0 && f$imax>-99
+        set uid = 0,dimen(f$imax)-1
+        set uid = uid if(coo)
+        set snr[uid] = f$imax[uid]/df$imax[uid]
+        set snr$imax = snr
+        set snrIR = snrIR + snr**2
+    }
+    set snrIR = sqrt(snrIR)
+    
+    chdir "../CatalogAnalyze/analyze_snr/"
+    
+    print "GOODSN_SNR_FIR.txt" '%10.0f %12.5g %12.5g %12.5g %12.5g %12.5g %12.5g %12.5g\n' \
+                               { id snrIR snr100 snr160 snr250 snr350 snr500 snr1160 }
+    print "GOODSN_SNR_MIR.txt" '%10.0f %12.5g %12.5g\n' \
+                               { id snr16 snr24 }
+    print "GOODSN_SNR_Radio.txt" '%10.0f %15.5g\n' \
+                                 { id snrRadio }
+    chdir ".."
+
+
+
+
+
