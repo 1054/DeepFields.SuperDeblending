@@ -1,0 +1,15 @@
+building file list ... done
+do_rsync_dirs.log
+rsyncdir.backup
+rsyncssh
+xpa_linux/
+xpa_linux/libxpa.a
+xpa_linux/xpaaccess
+xpa_linux/xpaget
+xpa_linux/xpainfo
+xpa_linux/xpamb
+xpa_linux/xpans
+xpa_linux/xpaset
+
+sent 1.19M bytes  received 246 bytes  341.04K bytes/sec
+total size is 127.54M  speedup is 106.85

@@ -1,0 +1,29 @@
+make_catalog_ds9_reg
+    #  
+    #  macro read make_catalog_ds9_reg.sm make_catalog_ds9_reg
+    #  
+    foreach i {100 160 250 350 500 1160} {
+        
+        data "../Initial_Catalog_goodsn_"$i"_WithNewNewObj.dat"
+        read {id 1 ra 2 de 3}
+        # set id = float(id)
+        
+        data "../../SED/SED_predictions_goodsn_"$i".txt"
+        read {exc 4}
+        set exca = 1,dimen(id)-dimen(exc)
+        set exca = exca*0
+        set exc = exc concat exca
+        
+        set color = (id<160000) ? <"yellow"> : <"brown">
+        set color = (exc) ? <"orange"> : color
+        
+        set dash = (exc) ? 1 : 0
+        
+        define print_noheader 1
+        print  "cat_"$i".ds9.reg" 'fk5\n' {}
+        print +"cat_"$i".ds9.reg" 'circle(%0.7f,%0.7f,1.5\") \# text={%.0f} color=%s dash=%d\n' {ra de id color dash}
+        define print_noheader 0
+        # define aaa ?
+    }
+
+

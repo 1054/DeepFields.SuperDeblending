@@ -1,0 +1,87 @@
+Reading rfile RadioOwenMIPS24_priors_v6_20151221_BeforeBand160.txt 
+Closing rfile RadioOwenMIPS24_priors_v6_20151221_BeforeBand160.txt 
+Check dirs ok!
+407
+Reading rfile RadioOwenMIPS24_priors_v6_20151221_BeforeBand160.txt 
+Closing rfile RadioOwenMIPS24_priors_v6_20151221_BeforeBand160.txt 
+
+OBJECT CHOSEN ID=407 NO=81
+Reading rfile RadioOwenMIPS24_priors_v6_20151221_BeforeBand160.txt 
+Closing rfile RadioOwenMIPS24_priors_v6_20151221_BeforeBand160.txt 
+Doing goxfitAGN ... 
+Looping source 0 id=407 no=81 bands=9
+COSMOLOGIA: H0=13.7 La=0.73 Ma=0.27 
+CLUSTERING: eps=-1.2 gamma=1.8
+407 -1 3306
+407 -1 3306
+407 -1 3306
+                       z=1.52100 z1=0.952 z2=2.256 u=5 <U>=9.7 chi2=7.3304e-25 Schi2=0 Rchi2=7.3304e-25 aS=0 aR=0.61521
+                       z=1.52100 z1=0.952 z2=2.256 u=6 <U>=12.1 chi2=1.1608e-23 Schi2=0 Rchi2=1.1608e-23 aS=0 aR=0.5546
+                       z=1.52100 z1=0.952 z2=2.256 u=7 <U>=14.5 chi2=1.1911e-23 Schi2=0 Rchi2=1.1911e-23 aS=0 aR=0.51458
+                       z=1.52100 z1=0.952 z2=2.256 u=8 <U>=18.0 chi2=1.7856e-25 Schi2=0 Rchi2=1.7856e-25 aS=0 aR=0.46729
+                       z=1.52100 z1=0.952 z2=2.256 u=9 <U>=25.0 chi2=4.9744e-23 Schi2=0 Rchi2=4.9744e-23 aS=0 aR=0.46926
+
+         wW          fF         dfF     SN_flux       coAGN       coSFR      coSTAR   bfit_ftot   bfit_diff    bfit_dev
+
+        2.15     0.02208       1e+10   2.208e-12           0           0           0           0     0.02208   2.208e-12
+         3.6     0.03869       1e+10   3.869e-12           0           0           0    0.001515     0.03717   3.717e-12
+         4.5     0.04791       1e+10   4.791e-12           0           0           0    0.001793     0.04612   4.612e-12
+         5.8     0.04077       1e+10   4.077e-12           0           0           0    0.003234     0.03754   3.754e-12
+         7.9     0.04644       1e+10   4.644e-12           0           0           0     0.03336     0.01308   1.308e-12
+          16      0.2361       1e+10   2.361e-11           0           0           0      0.2389   -0.002815   2.815e-13
+          24      0.3678       1e+10   3.678e-11           0           0           0      0.3085     0.05932   5.932e-12
+         100       8.029      0.8029          10           0           1           0       8.029  -3.304e-13   4.115e-13
+       2e+05     0.04532       1e+10   4.532e-12           0           0           0     0.05084   -0.005517   5.517e-13
+
+dzliu_norm_SFR
+
+       12.33
+
+ID=407 NO=81 zspec=1.521 zp_X=1.46 SB=-1 AGN=0 FIR=1
+BEST zbest 1.521 ubest 18 dLbest 11155.33059 agnbest 2 norm_Ste 0 norm_EBV 0
+     norm_AGN 6.45654229e-11 norm_SFR 0.4672857639 chi2_min 1.785557965e-25
+
+Done  goxfitAGN
+SB -1
+Range AGN 0 1.458250409e-07 --> 7.291252045e-08 +- 7.291252045e-08 (SN = 1 AGN) 
+Range SFR 215.509303 283.7177899 --> 249.6135464 +- 34.10424345 (SN = 7.319134546 SFR) 
+Range TOT 215.509303 283.7177901 --> 249.6135465 +- 34.10424355 (SN = 7.319134527 TOT) 
+Range _zz 1.521 1.521 --> 1.521 +- 0 (SN = 0 _zz) 
+Range Rad 0.0486 0.06329 --> 0.055945 +- 0.007345 (SN = 7.616746086 Rad) 
+Range 70um 2.366 2.852 --> 2.609 +- 0.243 (SN = 10.73662551 70) 
+Range 100um 8.029 8.029 --> 8.029 +- 0 (SN = 0 100) 
+Range 160um 18.41 22.5 --> 20.455 +- 2.045 (SN = 10.00244499 160) 
+Range 250um 22.04 33.67 --> 27.855 +- 5.815 (SN = 4.790197764 250) 
+Range 350um 17.15 30.06 --> 23.605 +- 6.455 (SN = 3.656855151 350) 
+Range 500um 8.67 16.86 --> 12.765 +- 4.095 (SN = 3.117216117 500) 
+Range 850um 2.001 4.298 --> 3.1495 +- 1.1485 (SN = 2.742272529 850) 
+Range 1160um 0.7437 1.654 --> 1.19885 +- 0.45515 (SN = 2.633966824 1160) 
+Range 1200um 0.6666 1.487 --> 1.0768 +- 0.37165 (SN = 2.897349657 1200) 
+Range 1250um 0.5841 1.307 --> 0.94555 +- 0.28165 (SN = 3.357180898 1250) 
+Range 2000um 0.1274 0.2927 --> 0.21005 +- 0.08265 (SN = 2.541439806 2000) 
+Range 2050um 0.1176 0.2704 --> 0.194 +- 0.0764 (SN = 2.539267016 2050) 
+Best AGN 2.562696184e-08 
+Best SFR 241.7504315 
+Best TOT 241.7504316 
+Best _zz 1.521 
+Best Rad 0.055556 
+Best 70 2.588 
+Best 100 8.029 
+Best 160 20.504 
+Best 250 27.21 
+Best 350 22.614 
+Best 500 12.0526 
+Best 850 2.929 
+Best 1160 1.1085 
+Best 1200 0.99506 
+Best 1250 0.87342 
+Best 2000 0.193 
+Best 2050 0.17822 
+Frac AGN 1.060058577e-10 of SFR lum 
+Frac AGN 1.060058577e-10 of TOT lum 
+Lower y-axis limit == +-Inf
+
+Lower y-axis limit == +-Inf
+
+Format string specifies 1 output fields, for 11 vectors
+Format string specifies 1 output fields, for 27 vectors

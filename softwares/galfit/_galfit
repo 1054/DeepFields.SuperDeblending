@@ -1,0 +1,10 @@
+#!/bin/bash
+# Linux
+if [[ $(uname -s) == Linux ]]; then
+    $(dirname $0)/galfit_linux/galfit3redhat $*
+fi
+# Darwin
+if [[ $(uname -s) == Darwin ]]; then
+    $(dirname $0)/galfit_mac/galfit $*
+fi
+

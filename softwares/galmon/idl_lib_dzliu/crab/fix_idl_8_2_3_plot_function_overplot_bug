@@ -1,0 +1,12 @@
+https://www.idlcoyote.com/ng_tips/overplots.php
+
+cd $IDL_DIR
+
+mv lib/itools/framework/idlitvisdataspace__define.pro             lib/itools/framework/idlitvisdataspace__define.pro.backup
+mv lib/itools/components/idlitvisplot__define.pro                 lib/itools/components/idlitvisplot__define.pro.backup
+mv lib/itools/framework/idlitsrvcreatevisualization__define.pro   lib/itools/framework/idlitsrvcreatevisualization__define.pro.backup
+
+wget ftp://download.exelisvis.com/groups/esg/dropoff/idlitvisdataspace__define.pro             -O   lib/itools/framework/idlitvisdataspace__define.pro
+wget ftp://download.exelisvis.com/groups/esg/dropoff/idlitvisplot__define.pro                  -O   lib/itools/components/idlitvisplot__define.pro
+wget ftp://download.exelisvis.com/groups/esg/dropoff/idlitsrvcreatevisualization__define.pro   -O   lib/itools/framework/idlitsrvcreatevisualization__define.pro
+

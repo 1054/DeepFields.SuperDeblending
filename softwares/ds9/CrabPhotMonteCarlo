@@ -1,0 +1,43 @@
+#!/bin/bash
+# 
+# common caller for dzliu tools:
+#=  CrabFitsHeader
+#=  CrabFitsImageCrop
+#=  CrabPhotAperPhot
+#=  CrabPhotRingPhot
+#=  CrabPhotMonteCarlo
+#=  CrabTableReadColumn
+#=  CrabTableReadInfo
+#=  degree2radec
+#=  radec2degree
+#=  ds9
+#=  ttyecho
+#=  lumdist
+#=  float2hex
+#=  hex2float
+##  #pdbi-lmv-to-fits
+##  #pdbi-uvt-to-fits
+#=  xpaaccess
+#=  xpaget
+#=  xpainfo
+#=  xpamb
+#=  xpans
+#=  xpaset
+# 
+# for ff in $(cat CrabFitsHeader | grep "^#= " | tr -s ' ' | cut -d ' ' -f 2); do cp CrabFitsHeader $ff; done
+#   
+# 
+# Linux
+if [[ $(uname -s) == Linux ]]; then
+    $(dirname $0)/ds9_linux/$(basename $0)_linux_x86_64 $*
+fi
+# Darwin
+if [[ $(uname -s) == Darwin ]]; then
+    $(dirname $0)/ds9_mac/$(basename $0)_mac $*
+fi
+# Cygwin
+if [[ $(uname -s) == *CYGWIN* ]]; then
+    $(dirname $0)/ds9_cygwin/$(basename $0)_cygwin_x86.exe $*
+fi
+
+

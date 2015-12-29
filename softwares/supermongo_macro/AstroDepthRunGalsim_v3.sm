@@ -1,0 +1,457 @@
+RunGalsim 04
+    # 
+    #  Input:
+    #      field band rebuild
+    # 
+    #  Example: 
+    #      macro read AstroDepthRunGalsim_v3.sm RunGalsim goodss 24 fitPos
+    #      macro read AstroDepthRunGalsim_v3.sm RunGalsim goodss 24 fitPos rebuild
+    # 
+    #  Supplementary Files: 
+    #  
+    
+    ############################
+    ### Input Argument Check ###
+    ############################
+    if($?1==0||$?2==0){
+    print 'Example: macro read AstroDepthRunGalsim_v3.sm RunGalsim goodss 24 fitPos [rebuild]\n' {}
+    return
+    }
+    
+    
+    #  ###################################
+    #  ### Please Set Data Information ###
+    #  ###################################
+    #  # set BackDir = {"/Users/dliu/Temp/dzliu_goodsn/Tool/Photometry"} # not too long, no white space, no trailing slash
+    #  set DataDir = {"/data/AstroDepth/"}+sprintf('%s','$1')          # not too long, no white space, no trailing slash
+    #  set Catalog = DataDir+{"/Catalog/Initial_Catalog"}+sprintf('_%s','$1')+sprintf('_%s.dat','$2') # please make sure Catalog exists
+    #  set PsimOut = DataDir+{"/Simulation/Result_Simulation"}+sprintf('_%s','$1')+sprintf('_%s.txt','$2')
+    #  set boxRoot = DataDir+{"/Simulation/20150430"}
+    #  set boxBand = '$2'
+    #  set boxName = {"boxgalsim"}
+    #  set boxPath = boxRoot+{"/doing"}+string(boxBand)+{"/"}+boxName
+    
+    
+    ########################################
+    ### Set Data Info and Check Software ###
+    ########################################
+    load AstroDepthSetDataInfo_v3.sm SetDataInfo $1 $2 $3
+    set boxName = PsimBox
+    set boxPath = PsimDir
+    
+    
+    #################################
+    ### Load AstroDepth Constants ###
+    #################################
+    load astroGalbox.sm
+    load astroGalfit.sm
+    load astroPhot.sm
+    load AstroDepthRunGalfit_v3.sm
+    load AstroDepthGenGalsim_v3.sm
+    set_$1""_photometry_constants_""$2
+    
+    
+    #################################
+    ### Deploy Catalog and Images ###
+    #################################
+    astroGalbox_cd boxPath
+    !echo Current directory \$(pwd -P) # 
+    if(!is_file($(Catalog))){print 'Error! $(Catalog) not found!\n' {} return}
+    if(!$?4 || !is_file($SciPhoto_$(boxBand).fits)) {
+    astroGalbox_find_and_copy $DirPhoto_$(boxBand) $SciPhoto_$(boxBand).fits
+    astroGalbox_find_and_copy $DirPhoto_$(boxBand) $RmsPhoto_$(boxBand).fits
+    astroGalbox_find_and_copy $DirPhoto_$(boxBand) $PsfPhoto_$(boxBand).fits
+    }
+    if(!is_file($SciPhoto_$(boxBand).fits)){print 'Error! $SciPhoto_$(boxBand).fits not found!\n' {} return}
+    if(!is_file($RmsPhoto_$(boxBand).fits)){print 'Error! $RmsPhoto_$(boxBand).fits not found!\n' {} return}
+    if(!is_file($PsfPhoto_$(boxBand).fits)){print 'Error! $PsfPhoto_$(boxBand).fits not found!\n' {} return}
+    !echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    !echo boxBand = $(boxBand)
+    !echo boxName = $(boxName)
+    !echo boxPath = $(boxPath)
+    !echo Catalog = $(Catalog)
+    !echo SciPhoto = $SciPhoto_$(boxBand).fits
+    !echo RmsPhoto = $RmsPhoto_$(boxBand).fits
+    !echo PsfPhoto = $PsfPhoto_$(boxBand).fits
+    !echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    
+    
+    if(!$?4) {
+        readCatalog
+        freezeSources $1 $2 # use SED_predictions to fix some very faint sources
+    }
+    
+    
+    #if(!$?4) {
+    #    if(boxBand=='100'||boxBand=='160'||boxBand=='250'||boxBand=='350'||boxBand=='500'||boxBand=='1160') {
+    #        freezeSources $1 $2 # use SED_predictions to fix some very faint sources
+    #        # freezeSources will freeze the magnitude of some very faint sources
+    #        # pmG = 0 will freeze the magnitude in astroGalbox.sm
+    #    }
+    #}
+    
+    
+    #if(!$?4) {
+    #    if(boxBand=='24'||boxBand=='100'||boxBand=='160') { # allow source position to vary
+    #        set pxG = x$(boxBand)*0+1 # allow source position to vary
+    #        set pyG = y$(boxBand)*0+1 # allow source position to vary
+    #        # # pxG = 1 pyG = 1 will allow the position to vary by at most \pm1.0 pixel in astroGalbox.sm
+    #        # # <TODO> for '20cm' 
+    #    }
+    #    if(boxBand=='250') {            # allow source position to vary
+    #        set pxG = x$(boxBand)*0+0.3 # allow source position to vary
+    #        set pyG = y$(boxBand)*0+0.3 # allow source position to vary
+    #    }
+    #    if(boxBand=='20cm') {           # allow source position to vary
+    #        set pxG = x$(boxBand)*0+2.  # allow source position to vary -- 20cm Owen Morrison PixScale 0.35
+    #        set pyG = y$(boxBand)*0+2.  # allow source position to vary
+    #        # # pxG = 2 pyG = 2 will allow the position to vary by at most \pm2.0 pixel in astroGalbox.sm
+    #    }
+    #}
+    
+    
+    if(!$?4) {
+        galsim_backup
+        if(!is_file("galsim_prior")) { 
+            generateSimPrior $1 6000 
+        } else { 
+            rfile "galsim_prior" 
+            print 'Found \"galsim_prior\"! We will read simulated objects in it!\n' {}
+        }
+        luminizeSimPrior $1 $2
+        writeSimlist $(PsimOut)
+        galsim_build $2
+    }
+    
+    
+    if(1==0) {
+        ##########################################################
+        # rsyncdir $(boxPath) "/upgal/Temp/boxgalsim"
+        # ssh planer; cd /dsm/upgal/data/dliu/Temp/boxgalsim/
+        # /dsm/upgal/data/dliu/Software/galfit/do_GalfitRunqsub
+        # rsyncdir "/upgal/Temp/boxgalsim" $(boxPath)
+        ##########################################################
+    }
+    
+    
+    if($?4) {
+        readSimlist $(PsimOut)
+        galsim_rebuild $2
+    }
+    
+    
+    # 
+    # BACK
+    # 
+    # chdir $(BackDir)
+    !echo 
+    !echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    !echo 
+    !echo Current directory \$(pwd -P) # 
+    
+    # 
+    # END
+    # 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+galsim_build 01
+    # 
+    # usage:
+    #    galsim_build 24
+    # 
+    # vectors:
+    #    pxF pyF idF
+    #    PsimOut
+    # 
+    if($?1==0) {print 'usage: galsim_build 24\n' {} galsim_error}
+    # 
+    # save real object list
+    set pxF_ = pxF
+    set pyF_ = pyF
+    set idF_ = idF
+    if(is_vector(pxG) && is_vector(pyG)){
+    set pxG_ = pxG
+    set pyG_ = pyG
+    }
+    if(is_vector(pmG)){ #<added><fixed><20150922><dzliu># 
+    set pmG_ = pmG
+    }
+    # 
+    # define 
+    define do_Galsim_now 1
+    define do_Galfit_now 0 #<TODO># leave it as 0 then run galfit on planer parallel
+    set boxBuff = $gBuff_$1 + $fBuff_$1
+    # 
+    # begin
+    !echo 
+    !echo Begin time \$(date +'"%Y-%m-%d:%H:%M:%S"')
+    !echo 
+    # 
+    # make boxes
+    do i=0,dimen(sim_id)-1 {
+        set rect_i1 = int( sim_x[$i]-1.0 - ($xStep_$1+1.0)/2.0 )
+        set rect_i2 = int( sim_x[$i]-1.0 + ($xStep_$1+1.0)/2.0 )
+        set rect_j1 = int( sim_y[$i]-1.0 - ($yStep_$1+1.0)/2.0 )
+        set rect_j2 = int( sim_y[$i]-1.0 + ($yStep_$1+1.0)/2.0 )
+        set pxF = pxF_ concat sim_x[$i]
+        set pyF = pyF_ concat sim_y[$i]
+        set idF = idF_ concat sim_id[$i]
+        if(is_vector(pxG_) && is_vector(pyG_)){
+        set pxG = pxG_ concat pxG_[dimen(pxG_)-1]
+        set pyG = pyG_ concat pyG_[dimen(pyG_)-1]
+        }
+        if(is_vector(pmG_)){ #<added><fixed><20150922><dzliu># 
+        set pmG = pmG_ concat 1 # pmG = 0 will freeze the magnitude in astroGalbox.sm
+        }
+        # 
+        # <added><20150922><dzliu> check rect_i1<rect_i2
+        # if(rect_i1>rect_i2){define aaa ?} define aaa ?
+        # 
+        # <fixed><20150520><dzliu>
+        #if(is_vector(nAxis1)){unset nAxis1}
+        #if(is_vector(nAxis2)){unset nAxis2}
+        # 
+        # echo
+        verbose 0
+        echo 
+        echo astroGalbox_make_box $(sim_id[$i]) $(rect_i1) $(rect_i2) $(rect_j1) $(rect_j2) $(boxBuff) $(boxBuff)
+             astroGalbox_make_box $(sim_id[$i]) $(rect_i1) $(rect_i2) $(rect_j1) $(rect_j2) $(boxBuff) $(boxBuff)
+        # 
+        # now change dir into the box
+        verbose 1
+        echo 
+        echo chdir "box"$(sim_id[$i])
+             chdir "box"$(sim_id[$i])
+        # 
+        # now make a galfit input file for the one sim object
+        set pxF = sim_x[$i]-rect_i1+boxBuff
+        set pyF = sim_y[$i]-rect_j1+boxBuff
+        set idF = sim_id[$i]
+        set pxG = 0 #<fixed><20150714><dzliu># fixed this bug! must not allow varying position while making mod.fits
+        set pyG = 0 #<fixed><20150714><dzliu># fixed this bug! must not allow varying position while making mod.fits
+        set pmG = 0 #<fixed><20151216><dzliu># fixed this bug! must not allow varying position while making mod.fits
+        verbose 0
+        initGalfitParam pxF pyF 0 0 0
+                                #<fixed><20150714><dzliu># fixed this bug! must not allow varying position while making mod.fits
+        set Mags[0] = sim_mag[$i]
+        writeGalfitParam mod.param
+        writeGalfitInput mod.input sci.fits mod.fits rms.fits psf.fits none
+        verbose 1
+        echo 
+        ###galsim_break
+        # 
+        # now run galfit to sim
+        if($?do_Galsim_now) { if($do_Galsim_now) {
+            # now run galfit to make sim object model image 
+            echo running galfit for the simulation of current sim object
+            !galfit mod.input > mod.sdout
+            # now merge sci image and sim object model image to make a sim image
+            galsim_map_merge "sci.fits" "mod.fits[2]" "sim.fits"
+            !sed -i -e 's/A) sci.fits/A) sim.fits/g' "fit.input"
+            # move fit.log to mod.fit.log <added><20150715><dzliu>
+            !mv fit.log mod.fit.log 2>/dev/null
+            echo 
+        } }
+        # 
+        # now run galfit to recover #<TODO> leave it for parallel
+        if($?do_Galfit_now) { if($do_Galfit_now) {
+            # now run galfit to recover all objects in this box including the sim object
+            echo running galfit for the measurement of $(nBoxVol) object including current sim object
+            !galfit fit.input > fit.sdout
+            echo 
+            # now check the fit.fits 
+            #!ds9 -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes fit.fits &
+        } }
+        # 
+        # now change dir back
+        chdir ".."
+    }
+    # 
+    # finish
+    !echo 
+    !echo Finish time \$(date +'"%Y-%m-%d:%H:%M:%S"')
+    !echo 
+    # 
+    # end
+
+
+
+galsim_rebuild 01
+    # 
+    # usage:
+    #    galsim_rebuild 24
+    # 
+    # vectors:
+    #    sim_id sim_x sim_y sim_mag
+    #    PsimOut
+    # 
+    if($?1==0) {print 'usage: galsim_rebuild 24\n' {} galsim_error}
+    # 
+    # preload
+    # rfile $(PsimOut)
+    # 
+    # define
+    get_image_size $SciPhoto_$1.fits # --> nAxis1 nAxis2
+    set nBoxStep1 = $xStep_$1
+    set nBoxStep2 = $yStep_$1
+    set nBoxBuff1 = $fBuff_$1 + $gBuff_$1
+    set nBoxBuff2 = $fBuff_$1 + $gBuff_$1
+    set nBoxSize1 = float(nAxis1)/float(nBoxStep1)
+    set nBoxSize2 = float(nAxis2)/float(nBoxStep2)
+    set boxBuff = $gBuff_$1 + $fBuff_$1
+    # 
+    # begin
+    !echo 
+    !echo Begin time \$(date +'"%Y-%m-%d:%H:%M:%S"')
+    !echo 
+    # 
+    # backup
+    galsim_backup
+    # 
+    # read boxes
+    do i=0,dimen(sim_id)-1 {
+        # 
+        # <fixed><20150708><dzliu> must input rect for galsim astroGalbox_read_box
+        set rect_i1 = int( sim_x[$i]-1.0 - ($xStep_$1+1.0)/2.0 )
+        set rect_i2 = int( sim_x[$i]-1.0 + ($xStep_$1+1.0)/2.0 )
+        set rect_j1 = int( sim_y[$i]-1.0 - ($yStep_$1+1.0)/2.0 )
+        set rect_j2 = int( sim_y[$i]-1.0 + ($yStep_$1+1.0)/2.0 )
+        # 
+        # now read galfit result if fit.log exists
+        if(is_file("box"$(sim_id[$i])"/fit.fits") && is_file("box"$(sim_id[$i])"/fit.out") && \
+           is_file("box"$(sim_id[$i])"/fit.log") && is_file("box"$(sim_id[$i])"/sim.fits")) {
+            # 
+            # now read galfit result <fixed><20150708><dzliu> must input rect for galsim
+            echo astroGalbox_read_box: $(sim_id[$i]) $(rect_i1) $(rect_i2) $(rect_j1) $(rect_j2) $(boxBuff) $(boxBuff)
+            astroGalbox_read_box $(sim_id[$i]) $(rect_i1) $(rect_i2) $(rect_j1) $(rect_j2) $(boxBuff) $(boxBuff)
+            set fit_mag[$i] = ResultMags[dimen(ResultMags)-1]
+            set fit_err[$i] = ResultMagsErr[dimen(ResultMagsErr)-1]
+            set fit_rms[$i] = astroGalbox_Result_frms[dimen(astroGalbox_Result_frms)-1]
+            set fit_res[$i] = astroGalbox_Result_fres[dimen(astroGalbox_Result_fres)-1]
+            set fit_close[$i] = astroGalbox_Result_fcwd[dimen(astroGalbox_Result_fcwd)-1]
+            set fit_crowd[$i] = astroGalbox_Result_fcwd[dimen(astroGalbox_Result_fcwd)-1]
+            set fit_obs[$i] = astroGalbox_Result_fsci[dimen(astroGalbox_Result_fsci)-1]
+            # 
+            # write some results during the progressing
+            if($i%(int(dimen(sim_id)/10))==0) {
+              print $(PsimOut) '%15.3f %15.3f %15g %15g %15g %15g %15g %15g %15g %15g %15.0f\n' \
+                     {sim_x sim_y sim_mag fit_mag fit_err fit_rms fit_res fit_close fit_crowd fit_obs sim_id}
+            }
+            # 
+            # for debug only
+            ##galsim_break
+        }
+    }
+    # 
+    # write results
+    print $(PsimOut) '%15.3f %15.3f %15g %15g %15g %15g %15g %15g %15g %15g %15.0f\n' \
+          {sim_x sim_y sim_mag fit_mag fit_err fit_rms fit_res fit_close fit_crowd fit_obs sim_id}
+    print '\n' {}
+    print 'Recovered $(dimen(sim_id)) sims object and saved into $(PsimOut).new.txt\n' {}
+    # 
+    # finish
+    !echo 
+    !echo Finish time \$(date +'"%Y-%m-%d:%H:%M:%S"')
+    !echo 
+    # end
+
+
+
+galsim_map_merge 03
+    # merge to map with iraf imarith
+    if(1==1) {
+        !echo galsim_map_merge: merging $1 '+' $2 '->' $3
+        !echo $3                         > mod.iraf
+        !echo "no"                      >> mod.iraf
+        !echo ""                        >> mod.iraf
+        !\$iraf/bin/x_images.e imdelete  < mod.iraf
+        !echo $1                         > mod.iraf
+        !echo "+"                       >> mod.iraf
+        !echo $2                        >> mod.iraf
+        !echo $3                        >> mod.iraf
+        !echo ""                        >> mod.iraf
+        !echo "no"                      >> mod.iraf  #verbose
+        !echo "no"                      >> mod.iraf
+        !echo ""                        >> mod.iraf
+        !echo ""                        >> mod.iraf
+        !echo ""                        >> mod.iraf
+        !\$iraf/bin/x_images.e imarith   < mod.iraf
+        !echo ""
+        #!ds9 -mecube -lock frame image -lock scale yes -lock colorbar yes -tile mode column sci.fits mod.fits sim.fits
+    }
+
+
+galsim_break
+    # 
+    define debugbreak 1
+    define debugbreak ? <Give Ctrl+C to break!>
+
+
+galsim_error
+    # 
+    define errorbreak 1
+    define errorbreak ? <Give Ctrl+C to break!>
+
+
+checkGalfit
+    # TODO
+    define checkgalfit 1
+
+
+galsim_backup 00
+    if(is_file($(PsimOut))==1) {
+        set PsimOut_i = 0
+        set PsimOut_f = 1
+        while {PsimOut_f==1 || PsimOut_i==0} {
+            set PsimOut_i = PsimOut_i + 1 
+            set PsimOut_s = PsimOut+{"."}+sprintf('%02d',PsimOut_i)
+            DEFINE exit_status DELETE !test -f $(PsimOut_s)
+            set PsimOut_f = ($exit_status == 0)
+        }
+        print 'writeResults: PsimOut file already exists! We will backup it as $(PsimOut_s)!\n' {} 
+        !\cp $(PsimOut) $(PsimOut_s)
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

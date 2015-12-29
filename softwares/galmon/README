@@ -1,0 +1,32 @@
+*********************************************
+* Make image montage for one source
+*********************************************
+
+idl
+
+!PATH = "idl_lib_dzliu/crab:"+!PATH
+resolve_crab, "idl_lib_dzliu/crab"
+GalMon, "RadioOwenMIPS24_priors_201500_v2_c.txt", 564
+GalMon, "RadioOwenMIPS24_priors_201500_v2_c.txt", 564, ForceOneRadius=4.5, WithTextCharSize=1.5
+
+
+
+
+*********************************************
+* Make image montage for a list of sources
+*********************************************
+
+idl 
+
+!PATH = "idl_lib_dzliu/crab:"+!PATH
+resolve_crab, "idl_lib_dzliu/crab"
+readcol, 'List_of_IDs.txt', format='L', IDs
+foreach ID, IDs do begin
+    GalMon, "RadioOwenMIPS24_priors_201500_v2_c.txt", ID
+endforeach
+
+
+
+
+
+

@@ -1,0 +1,216 @@
+; 
+; TVCircle
+; 
+; Note that the coordinate of Circles are the image coordinates starting from 1 rather than 0 !
+; 
+PRO CrabImageTVCircle, Circles, CircleColors=CircleColors, CircleDashed=CircleDashed, CircleLabels=CircleLabels, $
+                       FitsHeaderContainingWCS=FitsHeaderContainingWCS, TVSize=TVSize, TVPositionIJ=TVPositionIJ, ImageSize=ImageSize
+    
+    
+    ; Check Circles
+    IF N_ELEMENTS(Circles) EQ 0 THEN BEGIN
+        PRINT, 'CrabImageTVCircle: No circles input. '
+        RETURN
+    ENDIF
+    
+    ; Check Device X or Win
+    IF !D.NAME EQ 'X' OR !D.NAME EQ 'Win' THEN BEGIN
+        DEVICE, GET_SCREEN_SIZE=ScnSize
+        WinId = !D.WINDOW
+        WinTitle = STRING(FORMAT='("IDL ",I0)',WinId)
+    ENDIF
+    
+    ; Check Device PS
+    ; IF !D.NAME EQ 'PS' THEN BEGIN
+    IF N_ELEMENTS(TVPositionIJ) EQ 4 THEN BEGIN ; TVPositionIJ has the highest priority
+;        ImageSize = [TVPositionIJ[2]-TVPositionIJ[0], TVPositionIJ[3]-TVPositionIJ[1]]
+        TVSize = [TVPositionIJ[2]-TVPositionIJ[0], TVPositionIJ[3]-TVPositionIJ[1]]
+        IF TVPositionIJ[0] GE 0.0 AND TVPositionIJ[0] LE 1.0 AND TVPositionIJ[2] GE 0.0 AND TVPositionIJ[2] LE 1.0 THEN BEGIN
+;            ImageSize[0]=ImageSize[0]*!D.X_SIZE
+            TVSize[0]=TVSize[0]*!D.X_SIZE
+        ENDIF
+        IF TVPositionIJ[1] GE 0.0 AND TVPositionIJ[1] LE 1.0 AND TVPositionIJ[3] GE 0.0 AND TVPositionIJ[3] LE 1.0 THEN BEGIN
+;            ImageSize[1]=ImageSize[1]*!D.Y_SIZE
+            TVSize[1]=TVSize[1]*!D.Y_SIZE
+        ENDIF
+    ENDIF ELSE BEGIN ;<TODO><Added><DzLIU><20140717>
+        TVSize = [!D.X_SIZE,!D.Y_SIZE]
+    ENDELSE
+;    IF !D.NAME NE 'PS' AND N_ELEMENTS(ImageSize) EQ 2 AND N_ELEMENTS(TVSize) NE 2 THEN BEGIN
+;        TVSize=ImageSize
+;    ENDIF
+;    IF !D.NAME EQ 'PS' AND N_ELEMENTS(ImageSize) EQ 2 AND N_ELEMENTS(TVSize) NE 2 THEN BEGIN
+;        TVSize=ImageSize
+;    ENDIF
+;    IF !D.NAME EQ 'PS' AND N_ELEMENTS(ImageSize) NE 2 AND N_ELEMENTS(TVSize) NE 2 THEN BEGIN
+;        MESSAGE, 'CrabImageTVCircle: When plotting to PS, please set TVSize=NAXIS to convert to image coordinate!'
+;        RETURN
+;    ENDIF
+;    IF !D.NAME EQ 'PS' AND N_ELEMENTS(TVSize) NE 2 THEN BEGIN
+;        MESSAGE, 'CrabImageTVCircle: When plotting to PS, please set TVSize=NAXIS to convert to image coordinate!'
+;        RETURN
+;    ENDIF
+    ; ENDIF
+    
+    ; Check TVSize
+    ; [!D.X_SIZE,!D.Y_SIZE] ; !D.XY_SIZE is the full window/device size, while the ImageSize is the coordinate!
+    ;                       ; if device is PS, then TVSize elements are in unit of 1e-3 cm
+    
+    ; Check CircleColors
+    IF SIZE(CircleColors,/TNAME) EQ "STRING" THEN BEGIN
+        CColors = FINDGEN(N_ELEMENTS(CircleColors))
+        FOR i=0,N_ELEMENTS(CircleColors)-1 DO CColors[i]=cgColor(CircleColors[i])
+    ENDIF ELSE IF SIZE(CircleColors,/TNAME) EQ "FLOAT" OR SIZE(CircleColors,/TNAME) EQ "DOUBLE" THEN BEGIN
+        LOADCT, 13
+        CColors = BYTSCL(CircleColors)
+    ENDIF ELSE IF SIZE(CircleColors,/TNAME) EQ "LONG" THEN BEGIN
+        ; no need to change
+    ENDIF ELSE IF SIZE(CircleColors,/TNAME) EQ "INT" THEN BEGIN
+        ; no need to change
+    ENDIF ELSE BEGIN
+        CColors = !NULL
+    ENDELSE
+    
+    ; Check CircleDashed
+    IF N_ELEMENTS(CircleDashed) GT 0 THEN BEGIN
+        CDashed = CircleDashed
+    ENDIF
+    
+    ; Check CircleLabels
+    IF N_ELEMENTS(CircleLabels) GT 0 THEN BEGIN
+        CLabels = CircleLabels
+    ENDIF
+    
+    
+    ; Check Input Circles
+    ; IF N_ELEMENTS(Circles) LT 3 THEN BEGIN
+    ;     MESSAGE, 'No circles!'
+    ; ENDIF
+    IF SIZE(Circles,/TNAME) EQ 'STRUCT' THEN BEGIN
+        CircleCount = N_ELEMENTS(Circles)
+        CPosX = Circles.(0)
+        CPosY = Circles.(1)
+        CPosR = Circles.(2)
+        CPixI = CPosX-1
+        CPixJ = CPosY-1
+        CPixR = CPosR
+    ENDIF ELSE BEGIN
+        CircleCount = FIX(N_ELEMENTS(Circles)/3.0)
+        CI = INDGEN(CircleCount)
+        CPosX = Circles[CI*3+0]
+        CPosY = Circles[CI*3+1]
+        CPosR = Circles[CI*3+2]
+        CPixI = CPosX-1
+        CPixJ = CPosY-1
+        CPixR = CPosR
+    ENDELSE
+    
+    ; WCS AD2XY
+    IF N_ELEMENTS(FitsHeaderContainingWCS) GT 0 THEN BEGIN
+        CPosRA  = CPosX
+        CPosDec = CPosY
+        CrabImageAD2XY, CPosRA, CPosDec, FitsHeaderContainingWCS, CPixX, CPixY, /DoNotCheck, FitsAstr=FitsAstr
+        
+        CPixI = CPixX - 1
+        CPixJ = CPixY - 1
+        CPixR = CPixR / (FitsAstr.CD[1,1]*FitsAstr.CDELT[1]*3600.0d)
+    ENDIF
+    
+    ; Loop each circle
+    FOR CI=0,CircleCount-1 DO BEGIN
+        
+        ; Color
+        IF CI LT N_ELEMENTS(CColors) THEN CColor=CColors[CI] ELSE IF N_ELEMENTS(CColors) GT 0 THEN CColor=CColors[-1] ELSE CColor=cgColor('green')
+        
+        ; Thick
+        IF CI LT N_ELEMENTS(CThicks) THEN CThick=CThicks[CI] ELSE IF N_ELEMENTS(CThicks) GT 0 THEN CThick=CThicks[-1] ELSE CThick=0.5 ; !NULL
+        
+        ; LDash
+        IF CI LT N_ELEMENTS(CDashed) THEN CLDash=CDashed[CI] ELSE IF N_ELEMENTS(CDashed) GT 0 THEN CLDash=CDashed[-1] ELSE CLDash=0 ; !NULL
+        
+        ; Label
+        IF CI LT N_ELEMENTS(CLabels) THEN CLabel=CLabels[CI] ELSE IF N_ELEMENTS(CLabels) GT 0 THEN CLabel=CLabels[-1] ELSE CLabel=!NULL
+        
+        ; Prepare Circles
+        CArrK = CPixR*0+1 ; ALOG10(CPixR) ; CArrK = ALOG(CPixR) ;<TODO> Thickness of the circle?
+        CArrT = FINDGEN(360*CArrK[CI],START=1)/CArrK[CI] ; 1-360
+        CArrI = CPixI[CI] + CPixR[CI]*COS(CArrT/180.d*!PI)
+        CArrJ = CPixJ[CI] + CPixR[CI]*SIN(CArrT/180.d*!PI)
+        
+        
+        
+;        ; Zoom from TVSize to !DSize -- if the image is not full screen ---- NOW we input an FitsHeaderContainingWCS to define the data coordinate!
+;        ; Use FitsHeaderContainingWCS to map from data coordinate to device coordinate!
+;        ; <TODO>???<TODO>
+        
+        
+        ; Cut part of circle if outside of FoV
+        IF N_ELEMENTS(ImageSize) EQ 2 THEN BEGIN ; if you set TVPositionIJ, then TVSize is calculated automatically. 
+            ; Normalized Coordinate
+            CInvd = WHERE(CArrI GE 0 AND CArrI LE ImageSize[0] AND CArrJ GE 0 AND CArrJ LE ImageSize[1], /NULL)
+            ZoomI = 1.0D / ImageSize[0] * TVSize[0]
+            ZoomJ = 1.0D / ImageSize[1] * TVSize[1]
+            CArrI = CArrI * ZoomI
+            CArrJ = CArrJ * ZoomJ
+            CPixI[CI] = CPixI[CI] * ZoomI
+            CPixJ[CI] = CPixJ[CI] * ZoomJ
+;        IF N_ELEMENTS(TVSize) EQ 2 THEN BEGIN ; if you set TVPositionIJ, then TVSize is calculated automatically.
+;            ; Normalized Coordinate
+;            CInvd = WHERE(CArrI GE 0 AND CArrI LE TVSize[0] AND CArrJ GE 0 AND CArrJ LE TVSize[1], /NULL)
+;            ZoomI = 1.0D / TVSize[0] * !D.X_SIZE
+;            ZoomJ = 1.0D / TVSize[1] * !D.Y_SIZE
+;            CArrI = CArrI*ZoomI
+;            CArrJ = CArrJ*ZoomJ
+        ENDIF ELSE BEGIN
+            ; Device Coordinate
+            CInvd = WHERE(CArrI GE 0 AND CArrI LE !D.X_SIZE AND CArrJ GE 0 AND CArrJ LE !D.Y_SIZE, /NULL)
+        ENDELSE
+        
+        
+        ; Cut the outside part of circle
+        IF N_ELEMENTS(CInvd) EQ 0 THEN BEGIN
+            CONTINUE
+        ENDIF ELSE BEGIN
+            CArrI = CArrI[CInvd]
+            CArrJ = CArrJ[CInvd]
+        ENDELSE
+        
+        
+        ; Position
+        IF N_ELEMENTS(TVPositionIJ) EQ 4 THEN BEGIN
+            IF TVPositionIJ[0] GE 0.0 AND TVPositionIJ[0] LE 1.0 AND TVPositionIJ[1] GE 0.0 AND TVPositionIJ[1] LE 1.0 THEN BEGIN
+                ; x1 y1 is in normalized coordinate
+                TVPosI1 = TVPositionIJ[0] * !D.X_SIZE
+                TVPosJ1 = TVPositionIJ[1] * !D.Y_SIZE
+            ENDIF
+            IF TVPositionIJ[2] GE 0.0 AND TVPositionIJ[2] LE 1.0 AND TVPositionIJ[3] GE 0.0 AND TVPositionIJ[3] LE 1.0 THEN BEGIN
+                ; x1 y1 is in normalized coordinate
+                TVPosI2 = TVPositionIJ[2] * !D.X_SIZE
+                TVPosJ2 = TVPositionIJ[3] * !D.Y_SIZE
+            ENDIF
+            CArrI = CArrI + TVPosI1
+            CArrJ = CArrJ + TVPosJ1
+            CPixI[CI] = CPixI[CI] + TVPosI1
+            CPixJ[CI] = CPixJ[CI] + TVPosJ1
+        ENDIF
+        
+        
+        ; Do plot with dots ? <TODO>
+        ; PLOTS, CArrI, CArrJ, /DEVICE, Color=CColor, Thick=CThick, PSYM=3
+        
+        ; Do plot with line ? <TODO>
+        PLOTS, CArrI, CArrJ, /DEVICE, Color=CColor, Thick=CThick, LINESTYLE=CLDash
+        
+        
+        ; Label
+        IF N_ELEMENTS(CLabel) GT 0 THEN BEGIN
+            IF CLabel NE '' THEN BEGIN
+                XYOUTS, MEAN(CArrI), MEAN(CArrJ), CLabel, /DEVICE, Color=CColor, ALIGN=0.5
+            ENDIF
+        ENDIF
+        
+    ENDFOR
+     
+    
+    
+END

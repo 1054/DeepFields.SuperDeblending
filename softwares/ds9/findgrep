@@ -1,0 +1,10 @@
+#!/bin/bash
+# Linux
+if [[ $(uname -s) == Linux ]]; then
+    find . -name "*" -type f -print0 | xargs -0 grep --line-number --color=auto $*
+fi
+# Darwin
+if [[ $(uname -s) == Darwin ]]; then
+    find . -name "*" -type f -print0 | xargs -0 grep --line-number --color=auto $*
+fi
+

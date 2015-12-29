@@ -1,0 +1,142 @@
+AstroDepthReadCatalog
+    #  
+    #  load AstroDepthReadCatalog_v3.sm AstroDepthReadCatalog
+    # 
+    print 'AstroDepthReadCatalog: \n' {}
+    print '    We will read ... \n' {}
+    print '    \n' {}
+    print '    read_goodsn_cat \n' {}
+    print '    \n' {}
+    print '\n' {}
+
+
+
+read_goodsn_cat 
+    # 
+    # read catalog
+    load rfile.sm
+    rfile "daddi_goodsn_201501/ResLMT_RadioOwenMIPS24_priors_Jan05_2015.txt"
+    rfile "daddi_goodsn_201501/RadioOwenMIPS24_priors_Jan05_2015.txt"
+    # 
+    # calc LIR
+    set LTIR = xfSFR * 1e10 # Using Chabrier IMF, conversion equation see Daddi 2010 apjl
+    set LIR = LTIR # Using Total IR 8-1000um
+    set id = _id
+    set zphot = xf_zz
+    set zspec = spezX
+    recognize_goodsn_zspec id zspec
+    recognize_goodsn_alias id alias
+    set z = zspec>0 ? zspec : zphot # Using spec-z
+    # 
+    # calc Mstar
+    set Mstar_Salpeter = MassX # log
+    set Mstar_Chabrier = MassX>0? MassX-lg(1.73) : -99 # converting to Chabrier IMF for SFR 
+                                       #lg(1.4) # http://www.eso.org/~hkuntsch/papers/MNRAS_432_492.pdf
+    load astroSfig.sm
+    set lgSFR_MS_Sargent = calc_Sargent2014_SFR(z,Mstar_Chabrier)
+    set MSIR = 10**(lgSFR_MS_Sargent+10.0) # Using Chabrier IMF, conversion equation see Daddi 2010 apjl
+    # 
+    # compute starburstness
+    set EMS = LTIR/MSIR
+
+recognize_goodsn_alias 02
+    if($?1==0) {return}
+    set recognized_souid = $1   #<TODO> currently input $1 should only be numbers
+    set recognized_alias = {""}
+    if(dimen($1)>1) {do _recognize_i=1,dimen($1)-1 {set recognized_alias = recognized_alias concat {""}}}
+    if($?2) {if(is_vector($2)) {if(dimen($1)==dimen($2)) {set recognized_alias = $2}}}
+    set recognized_alias = (recognized_souid==564    ) ? {"GN20;AzGN01"         } : recognized_alias   # Tan et al. 2014 CO(4-3)
+    set recognized_alias = (recognized_souid==658    ) ? {"GN20.2a"             } : recognized_alias   # Tan et al. 2014 CO(4-3)
+    set recognized_alias = (recognized_souid==659    ) ? {"GN20.2b"             } : recognized_alias   # Tan et al. 2014 CO(4-3)
+    set recognized_alias = (recognized_souid==714    ) ? {"BD29079"             } : recognized_alias   # Tan et al. 2013 CO(4-3)
+    set recognized_alias = (recognized_souid==9293   ) ? {"M23"                 } : recognized_alias   # Magdis et al. 2012a CO(3-2); Tan et al. 2013 CO(3-2)
+    set recognized_alias = (recognized_souid==9710   ) ? {"GN10;AzGN03"         } : recognized_alias   # Daddi et al. 2009 CO(4-3); Penner et al. 2011
+    set recognized_alias = (recognized_souid==12788  ) ? {"SMMJ123712+621212"   } : recognized_alias   # Bothwell et al. 2013 CO(3-2) non-det
+    set recognized_alias = (recognized_souid==15346  ) ? {"SMMJ123606+621047"   } : recognized_alias   # Bothwell et al. 2013 CO(3-2)
+    #set recognized_alias= (recognized_souid==350001 ) ? {"HDF850.1"            } : recognized_alias   # Walter et al. 2012
+    set recognized_alias = (recognized_souid==350056 ) ? {"HDF850.1;GN14"       } : recognized_alias   # Walter et al. 2012
+    set recognized_alias = (recognized_souid==11580  ) ? {"AzGN05?"             } : recognized_alias   # Penner et al. 2011
+    set recognized_alias = (recognized_souid==4991   ) ? {"AzGN02?"             } : recognized_alias   # Penner et al. 2011
+    set recognized_alias = (recognized_souid==18911  ) ? {"AzGN06?"             } : recognized_alias   # Penner et al. 2011
+    set recognized_alias = (recognized_souid==4500   ) ? {"AzGN09?"             } : recognized_alias   # Penner et al. 2011
+    set recognized_alias = (recognized_souid==7966   ) ? {"RH_7966"             } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==10898  ) ? {"RH_10898"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==10059  ) ? {"RH_10059"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==13107  ) ? {"RH_13107"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==16791  ) ? {"RH_16791"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==17381  ) ? {"RH_17381"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==7270   ) ? {"RH_7270"             } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==10255  ) ? {"RH_10255"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==11303  ) ? {"M18;RH_11303"        } : recognized_alias   # Magdis et al. 2012a CO(3-2) non-det;
+    set recognized_alias = (recognized_souid==12250  ) ? {"RL_12250"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==11276  ) ? {"RL_11276"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==12855  ) ? {"RL_12855"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==12856  ) ? {"Shu_GN500.21b"       } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==15820  ) ? {"Shu_GN500.12"        } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==5089   ) ? {"Shu_GN500.9"         } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==8612   ) ? {"Shu_GN500.16"        } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==9762   ) ? {"Shu_GN500.18"        } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==10750  ) ? {"Shu_GN500.20;AzGN07" } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==7149   ) ? {"AGN_7149"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==9520   ) ? {"AGN_9520"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==10390  ) ? {"fir_10390"           } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==9370   ) ? {"fir_9370"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==3758   ) ? {"fir_3758"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==13159  ) ? {"CH15_44"             } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==15074  ) ? {"CH15_33"             } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==4379   ) ? {"CH15_120"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==8673   ) ? {"GH15_80"             } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==14905  ) ? {"GH15_132"            } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==6558   ) ? {"GH_29"               } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==7800   ) ? {"GH15_70"             } : recognized_alias   # Inami Keck Obs 2015
+    if($?2) {set $2 = recognized_alias} else {echo recognized_alias = $(recognized_alias)}
+
+recognize_goodsn_zspec 02
+    if($?1==0) {return} # inputs: id zspec
+    set recognized_souid = $1   #<TODO> currently input $1 should only be numbers
+    set recognized_zspec = -1   # non-match sources have zspec == -1
+    if(dimen($1)>1) {do _recognize_i=1,dimen($1)-1 {set recognized_zspec = recognized_zspec concat -1}}
+    if($?2) {if(is_vector($2)) {if(dimen($1)==dimen($2)) {set recognized_zspec = $2}}}
+    set recognized_zspec = (recognized_souid==659   ) ? 4.056 : recognized_zspec   # Tan et al. 2014
+    set recognized_zspec = (recognized_souid==7966  ) ?    -1 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==10898 ) ?  3.68 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==10059 ) ?  2.97 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==13107 ) ?  2.44 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==16791 ) ?    -1 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==17381 ) ?    -1 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==7270  ) ? 3.362 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==10255 ) ? 3.131 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==11303 ) ? 2.929 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==12250 ) ? 3.479 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==11276 ) ?  2.58 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==12855 ) ?  2.93 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==12856 ) ?  2.27 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==15820 ) ?   2.3 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==5089  ) ? 1.988 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==8612  ) ?   3.5 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==9762  ) ?  2.49 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==10750 ) ? 1.996 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==7149  ) ?  3.13 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==9520  ) ? 2.002 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==10390 ) ? 2.386 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==9370  ) ? 2.011 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==3758  ) ?  2.32 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==13159 ) ?  2.92 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==15074 ) ? 2.081 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==4379  ) ?    -1 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==8673  ) ?    -1 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==14905 ) ? 2.161 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==6558  ) ? 3.366 : recognized_zspec   # Inami Keck Obs 2015
+    set recognized_zspec = (recognized_souid==7800  ) ? 2.481 : recognized_zspec   # Inami Keck Obs 2015
+    if($?2) {set $2 = recognized_zspec} else {echo recognized_zspec = $(recognized_zspec)}
+
+
+
+
+
+
+
+
+
+
+

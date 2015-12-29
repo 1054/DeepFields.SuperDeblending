@@ -1,0 +1,43 @@
+crabDir
+    print 'We provide several useful functions for system dir operations.\n' {}
+    print 'for example: \n' {}
+    print 'set dir_paths = get_current_dir_paths() print {dir_paths}\n' {}
+    print 'change_dir_to_paths(dir_paths) !pwd\n' {}
+    print '\n' {}
+
+get_current_dir_paths
+    # return dir paths vector
+    # load crabDir.sm set dir_paths = get_current_dir_paths
+    !pwd | sed -e 's%/%\\n%g' > "temp_dir_path.txt"
+    define _cur_ver_b $verbose
+    verbose 0
+    set _cur_dir_path = {"//"}
+    define _cur_dir_i 2
+    while {$_cur_dir_i>0} {
+        declare temp_dir_path 0
+        data "temp_dir_path.txt" 
+        read row temp_dir_path $_cur_dir_i.s
+        if(dimen(temp_dir_path)>0) {
+            set temp_dir_path = {"}+temp_dir_path+{"}
+            set _cur_dir_path = _cur_dir_path concat temp_dir_path
+            define _cur_dir_i $($_cur_dir_i+1)
+        } else {
+            define _cur_dir_i 0
+        }
+    }
+    !rm "temp_dir_path.txt" 2>/dev/null
+    verbose $_cur_ver_b
+    #print {_cur_dir_path}
+    set $0 = _cur_dir_path
+    return
+
+change_dir_to_paths 01
+    # 
+    if($?1) {
+        set _cur_dir_path = $1
+        do _cur_dir_i=0,dimen(_cur_dir_path)-1 {
+            chdir $(_cur_dir_path[$_cur_dir_i])
+        }
+    }
+
+
