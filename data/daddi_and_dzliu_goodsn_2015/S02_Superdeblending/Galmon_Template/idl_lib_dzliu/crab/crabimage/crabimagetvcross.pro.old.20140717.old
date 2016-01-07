@@ -1,0 +1,191 @@
+; 
+; TVCross
+; 
+; Note that the coordinate of Crosses are the image coordinates starting from 1 rather than 0 !
+; 
+PRO CrabImageTVCross, Crosses, CrossColors=CrossColors, CrossLabels=CrossLabels, $
+                      FitsHeaderContainingWCS=FitsHeaderContainingWCS, TVSize=TVSize, TVPositionIJ=TVPositionIJ, ImageSize=ImageSize
+    
+    
+    ; Check Crosses
+    IF N_ELEMENTS(Crosses) EQ 0 THEN BEGIN
+        PRINT, 'CrabImageTVCross: No Crosses input. '
+        RETURN
+    ENDIF
+    
+    ; Check Device X or Win
+    IF !D.NAME EQ 'X' OR !D.NAME EQ 'Win' THEN BEGIN
+        DEVICE, GET_SCREEN_SIZE=ScnSize
+        WinId = !D.WINDOW
+        WinTitle = STRING(FORMAT='("IDL ",I0)',WinId)
+    ENDIF
+    
+    ; Check Device PS
+;    IF !D.NAME NE 'PS' AND N_ELEMENTS(ImageSize) EQ 2 AND N_ELEMENTS(TVSize) NE 2 THEN BEGIN
+;        TVSize=ImageSize
+;    ENDIF
+;    IF !D.NAME EQ 'PS' THEN BEGIN
+        IF N_ELEMENTS(TVPositionIJ) EQ 4 THEN BEGIN ; TVPositionIJ has the highest priority
+            TVSize = [TVPositionIJ[2]-TVPositionIJ[0], TVPositionIJ[3]-TVPositionIJ[1]]
+            IF TVPositionIJ[0] GE 0.0 AND TVPositionIJ[0] LE 1.0 AND TVPositionIJ[2] GE 0.0 AND TVPositionIJ[2] LE 1.0 THEN BEGIN
+                TVSize[0]=TVSize[0]*!D.X_SIZE
+            ENDIF
+            IF TVPositionIJ[1] GE 0.0 AND TVPositionIJ[1] LE 1.0 AND TVPositionIJ[3] GE 0.0 AND TVPositionIJ[3] LE 1.0 THEN BEGIN
+                TVSize[1]=TVSize[1]*!D.Y_SIZE
+            ENDIF
+        ENDIF ELSE BEGIN ;<TODO><Added><DzLIU><20140717>
+            TVSize = [!D.X_SIZE,!D.Y_SIZE]
+        ENDELSE
+;        IF N_ELEMENTS(TVSize) NE 2 THEN BEGIN
+;            MESSAGE, 'CrabImageTVCross: When plotting to PS, please set TVSize=NAXIS to convert to image coordinate!'
+;            RETURN
+;        ENDIF
+;        IF N_ELEMENTS(TVSize) NE 2 THEN BEGIN
+;            MESSAGE, 'CrabImageTVCross: When plotting to PS, please set TVSize=NAXIS to convert to image coordinate!'
+;            RETURN
+;        ENDIF
+;    ENDIF
+    
+    ; Check TVSize
+    ; [!D.X_SIZE,!D.Y_SIZE] ; !D.XY_SIZE is the full window/device size, while the ImageSize is the coordinate!
+    ;                       ; if device is PS, then TVSize elements are in unit of 1e-3 cm
+    
+    ; Check CrossColors
+    IF SIZE(CrossColors,/TNAME) EQ "STRING" THEN BEGIN
+        CColors = FINDGEN(N_ELEMENTS(CrossColors))
+        FOR i=0,N_ELEMENTS(CrossColors)-1 DO CColors[i]=cgColor(CrossColors[i])
+    ENDIF ELSE IF SIZE(CrossColors,/TNAME) EQ "FLOAT" OR SIZE(CrossColors,/TNAME) EQ "DOUBLE" THEN BEGIN
+        LOADCT, 13
+        CColors = BYTSCL(CrossColors)
+    ENDIF ELSE IF SIZE(CrossColors,/TNAME) EQ "LONG" THEN BEGIN
+        ; no need to change
+    ENDIF ELSE IF SIZE(CrossColors,/TNAME) EQ "INT" THEN BEGIN
+        ; no need to change
+    ENDIF ELSE BEGIN
+        CColors = !NULL
+    ENDELSE
+    
+    ; Check CrossLabels
+    IF N_ELEMENTS(CrossLabels) GT 0 THEN BEGIN
+        CLabels = CrossLabels
+    ENDIF
+    
+    
+    ; Check Input Crosses
+    ; IF N_ELEMENTS(Crosses) LT 3 THEN BEGIN
+    ;     MESSAGE, 'No Crosses!'
+    ; ENDIF
+    IF SIZE(Crosses,/TNAME) EQ 'STRUCT' THEN BEGIN
+        CrossCount = N_ELEMENTS(Crosses)
+        CPosX = Crosses.(0)
+        CPosY = Crosses.(1)
+        CPosR = Crosses.(2)
+        CPixI = CPosX-1
+        CPixJ = CPosY-1
+        CPixR = CPosR
+    ENDIF ELSE BEGIN
+        CrossCount = FIX(N_ELEMENTS(Crosses)/3.0)
+        CI = INDGEN(CrossCount)
+        CPosX = Crosses[CI*3+0]
+        CPosY = Crosses[CI*3+1]
+        CPosR = Crosses[CI*3+2]
+        CPixI = CPosX-1
+        CPixJ = CPosY-1
+        CPixR = CPosR
+    ENDELSE
+    
+    ; WCS AD2XY
+    IF N_ELEMENTS(FitsHeaderContainingWCS) GT 0 THEN BEGIN
+        CPosRA  = CPosX
+        CPosDec = CPosY
+        CrabImageAD2XY, CPosRA, CPosDec, FitsHeaderContainingWCS, CPixX, CPixY, /DoNotCheck, FitsAstr=FitsAstr
+        CPixI = CPixX - 1
+        CPixJ = CPixY - 1
+        CPixR = CPixR / (FitsAstr.CD[1,1]*FitsAstr.CDELT[1]*3600.0d)
+    ENDIF
+    
+    FOR CI=0,CrossCount-1 DO BEGIN
+        
+        ; Color
+        IF CI LT N_ELEMENTS(CColors) THEN CColor=CColors[CI] ELSE IF N_ELEMENTS(CColors) GT 0 THEN CColor=CColors[-1] ELSE CColor='00FF00'xL
+        
+        ; Thick
+        IF CI LT N_ELEMENTS(CThicks) THEN CThick=CThicks[CI] ELSE IF N_ELEMENTS(CThicks) GT 0 THEN CThick=CThicks[-1] ELSE CThick=!NULL
+        
+        ; Label
+        IF CI LT N_ELEMENTS(CLabels) THEN CLabel=CLabels[CI] ELSE IF N_ELEMENTS(CLabels) GT 0 THEN CLabel=CLabels[-1] ELSE CLabel=!NULL
+        
+        ; Prepare Crosses
+        CArrK = CPixR*0+1
+        CArrT = FINDGEN(20*0.62*CPixR[CI]+1)/20.0+0.38*CPixR[CI] ; generate an array from -CPixR[CI] to +CPixR[CI]
+        CArrM = REPLICATE(0.0,20*0.62*CPixR[CI]+1)
+        CArrI = CPixI[CI] + ([CArrM,CArrM,-REVERSE(CArrT),CArrT])
+        CArrJ = CPixJ[CI] + ([-REVERSE(CArrT),CArrT,CArrM,CArrM])
+        
+        
+        ; Cut part of cross if outside of FoV
+        IF N_ELEMENTS(ImageSize) EQ 2 THEN BEGIN ; if you set TVPositionIJ, then TVSize is calculated automatically. 
+            ; Normalized Coordinate
+            CInvd = WHERE(CArrI GE 0 AND CArrI LE ImageSize[0] AND CArrJ GE 0 AND CArrJ LE ImageSize[1], /NULL)
+            ZoomI = 1.0D / ImageSize[0] * TVSize[0]
+            ZoomJ = 1.0D / ImageSize[1] * TVSize[1]
+            CArrI = CArrI * ZoomI
+            CArrJ = CArrJ * ZoomJ
+            CPixI[CI] = CPixI[CI] * ZoomI
+            CPixJ[CI] = CPixJ[CI] * ZoomJ
+        ENDIF ELSE BEGIN
+            ; Device Coordinate
+            CInvd = WHERE(CArrI GE 0 AND CArrI LE !D.X_SIZE AND CArrJ GE 0 AND CArrJ LE !D.Y_SIZE, /NULL)
+        ENDELSE
+        
+        
+        ; Cut the outside part of cross
+        IF N_ELEMENTS(CInvd) EQ 0 THEN BEGIN
+;            CONTINUE
+        ENDIF ELSE BEGIN
+            CArrI = CArrI[CInvd]
+            CArrJ = CArrJ[CInvd]
+        ENDELSE
+        
+        
+        ; Position
+        IF N_ELEMENTS(TVPositionIJ) EQ 4 THEN BEGIN
+            IF TVPositionIJ[0] GE 0.0 AND TVPositionIJ[0] LE 1.0 AND TVPositionIJ[1] GE 0.0 AND TVPositionIJ[1] LE 1.0 THEN BEGIN
+                ; x1 y1 is in normalized coordinate
+                TVPosI1 = TVPositionIJ[0] * !D.X_SIZE
+                TVPosJ1 = TVPositionIJ[1] * !D.Y_SIZE
+            ENDIF
+            IF TVPositionIJ[2] GE 0.0 AND TVPositionIJ[2] LE 1.0 AND TVPositionIJ[3] GE 0.0 AND TVPositionIJ[3] LE 1.0 THEN BEGIN
+                ; x1 y1 is in normalized coordinate
+                TVPosI2 = TVPositionIJ[2] * !D.X_SIZE
+                TVPosJ2 = TVPositionIJ[3] * !D.Y_SIZE
+            ENDIF
+            CArrI = CArrI + TVPosI1
+            CArrJ = CArrJ + TVPosJ1
+            CPixI[CI] = CPixI[CI] + TVPosI1
+            CPixJ[CI] = CPixJ[CI] + TVPosJ1
+        ENDIF
+        
+        
+        ; Do plot with dots ? <TODO>
+        ; PLOTS, CArrI, CArrJ, /DEVICE, Color=CColor, Thick=CThick, PSYM=3
+        
+        ; Do plot with line ? <TODO>
+        FOR i=0,3 DO BEGIN
+            CArrT = INDGEN(N_ELEMENTS(CArrI)/4)+N_ELEMENTS(CArrI)/4*i ; CArrI and CArrJ have the same dimension
+            PLOTS, [MIN(CArrI[CArrT]),MAX(CArrI[CArrT])], [MIN(CArrJ[CArrT]),MAX(CArrJ[CArrT])], /DEVICE, Color=CColor, Thick=CThick, LINESTYLE=0
+        ENDFOR
+        
+        
+        ; Label
+        IF N_ELEMENTS(CLabel) GT 0 THEN BEGIN
+            IF CLabel NE '' THEN BEGIN
+                XYOUTS, MEAN(CArrI), MEAN(CArrJ), CLabel, /DEVICE, Color=CColor, ALIGN=0.5, CharSize=CPixR[CI]/8.0
+            ENDIF
+        ENDIF
+        
+    ENDFOR
+     
+    
+    
+END

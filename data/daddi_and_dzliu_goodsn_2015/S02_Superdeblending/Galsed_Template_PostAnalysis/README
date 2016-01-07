@@ -1,0 +1,22 @@
+
+Aim: 
+    Here we do post analysis on the SED fitting results. 
+    
+    
+Method:
+    We determine the following SED fitting parameters that will be used in the next time SED fitting. 
+    
+        Type_SED: use MS or SB or both SED templates
+        Type_AGN: use radio data point or not
+        Type_FIR: use other than FIR data points or not
+    
+
+Usage:
+    
+    cd do_Type_AGN; sm <<< "macro read do_Type_AGN.sm do_Type_AGN"; cd ..
+    #cp -i do_Type_AGN/coo_AGN.{log,txt} .
+    
+    cd do_Type_SED; sm <<< "macro read do_Type_SED.sm do_Type_SED"; cd ..
+    #cp -i do_Type_SED/coo_SED.{log,txt} .
+    
+

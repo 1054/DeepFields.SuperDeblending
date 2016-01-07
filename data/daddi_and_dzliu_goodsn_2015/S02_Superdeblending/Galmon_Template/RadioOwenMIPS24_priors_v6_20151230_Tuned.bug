@@ -1,0 +1,14 @@
+Known problems:
+
+  (1) some sources with very bright radio flux have almost zero galfit magnitude error, 
+      and then their fluxes are wrongly set to -99 in goFine.sm R_MIPS20cm_Owen_dzliu.
+      
+      
+  (2) When computing the SED MS/SB types, the SED best fitting SFR and main-sequence SFR 
+      are not using the same IMF, and the conversion from Salpeter IMF to Chabrier IMF 
+      was wrong in do_Type_SED.sm
+      
+      
+  )
+  
+  

@@ -1,0 +1,22 @@
+macro read do_Type_SB.sm do_Type_SB
+quit
+macro read do_Type_SB.sm do_Type_SB
+quit
+load astroSfig.sm
+astroSfig
+macro read do_Type_SB.sm do_Type_SB
+quit
+echo yes
+QUIT
+macro read do_Type_SED.sm do_Type_SED
+quit
+macro read do_Type_SED.sm do_Type_SED
+quit
+macro read do_Type_SED.sm do_Type_SED
+QUIT
+echo yes
+QUIT
+!ls -1 "../"*.txt
+!ls -1 "../"*
+!ls -1 "../"*".sm"
+!ls -1 "../"*""

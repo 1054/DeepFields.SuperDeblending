@@ -1,0 +1,55 @@
+\contentsline {section}{\numberline {1}Abstract}{3}{section.1}
+\contentsline {section}{\numberline {2}Flow Chart}{4}{section.2}
+\contentsline {section}{\numberline {3}Processing Status}{5}{section.3}
+\contentsline {section}{\numberline {4}Band 100}{6}{section.4}
+\contentsline {subsection}{\numberline {4.1}SED fitting before band 100}{6}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}SED prediction for band 100}{8}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Faint flux subtraction at band 100}{10}{subsection.4.3}
+\contentsline {subsection}{\numberline {4.4}Galfit photometry at band 100}{10}{subsection.4.4}
+\contentsline {subsection}{\numberline {4.5}Residual image at band 100}{11}{subsection.4.5}
+\contentsline {subsection}{\numberline {4.6}Monte-Carlo simulation at band 100}{11}{subsection.4.6}
+\contentsline {subsection}{\numberline {4.7}Flux bias and flux uncertainty correction}{11}{subsection.4.7}
+\contentsline {section}{\numberline {5}Band 160}{15}{section.5}
+\contentsline {subsection}{\numberline {5.1}SED fitting before band 160}{15}{subsection.5.1}
+\contentsline {subsection}{\numberline {5.2}SED prediction for band 160}{16}{subsection.5.2}
+\contentsline {subsection}{\numberline {5.3}Faint flux subtraction at band 160}{17}{subsection.5.3}
+\contentsline {subsection}{\numberline {5.4}Galfit photometry at band 160}{18}{subsection.5.4}
+\contentsline {subsection}{\numberline {5.5}Residual image at band 160}{18}{subsection.5.5}
+\contentsline {subsection}{\numberline {5.6}Monte-Carlo simulation at band 160}{19}{subsection.5.6}
+\contentsline {subsection}{\numberline {5.7}Flux bias and flux uncertainty correction}{19}{subsection.5.7}
+\contentsline {subsection}{\numberline {5.8}Update catalog with the measurements of band 160}{21}{subsection.5.8}
+\contentsline {section}{\numberline {6}Band 250}{23}{section.6}
+\contentsline {subsection}{\numberline {6.1}SED fitting before band 250}{23}{subsection.6.1}
+\contentsline {subsection}{\numberline {6.2}SED prediction for band 250}{23}{subsection.6.2}
+\contentsline {subsection}{\numberline {6.3}Faint flux subtraction at band 250}{24}{subsection.6.3}
+\contentsline {subsection}{\numberline {6.4}Galfit photometry at band 250}{24}{subsection.6.4}
+\contentsline {subsection}{\numberline {6.5}Residual image at band 250}{25}{subsection.6.5}
+\contentsline {subsection}{\numberline {6.6}Monte-Carlo simulation at band 250}{25}{subsection.6.6}
+\contentsline {subsection}{\numberline {6.7}Flux bias and flux uncertainty correction}{26}{subsection.6.7}
+\contentsline {subsection}{\numberline {6.8}Update catalog with new corrected measurements}{28}{subsection.6.8}
+\contentsline {section}{\numberline {7}Band 350}{30}{section.7}
+\contentsline {subsection}{\numberline {7.1}SED fitting before band 350}{30}{subsection.7.1}
+\contentsline {subsection}{\numberline {7.2}SED prediction for band 350}{30}{subsection.7.2}
+\contentsline {subsection}{\numberline {7.3}Faint flux subtraction at band 350}{31}{subsection.7.3}
+\contentsline {subsection}{\numberline {7.4}Galfit photometry at band 350}{31}{subsection.7.4}
+\contentsline {subsection}{\numberline {7.5}Residual image at band 350}{32}{subsection.7.5}
+\contentsline {subsection}{\numberline {7.6}Monte-Carlo simulation at band 350}{33}{subsection.7.6}
+\contentsline {subsection}{\numberline {7.7}Flux bias and flux uncertainty correction}{33}{subsection.7.7}
+\contentsline {section}{\numberline {8}Band 500}{35}{section.8}
+\contentsline {subsection}{\numberline {8.1}SED fitting before band 500}{35}{subsection.8.1}
+\contentsline {subsection}{\numberline {8.2}SED prediction for band 500}{35}{subsection.8.2}
+\contentsline {subsection}{\numberline {8.3}Faint flux subtraction at band 500}{36}{subsection.8.3}
+\contentsline {subsection}{\numberline {8.4}Galfit photometry at band 500}{36}{subsection.8.4}
+\contentsline {subsection}{\numberline {8.5}Residual image at band 500}{36}{subsection.8.5}
+\contentsline {subsection}{\numberline {8.6}Monte-Carlo simulation at band 500}{37}{subsection.8.6}
+\contentsline {subsection}{\numberline {8.7}Flux bias and flux uncertainty correction}{37}{subsection.8.7}
+\contentsline {section}{\numberline {9}Band 1160}{40}{section.9}
+\contentsline {subsection}{\numberline {9.1}SED fitting before band 1160}{40}{subsection.9.1}
+\contentsline {subsection}{\numberline {9.2}SED prediction for band 1160}{40}{subsection.9.2}
+\contentsline {subsection}{\numberline {9.3}Faint flux subtraction at band 1160}{41}{subsection.9.3}
+\contentsline {subsection}{\numberline {9.4}Galfit photometry at band 1160}{41}{subsection.9.4}
+\contentsline {subsection}{\numberline {9.5}Residual image at band 1160}{41}{subsection.9.5}
+\contentsline {subsection}{\numberline {9.6}Monte-Carlo simulation at band 1160}{42}{subsection.9.6}
+\contentsline {subsection}{\numberline {9.7}Flux bias and flux uncertainty correction}{42}{subsection.9.7}
+\contentsline {section}{\numberline {A}Setup softwares in planer}{43}{appendix.A}
+\contentsline {section}{\numberline {B}Setup supermongo in planer}{43}{appendix.B}
