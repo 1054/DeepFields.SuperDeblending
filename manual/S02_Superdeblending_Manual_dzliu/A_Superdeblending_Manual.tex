@@ -211,7 +211,7 @@ Type\_AGN: 85 out of 3306 sources are classified as radio loud AGN, for which we
 \indent\hspace{15pt}$\bullet$ 
 Type\_SED: 46 out of 3306 sources are classified as pure starburst (hereafter SB), for which we will use only SB type SED templates. 1011 out of 3306 sources are classified as pure main-sequence (hereafter MS), for which we will use only MS type SED templates. 
 \\
-\indent\hspace{15pt}$\bullet$ 
+\indent\hspace{15pt}$\circ$ 
 \textcolor{red}{TODO: 2016-01: Found severe bug in do\_Type\_SED.sm! We were using the inequation "(lgSFR-msSFR-lg(1.73)>0.6)", where lgSFR is our SED best fitting SFR in log space and in Chabrier IMF, and msSFR is the main sequence SFR in log space computed with our stellar mass in Salpeter IMF. A factor of 1.73 is applied to convert the IMFs, but it should be "(lgSFR-msSFR+lg(1.73)>0.6)". This bug leads to much smaller number of SB type sources. Need to correct in the next time processes!}
 \\
 
@@ -1426,6 +1426,7 @@ macro read run_simu_stats_v6.sm run_simu_stats_v6 1160
 %*************************************************************************************
 \appendix
 
+%*************************************************************************************
 \section{Setup softwares in planer}
 \label{Appendix_Software_Dependencies}
 
@@ -1440,6 +1441,11 @@ wcstools # http://tdc-www.harvard.edu/software/wcstools/wcstools-3.9.2.tar.gz
 others # 
 \end{lstlisting}
 
+%*************************************************************************************
+
+\clearpage
+
+%*************************************************************************************
 \section{Setup supermongo in planer}
 \label{Appendix_Supermongo}
 
@@ -1470,5 +1476,64 @@ type sm
 # additionally, if sm does not work, 
 # try to modify "/home/dliu/.local/lib/sm/.sm"
 \end{lstlisting}
+
+%*************************************************************************************
+
+\clearpage
+
+%*************************************************************************************
+\section{Discussed Issues}
+\label{Appendix_DiscussedIssues}
+
+\subsection{SED prediction bias}
+
+\textcolor{green!90!black!60!orange}{Date: 2015-12-02}
+
+Because we highly rely on the SED prediction to decide which sources to fit and which to subtract, the accuracy of SED prediction is important and any underlying bias should be well understood. We compare the galfit measured flux and the SED predicted flux before the galfit photometry for the sources that are fitted at each band, i.e. a f\_galfit v.s. f\_predict diagram, to find out underlying bias. 
+
+%\indent\hspace{15pt}$\circ$ 
+%\textcolor{blue}{f\_galfit v.s. f\_predict diagram}
+%\\
+
+\subsection{Stellar mass issue}
+
+\textcolor{green!90!black!60!orange}{Date: 2015-12-31}
+
+In this work, we use the stellar mass from: Pannella et al. and 3DHST project. Discrepancies exist between the two catalogs, besides, some of our IRAC catalog sources are not covered in any of them. Therefore, we need to decide when to use which value. Here are our selection functions:
+
+\begin{lstlisting}[language=bash]
+# massP   -- Stellar mass from Pannella, in Salpeter IMF
+# mass3D  -- Stellar mass from 3DHST, in Salpeter IMF
+# zp_P    -- photo-z from Pannella
+# zp_3D   -- photo-z from 3DHST
+# spez3D  -- spec-z from 3DHST
+# spez    -- spec-z from various redshift survey camp
+# MassX   -- our choice of stellar mass
+# zp_X    -- our choice of photo-z
+# spezX   -- our choice of spec-z
+set MassX = (MassX-massP)<-1 && \
+            abs(zp_P-zp_X)/(1+zp_X)<.2 ? \
+            massP : MassX 
+set MassX = spez3D>0 && \
+            abs(zp_X-spez3D)/(1+(zp_X+spez3D)/2)>.2 && \
+            (abs(zp_X-zp_P)/(1+(zp_X+zp_P)/2)<.25 && zp_P>0) ? \
+            massP : MassX
+set MassX = spez3D>0 && \
+            abs(zp_X-spez3D)/(1+(zp_X+spez3D)/2)>.2 && \
+            !(abs(zp_X-zp_P)/(1+(zp_X+zp_P)/2)<.25 && zp_P>0) ? \
+            -1 : MassX
+\end{lstlisting}
+
+
+
+
+
+
+
+
+
+
+
+
 
 \end{document}

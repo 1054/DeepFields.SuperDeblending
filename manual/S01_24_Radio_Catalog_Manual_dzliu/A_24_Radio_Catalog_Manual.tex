@@ -79,10 +79,6 @@ Hints: black text are our method and procedures, \textcolor{blue}{blue text are 
 \clearpage
 
 %*************************************************************************************
-
-\clearpage
-
-%*************************************************************************************
 \section{Band 24}
 
 \subsection{Galfit at band 24}
@@ -151,6 +147,50 @@ macro read run_simu_stats_v7.sm run_simu_stats_v7 24 201500
 %*************************************************************************************
 
 \clearpage
+
+%*************************************************************************************
+\section{Band 20cm}
+
+\subsection{Galfit at band 20cm}
+
+We use these commands to run the galfit photometry at band 20cm:
+
+\begin{lstlisting}[language=bash]
+# run first-pass without varying source position
+./do_Galfit 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat
+cd boxgalfit; do_GalfitRunqsub; cd ..
+./do_Galfit 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -postparallel
+# then second-pass varying source position
+./do_Galfit 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -vary
+cd boxgalfit_vary; do_GalfitRunqsub; cd ..
+./do_Galfit 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -vary -postparallel
+\end{lstlisting}
+
+\subsection{Galsim at band 20cm}
+
+We use these commands to run the Monte-Carlo simulation at band 20cm:
+
+\begin{lstlisting}[language=bash]
+# first estimate magnitude range
+load astroPhot.sm
+convert_flux2mag goodsn 20cm $(0.0022*01) 1 # (mBias 0 fBias -5e-05) # => 10.5112 # 20cm 3-sigma 75uJy
+convert_flux2mag goodsn 20cm $(0.0022*25) 1 # (mBias 0 fBias -5e-05) # => 7.03979
+# then do the simulation
+./do_Galsim 20cm 201500 -mag0 7.03979 -mag1 10.5112 -number 6000 -vary \
+-catalog irac_mips_fluxes_hdfn.dat
+cd boxgalsim; do_GalsimRunqsub; cd ..
+./do_Galsim 20cm 201500 -mag0 7.03979 -mag1 10.5112 -number 6000 -vary \
+-catalog irac_mips_fluxes_hdfn.dat -postparallel
+\end{lstlisting}
+
+\subsection{Galsim Analysis at band 20cm}
+
+We use these commands to run the simulation analysis at band 20cm:
+
+\begin{lstlisting}[language=bash]
+sm
+macro read run_simu_stats_v7.sm run_simu_stats_v7 20cm 201500
+\end{lstlisting}
 
 
 

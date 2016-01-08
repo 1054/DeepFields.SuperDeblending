@@ -3,3 +3,7 @@
 \contentsline {subsection}{\numberline {2.1}Galfit at band 24}{3}{subsection.2.1}
 \contentsline {subsection}{\numberline {2.2}Galsim at band 24}{3}{subsection.2.2}
 \contentsline {subsection}{\numberline {2.3}Galsim Analysis at band 24}{3}{subsection.2.3}
+\contentsline {section}{\numberline {3}Band 20cm}{7}{section.3}
+\contentsline {subsection}{\numberline {3.1}Galfit at band 20cm}{7}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Galsim at band 20cm}{7}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Galsim Analysis at band 20cm}{7}{subsection.3.3}

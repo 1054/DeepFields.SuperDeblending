@@ -52,4 +52,7 @@
 \contentsline {subsection}{\numberline {9.6}Monte-Carlo simulation at band 1160}{42}{subsection.9.6}
 \contentsline {subsection}{\numberline {9.7}Flux bias and flux uncertainty correction}{42}{subsection.9.7}
 \contentsline {section}{\numberline {A}Setup softwares in planer}{43}{appendix.A}
-\contentsline {section}{\numberline {B}Setup supermongo in planer}{43}{appendix.B}
+\contentsline {section}{\numberline {B}Setup supermongo in planer}{44}{appendix.B}
+\contentsline {section}{\numberline {C}Discussed Issues}{45}{appendix.C}
+\contentsline {subsection}{\numberline {C.1}SED prediction bias}{45}{subsection.C.1}
+\contentsline {subsection}{\numberline {C.2}Stellar mass issue}{45}{subsection.C.2}
