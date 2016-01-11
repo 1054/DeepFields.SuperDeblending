@@ -123,6 +123,8 @@ sm
 macro read run_simu_stats_v7.sm run_simu_stats_v7 24 201500
 \end{lstlisting}
 
+Below are our statistical analyses:
+
 \begin{figure}[H]
 	\includegraphics[width=0.8\textwidth]{galsim_24_fbias_1}
 	\includegraphics[width=0.8\textwidth]{galsim_24_fbias_2}
@@ -138,9 +140,9 @@ macro read run_simu_stats_v7.sm run_simu_stats_v7 24 201500
 \end{figure}
 
 \begin{figure}[H]
-	\includegraphics[width=0.8\textwidth]{galsim_24_hist_dfcorr_1}
-	\includegraphics[width=0.8\textwidth]{galsim_24_hist_dfcorr_2}
-	\includegraphics[width=0.8\textwidth]{galsim_24_hist_dfcorr_3}
+	\includegraphics[width=0.75\textwidth]{galsim_24_hist_dfcorr_1}
+	\includegraphics[width=0.75\textwidth]{galsim_24_hist_dfcorr_2}
+	\includegraphics[width=0.75\textwidth]{galsim_24_hist_dfcorr_3}
 	\caption{Statistical behavior of input minus output differences before and after correction.}
 \end{figure}
 
@@ -149,9 +151,9 @@ macro read run_simu_stats_v7.sm run_simu_stats_v7 24 201500
 \clearpage
 
 %*************************************************************************************
-\section{Band 20cm}
+\section{Band 20cm (Owen's map)}
 
-\subsection{Galfit at band 20cm}
+\subsection{Galfit at band 20cm (Owen's map)}
 
 We use these commands to run the galfit photometry at band 20cm:
 
@@ -166,14 +168,15 @@ cd boxgalfit_vary; do_GalfitRunqsub; cd ..
 ./do_Galfit 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -vary -postparallel
 \end{lstlisting}
 
-\subsection{Galsim at band 20cm}
+\subsection{Galsim at band 20cm (Owen's map)}
 
 We use these commands to run the Monte-Carlo simulation at band 20cm:
 
 \begin{lstlisting}[language=bash]
 # first estimate magnitude range
+# note that 20cm 3-sigma is about 7.5uJy (Owen's map)
 load astroPhot.sm
-convert_flux2mag goodsn 20cm $(0.0022*01) 1 # (mBias 0 fBias -5e-05) # => 10.5112 # 20cm 3-sigma 75uJy
+convert_flux2mag goodsn 20cm $(0.0022*01) 1 # (mBias 0 fBias -5e-05) # => 10.5112
 convert_flux2mag goodsn 20cm $(0.0022*25) 1 # (mBias 0 fBias -5e-05) # => 7.03979
 # then do the simulation
 ./do_Galsim 20cm 201500 -mag0 7.03979 -mag1 10.5112 -number 6000 -vary \
@@ -183,14 +186,114 @@ cd boxgalsim; do_GalsimRunqsub; cd ..
 -catalog irac_mips_fluxes_hdfn.dat -postparallel
 \end{lstlisting}
 
-\subsection{Galsim Analysis at band 20cm}
+\subsection{Galsim Analysis at band 20cm (Owen's map)}
 
 We use these commands to run the simulation analysis at band 20cm:
 
 \begin{lstlisting}[language=bash]
+cd doing20cm/
 sm
 macro read run_simu_stats_v7.sm run_simu_stats_v7 20cm 201500
 \end{lstlisting}
+
+Below are our statistical analyses:
+
+\begin{figure}[H]
+	\includegraphics[width=0.8\textwidth]{galsim_20cm_fbias_1}
+	\includegraphics[width=0.8\textwidth]{galsim_20cm_fbias_2}
+	\includegraphics[width=0.8\textwidth]{galsim_20cm_fbias_3}
+	\caption{Flux bias analysis from simulation.}
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width=0.8\textwidth]{galsim_20cm_dfcorr_1}
+	\includegraphics[width=0.8\textwidth]{galsim_20cm_dfcorr_2}
+	\includegraphics[width=0.8\textwidth]{galsim_20cm_dfcorr_3}
+	\caption{Flux uncertainty analysis from simulation.}
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width=0.75\textwidth]{galsim_20cm_hist_dfcorr_1}
+	\includegraphics[width=0.75\textwidth]{galsim_20cm_hist_dfcorr_2}
+	\includegraphics[width=0.75\textwidth]{galsim_20cm_hist_dfcorr_3}
+	\caption{Statistical behavior of input minus output differences before and after correction.}
+\end{figure}
+
+%*************************************************************************************
+
+\clearpage
+
+%*************************************************************************************
+\section{Band 20cm (Morrison's map)}
+
+\subsection{Galfit at band 20cm (Morrison's map)}
+
+We use these commands to run the galfit photometry at band 20cm:
+
+\begin{lstlisting}[language=bash]
+# run first-pass without varying source position
+./do_Galfit 20cm_Glenn 201500 -catalog irac_mips_fluxes_hdfn.dat
+cd boxgalfit; do_GalfitRunqsub; cd ..
+./do_Galfit 20cm_Glenn 201500 -catalog irac_mips_fluxes_hdfn.dat -postparallel
+# then second-pass varying source position
+./do_Galfit 20cm_Glenn 201500 -catalog irac_mips_fluxes_hdfn.dat -vary
+cd boxgalfit_vary; do_GalfitRunqsub; cd ..
+./do_Galfit 20cm_Glenn 201500 -catalog irac_mips_fluxes_hdfn.dat -vary -postparallel
+\end{lstlisting}
+
+\subsection{Galsim at band 20cm (Morrison's map)}
+
+We use these commands to run the Monte-Carlo simulation at band 20cm:
+
+\begin{lstlisting}[language=bash]
+# first estimate magnitude range
+# In Morrison et al. 2010 catalog, 1230 radio sources were detected. 
+# Their median df20cm is ~10uJy, while minimum df20cm is ~3uJy. 
+# Their minimum f20cm is ~21uJy, and maximum f20cm is ~263uJy. 
+# Therefore we do simulation with f20cm from 10uJy to 263uJy. 
+load astroPhot.sm
+convert_flux2mag goodsn 20cm_Glenn 0.010 1 # (mBias 0 fBias 0) # => 9.6961
+convert_flux2mag goodsn 20cm_Glenn 0.263 1 # (mBias 0 fBias 0) # => 6.14621
+# then do the simulation
+./do_Galsim 20cm_Glenn 201500 -mag0 6.14621 -mag1 9.6961 -number 6000 -vary \
+-catalog irac_mips_fluxes_hdfn.dat
+cd boxgalsim; do_GalsimRunqsub; cd ..
+./do_Galsim 20cm_Glenn 201500 -mag0 6.14621 -mag1 9.6961 -number 6000 -vary \
+-catalog irac_mips_fluxes_hdfn.dat -postparallel
+\end{lstlisting}
+
+\subsection{Galsim Analysis at band 20cm (Morrison's map)}
+
+We use these commands to run the simulation analysis at band 20cm:
+
+\begin{lstlisting}[language=bash]
+cd doing20cm_Glenn/
+sm
+macro read run_simu_stats_v7.sm run_simu_stats_v7 20cm 201500
+\end{lstlisting}
+
+Below are our statistical analyses:
+
+\begin{figure}[H]
+	\includegraphics[width=0.8\textwidth]{galsim_20cm_Glenn_fbias_1}
+	\includegraphics[width=0.8\textwidth]{galsim_20cm_Glenn_fbias_2}
+	\includegraphics[width=0.8\textwidth]{galsim_20cm_Glenn_fbias_3}
+	\caption{Flux bias analysis from simulation.}
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width=0.8\textwidth]{galsim_20cm_Glenn_dfcorr_1}
+	\includegraphics[width=0.8\textwidth]{galsim_20cm_Glenn_dfcorr_2}
+	\includegraphics[width=0.8\textwidth]{galsim_20cm_Glenn_dfcorr_3}
+	\caption{Flux uncertainty analysis from simulation.}
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width=0.75\textwidth]{galsim_20cm_Glenn_hist_dfcorr_1}
+	\includegraphics[width=0.75\textwidth]{galsim_20cm_Glenn_hist_dfcorr_2}
+	\includegraphics[width=0.75\textwidth]{galsim_20cm_Glenn_hist_dfcorr_3}
+	\caption{Statistical behavior of input minus output differences before and after correction.}
+\end{figure}
 
 
 

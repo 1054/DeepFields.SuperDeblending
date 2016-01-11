@@ -38,7 +38,17 @@ Usage:
       ./do_GalsedRunqsub
       ./do_GalsedRunqsub -postparallel
     
-
+    
+Input:
+    
+    ./do_GalsedRunqsub -catalog YOUR_CATALOG.txt
+    
+    * Note that YOUR_CATALOG.txt is supermongo print output format
+      i.e. the 1st line should start with #, and contains column headers separated by white space
+           the 2nd line should start with #
+           the 3rd line and thereafter are data lines, with the same number of columns as the headers
+    
+    
 Output:
     
     fit_plots_HDFN/          Plot_SED_*.pdf         The best fitting plot of each source

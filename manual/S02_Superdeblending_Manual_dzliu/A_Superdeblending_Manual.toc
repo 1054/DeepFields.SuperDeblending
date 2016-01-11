@@ -56,3 +56,7 @@
 \contentsline {section}{\numberline {C}Discussed Issues}{45}{appendix.C}
 \contentsline {subsection}{\numberline {C.1}SED prediction bias}{45}{subsection.C.1}
 \contentsline {subsection}{\numberline {C.2}Stellar mass issue}{45}{subsection.C.2}
+\contentsline {subsection}{\numberline {C.3}Galfit zero error issue}{45}{subsection.C.3}
+\contentsline {subsection}{\numberline {C.4}SED prediction and prior source selection issue}{46}{subsection.C.4}
+\contentsline {subsection}{\numberline {C.5}GN20 GN20.2a GN20.2b source position issue}{46}{subsection.C.5}
+\contentsline {subsection}{\numberline {C.6}Residual source issue}{46}{subsection.C.6}

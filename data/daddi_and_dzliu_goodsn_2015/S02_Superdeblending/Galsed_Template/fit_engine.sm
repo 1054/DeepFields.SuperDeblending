@@ -124,6 +124,10 @@ goxfitAGN 01
 
 						# set coSFR = (wW/(1+$(zrange[$xxZ]))>=$Lambda_minrest || wW>35) && dfF<1e4 #<Modified><20141219><DADDI>#
 						set coSFR = (wW/(1+$(zrange[$xxZ]))>=$Lambda_minrest || wW>20) && dfF<1e4
+						# <Added><20160107><edaddi> 
+						if(coo_FIR==1) {
+							set coSFR = coSFR && (wW>25 && wW<3000)
+						}
 						# set coSFR_debug = (wW/(1+$(zrange[$xxZ])))
 						# define aaa ?
 						if(sum(coSFR)>0) { ##<Fixed><20141123><DzLIU>##

@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015) (preloaded format=xelatex 2015.10.29)  7 JAN 2016 20:52
+This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015) (preloaded format=xelatex 2015.10.29)  11 JAN 2016 04:00
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1017,6 +1017,11 @@ LaTeX Warning: Reference `Band500_final' on page 5 undefined on input line 119.
 LaTeX Warning: Reference `Band1160_final' on page 5 undefined on input line 121
 .
 
+
+Overfull \hbox (28.06862pt too wide) in paragraph at lines 105--125
+ [][] 
+ []
+
 [5
 
 ]
@@ -1283,15 +1288,15 @@ Underfull \hbox (badness 10000) in paragraph at lines 1319--1322
 
 ] [44
 
-]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1539.
- [45
+] [45
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1539.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1587.
+ [46]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1587.
  (./A_Superdeblending_Manual.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 1539.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 1539.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 1587.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 1587.
 
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
@@ -1299,15 +1304,15 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 LaTeX Warning: There were undefined references.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1539.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1587.
  ) 
 Here is how much of TeX's memory you used:
  24759 strings out of 495487
- 447758 string characters out of 6181014
- 545355 words of memory out of 5000000
+ 447747 string characters out of 6181014
+ 544355 words of memory out of 5000000
  27763 multiletter control sequences out of 15000+600000
  11030 words of font info for 66 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
  37i,9n,58p,10399b,1731s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on A_Superdeblending_Manual.pdf (45 pages).
+Output written on A_Superdeblending_Manual.pdf (46 pages).

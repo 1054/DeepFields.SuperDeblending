@@ -56,3 +56,7 @@
 \BOOKMARK [1][-]{appendix.C}{Discussed\040Issues}{}% 56
 \BOOKMARK [2][-]{subsection.C.1}{SED\040prediction\040bias}{appendix.C}% 57
 \BOOKMARK [2][-]{subsection.C.2}{Stellar\040mass\040issue}{appendix.C}% 58
+\BOOKMARK [2][-]{subsection.C.3}{Galfit\040zero\040error\040issue}{appendix.C}% 59
+\BOOKMARK [2][-]{subsection.C.4}{SED\040prediction\040and\040prior\040source\040selection\040issue}{appendix.C}% 60
+\BOOKMARK [2][-]{subsection.C.5}{GN20\040GN20.2a\040GN20.2b\040source\040position\040issue}{appendix.C}% 61
+\BOOKMARK [2][-]{subsection.C.6}{Residual\040source\040issue}{appendix.C}% 62
