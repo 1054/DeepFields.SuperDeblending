@@ -32,10 +32,13 @@ goxfitAGN 01
 				
 				SETurange  # at given z
 				
+				!echo '         '"''"
+				
 				foreach xxU urange {  # CYCLE over range of U SEDs ; $xxU is index of SED fsfr$xxU, >100 for SB
 					
-					### <TODO><TEST><20140325><20141028><DZLIU> ###
-					!echo -n '                      '"''"
+					### <20140325><20141028><20160111><DZLIU> ###
+					!echo -n '         '"''"
+					!echo -n ' ID='$(sprintf('%s','$nobject'))"''"
 					!echo -n ' z='$(sprintf('%0.5f',zrange[$xxZ]))"''"
 					!echo -n ' z1='$(sprintf('%0.3f',float($UzA)))"''"
 					!echo -n ' z2='$(sprintf('%0.3f',float($UzB)))"''"
@@ -50,6 +53,8 @@ goxfitAGN 01
 					foreach xxxAGN {1 2 3} {  # CYCLE over the 3 AGN SEDs fagn$xxxAGN
 					    
 						setAGN_norm_range
+						
+						!echo -n ' aAGN='$aAGN
 						
 						### <TODO> ###
 						### <TODO> ###
@@ -134,14 +139,25 @@ goxfitAGN 01
 							foreach xname {wW fF dfF} {set _$xname = $xname if(coSFR)}
 							set _wW = lg(_wW/(1+$(zrange[$xxZ])))
 							spline xxWS fagn _wW WAGN
-							### set SWAGN = SWAGN>0 ? SWAGN : 0 ###<TODO><Commented><DzLIU### 
-							set WAGN = WAGN>0 ? WAGN : 0 ###<TODO><Added><20140610><DZLIU>### I think this is WAGN ?
+							### set SWAGN = SWAGN>0 ? SWAGN : 0 ###<Modified><20140610><DzLIU### 
+							set WAGN = WAGN>0 ? WAGN : 0 ###<Modified><20140610><DZLIU>### I think this is WAGN ?
 							spline xxWS Star_IRAC _wW WSFR_irac
 							set WSFR_irac = WSFR_irac>0 ? WSFR_irac : 0
 							set _fF = _fF-WAGN-WSFR_irac
 							spline xxWS fsfr$xxU _wW WSFR
 							set WSFR = WSFR>0 ? WSFR : 0
-							define aSFR $(sum(_fF*WSFR/_dfF**2)/(sum(WSFR**2/_dfF**2)))
+							
+							
+							###<DZLIU><Modified>### 20160111 edaddi: about the macro AGN_N.sm, 
+							###<DZLIU><Modified>### when setting the steps for AGN normalisation it uses the flux even if low S/N, 
+							###<DZLIU><Modified>### we should use the upper limit instead in that case. 
+							###<DZLIU><Modified>### This could be checked. 
+							set ___fF = (_fF>2.0*_dfF) ? _fF : (_fF+2.0*_dfF) # fF+2*dfF
+							define aSFR $(sum(___fF*WSFR/_dfF**2)/(sum(WSFR**2/_dfF**2)))
+							###<DZLIU><Modified>### define aSFR $(sum(_fF*WSFR/_dfF**2)/(sum(WSFR**2/_dfF**2))) ### -- this is previous code
+							###<DZLIU><Modified>### 
+							
+							
 							#define aaa ?
 							if($aSFR<0) {define aSFR 0}
 							set WSFR = WSFR*$aSFR
@@ -182,6 +198,9 @@ goxfitAGN 01
 							define Schi2_min_U $Schi2
 							define Rchi2_min_A $aSFR
 							define Schi2_min_A $SaSFR
+							define chi2_min_Star_A $SaSFR # stellar component normalization
+							define chi2_min_Dust_A $aSFR  # dust component normalization
+							define chi2_min_AGN_A $aaaAGN # AGN component normalization
 						} else { 
 							if($chi2<$chi2_min_U) {
 								define chi2_min_U $chi2
@@ -189,6 +208,9 @@ goxfitAGN 01
 								define Schi2_min_U $Schi2
 								define Rchi2_min_A $aSFR
 								define Schi2_min_A $SaSFR
+								define chi2_min_Star_A $SaSFR # stellar component normalization
+								define chi2_min_Dust_A $aSFR  # dust component normalization
+								define chi2_min_AGN_A $aaaAGN # AGN component normalization
 							}
 						}
 						
@@ -248,12 +270,16 @@ goxfitAGN 01
 					!echo -n ' chi2='$(sprintf('%0.5g',float($chi2_min_U)))"''"
 					!echo -n ' Schi2='$(sprintf('%0.5g',float($Schi2_min_U)))"''"
 					!echo -n ' Rchi2='$(sprintf('%0.5g',float($Rchi2_min_U)))"''"
-					!echo -n ' aS='$(sprintf('%0.5g',float($Schi2_min_A)))"''"
-					!echo -n ' aR='$(sprintf('%0.5g',float($Rchi2_min_A)))"''"
+					!echo -n ' aStar='$(sprintf('%0.5g',float($chi2_min_Star_A)))"''"
+					!echo -n ' aAGN='$(sprintf('%0.5g',float($chi2_min_AGN_A)))"''"
+					!echo -n ' aDust='$(sprintf('%0.5g',float($chi2_min_Dust_A)))"''"
 					!echo ''
 					undef chi2_min_U
 					undef Schi2_min_U
 					undef Rchi2_min_U
+					undef chi2_min_Star_A
+					undef chi2_min_Dust_A
+					undef chi2_min_AGN_A
 					
 					# define aaa ?
 					
@@ -429,10 +455,9 @@ goxfitAGN 01
 			if($eee_SED==-1) {puts MainSeq.!}
 			expand 1.5 lweight 3.0
 			#<Added><DZLIU><DADDI># ----------------
-			echo ID=$(id[$xAGN]) NO=$(EeE[0]) zspec=$(spez[$xAGN]) zp_X=$(zp_X[$xAGN]) SB=$eee_SED AGN=$eee_AGN FIR=$eee_FIR
-			echo BEST zbest $zbest ubest $ustr dLbest $dLbest agnbest $agnbest norm_Ste $norm_SFR_irac norm_EBV $norm_SFR_irac_ebv
-			echo      norm_AGN $norm_AGN norm_SFR $norm_SFR chi2_min $chi2_min
-			echo 
+			echo ID=$(id[$xAGN]) NO=$(EeE[0]) zspec=$(spez[$xAGN]) zp_X=$(zp_X[$xAGN]) Type_SED=$eee_SED Type_AGN=$eee_AGN Type_FIR=$eee_FIR
+			echo BEST zbest $zbest ubest $ustr dLbest $dLbest agnbest $agnbest norm_Star $norm_SFR_irac norm_EBV $norm_SFR_irac_ebv norm_AGN $norm_AGN norm_SFR $norm_SFR chi2_min $chi2_min
+			echo 	
 			
 			##### <Added><DZLIU> ##### ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 			#if($(id[$xAGN])==6) { 
@@ -562,6 +587,7 @@ goxfitAGN 01
 
 		}
 		echo Done  goxfitAGN
+		echo 
 
 SETzrange	
 		### echo Doing SETzrange ...
@@ -663,9 +689,9 @@ SETurange
 		#print {urange}
 		if($nobject>0 && $diff_SB==1) {
 			set eee_SED = coo_SED if($nobject==naa) define eee_SED $(eee_SED[0])
-			echo $nobject $(eee_SED) $(dimen(naa))
-			echo $nobject $(eee_SED) $(dimen(naa))
-			echo $nobject $(eee_SED) $(dimen(naa))
+			# echo $nobject $(eee_SED) $(dimen(naa))
+			# echo $nobject $(eee_SED) $(dimen(naa))
+			# echo $nobject $(eee_SED) $(dimen(naa))
 			if($eee_SED==1) {set urange = urange if(urange>100)}
 			if($eee_SED==-1) {set urange = urange if(urange<100)}
 		} else {define eee_SED 0}
@@ -678,7 +704,17 @@ setAGN_norm_range  00
 			foreach xname {wW fF dfF} {set _$xname = $xname if(coAGN)}
 			set _wW = lg(_wW/(1+$(zrange[$xxZ])))
 			spline xxWS fagn$xxxAGN _wW WAGN
-			define aAGN $(sum(_fF*WAGN/_dfF**2)/(sum(WAGN**2/_dfF**2)))
+			
+			###<DZLIU><Modified>### 20160111 edaddi: about the macro AGN_N.sm, 
+			###<DZLIU><Modified>### when setting the steps for AGN normalisation it uses the flux even if low S/N, 
+			###<DZLIU><Modified>### we should use the upper limit instead in that case. 
+			###<DZLIU><Modified>### This could be checked. 
+			set ___fF = (_fF>2.0*_dfF) ? _fF : (_fF+2.0*_dfF) # we use fF+2*dfF as the upper limit
+			define aAGN $(sum(___fF*WAGN/_dfF**2)/(sum(WAGN**2/_dfF**2)))
+			#print {___fF _fF _dfF}
+			###<DZLIU><Modified>### define aAGN $(sum(_fF*WAGN/_dfF**2)/(sum(WAGN**2/_dfF**2)))
+			###<DZLIU><Modified>### 
+			
 			if($aAGN<1e-10) {define aAGN 1e-10}
 			set AGN_norm_range = $(lg($aAGN)+.5),$(lg($aAGN)-2.0),-0.03
 			set AGN_norm_range = 10**(AGN_norm_range)
@@ -720,7 +756,7 @@ rMatrix 01
 			if($eee_SED==-1) {set xcoo = tySFR<100}
 			if($eee_SED==0) {set xcoo = tySFR || 1}
 		} else {set xcoo = n*0+1 define eee_SED 0}
-		if($s_verb) {echo SB $eee_SED}
+		#if($s_verb) {echo SB $eee_SED}
 		#set xcoo = xcoo || 1  # use this to avoid differentiating templates
 		#set xcoo = normAGN==0
 		###<TODO><Modified><20140610><DZLIU>### predict 2mm

@@ -219,6 +219,13 @@ Below are our statistical analyses:
 	\caption{Statistical behavior of input minus output differences before and after correction.}
 \end{figure}
 
+\subsection{Compare with literature: Elbaz et al. 2013}
+
+\begin{figure}[H]
+	\includegraphics[width=0.95\textwidth]{Compare_measurments_of_24um_with_Elbaz_2013}
+	\caption{Compare our final corrected 24${\mu}m$ measurements with the literature measurements of Elbaz et al. 2013 (\url{http://adsabs.harvard.edu/abs/2013yCat..35330119E}). Y axis is our measurements. A linear dashed green-black line indicates a one-to-one correlation. Details of the most outliers are given below: ID11828 is bright and extended, our PSF fitting could not recover its entire flux. ID13543 is bright and blended with its neighborhood ID13542 which is also bright. Not sure why and how to fix yet \textcolor{red}{(TODO)}. ID3159 and ID3119 are close within 2'' and the peak of flux at in between of them. ID10754 is only 15'' from the bright 20'' diameter spiral source ID10611, therefore got highly contaminated results. ID18254 and ID18253 are blended, and the latter one is brighter and likely extended, hence the former one got contaminated flux.}
+\end{figure}
+
 %*************************************************************************************
 
 \clearpage
@@ -269,7 +276,7 @@ We use these commands to run the simulation analysis at band 20cm:
 \begin{lstlisting}[language=bash]
 cd doing20cm_Glenn/
 sm
-macro read run_simu_stats_v7.sm run_simu_stats_v7 20cm 201500
+macro read run_simu_stats_v7.sm run_simu_stats_v7 20cm_Glenn 201500
 \end{lstlisting}
 
 Below are our statistical analyses:
@@ -293,6 +300,13 @@ Below are our statistical analyses:
 	\includegraphics[width=0.75\textwidth]{galsim_20cm_Glenn_hist_dfcorr_2}
 	\includegraphics[width=0.75\textwidth]{galsim_20cm_Glenn_hist_dfcorr_3}
 	\caption{Statistical behavior of input minus output differences before and after correction.}
+\end{figure}
+
+\subsection{Compare with literature: Morrison et al. 2010}
+
+\begin{figure}[H]
+	\includegraphics[width=0.95\textwidth]{Compare_measurments_of_20cm_with_Morrison_2010}
+	\caption{Compare our two-radio-map-merged and sim-recipe-corrected 20cm measurements with the literature measurements in Morrison et al. 2010. Y axis is our measurements. A linear dashed green-black line indicates a one-to-one correlation. Details of several obvious outliers: ID13870 is an extremely bright radio source and has two peaks, likely two interacting components? ID2256 is relatively bright but heavily extended, and what we are fitting is PSF for now, hence could not recover its entire flux.}
 \end{figure}
 
 

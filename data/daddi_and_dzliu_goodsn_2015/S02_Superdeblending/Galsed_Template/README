@@ -43,6 +43,8 @@ Input:
     
     ./do_GalsedRunqsub -catalog YOUR_CATALOG.txt
     
+    ./do_GalsedRunqsub -catalog YOUR_CATALOG.txt -postparallel
+    
     * Note that YOUR_CATALOG.txt is supermongo print output format
       i.e. the 1st line should start with #, and contains column headers separated by white space
            the 2nd line should start with #

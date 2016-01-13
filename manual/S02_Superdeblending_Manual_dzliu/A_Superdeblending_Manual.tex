@@ -1485,7 +1485,7 @@ type sm
 \section{Discussed Issues}
 \label{Appendix_DiscussedIssues}
 
-\subsection{SED prediction bias}
+\subsection{SED prediction versus galfit measurement issue}
 
 \textcolor{green!90!black!60!orange}{Date: 2015-12-02}
 
@@ -1495,7 +1495,7 @@ Because we highly rely on the SED prediction to decide which sources to fit and 
 %\textcolor{blue}{f\_galfit v.s. f\_predict diagram}
 %\\
 
-\subsection{Stellar mass issue}
+\subsection{Stellar mass from various literature issue}
 
 \textcolor{green!90!black!60!orange}{Date: 2015-12-31}
 
@@ -1525,7 +1525,7 @@ set MassX = spez3D>0 && \
 \end{lstlisting}
 
 
-\subsection{Galfit zero error issue}
+\subsection{Radio galfit output error got zero value issue}
 
 \textcolor{green!90!black!60!orange}{Date: 2016-01-07}
 
@@ -1537,7 +1537,7 @@ set e20cm = e20cm>0.05 ? e20cm : 0.05
 \end{lstlisting}
 
 
-\subsection{SED prediction and prior source selection issue}
+\subsection{SED prediction and prior source selection criterion issue}
 
 \textcolor{green!90!black!60!orange}{Date: 2016-01-07}
 
@@ -1547,15 +1547,21 @@ Do we use crowdiness linearly to weight the SED predicted flux for prior source 
 
 Do we enlarge U range so as to derive better U values for at least GN20 at $z=4.05$? ---- Not in SED prediction phase. In final stage. 
 
-Do we apply this criterion when selecting prior sources to fit: if a source has more than $3\sigma$ detection at previous FIR band (i.e. $24{\mu}m$ to $1160{\mu}m$), then we fit it at current band, ignoring its SED flux criterion? ---- Yes. 
+Do we apply this criterion when selecting prior sources to fit: if a source has more than $3\sigma$ detection at previous FIR band (i.e. $24{\mu}m$ to $1160{\mu}m$), then we fit it at current band, ignoring its SED flux criterion? ---- This is being tested. 
+
+\subsubsection{do we always fit a previous band detected source?}
+
+We are doing the tests now.
+\textcolor{red}{(TODO)}
 
 
 
-\subsection{GN20 GN20.2a GN20.2b source position issue}
+\subsection{GN20, GN20.2a and GN20.2b source position issue}
 
 \textcolor{green!90!black!60!orange}{Date: 2016-01-07}
 
-GN20.2a is actually corresponding to 2 HST sources. Therefore we TODO
+GN20.2a is actually corresponding to 2 HST sources. Therefore we 
+\textcolor{red}{(TODO)}
 
 
 
@@ -1564,6 +1570,7 @@ GN20.2a is actually corresponding to 2 HST sources. Therefore we TODO
 \textcolor{green!90!black!60!orange}{Date: 2016-01-07}
 
 We should check the residual source properties that we have already obtained, to see if we are using a too low detection limit or not.  
+\textcolor{red}{(TODO)}
 
 
 

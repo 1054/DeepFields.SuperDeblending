@@ -7,7 +7,9 @@
 \contentsline {subsection}{\numberline {3.1}Galfit at band 20cm (Owen's map)}{7}{subsection.3.1}
 \contentsline {subsection}{\numberline {3.2}Galsim at band 20cm (Owen's map)}{7}{subsection.3.2}
 \contentsline {subsection}{\numberline {3.3}Galsim Analysis at band 20cm (Owen's map)}{7}{subsection.3.3}
-\contentsline {section}{\numberline {4}Band 20cm (Morrison's map)}{11}{section.4}
-\contentsline {subsection}{\numberline {4.1}Galfit at band 20cm (Morrison's map)}{11}{subsection.4.1}
-\contentsline {subsection}{\numberline {4.2}Galsim at band 20cm (Morrison's map)}{11}{subsection.4.2}
-\contentsline {subsection}{\numberline {4.3}Galsim Analysis at band 20cm (Morrison's map)}{11}{subsection.4.3}
+\contentsline {subsection}{\numberline {3.4}Compare with literature: Elbaz et al. 2013}{11}{subsection.3.4}
+\contentsline {section}{\numberline {4}Band 20cm (Morrison's map)}{12}{section.4}
+\contentsline {subsection}{\numberline {4.1}Galfit at band 20cm (Morrison's map)}{12}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Galsim at band 20cm (Morrison's map)}{12}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Galsim Analysis at band 20cm (Morrison's map)}{12}{subsection.4.3}
+\contentsline {subsection}{\numberline {4.4}Compare with literature: Morrison et al. 2010}{16}{subsection.4.4}
