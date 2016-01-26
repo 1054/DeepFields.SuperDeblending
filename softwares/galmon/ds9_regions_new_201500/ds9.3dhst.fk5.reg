@@ -1,4 +1,0 @@
-# Region file format: DS9 version 4.1
-global color=cyan
-fk5
-circle(188.960059,62.178400,0.3") # text={3DHST-7338}

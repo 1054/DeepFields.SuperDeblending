@@ -1,2 +1,5 @@
 echo yes
 QUIT
+quit
+define aaa ?
+quit

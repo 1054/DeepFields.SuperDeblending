@@ -1,0 +1,4 @@
+cp /home/dzliu/Data/DeepFields/daddi_and_dzliu_goodsn_2016/S01_24_Radio_Catalog/doing24/sim_diagram_output_v7/galsim_*.pdf .
+cp /home/dzliu/Data/DeepFields/daddi_and_dzliu_goodsn_2016/S01_24_Radio_Catalog/doing20cm/sim_diagram_output_v7/galsim_*.pdf .
+cp /home/dzliu/Data/DeepFields/daddi_and_dzliu_goodsn_2016/S01_24_Radio_Catalog/doing20cm_Glenn/sim_diagram_output_v7/galsim_*.pdf .
+

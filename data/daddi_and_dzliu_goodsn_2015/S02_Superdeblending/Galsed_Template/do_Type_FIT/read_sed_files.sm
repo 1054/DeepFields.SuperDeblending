@@ -1,0 +1,77 @@
+read_sed_files
+    # 
+    # usage:
+    #    macro read read_sed_files.sm read_sed_files
+    # 
+    # prepare sed txt files to read
+    !ls -1 "../"*".txt" | grep -i -v "readme" | grep -i -v "mullaney" > "aaa_input_sed_files"
+    if(0!=$exit_status) {
+        print 'Error! Could not find any \"*.txt\" in the parent directory \"../\"!\n' {}
+        return
+    }
+    # read sed txt files
+    define sedi 1
+    declare sedfile 0
+    verbose 0
+    while { is_vector(sedfile)>0 } {
+        unset sedfile
+        data "aaa_input_sed_files"
+        read row sedfile $sedi.s
+        if(is_vector(sedfile)>0) {
+            set sedfile = {"}+sedfile+{"}
+            echo "Reading "$(sedfile)
+            rfile $(sedfile)
+        }
+        define sedi $($sedi+1)
+    }
+    verbose 1
+
+
+
+
+
+
+rfile 03
+        # Automated table readin. Use vector names given in the
+        # first line of file  <filename> . Optional 2nd and 3rd
+        # arguments select the lines to be read [line1 line2] .
+        # Received from: M.Franx (origin RHL?)
+        # Noted by: E.Daddi
+        # Moded by: DzLIU
+        ##if(!$?1){print 'Usage: rfile filename.txt 0 100\n' {}}
+        # 2015-06-26 now we allow 0 input argument -- assuming 
+        # the user has already called data some file
+        ##define rfhf $1
+        define pref_verbose $verbose verbose 0
+        define rfhi 0
+        define rfli 1
+        if($?1) { data $1 }
+        if($?2 && !$?3) { lines $2 0 define rfli $2 }
+        if($?2 && $?3) { lines $2 $3 define rfli $2 }
+        #if($?2 && $?3) { if($3>$2) {lines $2 $3} }
+        declare rfile_headers 0.s # a header list
+        #if(is_vector(rfvectors)){unset rfvectors}
+        if(is_vector(rfile_vectors)){unset rfile_vectors}
+        while {$?rfhc||!$rfhi} {
+            define rfhi $($rfhi+1)
+            define rfhc read $rfli $rfhi
+            if($?rfhc) {
+                if(is_vector($rfhc)){set $rfhc""_rfile_backup=$rfhc
+                      if($pref_verbose){!echo Read column $rfhi as $rfhc \(backuped existing $rfhc as $rfhc""_rfile_backup\)}
+                }else{if($pref_verbose){!echo Read column $rfhi as $rfhc}} set rfile_headers = rfile_headers concat '$rfhc'
+                if('$rfhc'=='Type'||'$rfhc'=='Note'){
+                  read $rfhc $rfhi.s}else{if(index('$rfhc','Source')>=0||index('$rfhc','Name')>=0||index('$rfhc','Alias')>=0){
+                  read $rfhc $rfhi.s}else{if(index('$rfhc','source')>=0||index('$rfhc','name')>=0||index('$rfhc','alias')>=0){
+                  read $rfhc $rfhi.s}else{
+                  read $rfhc $rfhi}}
+                }
+                if(is_vector(rfile_vectors)){set rfile_vectors = rfile_vectors concat <$rfhc>}\
+                else{set rfile_vectors = <$rfhc>}
+                #if(is_vector(rfvectors)) {
+                #set rfvectors=rfvectors concat $rfhc
+                #} else { set rfvectors=$rfhc }
+            }
+        } # read the 1st row 1st column
+        verbose $pref_verbose
+        return
+

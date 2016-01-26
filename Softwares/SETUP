@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+#${BASH_SOURCE[0]}
+#
+#BASH_VERBOSE=0
+#
+# SUPERDIR
+SUPERDIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
+#
+# PATH
+if [[ $PATH != *"$SUPERDIR"* ]]; then
+    export PATH="$SUPERDIR":$PATH
+fi
+#
+# IRAF
+if [[ $(hostname) == planer* ]]; then
+    if [[ $(type cl 2>/dev/null | wc -l) == 0 ]]; then
+        module load iraf64/2.15
+        export MACH="linux64"
+        export IRAFARCH="linux64"
+        source "$SUPERDIR/iraf_on_planer/irafuser.sh"
+    fi
+fi
+# 
+# CHECK
+for TEMPNAME in galfit sm cl sky2xy xy2sky CrabPhotAperPhot; do
+    type $TEMPNAME
+done
+
+

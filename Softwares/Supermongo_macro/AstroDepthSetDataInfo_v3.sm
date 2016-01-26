@@ -1,0 +1,468 @@
+SetDataInfo 04
+    #  
+    #  We provide a suite of tools for multi-wavelength pre-selective prior source fitting
+    #  
+    #  multi-wavelength: 24um, 16um, 100um, 160um, 250um, 350um, 500um, 1160um, 
+    #                    check astroPhot.sm first, only support the ones in astroPhot.sm
+    #  
+    #  pre-selective: we use SED predicted flux to pre-select sources to fit or to freeze
+    #                 check SED/SED_predictions_goodsn_100.txt
+    #  
+    #  prior fitting: we use galfit to model sources in the prior list 
+    #                 check Catalog/Initial_Catalog_goodsn_24.txt
+    #  
+    #  now we will set the data directory information
+    # 
+    # 2016-01-01 introduced DirPathVector idea to handle long dir path string
+    #  
+    ############################
+    ### Set Data Information ###
+    ############################
+    # note that the paths below should not be too long, 
+    # should not contain any white space, nor trailing slash
+    # set DataVer = (!$?3) ? {""} : {"_}+'$3'+{"} # Now DataVersion is an necessity
+    # set DataDir = {"}+GetDataDir()
+    set DataDir = {"/home/dzliu/Data/DeepFields/dzliu_cosmos_2015"}
+    set DataVer = {"}+'$3'+{"}
+    set PassVer = 1
+    set boxBand = '$2'
+    set PfitBox = {"boxgalfit"}
+    set PsimBox = {"boxgalsim"}
+    #<20160101># set Catalog = DataDir+<'/Catalog/Cat_$1""_$2""_$(DataVer).dat'>+{"}
+    #<20160101># set PfitCat = DataDir+<'/Catalog/Cat_$1""_$2""_$(DataVer).dat'>+{"}
+    #<20160101># set PsimCat = DataDir+<'/Catalog/Sim_$1""_$2""_$(DataVer).dat'>+{"}
+    #<20160101># set PfitCsv = DataDir+<'/Photometry/Res_$1""_$2""_$(DataVer).txt'>+{"}
+    #<20160101># set PfitOut = DataDir+<'/Photometry/Res_$1""_$2""_$(DataVer).txt'>+{"} 
+    #<20160101># set PsimOut = DataDir+<'/Simulation/Res_$1""_$2""_$(DataVer).txt'>+{"}
+    #<20160101># set PfitDir = DataDir+<'/Photometry/$(DataVer)/doing$(boxBand)/$(PfitBox)'>+{"}
+    #<20160101># set PsimDir = DataDir+<'/Simulation/$(DataVer)/doing$(boxBand)/$(PsimBox)'>+{"}
+    set Catalog = GetDirPathVector("Catalog/Cat_"$1"_"$2"_"$(DataVer)".dat")
+    set PfitCat = GetDirPathVector("Catalog/Cat_"$1"_"$2"_"$(DataVer)".dat")
+    set PsimCat = GetDirPathVector("Catalog/Sim_"$1"_"$2"_"$(DataVer)".dat")
+    set PfitCsv = GetDirPathVector("Photometry/Res_"$1"_"$2"_"$(DataVer)"_Pass"$(PassVer)".txt")
+    set PfitOut = GetDirPathVector("Photometry/Res_"$1"_"$2"_"$(DataVer)"_Pass"$(PassVer)".txt") 
+    set PsimOut = GetDirPathVector("Simulation/Res_"$1"_"$2"_"$(DataVer)"_Pass"$(PassVer)".txt")
+    set PfitDir = GetDirPathVector("Photometry/"$(DataVer)"/Galfit_Band"$(boxBand)"_Pass"$(PassVer)"/"$(PfitBox))
+    set PsimDir = GetDirPathVector("Simulation/"$(DataVer)"/Galsim_Band"$(boxBand)"_Pass"$(PassVer)"/"$(PsimBox))
+    #set DataDir = DataDir+{"}
+    #set boxRoot = DataDir
+    #set boxName = PsimBox #<TODO><DELETE># will be set outside this macro
+    #set boxRoot = PsimDir #<TODO><DELETE># will be set outside this macro
+    #set boxPath = PsimDir #<TODO><DELETE># will be set outside this macro
+    define print_noheader 1
+    # 
+    print '\n' {}
+    print '"########################################################"\n' {}
+    print '"################### Data Information ###################"\n' {}
+    print '"########################################################"\n' {}
+    #<20160101># print 'DataVer = %s' {DataVer}
+    #<20160101># print 'DataDir = %s' {DataDir}
+    #<20160101># print 'Catalog = %s' {Catalog}
+    #<20160101># print 'PfitCat = %s' {PfitCat}
+    #<20160101># print 'PsimCat = %s' {PsimCat}
+    #<20160101># print 'PfitOut = %s' {PfitOut}
+    #<20160101># print 'PsimOut = %s' {PsimOut}
+    #<20160101># print 'PfitDir = %s' {PfitDir}
+    #<20160101># print 'PsimDir = %s' {PsimDir}
+    print 'DataVer = %s' {DataVer}
+    print 'DataDir = %s' {DataDir}
+    PrintDirPathVector Catalog
+    PrintDirPathVector PfitCat
+    PrintDirPathVector PsimCat
+    PrintDirPathVector PfitOut
+    PrintDirPathVector PsimOut
+    PrintDirPathVector PfitDir
+    PrintDirPathVector PsimDir
+    #print 'boxBand = %s' {boxBand}
+    #print 'boxName = %s' {boxName}
+    #print 'boxRoot = %s' {boxRoot}
+    # 
+    ###################################
+    ### Check Software Dependencies ###
+    ###################################
+    print '\n' {}
+    print '"########################################################"\n' {}
+    print '"################# Software Dependencies ################"\n' {}
+    print '"########################################################"\n' {}
+    print 'we are using GNU tool "type" to check the softwares:\n' {}
+    set checksoftwares = {getpix sky2xy xy2sky cl CrabFitsImageCrop} # <TODO> galfit not working under cygwin
+    foreach checkso checksoftwares {
+        define checkvo $verbose verbose 0
+        !echo \$(type $checkso 2>&1) > ".CheckDataInfo."
+        !cat ".CheckDataInfo."
+        data ".CheckDataInfo." read <Software_$checkso 1.s>
+        !rm  ".CheckDataInfo."
+        verbose $checkvo
+    }
+    set checkvariables = {iraf}
+    foreach checkso checkvariables {
+        define checkvo $verbose verbose 0
+        !echo \$([ -z \$$checkso ] && echo "System variable \\\$"$checkso" does not exist!" || echo "cl" 2>&1) > ".CheckDataInfo."
+        !cat ".CheckDataInfo."
+        data ".CheckDataInfo." read <Software_$checkso 1.s>
+        !rm  ".CheckDataInfo."
+        verbose $checkvo
+    }
+    # 
+    foreach checkso checksoftwares {
+        if(Software_$checkso!='$checkso') {
+            define errorbreak 1
+            define errorbreak ? <Checking failed! Please check the info above, and press Ctrl+C to break!>
+            # TODO: make sure linux command "type" is working!
+        }
+    }
+    print '\n' {}
+    # 
+    ###############################
+    ### Check File Dependencies ###
+    ###############################
+    print '\n' {}
+    print '"####################################################"\n' {}
+    print '"################# File Dependencies ################"\n' {}
+    print '"####################################################"\n' {}
+    print 'we are check necessary files:\n' {}
+    set checkfiles = {PfitCat} #  we need Initial_Catalog to proceed
+    declare checkedfiles 0
+    do checkindex=0,dimen(checkfiles)-1 {
+        define checkvo $verbose verbose 0
+        PrintDirPathVector $(checkfiles[$checkindex])
+        VisitDirPathVectorFile $(checkfiles[$checkindex])
+        VisitDirPathVector OldDirPathVector
+        #<20160101># !test -f $(checkfiles[$checkindex])
+        #<20160101># set checkedfile = ($exit_status==0) ? '"good!"' : '"not found!"'
+        #<20160101># echo \"$(checkfiles[$checkindex])\" $(checkedfile)
+        set checkedfiles = checkedfiles concat ($exit_status==0)
+        verbose $checkvo
+    }
+    print '\n' {}
+    # 
+    do checkindex=0,dimen(checkfiles)-1 {
+        if(checkedfiles[$checkindex]==0) {
+            define errorbreak 1
+            define errorbreak ? <Checking failed! Please check the info above, and press Ctrl+C to break!>
+            # TODO: make sure linux command "type" is working!
+        }
+    }
+    # 
+    define print_noheader 0
+    # 
+    #################################
+    ### Load AstroDepth Constants ###
+    #################################
+    load astroGalbox.sm
+    load astroGalfit.sm
+    load astroPhot.sm
+    set_$1""_photometry_constants_$(boxBand)
+    
+    # 
+    # 
+    define proceed 1
+    define proceed ? <Everything is prepared! Ready to proceed! (Or press Ctrl+C to break)>
+    # 
+    # 
+    echo ""
+    return
+
+
+GetCurrentPath 00
+    # get current shell path
+    # !pwd | sed 's/ //g' > ._pwd_.
+    if($?verbose){define _get_current_verbose $verbose} else{define _get_current_verbose 1}
+    data ._pwd_. read row _got_current_path_s 1.s
+    set _got_current_path_ = _got_current_path_s[0]
+    do _got_current_path_i=1,dimen(_got_current_path_s)-1{
+        set _got_current_path_ = _got_current_path_+' '+_got_current_path_s[$i]
+    } unset _got_current_path_s verbose $_get_current_verbose
+    # set _got_current_path_ = {"}+_got_current_path_+{"} # add a pair of quotes
+    set $0 = _got_current_path_
+    return
+
+
+GetDirPathVector 01
+    # input a dir path string (if no input then is current pwd)
+    # we split a single dir path string into a DirPathVector
+    # return a vector
+    # usage: 
+    #  load AstroDepthSetDataInfo_v3.sm
+    #  set DirPath = GetDirPathVector("/home/abc/work/data/nowhitespace/")
+    #  load AstroDepthSetDataInfo_v3.sm
+    #  set DirPath = GetDirPathVector("data/nowhitespace/catalog")
+    #  load AstroDepthSetDataInfo_v3.sm
+    #  set PWDDirPath = GetDirPathVector()
+    #  print {PWDDirPath}
+    if($?1) {
+        !echo $1 | sed -e 's@^/@\\\\"\\\\"@g' | sed -e 's@/@\\n@g' | sed -e '1s@^\\\\"\\\\"@/@g' > ".GetDirPathVector.tmp"
+    } else {
+        !pwd | sed -e 's@^/@\\\\"\\\\"@g' | sed -e 's@/@\\n@g' | sed -e '1s@^\\\\"\\\\"@/@g' > ".GetDirPathVector.tmp"
+    }
+    #!cat ".GetDirPathVector.tmp"
+    data ".GetDirPathVector.tmp"
+    verbose 0
+    define _DirPathInd 1
+    set _DirPathRow = {"/"}
+    declare _DirPathVec 0.s
+    while { is_vector(_DirPathRow) } {
+        unset _DirPathRow # must unset it before reading it
+        read row _DirPathRow $_DirPathInd.s
+        define _DirPathInd $($_DirPathInd+1)
+        if( is_vector(_DirPathRow) ) {
+            if( strlen(_DirPathRow)>=0 ) {
+                set _DirPathRow = {"}+_DirPathRow+{"}
+                if( dimen(_DirPathVec)==0 ) {
+                    set _DirPathVec = _DirPathRow
+                } else {
+                    set _DirPathVec = _DirPathVec concat _DirPathRow
+                }
+            }
+        }
+    }
+    verbose 1
+    set $0 = _DirPathVec
+    unset _DirPathVec
+    !rm ".GetDirPathVector.tmp" 2>/dev/null
+    return
+
+
+VisitDirPathVector 01
+    # input DirPathVector and change dirs 
+    # usage: 
+    #  load AstroDepthSetDataInfo_v3.sm
+    #  set PfitDir = GetDirPathVector("abc/work/data/nowhitespace")
+    #  VisitDirPathVector PfitDir
+    # note:
+    #  if you want to get back to old dir path, run this immediately after
+    #  VisitDirPathVector OldDirPathVector
+    #  
+    # check input
+    if($?1==0) {print 'VisitDirPathVector: No input DirPathVector!\n' {} return}
+    set _DirPathPwd = GetDirPathVector()  # note this overriding _DirPathVec
+    set _DirPathVec = $1
+    #  
+    # backup current pwd and visit DirPathVector
+    set OldDirPathVector = _DirPathPwd
+    set NewDirPathVector = _DirPathVec
+    print 'VisitDirPathVector: ' {} PrintDirPathVector OldDirPathVector
+    print 'VisitDirPathVector: ' {} PrintDirPathVector NewDirPathVector
+    do _DirPathInd = 0,dimen(_DirPathVec)-1 {
+        # current dir path element 
+        set _DirPathRow = _DirPathVec[$_DirPathInd]
+        # append and prepend quotes
+        if(index(_DirPathRow,'\"')!=0) {
+            set _DirPathRow = {"}+_DirPathRow+{"}
+        }
+        # check destination dir
+        DEFINE exit_status DELETE !test -f $(_DirPathRow) >/dev/null
+        set _DirPathIsF = (0==$exit_status)
+        if(1==_DirPathIsF) {
+            return
+        } # if it is a file not a dir, then return
+        DEFINE exit_status DELETE !test -d $(_DirPathRow) >/dev/null
+        set _DirPathIsD = (0==$exit_status)
+        if(0==_DirPathIsD) {
+            if(0==_DirPathIsF) {
+                # if is not dir nor file, then report error.
+                print 'VisitDirPathVector: Error! Directory $(_DirPathRow) does not exist!\n' {}
+                !pwd
+                !ls
+                RaiseErrorBreak
+            }
+            return
+        }
+        # change dir
+        echo "VisitDirPathVector: chdir "$(_DirPathRow)
+        if(index(_DirPathRow,'/')<0) {
+            chdir "./"$(_DirPathRow)
+        } else {
+            chdir $(_DirPathRow)
+        }
+        #<note><20160101><dzliu># for some pure number directory, chdir failed, so must prepend "./", e.g. "./201512/"
+    }
+
+
+VisitDirPathVectorFile 01
+    # input DirPathVector and change dirs and open the file 
+    # usage: 
+    #  load AstroDepthSetDataInfo_v3.sm
+    #  set Catalog = GetDirPathVector("abc/work/data/nowhitespace/myfile.dat")
+    #  VisitDirPathVectorFile Catalog
+    #  
+    # check input
+    if($?1==0) {print 'VisitDirPathVectorFile: No input DirPathVector!\n' {} return}
+    set _DirPathPwd = GetDirPathVector()  # note this overriding _DirPathVec
+    set _DirPathVec = $1
+    #  
+    # backup current pwd and visit data file DirPathVector
+    set OldDirPathVector = _DirPathPwd
+    set NewDirPathVector = _DirPathVec
+    print 'VisitDirPathVector: ' {} PrintDirPathVector OldDirPathVector
+    print 'VisitDirPathVector: ' {} PrintDirPathVector NewDirPathVector
+    do _DirPathInd = 0,dimen(_DirPathVec)-1 {
+        # current dir path element 
+        set _DirPathRow = _DirPathVec[$_DirPathInd]
+        # append and prepend quotes
+        if(index(_DirPathRow,'\"')!=0) {
+            set _DirPathRow = {"}+_DirPathRow+{"}
+        }
+        # check destination dir
+        if($_DirPathInd!=dimen(_DirPathVec)-1) {
+            DEFINE exit_status DELETE !test -d $(_DirPathRow) >/dev/null
+            if(0!=$exit_status) {
+                print 'VisitDirPathVectorFile: Error! Directory $(_DirPathRow) does not exist!\n' {} 
+                RaiseErrorBreak
+                return
+            }
+        }
+        # change dir
+        if($_DirPathInd!=dimen(_DirPathVec)-1) {
+            echo "VisitDirPathVectorFile: chdir "$(_DirPathRow)
+            chdir $(_DirPathRow)
+        } else {
+            # open file to read
+            if(is_file($(_DirPathRow))) {
+                echo "VisitDirPathVectorFile: opening "$(_DirPathRow)
+                data $(_DirPathRow)
+            } else {
+                print 'VisitDirPathVectorFile: Error! File $(_DirPathRow) does not exist!\n' {} 
+                RaiseErrorBreak
+                return
+            }
+        }
+    }
+
+
+TouchDirPathVectorFile 01
+    # input DirPathVector, which is a path to a file
+    # we will touch the file and create it
+    # usage: 
+    #  load AstroDepthSetDataInfo_v3.sm
+    #  set Catalog = GetDirPathVector("abc/work/data/nowhitespace/myfile.dat")
+    #  VisitDirPathVectorFile Catalog
+    #  
+    # check input
+    if($?1==0) {print 'TouchDirPathVectorFile: No input DirPathVector!\n' {} return}
+    set _DirPathPwd = GetDirPathVector()  # note this overriding _DirPathVec
+    set _DirPathVec = $1
+    #  
+    # backup current pwd and visit data file DirPathVector
+    set OldDirPathVector = _DirPathPwd
+    set NewDirPathVector = _DirPathVec
+    print 'TouchDirPathVectorFile: ' {} PrintDirPathVector OldDirPathVector
+    print 'TouchDirPathVectorFile: ' {} PrintDirPathVector NewDirPathVector
+    do _DirPathInd = 0,dimen(_DirPathVec)-1 {
+        # current dir path element 
+        set _DirPathRow = _DirPathVec[$_DirPathInd]
+        # append and prepend quotes
+        if(index(_DirPathRow,'\"')!=0) {
+            set _DirPathRow = {"}+_DirPathRow+{"}
+        }
+        # check destination dir
+        if($_DirPathInd!=dimen(_DirPathVec)-1) {
+            DEFINE exit_status DELETE !test -d $(_DirPathRow) >/dev/null
+            if(0!=$exit_status) {
+                print 'TouchDirPathVectorFile: Error! Directory $(_DirPathRow) does not exist!\n' {}
+                RaiseErrorBreak
+                return
+            }
+        }
+        # change dir
+        if($_DirPathInd!=dimen(_DirPathVec)-1) {
+            echo "TouchDirPathVectorFile: chdir "$(_DirPathRow)
+            chdir $(_DirPathRow)
+        } else {
+            # open file to read
+            echo "TouchDirPathVectorFile: touched "$(_DirPathRow)
+            !touch $(_DirPathRow)
+        }
+    }
+
+
+RaiseErrorBreak 02
+    # usage:
+    #   RaiseErrorBreak "WhichProcedure" "What Reason"
+    if($?2) {
+        print '$1: Error! $2! Please give Ctrl+C to break!\n' {}
+    } else {
+        if($?1) {
+            print '$1: Error! Please give Ctrl+C to break!\n' {}
+        } else {
+            print 'RaiseErrorBreak: Error! Please give Ctrl+C to break!\n' {} 
+        }
+    }
+    define _RaiseErrorBreak 1
+    while {'$_RaiseErrorBreak'!='continue'} {
+        define _RaiseErrorBreak ?
+    }
+    return
+
+
+PrintDirPathVector 01
+    # input DirPathVector and print it by using "/" concating each element
+    # usage: 
+    #  load AstroDepthSetDataInfo_v3.sm
+    #  set DirPath = GetDirPathVector("abc/work/data/nowhitespace/")
+    #  PrintDirPathVector DirPath
+    if($?1==0) {print 'PrintDirPathVector: No input DirPathVector!\n' {} return}
+    set _DirPathVec = $1
+    set _DirPathRoo = {"/"}
+    print '$1 = \"' {}
+    do _DirPathInd=0,dimen(_DirPathVec)-1 {
+        set _DirPathRow = _DirPathVec[$_DirPathInd]
+        if($_DirPathInd==0 && _DirPathRow==_DirPathRoo) {
+            print '/' {}
+        } else {
+            if($_DirPathInd!=dimen(_DirPathVec)-1) {
+                print '$(_DirPathRow)/' {}
+            } else {
+                print '$(_DirPathRow)' {}
+            }
+        }
+    }
+    print '\"\n' {}
+    return
+
+
+GetDataDir 00
+    # first we need to check white space
+    !rm ._pwd_. 2>/dev/null
+    # !echo \${PWD/\$HOME/\~} | grep -v ' ' > ._pwd_.
+    !pwd  | grep -v ' ' > ._pwd_.
+    !test -f ._pwd_.
+    if(0!=$exit_status) {
+        print 'Error! Current directory path contains white space! We can not use current dir as the DataDir!\n' {}
+        print '       Please move things to another directory without white space and with short path! Thank you!\n' {}
+        define errorbreak 1
+        define errorbreak ? <Checking failed! Please check the info above, and press Ctrl+C to break!>
+        # TODO: make sure linux command "type" is working!
+    }
+    # then we need to check the string length
+    # !echo \${PWD/\$HOME/\~} | wc -c > ._pwd_.
+    !pwd | wc -c > ._pwd_.
+    if($?verbose){define _get_current_verbose $verbose} else{define _get_current_verbose 1} verbose 0
+    data ._pwd_. read row _got_current_strlen 1.d
+    set _got_current_strlen = _got_current_strlen[0]
+    verbose $_get_current_verbose
+    if(_got_current_strlen>40) {
+        print 'Error! Current directory path is longer than 40 characters, which is too long for our Supermongo code!\n' {}
+        print '       Please move things to another directory without white space and with short path! Thank you!\n' {}
+        unset _got_current_strlen
+        define errorbreak 1
+        define errorbreak ? <Checking failed! Please check the info above, and press Ctrl+C to break!>
+        # TODO: make sure linux command "type" is working!
+    }
+    # everything is fine now, read current path as the DataDir
+    # !echo \${PWD/\$HOME/\~} > ._pwd_.
+    !pwd > ._pwd_.
+    if($?verbose){define _get_current_verbose $verbose} else{define _get_current_verbose 1} verbose 0
+    data ._pwd_. read row _got_current_path_s 1.s
+    set _got_current_path_ = _got_current_path_s[0]
+    do _got_current_path_i=1,dimen(_got_current_path_s)-1{
+        set _got_current_path_ = _got_current_path_+' '+_got_current_path_s[$i]
+    } unset _got_current_path_s verbose $_get_current_verbose
+    # set _got_current_path_ = {"}+_got_current_path_+{"} # add a pair of quotes
+    set $0 = _got_current_path_
+    return
+
+
+
+
+

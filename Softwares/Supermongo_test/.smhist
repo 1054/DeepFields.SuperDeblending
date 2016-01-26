@@ -1,0 +1,65 @@
+# this is a supermongo script for testing device x11
+# run the following command to execute this script
+# input sm2_test_device_x11.sm
+device postencap test_eps.eps
+define TeX_strings 1
+xtcolours
+erase
+expand 1.5 lweight 1.5
+set x = 0,100
+set y = sin(x/pi)
+limits x y
+location 5000 31000 5000 31000
+ctype default box
+ctype default ltype 1 connect x y
+ctype default ltype 0
+ctype royalblue ptype 4 0 expand 3.5 points x y
+ctype royalblue ptype 4 1 expand 1.5
+ctype default xlabel x
+ctype default ylabel y = sin(x) [\chi]
+device nodevice
+QUIT
+# this is a supermongo script for testing device x11
+# run the following command to execute this script
+# input sm2_test_device_x11.sm
+device postencap test_eps.eps
+define TeX_strings 1
+xtcolours
+erase
+expand 1.5 lweight 1.5
+set x = 0,100
+set y = sin(x/pi)
+limits x y
+location 5000 31000 5000 31000
+ctype default box
+ctype default ltype 1 connect x y
+ctype default ltype 0
+ctype royalblue ptype 4 0 expand 3.5 points x y
+ctype royalblue ptype 4 1 expand 1.5
+ctype default xlabel x
+ctype default ylabel y = sin(x) [\chi]
+device nodevice
+QUIT
+# this is a supermongo script for testing device x11
+# run the following command to execute this script
+# input sm2_test_device_x11.sm
+device x11
+define TeX_strings 1
+xtcolours
+erase
+expand 1.5 lweight 1.5
+set x = 0,100
+set y = sin(x/pi)
+limits x y
+ctype default box
+ctype default ltype 1 connect x y
+ctype default ltype 0
+ctype royalblue ptype 4 0 expand 3.5 points x y
+ctype royalblue ptype 4 1 expand 1.5
+ctype default xlabel x
+ctype default ylabel y = sin(x) [\chi]
+device nodevice
+QUIT
+input sm2_test_device_x11.sm
+device nodevice
+quit

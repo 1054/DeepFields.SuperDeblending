@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015) (preloaded format=xelatex 2015.10.29)  14 JAN 2016 02:07
+This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015) (preloaded format=xelatex 2015.10.29)  25 JAN 2016 23:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -988,24 +988,41 @@ File: lstlang1.sty 2014/09/06 1.5e listings language file
 )
 (/usr/local/texlive/2015/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2014/09/06 1.5e listings language file
-)
-File: galsim_24_fbias_1.pdf Graphic file (type QTm)
+) [3
 
-<use  "galsim_24_fbias_1.pdf" >
+]
+Overfull \hbox (2.01282pt too wide) in paragraph at lines 167--168
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (11.61295pt too wide) in paragraph at lines 168--169
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (11.61295pt too wide) in paragraph at lines 170--171
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+[4]
+File: galsim_24_fbias_1.pdf Graphic file (type QTm)
+ <use  "galsim_24_fbias_1.pdf" >
 File: galsim_24_fbias_2.pdf Graphic file (type QTm)
  <use  "galsim_24_fbias_2.pdf" >
 File: galsim_24_fbias_3.pdf Graphic file (type QTm)
 
-<use  "galsim_24_fbias_3.pdf" > [3
-
-]
+<use  "galsim_24_fbias_3.pdf" > [5]
 File: galsim_24_dfcorr_1.pdf Graphic file (type QTm)
  <use  "galsim_24_dfcorr_1.pdf" >
 File: galsim_24_dfcorr_2.pdf Graphic file (type QTm)
 
 <use  "galsim_24_dfcorr_2.pdf" >
 File: galsim_24_dfcorr_3.pdf Graphic file (type QTm)
- <use  "galsim_24_dfcorr_3.pdf" > [4]
+ <use  "galsim_24_dfcorr_3.pdf" > [6]
 File: galsim_24_hist_dfcorr_1.pdf Graphic file (type QTm)
 
 <use  "galsim_24_hist_dfcorr_1.pdf" >
@@ -1013,15 +1030,38 @@ File: galsim_24_hist_dfcorr_2.pdf Graphic file (type QTm)
  <use  "galsim_24_hist_dfcorr_2.pdf" >
 File: galsim_24_hist_dfcorr_3.pdf Graphic file (type QTm)
 
-<use  "galsim_24_hist_dfcorr_3.pdf" > [5] [6]
-File: galsim_20cm_fbias_1.pdf Graphic file (type QTm)
+<use  "galsim_24_hist_dfcorr_3.pdf" > [7]
+File: compare_f24_dzliu_with_daddi_20160119.pdf Graphic file (type QTm)
 
-<use  "galsim_20cm_fbias_1.pdf" >
+<use  "compare_f24_dzliu_with_daddi_20160119.pdf" >
+File: compare_f24_dzliu_with_daddi_log_20160119.pdf Graphic file (type QTm)
+
+<use  "compare_f24_dzliu_with_daddi_log_20160119.pdf" > [8] [9]
+Overfull \vbox (8.94406pt too high) has occurred while \output is active []
+
+
+[10]
+File: compare_f24_dzliu_with_elbaz_2013_20160119.pdf Graphic file (type QTm)
+ <use  "compare_f24_dzliu_with_elbaz_2013_20160119.pdf" >
+File: compare_f24_histogram_dzliu_daddi_elbaz_20160124.pdf Graphic file (type Q
+Tm)
+
+<use  "compare_f24_histogram_dzliu_daddi_elbaz_20160124.pdf" >
+File: compare_df24_histogram_dzliu_daddi_elbaz_20160124.pdf Graphic file (type 
+QTm)
+
+<use  "compare_df24_histogram_dzliu_daddi_elbaz_20160124.pdf" >
+Overfull \vbox (103.7922pt too high) has occurred while \output is active []
+
+
+[11]
+File: galsim_20cm_fbias_1.pdf Graphic file (type QTm)
+ <use  "galsim_20cm_fbias_1.pdf" >
 File: galsim_20cm_fbias_2.pdf Graphic file (type QTm)
  <use  "galsim_20cm_fbias_2.pdf" >
 File: galsim_20cm_fbias_3.pdf Graphic file (type QTm)
 
-<use  "galsim_20cm_fbias_3.pdf" > [7
+<use  "galsim_20cm_fbias_3.pdf" > [12
 
 ]
 File: galsim_20cm_dfcorr_1.pdf Graphic file (type QTm)
@@ -1030,7 +1070,7 @@ File: galsim_20cm_dfcorr_2.pdf Graphic file (type QTm)
 
 <use  "galsim_20cm_dfcorr_2.pdf" >
 File: galsim_20cm_dfcorr_3.pdf Graphic file (type QTm)
- <use  "galsim_20cm_dfcorr_3.pdf" > [8]
+ <use  "galsim_20cm_dfcorr_3.pdf" > [13]
 File: galsim_20cm_hist_dfcorr_1.pdf Graphic file (type QTm)
 
 <use  "galsim_20cm_hist_dfcorr_1.pdf" >
@@ -1039,10 +1079,12 @@ File: galsim_20cm_hist_dfcorr_2.pdf Graphic file (type QTm)
 <use  "galsim_20cm_hist_dfcorr_2.pdf" >
 File: galsim_20cm_hist_dfcorr_3.pdf Graphic file (type QTm)
 
-<use  "galsim_20cm_hist_dfcorr_3.pdf" > [9]
-File: Compare_measurments_of_24um_with_Elbaz_2013.pdf Graphic file (type QTm)
+<use  "galsim_20cm_hist_dfcorr_3.pdf" > [14]
+File: compare_f24_dzliu_with_elbaz_2013_20160119.pdf Graphic file (type QTm)
 
-<use  "Compare_measurments_of_24um_with_Elbaz_2013.pdf" > [10] [11]
+<use  "compare_f24_dzliu_with_elbaz_2013_20160119.pdf" > [15] [16] [17
+
+]
 File: galsim_20cm_Glenn_fbias_1.pdf Graphic file (type QTm)
 
 <use  "galsim_20cm_Glenn_fbias_1.pdf" >
@@ -1051,9 +1093,7 @@ File: galsim_20cm_Glenn_fbias_2.pdf Graphic file (type QTm)
 <use  "galsim_20cm_Glenn_fbias_2.pdf" >
 File: galsim_20cm_Glenn_fbias_3.pdf Graphic file (type QTm)
 
-<use  "galsim_20cm_Glenn_fbias_3.pdf" > [12
-
-]
+<use  "galsim_20cm_Glenn_fbias_3.pdf" > [18]
 File: galsim_20cm_Glenn_dfcorr_1.pdf Graphic file (type QTm)
 
 <use  "galsim_20cm_Glenn_dfcorr_1.pdf" >
@@ -1062,7 +1102,7 @@ File: galsim_20cm_Glenn_dfcorr_2.pdf Graphic file (type QTm)
 <use  "galsim_20cm_Glenn_dfcorr_2.pdf" >
 File: galsim_20cm_Glenn_dfcorr_3.pdf Graphic file (type QTm)
 
-<use  "galsim_20cm_Glenn_dfcorr_3.pdf" > [13]
+<use  "galsim_20cm_Glenn_dfcorr_3.pdf" > [19]
 File: galsim_20cm_Glenn_hist_dfcorr_1.pdf Graphic file (type QTm)
 
 <use  "galsim_20cm_Glenn_hist_dfcorr_1.pdf" >
@@ -1071,31 +1111,84 @@ File: galsim_20cm_Glenn_hist_dfcorr_2.pdf Graphic file (type QTm)
 <use  "galsim_20cm_Glenn_hist_dfcorr_2.pdf" >
 File: galsim_20cm_Glenn_hist_dfcorr_3.pdf Graphic file (type QTm)
 
-<use  "galsim_20cm_Glenn_hist_dfcorr_3.pdf" > [14]
-File: Compare_measurments_of_20cm_with_Morrison_2010.pdf Graphic file (type QTm
-)
+<use  "galsim_20cm_Glenn_hist_dfcorr_3.pdf" > [20]
+File: compare_f20cm_dzliu_with_morrison_2010_20160119.pdf Graphic file (type QT
+m)
 
-<use  "Compare_measurments_of_20cm_with_Morrison_2010.pdf" > [15]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 315.
- [16]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 315.
+<use  "compare_f20cm_dzliu_with_morrison_2010_20160119.pdf" > [21]
+File: compare_f20cm_dzliu_with_daddi_20160119.pdf Graphic file (type QTm)
 
-(./A_24_Radio_Catalog_Manual.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 315.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 315.
+<use  "compare_f20cm_dzliu_with_daddi_20160119.pdf" > [22]
+File: compare_df20cm_histogram_dzliu_daddi_morrison_20160124.pdf Graphic file (
+type QTm)
+
+<use  "compare_df20cm_histogram_dzliu_daddi_morrison_20160124.pdf" > [23]
+File: compare_f20cm_histogram_dzliu_daddi_morrison_20160124.pdf Graphic file (t
+ype QTm)
+
+<use  "compare_f20cm_histogram_dzliu_daddi_morrison_20160124.pdf" > [24]
+[25]
+Overfull \hbox (11.61295pt too wide) in paragraph at lines 475--476
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+[26
+
+]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 487.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\mu' on input line 487.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 487.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 493.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 493.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 499.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\mu' on input line 499.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 499.
+
+[27
+
+]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 510.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 510.
+ (./A_24_Radio_Catalog_Manual.aux)
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 510.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 510.
 
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 315.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 510.
  ) 
 Here is how much of TeX's memory you used:
- 24468 strings out of 495487
- 443207 string characters out of 6181014
- 536236 words of memory out of 5000000
- 27486 multiletter control sequences out of 15000+600000
- 10377 words of font info for 62 fonts, out of 8000000 for 9000
+ 24533 strings out of 495487
+ 444705 string characters out of 6181014
+ 552912 words of memory out of 5000000
+ 27539 multiletter control sequences out of 15000+600000
+ 11692 words of font info for 71 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 37i,6n,58p,10400b,1110s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 37i,6n,58p,10400b,1731s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on A_24_Radio_Catalog_Manual.pdf (16 pages).
+Output written on A_24_Radio_Catalog_Manual.pdf (27 pages).

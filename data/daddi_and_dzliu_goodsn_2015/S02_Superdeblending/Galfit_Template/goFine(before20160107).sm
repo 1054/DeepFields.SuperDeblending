@@ -1,0 +1,3551 @@
+goFine	00	define doInit 0   # do it twice, dunno why
+			verbose 0
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+
+			data HSO_160and100and250and350and500_radio_cpt.dat read 'circle(%f,%f' {ra de}
+			data Hand_RADEC read {_ra 1 _de 2} set ra = ra concat _ra set de = de concat _de
+			data toAdd_simu read {_ra 1 _de 2} set ra = ra concat _ra set de = de concat _de
+			set id=1,dimen(ra)
+
+
+			data uuu_2p read {xid 1 todo 7} set xid = xid if(todo==-1) #delete from beginning the things found out to be likely unreal
+			set yy =0,dimen(xid)-1 set cox = id*0+1 foreach var yy {set cox = id==xid[$var] ? 0 : cox}
+			foreach var {id ra de} {set $var = $var if(cox)}
+
+			data uuu_1p5_2 read {xid 1 todo 7} set xid = xid if(todo==-1) #delete from beginning the things found out to be likely unreal
+			set yy =0,dimen(xid)-1 set cox = id*0+1 foreach var yy {set cox = id==xid[$var] ? 0 : cox}
+			foreach var {id ra de} {set $var = $var if(cox)}
+
+			data uuu_1_1p5 read {xid 1 todo 7} set xid = xid if(todo==-1) #delete from beginning the things found out to be likely unreal
+			set yy =0,dimen(xid)-1 set cox = id*0+1 foreach var yy {set cox = id==xid[$var] ? 0 : cox}
+			foreach var {id ra de} {set $var = $var if(cox)}
+
+			data toKill read {xid 1 todo 2} set xid = xid if(todo==-1) #delete objs with problems
+			set yy =0,dimen(xid)-1 set cox = id*0+1 foreach var yy {set cox = id==xid[$var] ? 0 : cox}
+			foreach var {id ra de} {set $var = $var if(cox)}
+
+
+			if($doInit) {
+			cd                                             /Users/edaddi/HDFN
+			macro read match_IRAC_Rad.sm goIRAC
+			macro read gofindRadio.sm gofindRadio 
+			macro read gofindACS.sm gofindACS
+			macro read gofindX.sm gofindX
+			cd                                             /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			}
+
+			set change_coo = id*0+1      # change coordinates to some, not all (those with bad IRAC are unchanged)
+
+			data uuu_2p read {xid 1 todo 7} set xid = xid if(todo==1)   # keep, but with original coords
+			set yy =0,dimen(xid)-1  foreach var yy {set change_coo = id==xid[$var] ? 0 : change_coo}
+
+			data uuu_1p5_2 read {xid 1 todo 7} set xid = xid if(todo==1)   # keep, but with original coords
+			set yy =0,dimen(xid)-1  foreach var yy {set change_coo = id==xid[$var] ? 0 : change_coo}
+
+			data uuu_1_1p5 read {xid 1 todo 7} set xid = xid if(todo==1)   # keep, but with original coords
+			set yy =0,dimen(xid)-1  foreach var yy {set change_coo = id==xid[$var] ? 0 : change_coo}
+
+			set change_coo = change_coo==1 && IraC<0 ? 0 : change_coo
+
+			set raF = change_coo ? IraC : ra
+			set deF = change_coo ? IdeC : de
+
+			#set ra1 = int(ra_/15) set ra2=int((ra_/15-ra1)*60) set ra3=(ra_/15-ra1-ra2/60)*3600
+			#set de1 = int(de_) set de2=int((de_-de1)*60) set de3=(de_-de1-de2/60)*3600
+			#print toGlenn_sources.dat '%.0f\t %.0f %.0f %.3f\t %.0f %.0f %.3f\n' {id_ ra1 ra2 ra3 de1 de2 de3} 
+
+			data keep_orig  read {xid 1 ff 2} set keep_orig=change_coo*0  # keep, but with original coords, radio obj blended by glenn
+			set yy =0,dimen(xid)-1  foreach var yy {
+			set keep_orig = id==xid[$var] ? 1 : keep_orig
+			set radio = id==xid[$var] ? ff[$var] : radio
+			}
+
+			set raF = radio>0 && !keep_orig && raRad>0 ? raRad : raF
+			set deF = radio>0 && !keep_orig && raRad>0 ? deRad : deF
+
+			if($doInit) {
+			cd                                             /Users/edaddi/HDFN
+			macro read gofindz.sm gofindz 
+			macro read gofindz.sm gofindzphot 
+			macro read gofindMIPS.sm gofindMIPS
+			macro read gofindManc.sm gofindManc
+			cd                                             /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			macro read gofindBenj.sm gofindBenj
+			macro read gofindHainline.sm  gofindHainline
+			macro read gofindXID.sm gofindXID
+			macro read gofindED09.sm gofindED09
+			macro read gofindMaio.sm gofindMaio
+			macro read gofindDarr.sm gofindDarr
+			get_coord
+			noisech1                    #  used to define 24um upper limit in bad regions
+			noise24
+			noise70
+			noise100
+			noise160
+			noise1100
+			S_Max
+			}
+
+				data Hand_z read {_to1 1 _to2 2}
+					set ii=0,dimen(_to1)-1
+					foreach var ii {
+					set spez = id==_to1[$var] ? _to2[$var] : spez
+					}
+			set zz = spez > 0 ? spez : zp>0 ? zp : -1
+
+			#data TTT_HSO_photometry_17Feb_freen.txt read {zp_radio 5 zp_radio_min 2 zp_radio_max 3}
+			#data TTT_HSO_photometry_17Feb_fixed_RXXX.txt read {zp_radio 5 zp_radio_min 2 zp_radio_max 3}
+			#data TTT_HSO_photometry_03Mar_fixed_RDHX.txt read {_xid 1 _zp_radio 5 _zp_radio_min 2 _zp_radio_max 3}
+			data TTT_HSO_photometry_02Apr_fixedCE01_noradio.txt read {_xid 1 _zp_radio 5 _zp_radio_min 2 _zp_radio_max 3}
+			foreach vaa {zp_radio zp_radio_min zp_radio_max} {set $vaa = x250*0-1}
+			set ooi =0,dimen(_xid)-1 foreach vaa ooi {
+			set zp_radio = id==_xid[$vaa] ? _zp_radio[$vaa] : zp_radio
+			set zp_radio_min = id==_xid[$vaa] ? _zp_radio_min[$vaa] : zp_radio_min
+			set zp_radio_max = id==_xid[$vaa] ? _zp_radio_max[$vaa] : zp_radio_max
+			}
+
+			data flag_cata_HSO_ED_radiopriors.txt read {_xid 1 _hsflag 2}
+			foreach vaa {hsflag} {set $vaa = x250*0-1}
+			set ooi =0,dimen(_xid)-1 foreach vaa ooi {
+			set hsflag   = id==_xid[$vaa] ? _hsflag[$vaa] : hsflag  
+			}
+
+
+			print HSO_160and100and250and350and500_radio_cpt_align.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +HSO_160and100and250and350and500_radio_cpt_align.reg '"global color=red font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +HSO_160and100and250and350and500_radio_cpt_align.reg 'fk5;ellipse(%.7f,%.7f,4\",4\",0) \# text={ID%d} \n' {raF deF id}
+
+			data results_70_29Mar read {m70  8 e70  9}
+			define h_70  1.00       # photometry fudge factor from PEP, from STD star (multiply)
+			define m_70  1.00       # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			define corr_70   1.00   # correlation factor for errors, scale up errors with this number 
+			set f70  = 10**(-0.4*m70)*$h_70/$m_70
+			set df70 = f70*e70/1.08    #    *$corr_70    #  make sure you scaled up the error map
+			set xn70 = 0.60*noi70/0.014
+			set f70 = e70 > 0 ? f70 : -3*xn70
+			set df70 = e70 > 0 ? df70 : -xn70
+			define bias70  0.2
+			define conf70  0.7
+			set f70 = f70+$bias70
+			set df70 = df70>0 ? (df70**2+$conf70**2)**.5 : -(df70**2+$conf70**2)**.5
+
+			data results_160_29Mar read {m160 8 e160 9}
+			set m160=m160-0.035
+			define h_160 0.90       # photometry fudge factor from PEP, from STD star (multiply)
+			define m_160 0.806       # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			define corr_160  1.63   # correlation factor for errors, scale up errors with this number 
+			set f160 = 10**(-0.4*m160)*1000*$h_160/$m_160
+			set df160 = f160*e160/1.08    #    *$corr_160    # make sure you scaled up the error map
+			set xn160 = 1.35*noi160/2e-4
+			set f160 = e160 > 0 ? f160 : -3*xn160
+			set df160 = e160 > 0 ? df160 : -xn160
+			define bias160  0
+			define conf160  1.5
+			set f160 = f160+$bias160
+			set df160 = df160>0 ? (df160**2+$conf160**2)**.5 : -(df160**2+$conf160**2)**.5
+
+			data results_100_29Mar read {m100 8 e100 9}
+			set m100=m100-0.067
+			define h_100 0.94       # photometry fudge factor from PEP, from STD star (multiply)
+			define m_100 0.859       # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			define corr_100  1.46   # correlation factor for errors, scale up errors with this number 
+			set f100 = 10**(-0.4*m100)*1000*$h_100/$m_100
+			set df100 = f100*e100/1.08    #    *$corr_100    #  make sure you scaled up the error map
+			set xn100 = 0.70*noi100/7e-5
+			set f100 = e100 > 0 ? f100 : -3*xn100
+			set df100 = e100 > 0 ? df100 : -xn100
+			define bias100  0
+			define conf100  0.7
+			set f100 = f100+$bias100
+			set df100 = df100>0 ? (df100**2+$conf100**2)**.5 : -(df100**2+$conf100**2)**.5
+
+			data results_250_29Mar read {m250 8 e250 9}
+			Fix250
+			define h_250 $(1/10.37)       # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			define m_250 1       # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			define corr_250  1   # correlation factor for errors, scale up errors with this number 
+			set f250 = 10**(-0.4*m250)*1000*$h_250/$m_250
+			set df250 = f250*e250/1.08    #    *$corr_250    # make sure you scaled up the error map
+			set f250 = e250 > 0 ? f250 : -3*2.58
+			set df250 = e250 > 0 ? df250 : -2.58
+			define bias250  0.65
+			define conf250   3.4
+			set f250 = f250+$bias250
+			set df250 = df250>0 ? (df250**2+$conf250**2)**.5 : -(df250**2+$conf250**2)**.5
+
+			R_RP250_N_GH 
+
+			data results_350_29Mar read {m350 8 e350 9}
+			Fix350
+			define h_350 $(1/7.17)      # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			define m_350 1       # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			define corr_350  1   # correlation factor for errors, scale up errors with this number 
+			set f350 = 10**(-0.4*m350)*1000*$h_350/$m_350
+			set df350 = f350*e350/1.08    #    *$corr_350    # make sure you scaled up the error map
+			set f350 = e350 > 0 ? f350 : -3*3.30
+			set df350 = e350 > 0 ? df350 : -3.30
+			define bias350  -1.55
+			define conf350  3.4
+			set f350 = f350+$bias350
+			set df350 = df350>0 ? (df350**2+$conf350**2)**.5 : -(df350**2+$conf350**2)**.5
+
+			data results_500_29Mar read {m500 8 e500 9}
+			Fix500
+			define h_500 $(1/7.618)       # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			define m_500 1       # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			define corr_500  1   # correlation factor for errors, scale up errors with this number 
+			set f500 = 10**(-0.4*m500)*1000*$h_500/$m_500
+			set df500 = f500*e500/1.08    #    *$corr_500    # make sure you scaled up the error map
+			set f500  = e500 > 0 ? f500 : -3*4.69
+			set df500 = e500 > 0 ? df500 : -4.69
+			define bias500  2.2 
+			define conf500  3.1
+			set f500 = f500+$bias500
+			set df500 = df500>0 ? (df500**2+$conf500**2)**.5 : -(df500**2+$conf500**2)**.5
+
+			data results_500_31May read {m500_GH 8 e500_GH 9}
+			define h_500_GH $(1/7.618)       # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			define m_500_GH 1       # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			define corr_500_GH  1   # correlation factor for errors, scale up errors with this number 
+			set f500_GH = 10**(-0.4*m500_GH)*1000*$h_500_GH/$m_500_GH
+			set df500_GH = f500_GH*e500_GH/1.08    #    *$corr_500    # make sure you scaled up the error map
+			set f500_GH = e500_GH > 0 ? f500_GH : -3*4.69
+			set df500_GH = e500_GH > 0 ? df500_GH : -4.69
+			define bias500_GH  3.37
+			define conf500_GH 3.55 #  3.1
+			set f500_GH = f500_GH+$bias500_GH
+			set df500_GH = df500_GH>0 ? (df500_GH**2+$conf500_GH**2)**.5 : -(df500_GH**2+$conf500_GH**2)**.5
+
+			data results_1100_29Mar read {m1100 8 e1100 9}
+			define h_1100 1       # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio (here I already divided the map by 4.404)
+			define m_1100 1       # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			define corr_1100  $(1/2.6)   # correlation factor for errors, scale up errors with this number 
+			set f1100 = 10**(-0.4*m1100)*1000*$h_1100/$m_1100
+			set df1100 = f1100*e1100/1.08*$corr_1100    # make sure you scaled up the error map; I scaled down by 2.6, to match Perera et al 
+			set xn1100 = 1.0*noi1100/3.7e-4
+			set f1100 = e1100 > 0 ? f1100 : -3*xn1100
+			set df1100 = e1100 > 0 ? df1100 : -1*xn1100
+			define bias1100  0.0 
+			define conf1100  0.0
+			set f1100 = f1100+$bias1100
+			set df1100 = df1100>0 ? (df1100**2+$conf1100**2)**.5 : -(df1100**2+$conf1100**2)**.5
+
+
+			#SET GH      # to switch using the new GH SPIRE measures instead of Hermes
+			foreach xar {250 350 500} {
+			foreach mar {m e f df} {
+			set $mar""$xar = $mar""$xar""_GH
+			}
+			}
+
+			set S100 = df100 >0 ? 1 : 0
+			set S160 = df160 >0 ? 1 : 0
+			set S250 = df250 >0 ? 1 : 0
+			set S350 = df350 >0 ? 1 : 0
+			set S500 = df500 >0 ? 1 : 0
+			set S1100 = df1100 >0 ? 1 : 0
+			set SN = ((f100/df100)**2*S100+(f160/df160)**2*S160+(f250/df250)**2*S250+(f350/df350)**2*S350+(f500/df500)**2*S500)**.5
+			set SNa = ((f100/df100)**2*S100+(f160/df160)**2*S160+(f250/df250)**2*S250+(f350/df350)**2*S350+(f500/df500)**2*S500+(f1100/df1100)**2*S1100)**.5
+
+			FixRadio
+			set radio = eradio>0 ? radio : 10
+			set eradio = eradio>0 ? eradio : -5
+			set dradio = eradio
+
+			set f24 = emips > 0 && distM<2.5 ? mips : -20
+			set emips = emips > 0 && distM<2.5 ? emips : -1
+			set df24  = emips 
+			set xn24 = noich1<100 ? 8.0*noi24/0.011 : 1e5
+			set f24  = df24  > 0 ? f24  : -3*xn24 
+			set df24  = df24  > 0 ? df24  : -1*xn24  
+			set f24 = id==335 ? 260 : f24
+			set df24 = id==335 ? 50 : df24
+
+			foreach GT {ch1 ch2 ch3 ch4} {
+			set f$GT = 10**(-0.4*($GT-23.9))
+			set d$GT = d$GT>.05 ? d$GT : .05
+			set df$GT = f$GT*d$GT/1.08
+			}
+
+			foreach GT {b v i z} {
+			set f$GT = $GT"_acs">0 && $GT"_acs"<50 ?  10**(-0.4*($GT"_acs"-23.9)) : -100
+			set df$GT = f$GT*d$GT"_acs"/1.08
+			}
+
+			foreach tR {100 160 250 350 500} {
+			set xf$tR = f$tR < df$tR ? df$tR : f$tR
+			}
+
+			#data doShow_results_05MarMP.dat read {all_peaks 2 all_fluxbol 3 all_max_fnu 4 all_peaks_err 5 all_max_fnu_err 6}
+			#data doShow_results_05MarMP_alt.dat read {all_peaks 2 all_fluxbol 3 all_max_fnu 4 all_peaks_err 5 all_max_fnu_err 6 all_peaks_min 7 all_peaks_max 8}
+			data doShow_results_29MarMP_alt.dat read {all_peaks 2 all_fluxbol 3 all_max_fnu 4 all_peaks_err 5 all_max_fnu_err 6 all_peaks_min 7 all_peaks_max 8}
+			set all_peaks_err = all_peaks>0 ? all_peaks_err : (all_peaks_min>1 && all_peaks_max<1000) ? (all_peaks_max-all_peaks_min)/2.3 : 0
+			set all_peaks = all_peaks>0 ? all_peaks : (all_peaks_min>1 && all_peaks_max<1000) ? (all_peaks_max+all_peaks_min)/2 : 0
+			set all_peaks_err = all_peaks_err>0 && all_peaks_err<.01 ? .01 : all_peaks_err
+			set Td = zz>0 ? 3235.2/((10**all_peaks)/(1+zz)) : -1
+			set all_max_fnu = all_peaks>0 ? all_max_fnu : S_Max
+			set all_max_fnu_err = all_peaks>0 ? all_max_fnu*all_max_fnu_err*0.4343 : -1
+			set all_fluxbol_err = (all_max_fnu_err**2+all_max_fnu_err**2)**.5
+			set all_fluxbol = all_fluxbol*10**(-11.8465) # erg/s/cm^2
+			set all_fluxbol_err = all_fluxbol*all_fluxbol_err*0.4343
+			set lpeak = all_peaks>0 ? 10**all_peaks : all_peaks_min>0 ? 10**all_peaks_min :  0
+			set udf24 = f24/df24>2 ? df24 : 2*df24>=20 ? 2*df24 : 20
+			set Raa = f24/df24>2 ?  radio/f24 : radio/(udf24)
+			set Raa = eradio >0 ? Raa : -Raa
+			set Paa = f24/df24>2 ? all_max_fnu*1000/f24 : all_max_fnu*1000/(udf24)
+			set Xaa = all_max_fnu*1000/fch2
+			set Iaa = f24/df24>2 ?  f24/fch4 : (2*df24)/fch4
+			set haU = id==16 || id==152 || id==401 || id==521 || id==527 
+			set r1 = Raa>.5
+			set r2 = Paa>300
+			set r3 = !haU
+			set r4 = lpeak>320
+			set r5 = hardX<-1
+			set r6 = all_peaks_err<.05
+			set r7 = lg(Xaa)>3.1
+			set r8 = zp_radio>3
+			set Robust = r1 + r2 + r3 + r4 + r5 + r6 + r7 + r8
+
+			set haACS = (db_acs<.22 && db_acs>0 && b_acs<27) || (dv_acs<.22 && dv_acs>0 && v_acs<27) || (di_acs<.22 && di_acs>0 && i_acs<27) || (dz_acs<.22 && dz_acs>0 && z_acs<27) 
+		
+			set BzKCO = idK==4171 || idK==21000 || idK==16000 || idK==17999 || idK==25536 || idK==12591 || idK==5819 || idK==7691 || idK==8049 || idK==15858 || idK==4071
+			Set_radioP
+
+Set_radioP	set coo1 = spez>2.8
+			set coo2 = !coo1 && idM>0
+			set coo3 = !coo1 && !coo2 && ch4>0 && ch4<24 && (ch3>ch4 && ch3>0) && (ch2>ch3 && ch2>0) &&  (ch1>ch2 && ch1>0)  && radio>f24/5 && spez<0
+			set coo4 = !coo1 && !coo2 & !coo3 &&  ch4<24 && (ch3>ch4 && ch3>0) && (ch2>ch3 && ch2>0) &&  (ch1>ch2 && ch1>0)  && zp_radio_min>2.5
+
+			set PL = ch4>0 && ch4<24 && (ch3>ch4-.2 && ch3>0) && (ch2>ch3 && ch2>0) &&  (ch1>ch2 && ch1>0) 
+			set PLa = ch4>0 && ch4<24 && (ch3>ch4-.2 && ch3>0) && (ch2>ch3 && ch2>0) &&  (ch1>ch3 && ch1>0)
+
+
+			#tele
+			#set coo = f350>f250 && f250>f160*2 && f350/df350>3 && ch4<ch3 && ch3<ch2 && ch2<ch1   # high-z selection
+			#set coo = zz>0 && f250/df250>5 && f250<30 || 1
+			set coo = spez>0 && SN>10 && (hardX<0 || zz>3) || (idE>0  || id==395 || id==204)
+			#set coo = id==14 || id==13 || id==395
+			#set coo = spez==1.414
+			#set coo = SN>5 && idM>0
+			#set coo = ch4>0 && ch4<24 && (ch3>ch4 && ch3>0) && (ch2>ch3 && ch2>0) &&  (ch1>ch2 && ch1>0)  && SN>5 && idM<0 && radio>f24/5
+			#set coo = f250>2 && f160>2 && f250/f160>3 && f160>f100 && SN>5
+			#set coo = Bdropout
+			#set coo = Vdropout
+
+			#set coo = SN>4 && (coo1 || coo2 || coo3) && f1100/df1100<3
+			set coo = (idE>0  || id==395 || id==204 || coo1) && SN>5
+			#set coo = id==188 || id==246 || id==324 || id==365
+			set coo = spez>0 && SNa>5 && all_peaks_err>0 && id<566 # all_peaks_err<.05 
+			set coo =  SNa>5 && PLa && lpeak>280 && (lg(Xaa)>2.8 || all_max_fnu_err<0) && (Paa>150 || all_max_fnu_err<0)  && Raa>.1
+			#set coo = coo && ch4>0
+			#set coo = coo && f1100/df1100>3 && f1100>0
+			#set coo = coo & f250X>0
+			#set coo = coo && all_peaks>0 && all_peaks_err>0
+			#set coo = f250 > 30 && Nband>5
+			#set coo = Nband>4 && spez>0
+			#set coo = f350>0 && f350X>0 && SNa>5 
+			#set coo =  PLa && Raa>.1
+
+			#set coo = id==333 || id==500 || id==560
+			#set coo = f250/df250>5 && f250>40
+
+			condi
+IDs_IRAM_z3	00
+			data IDs_IRAM_z3 read IId 1 set haId = id*0 foreach var IId {set haId = id == $var ? 1 :  haId } set coo = haId condi
+			doShow 0
+			set SN1100 = f1100_/df1100_
+			set SN500 = f500_/df500_
+			set min_1100 = f500_/10
+			set xmin = min_1100>1 ? min_1100 : 1
+			set tracks = 1.8*(xmin/0.7)**(-2)
+			set tint = tracks/1.6
+			define print_noheader 0
+			print '%.0f\n' {id_ tracks SN500 f500_ xmin fit_1100 f1100_ df1100_ SN1100}
+			print aaa.tex '%.0f "&" %.3f "&" %.1f "&" %.1f "&" %.2f "&" %.1f "$\pm$" %.1f   \n' {id_ spez_ f500_ xmin tint f1100_ df1100_}
+			print targ.tex '%.0f "&" %.7f "&" %.7f "&" "$z>3$" \n' {id_ ra_ de_}
+			define print_noheader 1
+		
+saveAll	00	
+			print saveAll_radioP_1.dat '%d %.7f %.7f %.7f %.7f\n'  {id ra de raF deF idI ch1 ch2 ch3 ch4 dch1 dch2 dch3 dch4 flI1 flI3 distI distM IraC IdeC ch1tot ch2tot ch3tot ch4tot} 
+			print saveAll_radioP_2.dat {zp_radio zp_radio_min zp_radio_max xI yI ch2_psf ks_psf radio eradio mips emips f24 df24 x24 y24 distR raRad deRad}
+			print saveAll_radioP_3.dat {distz idz spez zz zp noi24 noi70 noi100 noi160 noi1100  m70 e70 f70 df70 x70 y70 m160 e160 f160 df160 x160 y160 m100 e100 f100 df100 x100 y100 m250 e250 f250 df250 f250_GH df250_GH x250 y250 m350 e350 f350 df350 f350_GH df350_GH x350 y350 m500 e500 f500 df500 f500_GH df500_GH x500 y500 m1100 e1100 f1100 df1100 x1100 y1100}
+			print saveAll_radioP_4.dat {idB raB deB f24B df24B f100B df100B f160B df160B f250X df250X b250X f350X df350X b350X f500X df500X b500X}
+			print saveAll_radioP_5.dat {z_acs dz_acs b_acs db_acs v_acs i_acs dv_acs di_acs Bdropout Vdropout idM SN SNa xf350 xf250 xf500 xf100 xf160 idMaio idDarr idE detX errX fullX softX hardX}
+			print saveAll_radioP_6.dat {fch1 fch2 fch3 fch4 fb fv fi fz dfch1 dfch2 dfch3 dfch4 dfb dfv dfi dfz PL PLa idK all_peaks all_peaks_err all_peaks_min all_peaks_max all_fluxbol all_fluxbol_err all_max_fnu all_max_fnu_err lpeak Raa Paa Iaa Xaa Robust haU haACS S_Max Nband Td r1 r2 r3 r4 r5 r6 r7 r8 hsflag}
+
+readAll	00	
+			data saveAll_radioP_1.dat read {id 1 ra 2 de 3 raF 4 deF 5 idI 6 ch1 7 ch2 8 ch3 9 ch4 10 dch1 11 dch2 12 dch3 13 dch4 14 flI1 15 flI3 16 distI 17 distM 18 IraC 19 IdeC 20 ch1tot 21 ch2tot 22 ch3tot 23 ch4tot 24} 
+			data saveAll_radioP_2.dat read {zp_radio 1 zp_radio_min 2 zp_radio_max 3 xI 4 yI 5 ch2_psf 6 ks_psf 7 radio 8 eradio 9 mips 10 emips 11 f24 12 df24 13 x24 14 y24 15 distR 16 raRad 17 deRad 18}
+			data saveAll_radioP_3.dat read {distz 1 idz 2 spez 3 zz 4 zp 5 noi24 6 noi70 7 noi100 8 noi160 9 noi1100  10 m70 11 e70 12 f70 13 df70 14 x70 15 y70 16 m160 17 e160 18 f160 19 df160 20 x160 21 y160 22 m100 23 e100 24 f100 25 df100 26 x100 27 y100 28 m250 29 e250 30 f250 31 df250 32 f250_GH 33 df250_GH 34 x250 35 y250 36 m350 37 e350 38 f350 39 df350 40 f350_GH 41 df350_GH 42 x350 43 y350 44 m500 45 e500 46 f500 47 df500 48 f500_GH 49 df500_GH 50 x500 51 y500 52 m1100 53 e1100 54 f1100 55 df1100 56 x1100 57 y1100 58}
+			data saveAll_radioP_4.dat read {idB 1 raB 2 deB 3 f24B 4 df24B 5 f100B 6 df100B 7 f160B 8 df160B 9 f250X 10 df250X 11 b250X 12 f350X 13 df350X 14 b350X 15 f500X 16 df500X 17 b500X 18}
+			data saveAll_radioP_5.dat read {z_acs 1 dz_acs 2 b_acs 3 db_acs 4 v_acs 5 i_acs 6 dv_acs 7 di_acs 8 Bdropout 9 Vdropout 10 idM 11 SN 12 SNa 13 xf350 14 xf250 15 xf500 16 xf100 17 xf160 18 idMaio 19 idDarr 20 idE 21 detX 22 errX 23 fullX 24 softX 25 hardX 26}
+			data  saveAll_radioP_6.dat read {fch1 1 fch2 2 fch3 3 fch4 4}
+			data  saveAll_radioP_6.dat read {fb 5 fv 6 fi 7 fz 8 dfch1 9 dfch2 10 dfch3 11 dfch4 12 dfb 13 dfv 14 dfi 15 dfz 16 PL 17 PLa 18 idK 19 all_peaks 20 all_peaks_err 21 all_peaks_min 22 all_peaks_max 23 all_fluxbol 24 all_fluxbol_err 25 all_max_fnu 26 all_max_fnu_err 27 lpeak 28 Raa 29 Paa 30 Iaa 31 Xaa 32 Robust 33 haU 34 haACS 35 S_Max 36 Nband 37 Td 38 r1 39 r2 40 r3 41 r4 42 r5 43 r6 44 r7 45 r8 46 hsflag 47}
+			data saveAll_radioP_7.dat read {noi24 1}
+
+			foreach ggar {f250_GH df250_GH f350_GH df350_GH f500_GH df500_GH} {set old_$ggar = $ggar }  
+			data R_RP250_N_GH.dat read {f250_GH 1 df250_GH 2 contam_X250_GH 3 x250_GH 4 y250_GH 5 noi250_GH 6 m250_GH 7 e250_GH 8}
+			data R_RP350_N_GH.dat read {f350_GH 1 df350_GH 2 contam_X350_GH 3 x350_GH 4 y350_GH 5 noi350_GH 6 m350_GH 7 e350_GH 8}
+			data R_RP500_N_GH.dat read {f500_GH 1 df500_GH 2 contam_X500_GH 3 x500_GH 4 y500_GH 5 noi500_GH 6 m500_GH 7 e500_GH 8}
+
+			set BzKCO = idK==4171 || idK==21000 || idK==16000 || idK==17999 || idK==25536 || idK==12591 || idK==5819 || idK==7691 || idK==8049 || idK==15858 || idK==4071
+			set BzKCO = id==9     || id==522 ||    id==131 ||    id==566 ||    id==141 ||    id==227 || id==229 || id==256 || id==248
+
+			set coo = SNa>5 && f250_GH/df250_GH>5
+			set coo = SNa>-5 && old_f250_GH/old_df250_GH>-5 && f250_GH/df250_GH>5
+			set coo = f500_GH/df500_GH>5
+			set coo = id==78
+			set coo = BzKCO
+
+			#set coo = coo || 1
+
+
+			condi
+
+condi
+			foreach var {id ra de raF deF idI ch1 ch2 ch3 ch4 dch1 dch2 dch3 dch4 flI1 flI3 distI distM IraC IdeC ch1tot ch2tot ch3tot ch4tot zp_radio zp_radio_min zp_radio_max xI yI ch2_psf ks_psf radio eradio mips emips f24 df24 x24 y24 distR raRad deRad distz idz spez zz zp noi24 noi70 noi100 noi160 noi1100  m70 e70 f70 df70 x70 y70 m160 e160 f160 df160 x160 y160 m100 e100 f100 df100 x100 y100 m250 e250 f250 df250 f250_GH df250_GH x250 y250 m350 e350 f350 df350 f350_GH df350_GH x350 y350 m500 e500 f500 df500 f500_GH df500_GH x500 y500 m1100 e1100 f1100 df1100 x1100 y1100 idB raB deB f24B df24B f100B df100B f160B df160B f250X df250X b250X f350X df350X b350X f500X df500X b500X  z_acs dz_acs b_acs db_acs v_acs i_acs dv_acs di_acs Bdropout Vdropout idM SN SNa xf350 xf250 xf500 xf100 xf160 idMaio idDarr idE detX errX fullX softX hardX fch1 fch2 fch3 fch4 fb fv fi fz dfch1 dfch2 dfch3 dfch4 dfb dfv dfi dfz PL PLa idK all_peaks all_peaks_err all_peaks_min all_peaks_max all_fluxbol all_fluxbol_err all_max_fnu all_max_fnu_err lpeak Raa Paa Iaa Xaa Robust haU haACS S_Max Nband Td r1 r2 r3 r4 r5 r6 r7 r8 hsflag} {set $var"_"=$var if(coo)}
+			echo $(dimen(id_))
+			print usex {id_}
+			print acsi '%.7f, %.7f\n' {raF_ deF_}
+
+			define print_noheader 1
+
+			print GN.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +GN.reg '"global color=red font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +GN.reg 'fk5;ellipse(%.7f,%.7f,4\",4\",0) \# text={ID%d %.1fmJy} \n' {raF_ deF_ id_ f250_}
+			#print +GN.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			#print +GN.reg 'fk5;ellipse(%.7f,%.7f,2\",2\",0)\n' {raRad_ deRad_}
+			#print '%d %.7f %.7f %.7f %.7f\n' {id_ ra_ de_ raRad_ deRad_}
+			print GN.scat 'id\tra\tdec\n' {}
+			print +GN.scat '--\t---\t----\n' {}
+			print +GN.scat '%.0f\t%.7f\t%.7f\n' {id_ raF_ deF_}
+			print ccc '%.7f, %.5f\n' {ra_ de_}
+			define print_noheader 0
+			set ppp=id_*0-1
+			print uuu  '%.0f %.7f %.7f %.0f %.7f %.7f %.0f\n' {id_ ra_ de_ idI_ IraC_ IdeC_ ppp}
+			define print_noheader 1
+cata	00	define print_noheader 0
+			print cata_HSO_ED_radiopriors.txt  '%.0f %.7f %.7f\n' {id raF deF f24  df24  f70 df70 f100 df100 f160 df160 f250 df250 f350 df350 f500 df500 f1100 df1100 radio dradio  all_peaks all_peaks_err}
+			define print_noheader 1
+toZP	00	define print_noheader 0
+			print HSO_photometry.txt {id_ f24_ df24_ f70_ df70_ f100_ df100_ f160_ df160_ f250_ df250_ f350_ df350_ f500_ df500_ f1100_ df1100_ radio_ eradio_ zz_}
+toChe   00	define print_noheader 0
+			print HSO_photometry.txt '%.0f %.7f %.7f\n' {id_ raF_ deF_ f70_ df70_ f100_ df100_ f160_ df160_ f250_ df250_ f350_ df350_ f500_ df500_ f1100_ df1100_ all_peaks_ all_peaks_err_}
+toRob	00	define print_noheader 0
+			print toRob.dat '%.0f %.7f %.7f\n'  {id_ raF_ deF_ f250_ df250_ f350_ df350_ f500_ df500_ f1100_ df1100_ radio_ eradio_}
+			define print_noheader 1
+toAlex	00	define print_noheader 0
+			print toAlex.dat '%.0f %.7f %.7f\n'  {id_ raF_ deF_ f250_ df250_ f350_ df350_ f500_ df500_}
+			define print_noheader 1
+toChe	00	define print_noheader 0
+			print toCheck.dat '%.0f %.7f %.7f\n'  {id raF deF f250 df250 f250_GH df250_GH f350 df350 f350_GH df350_GH f500 df500 f500_GH df500_GH}
+			define print_noheader 1
+toChanial	define print_noheader 0 print cata_HSO_ED_radiopriors.txt  '%.0f %.7f %.7f\n' {id raF deF radio dradio}
+			define print_noheader 1
+
+
+toSMG	00	define print_noheader 0
+			print toSMG.dat '%.0f %.7f %.7f\n'  {id_ raF_ deF_ f70_ df70_ f100_ df100_ f160_ df160_ f1100_ df1100_}
+			define print_noheader 1
+
+xdo_sizes 	
+			###<DZLIU><Modified>### !\rm aaa1 aaa2
+			###<DZLIU><Modified>### print do.csh 'dfits $imax_name".fits" | grep NAXIS1 \n'  {}
+			###<DZLIU><Modified>### !csh < do.csh > aaa1
+			###<DZLIU><Modified>### print do.csh 'dfits $imax_name".fits" | grep NAXIS2 \n'  {}
+			###<DZLIU><Modified>### !csh < do.csh > aaa2
+			###<DZLIU><Modified>### data aaa1 read aa 3 define imax_xsize $(aa[0])
+			###<DZLIU><Modified>### data aaa2 read aa 3 define imax_ysize $(aa[0])
+			###<DZLIU><Modified>### #echo Doing xdo_sizes for $imax_name NAXIS1=$imax_xsize NAXIS2=$imax_ysize ###<Modified><DZLIU>###
+			###<DZLIU><Modified>### 
+			!\rm aaa1 aaa2 >> /dev/null 2>&1
+			!gethead $imax_name".fits" NAXIS1 > aaa1
+			!gethead $imax_name".fits" NAXIS2 > aaa2
+			define pref_verbose $verbose 
+			verbose 0
+			data aaa1 read aa 1 define imax_xsize $(aa[0])
+			data aaa2 read aa 1 define imax_ysize $(aa[0])
+			verbose $pref_verbose
+			###<DZLIU><Modified>### 
+
+xdo_coord 	print +do.csh ' %.7f %.7f J2000 ' {raF deF}
+			print +do.csh '\n' {}
+			!\rm aaa
+			!csh < do.csh > aaa
+
+get_coord  00
+			print do.csh 'sky2xy n_irac_1_s12_v0_31_sci.fits' {}
+			xdo_coord
+			data aaa read {xch1 5 ych1 6}
+
+			print do.csh 'sky2xy mips_hdfn_v0p35_ks0p7_sci.fits' {}
+			xdo_coord
+			data aaa read {x24 5 y24 6}
+
+			print do.csh 'sky2xy ehdfn_all70.jam_drz_v1.5_ED.fits' {}
+			xdo_coord
+			data aaa read {x70 5 y70 6}
+
+			#print do.csh 'sky2xy goodsn_red_Map.v2.sci.fits' {}
+			#print do.csh 'sky2xy goodsn_red_Map.v2.2.sci.fits' {}
+			#print do.csh 'sky2xy pacs_160_paola_all_sci.fits' {}
+			print do.csh 'sky2xy pacs160_ima_2p4_v0_100615.fits' {}
+			xdo_coord
+			data aaa read {x160 5 y160 6}
+
+			#print do.csh 'sky2xy goodsn_green_Map.v2.sci.fits' {}
+			#print do.csh 'sky2xy goodsn_green_Map.v2.1.sci.fits' {}
+			#print do.csh 'sky2xy goodsn_green_Map.v2.2.sci.fits' {}
+			#print do.csh 'sky2xy pacs_100_paola_all_sci.fits' {}
+			print do.csh 'sky2xy pacs100_ima_1p2_v0_100615.fits' {}
+			xdo_coord
+			data aaa read {x100 5 y100 6}
+
+			#print do.csh 'sky2xy GOODSN-2009-11-30_MPohlen_allRepsNaiveMaps_PSW_pixelSize6.fits' {}    # Hermes
+			#print do.csh 'sky2xy spire_250_naive_all_sci.fits' {} # GOODS-H
+			print do.csh 'sky2xy spire250_ima_3p6_v0_100615.fits' {} # GOODS-H
+			xdo_coord
+			data aaa read {x250 5 y250 6}
+
+			#print do.csh 'sky2xy GOODSN-2009-11-30_MPohlen_allRepsNaiveMaps_PMW_pixelSize10.fits' {}    # Hermes
+			#print do.csh 'sky2xy spire_350_naive_all_sci.fits' {}    # GOODS-H
+			print do.csh 'sky2xy spire350_ima_4p8_v0_100615.fits' {}    # GOODS-H
+			xdo_coord
+			data aaa read {x350 5 y350 6}
+
+			#print do.csh 'sky2xy GOODSN-2009-11-30_MPohlen_allRepsNaiveMaps_PLW_pixelSize14.fits' {}    # Hermes
+			#print do.csh 'sky2xy spire_500_naive_all_sci.fits' {}   # GOODS-H  
+			print do.csh 'sky2xy spire500_ima_7p2_v0_100615.fits' {}   # GOODS-H  
+			xdo_coord
+			data aaa read {x500 5 y500 6}
+
+			print do.csh 'sky2xy aztec_1.1mm_goodsn_filt_ED.fits ' {}
+			xdo_coord
+			data aaa read {x1100 5 y1100 6}
+
+gop	02	limits $1 $2 erase box points $1 $2
+goi	02	limits $1 $2 erase box histogram  $1 $2
+
+noisech1	!\rm aaa_noise 
+			set x1=xch1 -1 set x2=xch1 +1
+			set y1=ych1 -1 set y2=ych1 +1
+			print do.cl 'images\n imutil\n' {}
+			print +do.cl 'imstat n_irac_1_s12_v0_31_rms[%.0f:%.0f,%.0f:%.0f] nclip=0 >> aaa_noise \n' {x1 x2 y1 y2}
+			print +do.cl 'logout\n' {}
+			#echo go run do.cl in IRAF
+			#define aaa ?
+			# go run do.cl in IRAF
+			!cl < do.cl
+
+			data aaa_noise read noich1  6
+
+noise24 	!\rm aaa_noise               # be careful, this is mainly meant to deal with the goodness parameter 'goodArea', done on a slightly different image for 24um
+			set x1=x24 -1 set x2=x24 +1
+			set y1=y24 -1 set y2=y24 +1
+			define XL1 3 define XL2 1150 define YL1 3 define YL2 1190
+			foreach xpp {1 2} {
+			set x$xpp = x$xpp>$XL1 ? x$xpp : $XL1
+			set x$xpp = x$xpp<$XL2 ? x$xpp : $XL2
+			set y$xpp = y$xpp>$YL1 ? y$xpp : $YL1
+			set y$xpp = y$xpp<$YL2 ? y$xpp : $YL2
+			}
+			print do.cl 'images\n imutil\n' {}
+			print +do.cl 'imstat mips_hdfn_v0p35_ks0p7_wei[%.0f:%.0f,%.0f:%.0f] nclip=0 >> aaa_noise \n' {x1 x2 y1 y2}
+			#print +do.cl 'imstat n_mips_1_s1_v0.37_rms[%.0f:%.0f,%.0f:%.0f] >> aaa_noise \n' {x1 x2 y1 y2}
+			print +do.cl 'logout\n' {}
+			#echo go run do.cl in IRAF
+			#define aaa ?
+			# go run do.cl in IRAF
+			!cl < do.cl
+
+			data aaa_noise read noi24  6
+			set noi24 = noi24>1 ? noi24 : 1
+			set noi24 = noi24**(-0.5)
+
+Handy_01May	macro read goFine.sm xFit_24
+			macro read goSimu.sm Simu_All
+			# macro read goFine.sm Handy_01May
+		
+xSet_24		define imax 24
+			define imax_name "n_mips_1_s1_v0.37_sci_BS"  # subtracted 30x30 median smooth back after fitting with -0.080 back (test_bm3)
+			define imax_name_rms "n_mips_1_s1_v0_37_rms_ED"
+			define imax_name_psf "hdfn_dao_mipspsf"
+			#define imax_name_psf "goods_north_mips_psf_bright_11g"
+			#define imax_name_psf "goods_north_mips_psf_v1_magdis"
+			#define imax_name_psf "mips_psf_theory_bright_nobg"
+			define psf_resampl 1
+			#define xdate "01May"
+			#define xdate "201411"
+			define xdate "201500"
+			# 
+			define mag_toofaint 20
+			define max_noise 0.03
+			define mag_start -5
+			define Xback -0.080 # -0.075
+			# 
+			define ystep 25
+			define xstep 25
+			define g_buff 20
+			define f_buff 1
+			define use_prior_mags 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define vary_positions 0      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 1      # if 1, account for astrometry variations defined elsewhere
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+			if($make_residuals) {define Xback 0}
+			# 
+			data "irac_mips_fluxes_hdfn.dat" read {raF 1 deF 2 idF 3 xf24 17}
+
+xFit_24	00	xSet_24
+			#<DzLIU>##set xcoo = deF>-27.71 # || 1
+			#<DzLIU>#set xm24 = -2.5*lg((xf24+.01)/6.691) 
+			#<DzLIU>#data results_24_01May read xm24 4 
+			#<DzLIU>#set xm24 = xm24<1 ? xm24 : -3    # se li metto a 20 sono dead forever
+			#<DzLIU>#foreach var {raF deF xf24 xm24} {set $var = $var if(xcoo)}
+			define doParallel 1 ###<Added><DZLIU>### 
+			Fit_XXX
+			#Rebuild_XXX
+
+xSet_100	define imax            100
+			define imax_name      "pgh_goodsn_green_Map_v1.0_sci_DL" # "pacs100_ima_1p2_v0_100615_ED" ###<Modified><DZLIU>###
+			define imax_name_rms  "pgh_goodsn_green_Map_v1.0_rms_DL" # "pacs100_rms_1p2_v0_100615"    ###<Modified><DZLIU>###
+			#define imax_name_psf  "psf_goodsn_pacs100_1p2arcsec_v0_100622_cut"
+			define imax_name_psf  "pgh_goodsn_green_Psf_v1.0"
+			define psf_resampl     1
+			#define xdate          "08Feb11"   ###<Modified><DZLIU>###
+			define xdate           "201412"    ###<Modified><DZLIU>###
+			# 
+			define mag_toofaint 20
+			define max_noise 1e-3   #
+			define mag_start 5
+			define Xback -0.25e-5 #   -1e-5   # 0 #PEP
+			# 
+			define ystep 80
+			define xstep 80 
+			define g_buff 12
+			define f_buff 1
+			define use_prior_mags 1      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 0      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 0      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+			if($make_residuals) {define Xback 0}
+			# 
+			# data "RadioOwenMIPS24_priors_April18_2014.txt" read {idF 1 raF 2 deF 3 xf24 5}
+			# data "RadioOwenMIPS24_priors_v5_20151201_BeforeBand100.txt" read {idF 1 raF 2 deF 3 xf24 5}
+
+xSet_1160	
+			define imax 1160
+			define imax_name "combined_maw0_4_azw0_5_sig_astro"
+			define imax_name_rms "combined_maw0_4_azw0_5_rms"
+			#define imax_name_psf "combined_ma_az_psf"
+			define imax_name_psf "totPSFnew"
+			define psf_resampl   1
+			#define xdate "02Mar"
+			#define xdate "23Apr13_sub"
+			define xdate "201412"
+			# 
+			define mag_toofaint 20
+			define max_noise 4 #
+			define mag_start 5 # -5
+			define Xback  0 
+			# 
+			#define ystep 20 # <Modified><DADDI>
+			#define xstep 20 # <Modified><DADDI>
+			#define g_buff 51 # <Modified><Daddi>
+			#define ystep 35 # <Modified><DzLIU>
+			#define xstep 35 # <Modified><DzLIU>
+			#define g_buff 41 # <Modified><DzLIU>
+			define ystep 40 # <Modified><DzLIU><20151229>
+			define xstep 40 # <Modified><DzLIU><20151229>
+			define g_buff 30 # <Modified><DzLIU><20151229>
+			define f_buff 1
+			define use_prior_mags 0      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 0      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 0      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+			if($make_residuals) {define Xback 0}
+			# 
+			# data "RadioOwenMIPS24_priors_April18_2014.txt" read {idF 1 raF 2 deF 3 xf24 5}
+
+Fit_XXX		
+			### foreach par {0 1 2 3 4 5 6 7 8 9} { ###<Commented><DZLIU>### 
+			### !\rm galfit.""$par""*               ###<Commented><DZLIU>### 
+			### !\rm tmp$par""*fits                 ###<Commented><DZLIU>### 
+			### !\rm fit""$par*""log                ###<Commented><DZLIU>### 
+			### }                                   ###<Commented><DZLIU>### 
+			if($?doPostParallel==0){                ###<Modified><DZLIU>### doParallel
+				if(is_file(summary_run)) {
+					echo !rm summary_run
+					!\rm summary_run
+				}
+			} else {                                ###<Modified><DZLIU>### doParallel
+			}
+			
+			define print_noheader 1
+			
+			xdo_sizes
+			macro read goSimu.sm gPriors
+			if('$imax' != '20cm' ) {noise_XXX} else { set noi20cm = x$imax*0.0 echo 20cm don't do noise}
+			#define aaa ?
+			if($fit_gaussian) {
+			set nxA = x$imax set nxB=y$imax
+			print URGtmp {raF deF nxA nxB m1392 WFC3_fwhm WFC3_axis_ratio WFC3_XPA}
+			}
+			
+			#if($imax==24) {
+			##noise$imax
+			#noise_XXX
+			#} else {
+			#get_coordXXX             # gets x-y positions in the image to fit
+			#noise_XXX
+			#}
+			
+			if($use_prior_mags) {set m$imax  = xm$imax} else {set m$imax  = x$imax*0+$mag_start}
+			
+			
+			if($vary_positions) {                        ###<MovedToHere><DZLIU>### doParallel
+				define max_vary 1                        ###<MovedToHere><DZLIU>### doParallel
+				if($imax==16) {define max_vary 1}        ###<MovedToHere><DZLIU>### doParallel
+				if($imax==24) {define max_vary 1}        ###<MovedToHere><DZLIU>### doParallel
+				if($imax==100) {define max_vary 1}       ###<MovedToHere><DZLIU>### doParallel
+				if($imax==160) {define max_vary 1}       ###<MovedToHere><DZLIU>### doParallel
+				if($imax== '20cm') {define max_vary 2}   ###<MovedToHere><DZLIU>### doParallel
+			} else {                                     ###<MovedToHere><DZLIU>### doParallel
+				define max_vary 0                        ###<MovedToHere><DZLIU>### doParallel
+			}                                            ###<MovedToHere><DZLIU>### doParallel
+			
+			
+			if($?doPostParallel==1){         ###<Added><DZLIU>### doParallel
+			    echo doPostParallel!         ###<Added><DZLIU>### doParallel
+			    return }                     ###<Added><DZLIU>### doParallel
+			# define aaa ?                   ###<Added><DZLIU>### doParallel
+			
+			set dliu_boxF = idF*0
+			
+			
+			## fit in x-y sections
+			vecminmax y$imax  min max
+			set y_pos = 0,$max+$ystep,$ystep
+			set y_pos = y_pos>=1 ? y_pos : 1 set y_pos = y_pos<=$imax_ysize ? y_pos : $imax_ysize
+			set ii=1,dimen(y_pos)-1
+			vecminmax x$imax  min max
+			set x_pos = 0,$max+$xstep,$xstep
+			set x_pos = x_pos>=1 ? x_pos : 1 set x_pos = x_pos<=$imax_xsize ? x_pos : $imax_xsize
+			set yy=1,dimen(x_pos)-1
+			set Lx1 = x_pos-$f_buff-$g_buff set Lx1 = Lx1>=1 ? Lx1 : 1 set Lx1 = Lx1<=$imax_xsize ? Lx1 : $imax_xsize
+			set Lx2 = x_pos+$f_buff+$g_buff set Lx2 = Lx2>=1 ? Lx2 : 1 set Lx2 = Lx2<=$imax_xsize ? Lx2 : $imax_xsize
+			set Ly1 = y_pos-$f_buff-$g_buff set Ly1 = Ly1>=1 ? Ly1 : 1 set Ly1 = Ly1<=$imax_ysize ? Ly1 : $imax_ysize
+			set Ly2 = y_pos+$f_buff+$g_buff set Ly2 = Ly2>=1 ? Ly2 : 1 set Ly2 = Ly2<=$imax_ysize ? Ly2 : $imax_ysize
+
+
+			define runid 0
+			echo RUNS $(dimen(y_pos)*dimen(x_pos))
+			#define aaa ?
+
+			foreach xar yy {
+				foreach var ii {
+					set coo = y$imax <y_pos[$var] && y$imax >y_pos[$var-1] && x$imax <x_pos[$xar] && x$imax >x_pos[$xar-1] && noi$imax <$max_noise
+					
+					if(sum(coo)) {
+					define runid $($runid+1)
+					set dliu_tempid = 0,dimen(idF)-1 set dliu_tempid = dliu_tempid if(coo) set dliu_boxF[dliu_tempid] = $runid  #<Added><20141030><DzLIU>#
+					set coo = y$imax <y_pos[$var]+$g_buff && y$imax >y_pos[$var-1]-$g_buff && x$imax <x_pos[$xar]+$g_buff && x$imax >x_pos[$xar-1]-$g_buff && noi$imax <$max_noise # allow for ext objects
+					set xx$imax  = x$imax  if(coo)
+					set yy$imax  = y$imax  if(coo)
+					set nn$imax  = noi$imax  if(coo)
+					set mm$imax  = m$imax  if(coo)
+					set Xfix1    = fix1    if(coo)
+					set Xfix2    = fix2    if(coo)
+					if($fit_gaussian) {
+					if(dimen(coo)!=dimen(WFC3_fwhm)) {echo ERROR setting parameters for Gaussian fit --> give ctrl-C
+					define aaa ?
+					}
+					set Xfwhm  = WFC3_fwhm if(coo)
+					set Xaxis_ratio = WFC3_axis_ratio if(coo)
+					set XPA = WFC3_XPA if(coo)
+					}
+					#echo $(dimen(xx$imax)) #<Modified><DZLIU>#
+					#define aaa ?
+					## to here
+					echo $runid [$(x_pos[$xar-1]):$(x_pos[$xar]),$(y_pos[$var-1]):$(y_pos[$var])] [$(Lx1[$xar-1]):$(Lx2[$xar]),$(Ly1[$var-1]):$(Ly2[$var])] ($xar*$var=$($xar*$var)~/~$(dimen(y_pos)*dimen(x_pos)))
+					
+					
+					define aa_file "HSO_$imax"".INPUT"
+					#print $aa_file 'A) $imax_name".fits" \n B) tmp.fits \n C) $imax_name_rms".fits" \n D) $imax_name_psf".fits" \n E) $psf_resampl \n F) none \n G) HSO_$imax"".CONSTRAINTS \n J) 0 \n K) 0.06   0.06 \n O) both \n P) 0 \n S) 0 \n' {}   # original always used version for galfit 2.0
+					print $aa_file 'A) $imax_name".fits" \n' {} 
+					print +$aa_file 'B) tmp.fits \n' {}
+					print +$aa_file 'C) $imax_name_rms".fits" \n' {}
+					print +$aa_file 'D) $imax_name_psf".fits" \n' {}
+					print +$aa_file 'E) $psf_resampl \n' {}
+					print +$aa_file 'F) none \n' {}
+					print +$aa_file 'G) HSO_$imax"".CONSTRAINTS \n' {}
+					
+					print +$aa_file 'J) 0 \n K) 0.06   0.06 \n O) regular \n P) 0 \n \n' {}
+					print +$aa_file 'H) $(Lx1[$xar-1]) $(Lx2[$xar]) $(Ly1[$var-1]) $(Ly2[$var]) \n' {}
+					print +$aa_file 'I) $(5*($g_buff+$f_buff)) $(5*($g_buff+$f_buff)) \n' {} # convolution box size 
+
+					# entering the objects to fit (and bckgrnd
+					set p1 = xx$imax set p2 = yy$imax set p3 =  mm$imax
+					set Xresi = Xfix1*0+1
+					if($make_residuals) {set Xresi=Xresi*0}
+					if(!$fit_gaussian) { # psf
+					#print +$aa_file '\n 0) psf \n 1) %.3f %.3f %.0f %.0f \n 3) %.3f  %d \n Z) 0  \n \n' {p1 p2 Xfix1 Xfix2 p3 Xresi} # 3) put to 0 --> this one fixes the mags #  --> RESIDUALS
+					print +$aa_file '\n 0) psf \n 1) %.3f %.3f %.0f %.0f \n 3) %.3f  %.0f \n Z) 0  \n \n' {p1 p2 Xfix1 Xfix2 p3 Xresi} # 3) put to 0 --> this one fixes the mags #  --> RESIDUALS  ###<Modified><20140402><DZLIU>### %d => %.0f
+					} else { #gaussian with 3 parameters (fixed), fit only total magnitude
+					print +$aa_file '\n 0) gaussian \n 1) %.3f %.3f %.0f %.0f \n 3) %.3f  %d \n 4) %.3f 0 \n 8) %.3f 0 \n 9) %.3f 0 \n 10) 0 0 \n Z) 0  \n \n' {p1 p2 Xfix1 Xfix2 p3 Xresi Xfwhm Xaxis_ratio XPA} # 3) put to 0 --> this one fixes the mags #  --> RESIDUALS     4) -->1 fit FWHM     8) -->1 fit b/a
+					}
+					if(!$fit_sky) {
+					print +$aa_file '\n 0) sky \n 1) $Xback 0 \n 2) 0 0 \n 3) 0 0 \n Z) 0  \n \n' {}      
+					} else {
+					print +$aa_file '\n 0) sky \n 1) $Xback 1 \n 2) 0 0 \n 3) 0 0 \n Z) 0  \n \n' {}      # 1) to 1 --> allow sky to vary
+					}
+		
+					print +summary_run '$runid $(dimen(xx$imax)) $(x_pos[$xar-1]) $(x_pos[$xar]) $(y_pos[$var-1]) $(y_pos[$var]) $(Lx1[$xar-1]) $(Lx2[$xar]) $(Ly1[$var-1]) $(Ly2[$var]) \n' {}
+
+					set oo=1,dimen(xx$imax) 
+					print HSO_$imax".CONSTRAINTS" '   %d   mag -10 to $mag_toofaint  \n' {oo}
+					if($vary_positions) {
+					### define max_vary 1                                                 ###<MovedToAbove><DZLIU>### doParallel
+					### if($imax==16) {define max_vary 1}                                 ###<MovedToAbove><DZLIU>### doParallel
+					### if($imax==24) {define max_vary 1}                                 ###<MovedToAbove><DZLIU>### doParallel
+					### if($imax==100) {define max_vary 1}                                ###<MovedToAbove><DZLIU>### doParallel
+					### if($imax==160) {define max_vary 1}                                ###<MovedToAbove><DZLIU>### doParallel
+					### if($imax== '20cm') {define max_vary 2}                            ###<MovedToAbove><DZLIU>### doParallel
+					print +HSO_$imax".CONSTRAINTS" '   %d   x -$max_vary $max_vary  \n' {oo}
+					print +HSO_$imax".CONSTRAINTS" '   %d   y -$max_vary $max_vary  \n' {oo}
+					} else {
+					define max_vary 0
+					}
+					#if($fit_gaussian) {
+					#set mXfwhm = Xfwhm*3+10
+					#print +HSO_$imax".CONSTRAINTS" '   %d   4) 0.1 to %.2f  \n' {oo Xfwhm}
+					#print +HSO_$imax".CONSTRAINTS" '   %d   8) 0.05 to 1  \n' {oo}
+					#}
+
+					#!/dsm/upgal/data/edaddi/galfit/galfit $aa_file                       ###<Modified><DZLIU>### galfit PATH modified
+					if($?doParallel==0&&$?doPostParallel==0) {                            ###<Added><DZLIU>### 
+					   #!galfit -imax 500 $aa_file > "fit.stdout"                         ###<Modified><DZLIU>### 
+						!galfit $aa_file > "fit.stdout"                                   ###<Modified><DZLIU>### 
+						if(is_file("fit.log") || $make_residuals) { 
+							!\mv fit.log    fit$runid".log"                               ###<Modified><DZLIU>###
+							!\mv fit.stdout fit$runid".stdout"                            ###<Modified><DZLIU>###
+							!\cp tmp.fits   fit$runid".fits"                              ###<Modified><DZLIU>###
+							#!\cp tmp.fits   tmp$runid".fits"                             ###<Modified><DZLIU>###
+							#!\cp HSO_$imax".INPUT" HSO_$imax"."$runid".INPUT"            ###<Modified><DZLIU>###
+							#!\cp HSO_$imax".CONSTRAINTS" HSO_$imax"."$runid".CONSTRAINTS"###<Modified><DZLIU>###
+							!\cp HSO_$imax".INPUT"       fit$runid".input"                ###<Modified><DZLIU>###
+							!\cp HSO_$imax".CONSTRAINTS" fit$runid".limit"                ###<Modified><DZLIU>###
+						} else {
+							echo CRASH !!!!!!!
+							echo CRASH !!!!!!!
+							echo CRASH !!!!!!!
+							echo CRASH !!!!!!!
+							echo CRASH !!!!!!!
+							echo CRASH !!!!!!!
+							echo CRASH !!!!!!!
+							echo CRASH !!!!!!!
+							echo CRASH !!!!!!!
+							echo CRASH !!!!!!!
+							echo CRASH !!!!!!!
+							echo CRASH !!!!!!!
+							define aaa ? 
+						}
+					} else {                                                              ###<Added><DZLIU>### doParallel
+						if($vary_positions) {                                             ###<Added><DZLIU>### doParallel
+							define idBox "boxgalfit_vary/box"$runid                       ###<Added><DZLIU>### doParallel
+							define idRun "boxgalfit_vary/runbox"$runid".sh"               ###<Added><DZLIU>### doParallel
+							define idTar "../doing"$imax".box.galfit_vary"                ###<Added><DZLIU>### doParallel
+						} else {                                                          ###<Added><DZLIU>### doParallel
+							define idBox "boxgalfit/box"$runid                            ###<Added><DZLIU>### doParallel
+							define idRun "boxgalfit/runbox"$runid".sh"                    ###<Added><DZLIU>### doParallel
+							define idTar "../doing"$imax".box.galfit"                     ###<Added><DZLIU>### doParallel
+						}                                                                 ###<Added><DZLIU>### doParallel
+						# if($?doFreshGalfit==1) {                                        ###<Added><DZLIU>### doParallel doFreshGalfit
+						# 	define idBox boxfresh$runid                                   ###<Added><DZLIU>### doParallel doFreshGalfit
+						# 	define idRun runboxfresh$runid.sh                             ###<Added><DZLIU>### doParallel doFreshGalfit
+						# 	define idTar "../doing"$imax".box.galfit.fresh"               ###<Added><DZLIU>### doParallel doFreshGalfit
+						# }
+						if($?doParallel==1) {                                             ###<Added><DZLIU>### doParallel
+							!rm -rf                        $idBox                         ###<Added><DZLIU>### doParallel
+							!mkdir -p                      $idBox                         ###<Added><DZLIU>### doParallel
+							!cp HSO_$imax.INPUT            $idBox/                        ###<Added><DZLIU>### doParallel
+							!cp HSO_$imax.CONSTRAINTS      $idBox/                        ###<Added><DZLIU>### doParallel
+							!ln -fs ../$imax_name.fits     $idBox/$imax_name.fits         ###<Added><DZLIU>### doParallel
+							!ln -fs ../$imax_name_rms.fits $idBox/$imax_name_rms.fits     ###<Added><DZLIU>### doParallel
+							!ln -fs ../$imax_name_psf.fits $idBox/$imax_name_psf.fits     ###<Added><DZLIU>### doParallel
+							print  runqsub '\#!/bin/bash\n' {}                            ###<TODO>### !!!
+							print +runqsub 'cd ~/GOODS-North/doing$imax/$idBox\n' {}      ###<TODO>### !!!
+							print +runqsub 'rm fit.log galfit.* > /dev/null 2>&1\n' {}    ###<TODO>### !!!
+							print +runqsub '~/Software/galfit/galfit ' {}                 ###<TODO>### !!!
+							print +runqsub 'HSO_$imax.INPUT > HSO_$imax.STDOUT\n' {}      ###<Added><DZLIU>### doParallel
+							print +runqsub 'ln -fs fit.log fit$runid.log\n' {}            ###<Added><DZLIU>### doParallel
+							!cp runqsub $idRun                                            ###<Added><DZLIU>### doParallel
+							if($runid==1 && 1==1) {                                       ###<Added><DZLIU>### doParallel
+							!cp $imax_name.fits     $idBox/../$imax_name.fits             ###<Added><DZLIU>### doParallel
+							!cp $imax_name_rms.fits $idBox/../$imax_name_rms.fits         ###<Added><DZLIU>### doParallel
+							!cp $imax_name_psf.fits $idBox/../$imax_name_psf.fits }       ###<Added><DZLIU>### doParallel
+							if($runid==1) {                                               ###<Added><DZLIU>### doParallel runpreqsub
+							print  runpreqsub '\#!/bin/bash\n' {}                         ###<Added><DZLIU>### doParallel
+							print +runpreqsub 'tar -cf $idTar.tar summary_run \n' {} }    ###<Added><DZLIU>### doParallel
+							print +runpreqsub 'chmod a+x $idRun\n' {}                     ###<Added><DZLIU>### doParallel
+							print +runpreqsub 'tar -rf $idTar.tar $idRun $idBox\n' {}     ###<Added><DZLIU>### doParallel
+							if($runid==1) {                                                      ###<Added><DZLIU>### doParallel runpostqsub
+							print  runpostqsub '\#!/bin/bash\n' {}                               ###<Added><DZLIU>### doParallel
+							print +runpostqsub 'tar -cf $idTar.results.tar summary_run \n' {} }  ###<Added><DZLIU>### doParallel
+							print +runpostqsub 'cp $idBox/tmp.fits $idBox/fit$runid.fits\n' {}   ###<Added><DZLIU>### doParallel
+							print +runpostqsub 'cp $idBox/fit.log  $idBox/fit$runid.log\n' {}    ###<Added><DZLIU>### doParallel
+							print +runpostqsub 'tar -C $idBox -rhf $idTar.results.tar fit$runid.fits\n' {}  ###<Added><DZLIU>### doParallel
+							print +runpostqsub 'tar -C $idBox -rhf $idTar.results.tar fit$runid.log\n' {}   ###<Added><DZLIU>### doParallel
+							# Fit_XXX                                                              ###<Added><DZLIU>### doParallel
+							# rm box.tar                                                           ###<Added><DZLIU>### doParallel
+							# chmod a+x run*                                                       ###<Added><DZLIU>### doParallel
+							# tar -c -f box.tar box* runbox* runqsub runpostqsub summary_run       ###<Added><DZLIU>### doParallel
+							# scp box.tar dliu@hubble:~/GOODS-North/doing1160/                     ###<Added><DZLIU>### doParallel
+							# scp $imax_name.fits dliu@hubble:~/GOODS-North/doing1160/             ###<Added><DZLIU>### doParallel
+							# scp $imax_name_rms.fits dliu@hubble:~/GOODS-North/doing1160/         ###<Added><DZLIU>### doParallel
+							# scp $imax_name_psf.fits dliu@hubble:~/GOODS-North/doing1160/         ###<Added><DZLIU>### doParallel
+							# tar -x -f box.tar                                                    ###<Added><DZLIU>### doParallel
+							# ./runqsub                                                  ON PLANER ###<Added><DZLIU>### doParallel
+							# ./runpostqsub                                              ON HUBBLE ###<Added><DZLIU>### doParallel
+							# tar -czf fitbox.tar.gz boxfits                                       ###<Added><DZLIU>### doParallel
+							# scp dliu@hubble:~/GOODS-North/doing1160/fitbox.tar.gz ./             ###<Added><DZLIU>### doParallel
+							# Fit_XXX Rebuild_XXX                                                  ###<Added><DZLIU>### doParallel
+				        }                                                                          ###<Added><DZLIU>### doParallel
+						### return
+					}
+					
+					
+					#define aaa ?
+					}
+				}
+			}
+
+
+
+Rebuild_XXX	
+			if($?doParallel) {if($doParallel==1) {return}} ###<Added><20141204><DzLIU>###
+			echo Doing Rebuild_XXX
+			data summary_run read {runid 1 nobj 2 x1 3 x2 4 y1 5 y2 6 Lx1 7 Lx2 8 Ly1 9 Ly2 10}
+			#!\cp tmp.fits FIT_goodsn_24_Map.fits
+			echo makeBigMap -> creating FIT_goodsn_$imax"_Map.fits"
+			makeBigMap      # THis one recreates the FIT_goodsn_$imax"_Map.fits"
+			set Tx1 = x1-Lx1+1 set Tx2 = x2-Lx1+1
+			set Ty1 = y1-Ly1+1 set Ty2 = y2-Ly1+1
+			!\rm do.cl
+			print +do.cl 'images\n imutil\nreset use_new_imt = no\n' {}
+			print +do.cl 'imcopy fit%.0f[1][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[0][%.0f:%.0f,%.0f:%.0f]\n' {runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141030><DzLIU>###
+			print +do.cl 'imcopy fit%.0f[2][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[1][%.0f:%.0f,%.0f:%.0f]\n' {runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141030><DzLIU>###
+			print +do.cl 'imcopy fit%.0f[3][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[2][%.0f:%.0f,%.0f:%.0f]\n' {runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141030><DzLIU>###
+			if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==0) {
+			!\rm do.cl
+			print +do.cl 'images\n imutil\nreset use_new_imt = no\n' {}
+			print +do.cl 'imcopy boxgalfit/box%.0f/tmp[1][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[0][%.0f:%.0f,%.0f:%.0f]\n' \
+												{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141130><DzLIU>###
+			print +do.cl 'imcopy boxgalfit/box%.0f/tmp[2][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[1][%.0f:%.0f,%.0f:%.0f]\n' \
+												{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141130><DzLIU>###
+			print +do.cl 'imcopy boxgalfit/box%.0f/tmp[3][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[2][%.0f:%.0f,%.0f:%.0f]\n' \
+												{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141130><DzLIU>###
+			}}}
+			if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) {
+			!\rm do.cl
+			print +do.cl 'images\n imutil\nreset use_new_imt = no\n' {}
+			print +do.cl 'imcopy boxgalfit_vary/box%.0f/tmp[1][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[0][%.0f:%.0f,%.0f:%.0f]\n' \
+												{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141130><DzLIU>###
+			print +do.cl 'imcopy boxgalfit_vary/box%.0f/tmp[2][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[1][%.0f:%.0f,%.0f:%.0f]\n' \
+												{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141130><DzLIU>###
+			print +do.cl 'imcopy boxgalfit_vary/box%.0f/tmp[3][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[2][%.0f:%.0f,%.0f:%.0f]\n' \
+												{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141130><DzLIU>###
+			}}}
+			### print +do.cl 'imdel tmp*fits\n' {} ###<Modified><20141030><DzLIU>###
+			print +do.cl 'logout\n\n' {}       ###<Modified><DZLIU>### double \n\n
+			!cl -old < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+
+			set m$imax  = x$imax*0+99
+			set e$imax  = -m$imax
+			set nx$imax = -m$imax
+			set ny$imax = -m$imax
+			if($fit_gaussian) {
+			set FW$imax = -m$imax
+			set ba$imax = -m$imax
+			set eFW$imax = -m$imax
+			set eba$imax = -m$imax
+			}
+		
+
+			verbose 0
+
+			foreach var runid {
+			if($?doPostParallel) { if($doPostParallel==1) { echo "boxgalfit/box"$var } }
+			if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==0) { chdir "boxgalfit/box"$var } } }  ###<Added><DZLIU>### doPostParallel
+			if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) { chdir "boxgalfit_vary/box"$var } } }  ###<Added><DZLIU>### doPostParallel
+			if(is_file("fit"$var".log")) {
+			!\rm aaa1 >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+			!\rm aaa2 >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+			!\rm aaa3 >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+			#!more fit$var".log" | grep "'0, 0'" > aaa1
+			#!more fit$var".log" | grep "'(0'" | grep "', 0'"  > aaa1    # old galfit 2.0
+			#!more fit$var".log" |grep "(   " |grep ")   "  > aaa1   # this version was for linux csh, doesn't work in bash
+			
+			###<Modified><DZLIU>### !sed -i -e's/\[//g' -e's/\]//g' -e's/,]//g' -e's/\,//g' -e's/)//g' -e's/(//g' fit$var".log"
+			!sed -e 's/\[//g' -e 's/\]//g' -e 's/,]//g' -e 's/\,//g' -e 's/)//g' -e 's/(//g' fit$var.log > fit$var.log.s
+			!rm fit$var.log
+			!mv fit$var.log.s fit$var.log
+			###<Modified><DZLIU>### sed got rename() error, see http://stackoverflow.com/questions/21441289/confusing-error-from-xargs-sed
+			
+			!grep -A1 psf fit$var".log" | grep -e"--" -v > aaa3
+			
+			!grep psf aaa3 > aaa2
+			!grep psf -v aaa3 > aaa1
+			
+			#print goB 'more fit$var".log" |grep \"0.00   0.00\"  > aaa1\n' {}
+			#        !bash < goB
+			
+			
+			
+			if($fit_gaussian) {
+			!more fit$var".log" |grep gaussian > aaa2
+			} else {
+			#!more fit$var".log" |grep psf > aaa2
+			}
+			if($fit_gaussian) {
+			data aaa1 read {_err 3.s _err_fw 4.s _err_ba 5.s}
+			set _err = atof(_err) set _err_fw=atof(_err_fw) set _err_ba=atof(_err_ba)
+			data aaa2 read ' %s %s (%f, %f) %f %f %f' {_aa _bb xg yg _mag _xxfw _xxba}
+			set yy =0,dimen(_mag)-1 foreach xar yy {
+			set inxi = x$imax  > x1[$var-1] && x$imax  <= x2[$var-1] && y$imax  > y1[$var-1] && y$imax  <= y2[$var-1]
+			set FW$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _xxfw[$xar] : FW$imax 
+			set ba$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _xxba[$xar] : ba$imax 
+			set eFW$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _err_fw[$xar] : eFW$imax 
+			set eba$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _err_ba[$xar] : eba$imax 
+			}
+			} else {
+			data aaa1 read _err 3
+			data aaa2 read '%s %s %f %f %f'  {_aa _bb xg yg _mag}
+			}
+			
+			if(dimen(_err)!=dimen(_mag)) {echo PROBLEMI DI LETTURA FILES GALFIT --> BREAK with ctrl-C
+			define aaa ?
+			}
+			set yy =0,dimen(_mag)-1 foreach xar yy {
+			set inxi = x$imax > x1[$var-1] && x$imax <= x2[$var-1] && y$imax > y1[$var-1] && y$imax <= y2[$var-1]
+			set m$imax  = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _mag[$xar] : m$imax 
+			set e$imax  = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _err[$xar] : e$imax 
+			set nx$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? xg[$xar] : nx$imax 
+			set ny$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? yg[$xar] : ny$imax 
+			}
+			
+			} # end IF is file
+			
+			#<TODO><20151229># if('$var'=='88') {define aaa ?}
+			# if('$var'=='88') {
+			# 	echo box$var x1 x2 y1 y2 $(x1[$var-1]) $(x2[$var-1]) $(y1[$var-1]) $(y2[$var-1])
+			# 	print <m$imax x$imax xg y$imax yg inxi idF>
+			# 	define aaa ?
+			# }
+			
+			if($?doPostParallel) { if($doPostParallel==1) { chdir "../../" } }  ###<Added><DZLIU>### doPostParallel
+			
+			} # end FOREACH
+			verbose 0
+			#set m$imax  = noi$imax  < $max_noise ? m$imax  : 99    # if noi>maxnoise --> the object was not fitted; but was already set m=99 e=-99
+			#set e$imax  = m$imax  <$mag_toofaint ? e$imax  : -1
+			
+			set x1 = nx$imax set y1 = ny$imax set m1 = m$imax set e1=e$imax set noi1 = noi$imax
+			if($fit_gaussian) {
+			set fw1 = FW$imax set ba1 = ba$imax set efw1 = eFW$imax set eba1 = eba$imax
+			print results_$imax '%.3f %.3f  %.3e  %.2f %.2f %.2f %.2f %.2f %.2f \n'  {x1 y1 noi1 m1 e1 fw1 ba1 efw1 eba1}
+			} else {
+			###<Modified><DZLIU>### print results_$imax '%.3f %.3f  %.3e  %.2f %.2f \n'  {x1 y1 noi1 m1 e1}
+			print results_$imax '%16.3f %16.3f %16.3e %16.3f %16.3f %26.7f %18.7f %15.0f\n' {x1 y1 noi1 m1 e1 raF deF idF} ###<Modified><DZLIU>###
+			###<Modified><DZLIU>### output final results
+			}
+			
+			define RaR $imax
+			!\mv results_$RaR results_$RaR"_"$xdate
+			!\mv FIT_goodsn_$RaR"_Map.fits" FIT_goodsn_$RaR"_Map_"$xdate".fits"
+			
+			###<Modified><DZLIU>### output final result info
+			###<Modified><DZLIU>### print  results_$RaR"_"$xdate".info"  'imax $imax \n imax_name $imax_name \n imax_name_rms $imax_name_rms \n' {}
+			###<Modified><DZLIU>### print +results_$RaR"_"$xdate".info"  'imax_name_psf $imax_name_psf \n psf_resampl $psf_resampl \n xdate $xdate \n \n mag_toofaint $mag_toofaint \n max_noise $max_noise \n' {}
+			###<Modified><DZLIU>### print +results_$RaR"_"$xdate".info"  'mag_start $mag_start \n Xback $Xback \n \n ystep $ystep \n xstep $xstep \n g_buff $g_buff \n f_buff $f_buff \n use_prior_mags $use_prior_mags \n' {}
+			###<Modified><DZLIU>### print +results_$RaR"_"$xdate".info"  'vary_position $vary_positions \n max_vary $max_vary \n fix_astrometry $fix_astrometry \n make_residuals $make_residuals \n fit_gaussian $fit_gaussian \n fit_sky $fit_sky\n' {}
+			print  results_$RaR"_"$xdate".info"  ' imax $imax \n' {}
+			print +results_$RaR"_"$xdate".info"  ' imax_name $imax_name \n' {}
+			print +results_$RaR"_"$xdate".info"  ' imax_name_rms $imax_name_rms \n' {}
+			print +results_$RaR"_"$xdate".info"  ' imax_name_psf $imax_name_psf \n' {}
+			print +results_$RaR"_"$xdate".info"  ' psf_resampl $psf_resampl \n xdate $xdate \n \n mag_toofaint $mag_toofaint \n max_noise $max_noise \n' {}
+			print +results_$RaR"_"$xdate".info"  ' mag_start $mag_start \n Xback $Xback \n \n ystep $ystep \n xstep $xstep \n g_buff $g_buff \n f_buff $f_buff \n use_prior_mags $use_prior_mags \n' {}
+			print +results_$RaR"_"$xdate".info"  ' vary_position $vary_positions \n max_vary $max_vary \n fix_astrometry $fix_astrometry \n' {}
+			print +results_$RaR"_"$xdate".info"  ' make_residuals $make_residuals \n fit_gaussian $fit_gaussian \n fit_sky $fit_sky\n' {}
+			echo Done  Rebuild_XXX
+
+makeBigMap	00
+			define print_noheader 1
+			print do.cl 'images \n' {}
+			print +do.cl 'imutil \n' {}
+			print +do.cl 'imdel null \n' {}
+			print +do.cl 'imdel FIT_goodsn_$imax"_Map.fits"  \n' {}
+			print +do.cl 'imarith $imax_name * 0 null.fits \n' {}
+			print +do.cl 'imarith null.fits + 0 null.fits\n logout\n' {}
+			!cl -old < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+			
+			#define aa_file "HSO_$imax"".INPUT"
+			##print $aa_file 'A) null.fits \n B) FIT_goodsn_$imax"_Map.fits" \n C) none \n D) none \n E) 1 \n F) none \n G) none \n I) 1   1 \n J) 0 \n K) 0.06   0.06 \n O) both \n P) 0 \n S) 0 \n' {}   # old 2.0 version
+			#print $aa_file 'A) null.fits \n B) FIT_goodsn_$imax"_Map.fits" \n C) none \n D) none \n E) 1 \n F) none \n G) none \n I) 1   1 \n J) 0 \n K) 0.06   0.06 \n O) regular \n P) 0 \n ' {}
+			#print +$aa_file 'H) 1 $imax_xsize 1 $imax_ysize \n' {}
+			#print +$aa_file '\n 0) sky \n 1) $Xback  1 \n 2) 0 0 \n 3) 0 0 \n Z) 0  \n \n' {}
+			#
+			#!/Users/edaddi/software/galfit $aa_file    # obsolete, try imcopy with append
+			
+			
+			if(is_file(null.fits)) {
+			#print do.cl 'images \n imutil \n imcopy $imax_name FIT_goodsn_$imax"_Map.fits"[1][*,*] \n imcopy $imax_name FIT_goodsn_$imax"_Map.fits"[3][*,*] \n imcopy null FIT_goodsn_$imax"_Map.fits"[2][*,*] \n imdel null.fits \n logout\n' {}
+			print do.cl  'images \n imutil \n' {}
+			#print +do.cl 'imcopy $imax_name FIT_goodsn_$imax"_Map.fits"[1][overwrite+] \n' {}
+			#print +do.cl 'imcopy $imax_name FIT_goodsn_$imax"_Map.fits"[3][overwrite+] \n' {}
+			#print +do.cl 'imcopy null FIT_goodsn_$imax"_Map.fits"[2][overwrite+] \n imdel null.fits \n logout\n' {}
+			print +do.cl 'imcopy $imax_name FIT_goodsn_$imax"_Map.fits"\n' {}
+			print +do.cl 'imcopy null FIT_goodsn_$imax"_Map.fits"[append]\n' {}
+			print +do.cl 'imcopy $imax_name FIT_goodsn_$imax"_Map.fits"[1,append]\nlogout\n' {}
+			!cl < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+			} else {echo CRASH   galfit did not work in makeBigMap
+			define aaa ?}
+
+noise_XXX 	!\rm aaa_noise >> /dev/null 2>&1   ###<Modified><DZLIU>### stdout to null
+			echo Doing noise_XXX
+			set x1=int(x$imax-1) set x2=int(x$imax+1)
+			set y1=int(y$imax-1) set y2=int(y$imax+1)
+			set x1 = x1>=1 ? x1 : 1 set x1 = x1<=$imax_xsize ? x1 : $imax_xsize
+			set x2 = x2>=1 ? x2 : 1 set x2 = x2<=$imax_xsize ? x2 : $imax_xsize
+			set y1 = y1>=1 ? y1 : 1 set y1 = y1<=$imax_ysize ? y1 : $imax_ysize
+			set y2 = y2>=1 ? y2 : 1 set y2 = y2<=$imax_ysize ? y2 : $imax_ysize
+			set x1 = float(x1) set x2 = float(x2) set y1 = float(y1) set y2 = float(y2) ###<Added><DZLIU>###
+			if($?print_noheader) {define pref_noheader $print_noheader} else {define pref_noheader 0}  ###<Added><DZLIU>###
+			define print_noheader 1 ###<Added><DZLIU>###
+			print  do.cl 'images\nimutil\n' {}
+			print +do.cl 'imstat $imax_name_rms[%.0f:%.0f,%.0f:%.0f] nclip=0 >> aaa_noise \n' {x1 x2 y1 y2}
+			print +do.cl 'logout\n\n' {}
+			!cl -old < do.cl >> /dev/null 2>&1   ###<Modified><DZLIU>### stdout to null
+			define print_noheader $pref_noheader ###<Added><DZLIU>###
+			
+			if($?verbose) {define pref_verbose $verbose} else {define pref_verbose 0}  ###<Added><DZLIU>###
+			verbose 0 ###<Added><DZLIU>###
+			data aaa_noise read noi$imax 4
+			verbose $pref_verbose ###<Added><DZLIU>###
+			
+			set  noi$imax = (x1==1 || y1==1 || x2==$imax_xsize || y2==$imax_ysize) ? 1e7 : noi$imax
+			set  noi$imax = noi$imax >0 ? noi$imax : 1e7
+			
+			echo Done  noise_XXX
+			###<Added><DZLIU>### Check noi$imax
+			if(dimen(noi$imax)<=0) { echo Error! noise_XXX failed to read noi$imax
+			define aaa ?
+			}
+			###<Added><DZLIU>### 
+
+
+xSet_16		define imax            16
+			define imax_name      "goods_north_wdriz_frac0pt6_norm_19dec06_subbackDL"
+			define imax_name_rms  "goods_north_wdriz_frac0pt6_norm_19dec06_rms"
+			define imax_name_psf  "goods_north_psf_internal_18dec06"
+			define psf_resampl     1
+			define xdate          "08Feb11_resi"
+			
+			define mag_toofaint 20
+			define max_noise 1e-0   #
+			define mag_start 5
+			define Xback 0
+			
+			define ystep 72
+			define xstep 72 
+			define g_buff 12
+			define f_buff 1
+			define use_prior_mags 0      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 0      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 1      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+
+xFit_16   00	
+			#Set_MIPS
+			#XR_MIPS
+			foreach ear {raF deF m16} {set $ear = $ear"_"}
+			set xm16 = m16
+			xSet_16
+			Fit_XXX
+			Rebuild_XXX
+
+xSet_70		define imax 70
+			define imax_name "ehdfn_all70.jam_drz_v1.5_ED"
+			define imax_name_rms "ehdfn_all70.jam_drz_v1.5_std_ED"
+			define imax_name_psf "MIPS70_PRF_mosaic"
+			define psf_resampl   4
+			define xdate "19Oct_RP"
+			
+			define mag_toofaint 20
+			define max_noise 0.1   
+			define mag_start 5
+			define Xback -0.02                          
+			
+			define ystep 25
+			define xstep 25 
+			define g_buff 9
+			define f_buff 1
+			define use_prior_mags 0      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 0      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 0      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+
+xFit_70  00	xSet_70
+			Fit_XXX
+			Rebuild_XXX
+
+xFit_100  00	
+			#Set_MIPS
+			#XR_MIPS
+			#foreach ear {raF deF m100} {set $ear = $ear"_"}
+			#set xm100 = m100
+			xSet_100
+			Fit_XXX
+			Rebuild_XXX
+
+xSet_160
+			define imax            160
+			define imax_name      "pgh_goodsn_red_Map_v1.0_sci_DL" # "pacs160_ima_2p4_v0_100615_ED" ###<Modified><DZLIU>###
+			define imax_name_rms  "pgh_goodsn_red_Map_v1.0_rms_DL" # "pacs160_rms_2p4_v0_100615"    ###<Modified><DZLIU>###
+			#define imax_name_psf  "psf_goodsn_pacs160_2p4arcsec_v0_100622_cut"
+			define imax_name_psf  "pgh_goodsn_red_Psf_v1.0"
+			define psf_resampl     1
+			define xdate         <"20140331"> # "08Feb11_resi" ###<Modified><DZLIU>###
+
+			define mag_toofaint 20
+			define max_noise 1e-3   #
+			define mag_start 5
+			# define Xback -2.35e-5 # -1e-5 for HGOODS     # 0 for PEP ?
+			define Xback -1.5e-5  #<Modified><DZLIU><20140415>#
+
+			define ystep 50
+			define xstep 50 
+			define g_buff 8
+			define f_buff 1
+			define use_prior_mags 1      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 0      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 1      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+
+xFit_160  00	
+			#Set_MIPS
+			#XR_MIPS
+			#foreach ear {raF deF m160} {set $ear = $ear"_"}
+			#set xm160 = m160
+			xSet_160
+			Fit_XXX
+			Rebuild_XXX
+
+xSet_250	define imax            250
+			define imax_name      "spire250_ima_3p6_v0_100615"
+			#define imax_name     "test250_residued_Apr23"
+			define imax_name_rms  "spire250_rms_3p6_v0_100615"
+			define imax_name_psf  "psf_goodsn_spire250_3p6arcsec_v0_100622"
+			define psf_resampl     1
+			#define xdate         "23Mar_Pannella"
+			#define xdate         "23Apr13_sub"
+			
+			define mag_toofaint    20
+			define max_noise       3e-3   #
+			define mag_start       5
+			define Xback          -0.0065      #-0.002 originally for Hermes (radio priors)     # -0.0055 for MIPS priors
+			
+			define ystep  25
+			define xstep  25 
+			define g_buff 15
+			define f_buff  1
+			define use_prior_mags 0      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 0      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 1      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag (this is subtracting stuff)
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+			if($make_residuals) {define Xback 0}
+
+xFit_250  00
+			xSet_250
+
+			Set_MIPS
+			XR_MIPS
+
+			xSet_250
+
+			define h_250 $(1/31.16)
+			#data test_250_use.txt read {_e_id 1 _e_f250 2 _e_e250 3}    # cannot use as IDs got swapped
+			macro read gofind_test_250.sm gofind_test_250
+			set ee_e = _e_e250 if(_e_e250>0) stats_med ee_e me si
+			set _e_e250 = _e_e250==0 ? $me : _e_e250
+			set _e_f250 = _e_f250==0 ? $me : _e_f250
+			set e_coo = (_e_f250+_e_e250*2<2) && _e_e250>-1   # HERE the ones not to fit
+			set xm250 = raF*0-99
+			set xm250 = e_coo ? (-2.5*lg(_e_f250/1000/$h_250)) : -99
+			set ee_e_ = xm250 if(e_coo)
+			echo $(dimen(ee_e_)) out of $(dimen(raF)) FIXED $($(dimen(ee_e_))/$(dimen(raF))) percent
+			define aaa ?
+			if($make_residuals) {set e_coo = xm250<-90} else {set e_coo = xm250>-90}
+			foreach dEr {raF deF xm250 id _e_id _e_f250} {set $dEr"_" = $dEr if(e_coo)}
+			print x_SEL.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +x_SEL.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +x_SEL.reg 'fk5;ellipse(%.7f,%.7f,1\",1\",0) \# text={%d %d %f}   \n' {raF_ deF_ id_ _e_id_ _e_f250_ }
+			if($make_residuals) {set e_coo = xm250>-90} else {set e_coo = xm250<-90}
+			foreach dEr {raF deF xm250 _e_f250 _e_e250 id _e_id} {set $dEr = $dEr if(e_coo)}
+			set xf_e_250 = 10**(-0.4*xm250)*1000*$h_250
+			print x_FIX.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +x_FIX.reg '"global color=red font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +x_FIX.reg 'fk5;ellipse(%.7f,%.7f,1\",1\",0) \# text={%d %d %.1f}   \n' {raF deF id _e_id _e_f250 }
+			if($make_residuals==0) {
+				set xm250 = xm250>-20 ? xm250 : 20
+				set xm250 = xm250<20 ? xm250 : 20
+				# adding missing priors here: lens first, radio objs after
+				set raF = raF concat 189.2169800
+				set deF = deF concat 62.2072945
+				set xm250 = xm250 concat 2
+				data newpriors_radio.txt read {xra 2 xde 3}  set gg250 = xra*0+2
+				set raF = raF concat xra
+				set deF = deF concat xde
+				set xm250 = xm250 concat gg250
+				foreach taR {ds9_250.txt ds9_350.txt ds9_500.txt} {
+				data $taR read {xra 1 xde 2}  set gg250 = xra*0+2
+				set raF = raF concat xra
+				set deF = deF concat xde
+				set xm250 = xm250 concat gg250
+				}
+				echo FITTING $(dimen(raF)) OBJECTS
+				print all_priors_RAD_250.txt '%.7f %.7f\n' {raF deF}   # make file for use by Simu
+			}
+			define aaa ?
+		
+			Fit_XXX
+			Rebuild_XXX
+
+xSet_350	define imax            350
+			define imax_name      "spire350_ima_4p8_v0_100615"
+			#define imax_name     "test350_residued"
+			#define imax_name     "test350_residued_Apr23"
+			define imax_name_rms  "spire350_rms_4p8_v0_100615"
+			define imax_name_psf  "psf_goodsn_spire350_4p8arcsec_v0_100622"
+			define psf_resampl     1
+			#define xdate "19Oct_RP"
+			#define xdate "23Mar_Pannella"
+			#define xdate "23Apr13_sub"
+
+			define mag_toofaint 20
+			define max_noise 3e-3   #
+			define mag_start 5
+			define Xback -0.0095   # -0.00526   # -0.00526 for radio priors          # -0.0095 for MIPS priors                                
+
+			define ystep 25
+			define xstep 25 
+			define g_buff 15
+			define f_buff 1
+			define use_prior_mags 0      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 0      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 0      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+			if($make_residuals) {define Xback 0}
+
+xFit_350  00	
+		
+			Set_MIPS
+			XR_MIPS
+
+			xSet_350
+
+			define h_350 $(1/34.42)
+			#data test_350_use.txt read {_e_id 1 _e_f350 2 _e_e350 3}    # cannot use as IDs got swapped
+			macro read gofind_test_350.sm gofind_test_350
+			set ee_e = _e_e350 if(_e_e350>0) stats_med ee_e me si
+			set _e_e350 = _e_e350==0 ? $me : _e_e350
+			set _e_f350 = _e_f350==0 ? $me : _e_f350
+			set e_coo = (_e_f350+_e_e350*2<5) && _e_e350>-1   # HERE CHOOSE What not to FIT
+			set xm350 = raF*0-99
+			set xm350 = e_coo ? (-2.5*lg(_e_f350/1000/$h_350)) : -99
+			set ee_e_ = xm350 if(e_coo)
+			echo $(dimen(ee_e_)) out of $(dimen(raF)) FIXED $($(dimen(ee_e_))/$(dimen(raF))) percent
+			define aaa ?
+			if($make_residuals) {set e_coo = xm350<-90} else {set e_coo = xm350>-90}
+			foreach dEr {raF deF xm350 id _e_id _e_f350} {set $dEr"_" = $dEr if(e_coo)}
+			print x_SEL.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +x_SEL.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +x_SEL.reg 'fk5;ellipse(%.7f,%.7f,1\",1\",0) \# text={%d %d %f}   \n' {raF_ deF_ id_ _e_id_ _e_f350_ }
+			if($make_residuals) {set e_coo = xm350>-90} else {set e_coo = xm350<-90}
+			foreach dEr {raF deF xm350 _e_f350 _e_e350 id _e_id} {set $dEr = $dEr if(e_coo)}
+			set xf_e_350 = 10**(-0.4*xm350)*1000*$h_350
+			print x_FIX.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +x_FIX.reg '"global color=red font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +x_FIX.reg 'fk5;ellipse(%.7f,%.7f,1\",1\",0) \# text={%d %d %.1f}   \n' {raF deF id _e_id _e_f350 }
+			if($make_residuals==0) {
+				set xm350 = xm350>-20 ? xm350 : 20
+				set xm350 = xm350<20 ? xm350 : 20
+				# adding missing priors here: lens first, radio objs after
+				set raF = raF concat 189.2169800
+				set deF = deF concat 62.2072945
+				set xm350 = xm350 concat 2
+				data newpriors_radio.txt read {xra 2 xde 3}  set gg350 = xra*0+2
+				set raF = raF concat xra
+				set deF = deF concat xde
+				set xm350 = xm350 concat gg350
+				foreach taR {ds9_250.txt ds9_350.txt ds9_500.txt} {
+				data $taR read {xra 1 xde 2}  set gg350 = xra*0+2
+				set raF = raF concat xra
+				set deF = deF concat xde
+				set xm350 = xm350 concat gg350
+				}
+				echo FITTING $(dimen(raF)) OBJECTS
+				print all_priors_RAD_350.txt '%.7f %.7f\n' {raF deF}   # make file for use by Simu
+			}
+			define aaa ?
+		
+
+			Fit_XXX
+			Rebuild_XXX
+
+xSet_500	define imax            500
+			define imax_name      "spire500_ima_7p2_v0_100615"
+			#define imax_name     "test500_residued_Apr23"
+			define imax_name_rms  "spire500_rms_7p2_v0_100615"
+			define imax_name_psf  "psf_goodsn_spire500_7p2arcsec_v0_100622"
+			define psf_resampl     1
+			#define xdate "19Oct_RP"
+			#define xdate "23Mar_Pannella"
+			#define xdate "23Apr13_sub"
+			
+			define mag_toofaint 20
+			define max_noise 3e-3   #
+			define mag_start 5
+			define Xback -0.0125    # -0.00437 originally for radio priors  # -0.010  for MIPS priors                                                 
+			
+			define ystep 25
+			define xstep 25 
+			define g_buff 10
+			define f_buff 1
+			define use_prior_mags 0      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 0      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 0      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+			if($make_residuals) {define Xback 0}
+
+xFit_500  00	
+			Set_MIPS
+			XR_MIPS
+
+			xSet_500
+
+			define h_500 $(1/32.198)
+			#data test_500_use.txt read {_e_id 1 _e_f500 2 _e_e500 3}    # cannot use as IDs got swapped
+			macro read gofind_test_500.sm gofind_test_500
+			set ee_e = _e_e500 if(_e_e500>0) stats_med ee_e me si
+			set _e_e500 = _e_e500==0 ? $me : _e_e500
+			set _e_f500 = _e_f500==0 ? $me : _e_f500
+			set e_coo = (_e_f500+_e_e500*2<5) && _e_e500>-1    # Here deciding which to FIX
+			set xm500 = raF*0-99
+			set xm500 = e_coo ? (-2.5*lg(_e_f500/1000/$h_500)) : -99
+			set ee_e_ = xm500 if(e_coo)
+			echo $(dimen(ee_e_)) out of $(dimen(raF)) FIXED $($(dimen(ee_e_))/$(dimen(raF))) percent
+			define aaa ?
+			if($make_residuals) {set e_coo = xm500<-90} else {set e_coo = xm500>-90}
+			foreach dEr {raF deF xm500 id _e_id _e_f500} {set $dEr"_" = $dEr if(e_coo)}
+			print x_SEL.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +x_SEL.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +x_SEL.reg 'fk5;ellipse(%.7f,%.7f,1\",1\",0) \# text={%d %d %f}   \n' {raF_ deF_ id_ _e_id_ _e_f500_ }
+			if($make_residuals) {set e_coo = xm500>-90} else {set e_coo = xm500<-90}
+			foreach dEr {raF deF xm500 _e_f500 _e_e500 id _e_id} {set $dEr = $dEr if(e_coo)}
+			set xf_e_500 = 10**(-0.4*xm500)*1000*$h_500
+			print x_FIX.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +x_FIX.reg '"global color=red font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +x_FIX.reg 'fk5;ellipse(%.7f,%.7f,1\",1\",0) \# text={%d %d %.1f}   \n' {raF deF id _e_id _e_f500 }
+			if($make_residuals==0) {
+				set xm500 = xm500>-20 ? xm500 : 20
+				set xm500 = xm500<20 ? xm500 : 20
+				# adding missing priors here: lens first, radio objs after
+				set raF = raF concat 189.2169800
+				set deF = deF concat 62.2072945
+				set xm500 = xm500 concat 2
+				data newpriors_radio.txt read {xra 2 xde 3}  set gg500 = xra*0+2
+				set raF = raF concat xra
+				set deF = deF concat xde
+				set xm500 = xm500 concat gg500
+				foreach taR {ds9_250.txt ds9_350.txt ds9_500.txt} {
+				data $taR read {xra 1 xde 2}  set gg500 = xra*0+2
+				set raF = raF concat xra
+				set deF = deF concat xde
+				set xm500 = xm500 concat gg500
+				}
+				echo FITTING $(dimen(raF)) OBJECTS
+				print all_priors_RAD_500.txt '%.7f %.7f\n' {raF deF}   # make file for use by Simu
+
+			}
+			define aaa ?
+		
+		
+			Fit_XXX
+			Rebuild_XXX
+
+xSet_1100	define imax 1100
+			define imax_name "aztec_1.1mm_goodsn_filt_ED"
+			define imax_name_rms "aztec_1.1mm_goodsn_filt_sigmaED"
+			define imax_name_psf "aztec_1.1mm_goodsn_filt_psf_cutED"
+			define psf_resampl   1
+			define xdate "17Feb"
+
+			define mag_toofaint 20
+			define max_noise 4e-3   #
+			define mag_start 5
+			define Xback -5e-5                                                                                                    
+
+
+			define ystep 25
+			define xstep 25 
+			define g_buff 20
+			define f_buff 1
+			define use_prior_mags 0      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 0      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 0      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+
+xFit_1100	00	
+			xSet_1100
+			Fit_XXX
+			Rebuild_XXX
+
+
+xFit_1160	00	
+			Set_MIPS
+			XR_MIPS
+
+			xSet_1160
+
+			define h_1160 $(1/45.41)
+			#data test_1160_use.txt read {_e_id 1 _e_f1160 2 _e_e1160 3}    # cannot use as IDs got swapped
+			macro read gofind_test_1160.sm gofind_test_1160
+			set ee_e = _e_e1160 if(_e_e1160>0) stats_med ee_e me si
+			set _e_e1160 = _e_e1160==0 ? $me : _e_e1160
+			set _e_f1160 = _e_f1160==0 ? $me : _e_f1160
+			set e_coo = (_e_f1160+_e_e1160*2<.75) && _e_e1160>-1   # HERE CHOOSE What not to FIT
+			set xm1160 = raF*0-99
+			set xm1160 = e_coo ? (-2.5*lg(_e_f1160/1000/$h_1160)) : -99
+			set ee_e_ = xm1160 if(e_coo)
+			echo $(dimen(ee_e_)) out of $(dimen(raF)) FIXED $($(dimen(ee_e_))/$(dimen(raF))) percent
+			define aaa ?
+			if($make_residuals) {set e_coo = xm1160<-90} else {set e_coo = xm1160>-90}
+			foreach dEr {raF deF xm1160 id _e_id _e_f1160} {set $dEr"_" = $dEr if(e_coo)}
+			print x_SEL.reg '\# Region file format: DS9 version 3.0\n' {}
+					print +x_SEL.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+					print +x_SEL.reg 'fk5;ellipse(%.7f,%.7f,1\",1\",0) \# text={%d %d %f}   \n' {raF_ deF_ id_ _e_id_ _e_f1160_ }
+			if($make_residuals) {set e_coo = xm1160>-90} else {set e_coo = xm1160<-90}
+			foreach dEr {raF deF xm1160 _e_f1160 _e_e1160 id _e_id} {set $dEr = $dEr if(e_coo)}
+			set xf_e_1160 = 10**(-0.4*xm1160)*1000*$h_1160
+			print x_FIX.reg '\# Region file format: DS9 version 3.0\n' {}
+					print +x_FIX.reg '"global color=red font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+					print +x_FIX.reg 'fk5;ellipse(%.7f,%.7f,1\",1\",0) \# text={%d %d %.1f}   \n' {raF deF id _e_id _e_f1160 }
+			if($make_residuals==0) {
+				set xm1160 = xm1160>-20 ? xm1160 : 20
+				set xm1160 = xm1160<20 ? xm1160 : 20
+				# adding missing priors here: lens first, radio objs after
+				set raF = raF concat 189.2169800
+				set deF = deF concat 62.2072945
+				set xm1160 = xm1160 concat 2
+				data newpriors_radio.txt read {xra 2 xde 3}  set gg1160 = xra*0+2
+				set raF = raF concat xra
+				set deF = deF concat xde
+				set xm1160 = xm1160 concat gg1160
+				foreach taR {ds9_250.txt ds9_350.txt ds9_500.txt} {
+				data $taR read {xra 1 xde 2}  set gg1160 = xra*0+2
+				set raF = raF concat xra
+				set deF = deF concat xde
+				set xm1160 = xm1160 concat gg1160
+				}
+				echo FITTING $(dimen(raF)) OBJECTS
+				print all_priors_RAD_1160.txt '%.7f %.7f\n' {raF deF}   # make file for use by Simu
+			}
+			define aaa ?
+		
+
+			Fit_XXX
+			Rebuild_XXX
+
+
+xSet_20cm_Owen	
+			define imax 20cm
+			define imax_name "VLA_Owen_2arcsec_big_NOPBC"
+			define imax_name_rms "VLA_Owen_2arcsec_big_rms"
+			#define imax_name_psf "VLA_Owen_2arcsec_PSF"
+			define imax_name_psf "VLA_Owen_Maurilio_beam2"
+			define psf_resampl 1
+			#define xdate "01Oct13"
+			define xdate "201504"
+			
+			define mag_toofaint 20
+			define max_noise 4   #
+			define mag_start 6
+			define Xback  0                                                                                       
+			
+			define ystep 100
+			define xstep 100 
+			define g_buff 21
+			define f_buff 1
+			define use_prior_mags 1      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 0      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 1      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+			
+			data "irac_mips_fluxes_hdfn.dat" read {raF 1 deF 2 idF 3 xf24 17}
+
+xFit_20cm_Owen	00	
+
+			Set_MIPS_new     # this also reads coordinates and adjust GN20.2b
+			set raF = _ra set deF = _de 
+			set ra = raF set de = deF 
+			# Maurilio's PSF area term: 37.506
+
+
+			data results_20cm_01Oct13 read {xm20cm 4}
+			set xm20cm = xm20cm>-20 ? xm20cm : 10
+			set xm20cm = xm20cm<10 ? xm20cm : 10
+
+			#data M23.coo read {raF 1 deF 2}
+			#set xm20cm = raF*0+10
+
+			set noi20cm = raF*0+2.75e-6
+
+			xSet_20cm_Owen
+
+			Fit_XXX
+			Rebuild_XXX
+
+xSet_20cm	
+			xSet_20cm_Owen
+
+xSet_20cm_Gleen	00	
+			define imax 20cm
+			define imax_name "VLA_20cm_Glenn_May09"
+			define imax_name_rms "VLA_20cm_Glenn_May09_rms"
+			define imax_name_psf "VLA_beam_hdfn"
+			define psf_resampl 1
+			#define xdate "19May_x"
+			define xdate "201504"
+
+			define mag_toofaint 20
+			define max_noise 4   #
+			define mag_start 6
+			define Xback  0                                                                                       
+
+
+			define ystep 250
+			define xstep 250 
+			define g_buff 11
+			define f_buff 1
+			define use_prior_mags 1      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 0      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 1      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+
+xFit_20cm  00	
+			cd                                  /Users/edaddi/HDFN/HGOODS/Ref_catalogs     # use latest catalog, with corrected astrometry
+			data irac_mips_fluxes_hdfn.dat read {raF 1 deF 2}
+			set ra = raF set de = deF 
+			cd                                  /Users/edaddi/HDFN
+			macro read gofindRadio.sm gofindRadio
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			data results_20cm_19May read {xm20cm 4}
+			set xcoo = radio>70 foreach var {raF deF xm20cm} {set $var = $var if(xcoo)} echo $(dimen(raF))
+			set noi20cm = raF*0+4.5e-6
+			xSet_20cm
+			Fit_XXX
+			Rebuild_XXX
+
+xSet_ch1N	define imax ch1N
+			define imax_name "n_irac_1_s12_v0.31_sci"
+			define imax_name_rms "n_irac_1_s12_v0_31_rms"
+			define imax_name_psf "/Users/edaddi/usbdisk/home/edaddi/ESO/laptop/GOODS/GMASS/matched/PSF/ch1psf_2x64_rotssc_adj"
+			define psf_resampl   1
+			define xdate "20May"
+
+			define mag_toofaint 20
+			define max_noise 4   #
+			define mag_start -5
+			define Xback   -0.004                                                                             
+
+
+			define ystep 100
+			define xstep 100 
+			define g_buff 11
+			define f_buff 1
+			define use_prior_mags 0      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 1      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 1      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+
+xFit_ch1N	00	
+			cd                                  /Users/edaddi/HDFN
+			data master_GN_bz_v1.0_031210_Pannella.cat  read{raF 2 deF 3 _K 11}
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			set xcoo = _K>18 && _K<19 || 1  foreach var {raF deF _K} {set $var = $var if(xcoo)} echo $(dimen(raF))
+			xSet_ch1N
+			Fit_XXX
+			Rebuild_XXX
+
+xSet_ch2N	define imax ch2N
+			define imax_name "n_irac_2_s12_v0.31_sci"
+			define imax_name_rms "n_irac_2_s12_v0_31_rms"
+			define imax_name_psf "/Users/edaddi/usbdisk/home/edaddi/ESO/laptop/GOODS/GMASS/matched/PSF/ch2psf_2x64_rotssc_adj"
+			define psf_resampl   1
+			define xdate "20May"
+
+			define mag_toofaint 20
+			define max_noise 4   #
+			define mag_start -5
+			define Xback   -0.004                                                                             
+
+
+			define ystep 100
+			define xstep 100 
+			define g_buff 14
+			define f_buff 1
+			define use_prior_mags 0      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 1      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 1      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+
+xFit_ch2N	00	
+			cd                                  /Users/edaddi/HDFN
+			data master_GN_bz_v1.0_031210_Pannella.cat  read{raF 2 deF 3 _K 11}
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			set xcoo = _K>18 && _K<19 || 1  foreach var {raF deF _K} {set $var = $var if(xcoo)} echo $(dimen(raF))
+			xSet_ch2N
+			Fit_XXX
+			Rebuild_XXX
+
+
+xSet_ch3N	define imax ch3N
+			define imax_name "n_irac_3_s12_v0.31_sci"
+			define imax_name_rms "n_irac_3_s12_v0_31_rms"
+			define imax_name_psf "Users/edaddi/usbdisk/home/edaddi/ESO/laptop/GOODS/GMASS/matched/PSF/ch3psf_2x64_rotssc_adj"
+			define psf_resampl   1
+			define xdate "20May"
+
+			define mag_toofaint 20
+			define max_noise 4   #
+			define mag_start -5
+			define Xback   -0.002                                                                             
+
+
+			define ystep 100
+			define xstep 100 
+			define g_buff 14
+			define f_buff 1
+			define use_prior_mags 0      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 1      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 1      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+
+xFit_ch3N	00	
+			cd                                  /Users/edaddi/HDFN
+			data master_GN_bz_v1.0_031210_Pannella.cat  read{raF 2 deF 3 _K 11}
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			set xcoo = _K>18 && _K<19 || 1  foreach var {raF deF _K} {set $var = $var if(xcoo)} echo $(dimen(raF))
+			xSet_ch3N
+			Fit_XXX
+			Rebuild_XXX
+
+xSet_ch4N	define imax ch4N
+			define imax_name "n_irac_4_s12_v0.31_sci"
+			define imax_name_rms "n_irac_4_s12_v0_31_rms"
+			define imax_name_psf "/Users/edaddi/usbdisk/home/edaddi/ESO/laptop/GOODS/GMASS/matched/PSF/ch4psf_2x64_rotssc_adj"
+			define psf_resampl   1
+			define xdate "20May"
+
+			define mag_toofaint 20
+			define max_noise 4   #
+			define mag_start -5
+			define Xback   -0.002                                                                             
+
+
+			define ystep 100
+			define xstep 100 
+			define g_buff 24
+			define f_buff 1
+			define use_prior_mags 0      # if 1, define xm$imax to a meaningful guess start for the mag
+			define vary_positions 1      # if 1, allow positions of bright objects to vary
+			define fix_astrometry 1      # if 1, account for astrometry variation
+			define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+			define fit_gaussian   0      # to switch only for resolved sources
+			define fit_sky 	      0      # test
+
+xFit_ch4N	00	
+			cd                                  /Users/edaddi/HDFN
+			data master_GN_bz_v1.0_031210_Pannella.cat  read{raF 2 deF 3 _K 11}
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			set xcoo = _K>18 && _K<19 || 1  foreach var {raF deF _K} {set $var = $var if(xcoo)} echo $(dimen(raF))
+			xSet_ch4N
+			Fit_XXX
+			Rebuild_XXX
+
+doIRAC	00	xFit_ch1N
+			xFit_ch2N
+			xFit_ch3N
+			xFit_ch4N
+
+ppp	00		set ii=0,dimen(x160)-1
+			declare near_2 0
+			foreach var ii {
+			set dist = (x160-x160[$var])**2+(y160-y160[$var])**2 if(id!=id[$var])
+			vecminmax dist min max
+			set near_2 = near_2 concat $(sqrt($min))
+			}  # check separations
+
+pppF	00	set ii=0,dimen(raF)-1
+			declare near_2 0
+			foreach var ii {
+			set dist = (((raF-raF[$var])*cosd(deF[$var]))**2+(deF-deF[$var])**2)**.5*3600 if(id!=id[$var])
+			vecminmax dist min max
+			set near_2 = near_2 concat $(sqrt($min))
+			}  # check separations
+			dopppF
+dopppF
+			set e1 = near_2 set e2 = raF set e3 = deF set e4 = id set  e5 = x160 set e6 = y160
+			sort {e1 e2 e3 e4 e5 e6} 
+			print '%.3f %.7f %.7f %.0f\n' {e1 e2 e3 e4 e5 e6}
+			set ecoo = e1<2 foreach var {e1 e2 e3 e4 e5 e6} {set $var"_" = $var if(ecoo)}
+			print pppF.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +pppF.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +pppF.reg 'fk5;ellipse(%.7f,%.7f,2\",2\",0) \# text={ID%d} \n' {e2_ e3_ e4_}
+
+blind500	data goodsn_pacs100_blindv2_5sigma.txt read {id 1 ra 2 de 3 F500 8}
+			set coo = F500>32
+			foreach var {id ra de F500} {set $var = $var if(coo)}
+			print B500.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +B500.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +B500.reg 'fk5;ellipse(%.7f,%.7f,4\",4\",0) \# text={ID%d %.0fmJy} \n' {ra de id F500}
+		
+carilli	00	data Carilli_2.list read {ra 1 de 2 sn 7} set id=1,dimen(sn)
+			print cari.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +cari.reg '"global color=red font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +cari.reg 'fk5;ellipse(%.7f,%.7f,2\",2\",0) \# text={ID%d %.1f} \n' {ra de id sn}
+		
+
+
+Benj		#data goodsn_100um_160um_priors_5sigma_v2.cat  
+			data goodsn_100um_160um_priors_3sigma_v2.2.cat
+			read{_id 1 raC 2 deC 3 _f24 4 _df24 5 _f100 6 _df100 7 _f160 8 _df160 9}
+			set xcoo = _f160>0 
+			foreach var {_id raC deC _f24 _df24 _f100 _df100 _f160 _df160} {set $var = $var if(xcoo)}
+			print Benj.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +Benj.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +Benj.reg 'fk5;ellipse(%.7f,%.7f,4\",4\",0) \# text={ID%d %.1fmJy} \n' {raC deC _id _f160}
+
+BenjSPIRE	data GOODSN_24_250_350_500um_V2.0_magnelli.cat
+			read{_id 1 raC 2 deC 3 _f24 4 _df24 5 _f250 6 _df250 7 _f350 8 _df350 9 _f500 10 _df500 11}
+			set xcoo = _f250>0 
+			foreach var {_id raC deC _f24 _df24 _f250 _df250 _f350 _df350 _f500 _df500} {set $var = $var if(xcoo)}
+			print BenjSPIRE.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +BenjSPIRE.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +BenjSPIRE.reg 'fk5;ellipse(%.7f,%.7f,4\",4\",0) \# text={ID%d %.1fmJy} \n' {raC deC _id _f250}
+
+GeorSPIRE	data  "250-06.cat"
+			read{raC 1 deC 2 _f250 7 _df250 8}
+			set xcoo = _f250>0 
+			foreach var {raC deC _df250 _df250} {set $var = $var if(xcoo)}
+			print GeorSPIRE.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +GeorSPIRE.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +GeorSPIRE.reg 'fk5;ellipse(%.7f,%.7f,4\",4\",0) \# text={%.1fmJy} \n' {raC deC _f250}
+
+
+Mancini	00	cd                                  /Users/edaddi/HDFN
+			data Mancini_highz.dat read '%d %d:%d:%f %d:%d:%f' {xid ra1 ra2 ra3 de1 de2 de3}
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			set raU = (ra3/3600+ra2/60+ra1)*15
+			set deU = de3/3600+de2/60+de1
+			print Mancini.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +Mancini.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +Mancini.reg 'fk5;ellipse(%.7f,%.7f,4\",4\",0) \# text={Mancini ID%d} \n' {raU deU xid }
+
+AzTEC  	00	cd                                  /Users/edaddi/HDFN
+			data AzTEC.list read {xid 1.s raU 2 deU 3}
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			print AzTEC.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +AzTEC.reg '"global color=green font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +AzTEC.reg 'fk5;ellipse(%.7f,%.7f,18\",18\",0) \# text={AzTEC ID%d} \n' {raU deU xid }
+
+MAMBO  	00	cd                                  /Users/edaddi/HDFN
+			data MAMBO.list read {xid 1.s raU 2 deU 3}
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			print MAMBO.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +MAMBO.reg '"global color=pink font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +MAMBO.reg 'fk5;ellipse(%.7f,%.7f,16\",16\",0) \# text={MAMBO ID%d} \n' {raU deU xid }
+
+SCUBA  	00	cd                                  /Users/edaddi/HDFN
+			data SCUBA.list read '%s %d:%d:%f %d:%d:%f' {xid ra1 ra2 ra3 de1 de2 de3}
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			set raU = (ra3/3600+ra2/60+ra1)*15
+			set deU = de3/3600+de2/60+de1
+			print SCUBA.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +SCUBA.reg '"global color=yellow font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +SCUBA.reg 'fk5;ellipse(%.7f,%.7f,14\",14\",0) \# text={SCUBA ID%d} \n' {raU deU xid }
+
+
+
+Hermes		cd                                  /Users/edaddi/HDFN/HERMES
+			data PSW_250.txt read {raC 1 deC 2 ff 7 dff 8}
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			set _id = 1,dimen(ff)
+
+			print Herm.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +Herm.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +Herm.reg 'fk5;ellipse(%.7f,%.7f,4\",4\",0) \# text={ID%d %.1fmJy %.1f} \n' {raC deC _id ff dff}
+
+doShow	01	data usex read _id 1
+			declare all_peaks 0
+			declare all_peaksCE 0
+			declare all_peaks_min 0
+			declare all_peaks_max 0
+			declare all_peaks_err 0
+			declare all_peaks_goodness 0
+			declare all_fwhm  0
+			declare all_bol 0
+			declare all_fluxbol 0
+			declare all_max_fnu 0
+			declare all_max_fnu_err 0
+			declare all_CE01_best 0
+			declare all_CE01_err  0
+			declare all_radio     0
+			declare fit_1100 0
+			foreach tar _id  {
+			##device postfile cooZ_$tar".ps"
+			#set zz = id==217 ? 4.054  : zz
+			#set zz = id==78 ? 5.2    : zz
+			#set zz = id==563 ? 5.2    : zz
+			set xxz = zz if(id==$tar)
+			set radio_x = radio if(id==$tar)
+			macro read fSED.sm fSED $tar 
+			if($tar==395) {xGN20}
+			if($tar==78) {xID78}
+			if($tar==563) {xID563}
+			if(xxz[0]>=0) {
+			x_para2
+			xdoCE
+			set all_peaks = all_peaks concat $l_peak
+			set all_peaksCE = all_peaksCE concat $x_peakCE
+			set all_peaks_min = all_peaks_min concat $l_peak_min
+			set all_peaks_max = all_peaks_max concat $l_peak_max
+			set all_peaks_err = all_peaks_err concat $err_peak
+			set all_fwhm  = all_fwhm  concat $fwhm
+			set all_peaks_goodness = all_peaks_goodness concat $good_fit
+			set all_bol = all_bol concat $int_bolCE
+			set all_fluxbol = all_fluxbol concat $flu_bol
+			set all_max_fnu = all_max_fnu concat $Max_Fnu
+			set all_max_fnu_err = all_max_fnu_err concat $Max_Fnu_err
+			set all_CE01_best = all_CE01_best concat $best_CE
+			set all_CE01_err  = all_CE01_err  concat $err_CE
+			set all_radio = all_radio concat $(10**(Fradio[0]))
+			set fit_1100 = fit_1100 concat xYY1100
+			echo ID $tar   z = $(xxz[0])
+			#xMod $(xxz[0]) 0
+			if($1) {define aaa ?}
+			##device x11
+			} else {echo NO Redshift available
+			x_para2
+			set all_peaks = all_peaks concat $l_peak
+			set all_peaksCE = all_peaksCE concat -1         
+			set all_peaks_min = all_peaks_min concat $l_peak_min
+			set all_peaks_max = all_peaks_max concat $l_peak_max
+			set all_peaks_err = all_peaks_err concat $err_peak
+			set all_peaks_goodness = all_peaks_goodness concat $good_fit
+			set all_fwhm  = all_fwhm  concat $fwhm
+			set all_fluxbol = all_fluxbol concat $flu_bol
+			set all_max_fnu = all_max_fnu concat $Max_Fnu
+			set all_max_fnu_err = all_max_fnu_err concat $Max_Fnu_err
+			set all_bol = all_bol concat -1
+			set fit_1100 = fit_1100 concat xYY1100
+			if($1) {define aaa ?}}
+			}
+			set Td = zz_>0 ? 3235.2/((10**all_peaks)/(1+zz_)) : -1
+doAll	00	# remember to set --> raF deF
+			#foreach RaR {70 100 160 250 350 500 1100} { 
+			foreach RaR {160} {  
+			xFit_$RaR
+			}
+			!\rm galfit.*
+			!\rm tmp*fits
+			!\rm fit*log
+
+			#macro read goSimu.sm Simu_All
+
+xGN20	00	set al = {3300 850 2200 24} set bl = {330 20300 900 19.5} points (lg(al)) (lg(bl))
+			set el = {60 2000 150 7} logerr (lg(al)) (lg(bl)) el
+			set mags = mags concat bl set lambda = lambda concat al set errs = errs concat el
+xID78	00	set al = {850} set bl = {5400} set el = {2800} 
+			upper ptype $upper points (lg(al)) (lg(3*el)) ptype 4 3
+			set mags = mags concat bl set lambda = lambda concat al set errs = errs concat el
+xID563	00	set al = {850} set bl = {2300} set el = {2800} 
+			upper ptype $upper points (lg(al)) (lg(3*el)) ptype 4 3
+			set mags = mags concat bl set lambda = lambda concat al set errs = errs concat el
+xCE01	03	# luminosity, redshift, scaling
+			cd CE01
+			data CE01_mod$1".dat" read {aa 1 bb 2} set bb = bb*aa
+			data CE01.header read row lir $1 echo LIR $(lg(lir[0]))
+			set aa = aa*(1+$2)
+			set bb = bb*$3*1e-9
+			connect (lg(aa)) (lg(bb))
+			cd ../
+xMod	02	# redshift, scaling
+			data  modified_CE01.dat read {aa 1 bb 2} 
+			set aa = aa/5.055*(1+$1)
+			if($2) {
+			set bb=bb*$2
+			} else {set_scal}
+			ctype red connect (lg(aa)) (lg(bb)) ctype 0
+set_scal	set xCo = radio_x
+			set lCo = 2e5
+			spline aa bb lCo xSca
+			set bb = bb/xSca*xCo
+cCE01	00	
+			declare CE01_peaks 0
+			declare CE01_fwhm  0
+			declare CE01_bol 0
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			macro read fSED.sm
+
+			do i=1,105,1 {
+			cd CE01
+			data CE01_mod$i".dat" read {aa 1 bb 2} set bb = bb*aa
+			data CE01.header read row lir $i echo LIR $(lg(lir[0])) 
+			cd ../
+			set CE01_bol = CE01_bol concat $(lg(lir[0])) 
+			set x = (lg(aa)) set y = (lg(bb)) set dy = y*0+.1
+			goc x y
+			set coox = x>(lg(8)) && x<lg(1000) foreach var {x y dy} {set $var = $var if(coox)}
+			ctype red connect x y ctype 0
+			set xx = x set yy = y
+			set _yy = yy if(xx>1 && xx<3) set _xx = xx if(xx>1 && xx<3)  vecminmax _yy min max_Y set uu = _xx if(_yy>$max_Y-1e-2)
+			if(dimen(uu)==1) {define x_peak $(uu[0]) } else {stats uu me si ku define x_peak $me}
+			set _xx = xx if(yy>$max_Y-.3 && xx>$x_peak-1 && xx<$x_peak+1) vecminmax _xx min max define fwhm $($max-$min)
+			ctype green rel $($x_peak-1) $($max_Y+.2) draw $($x_peak+1) $($max_Y+.2) ctype 0
+
+			set  CE01_peaks = CE01_peaks concat $x_peak
+			set CE01_fwhm = CE01_fwhm concat $fwhm
+			define aaa ?
+			}
+			set TdCE = 3235.2/10**CE01_peaks
+			set ii=1,105
+			print CE01_props.dat {ii CE01_bol CE01_peaks CE01_fwhm TdCE}
+
+cLaga	00	
+			declare Laga_peaks 0
+			declare Laga_fwhm  0
+			declare Laga_bol 0
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			macro read fSED.sm
+
+			do i=1,46,1 {
+			cd Laga
+			data Lagache_plot_galaxyspectrum_template.dat 
+			#data Lagache_plot_galaxyspectrum_template.cold.dat 
+			read aa 1 set aa=aa*1e6
+			read bb $($i+1) set bb=bb/1e23
+			data LA.LIR read row lir $i set lir=10**lir echo LIR $(lg(lir[0])) 
+			cd ../
+			set Laga_bol = Laga_bol concat $(lg(lir[0])) 
+			set x = (lg(aa)) set y = (lg(bb)) set dy = y*0+.1
+			goc x y
+			set coox = x>(lg(8)) && x<lg(1000) foreach var {x y dy} {set $var = $var if(coox)}
+			ctype red connect x y ctype 0
+			set xx = x set yy = y
+			set _yy = yy if(xx>1 && xx<3) set _xx = xx if(xx>1 && xx<3)  vecminmax _yy min max_Y set uu = _xx if(_yy>$max_Y-1e-2)
+			if(dimen(uu)==1) {define x_peak $(uu[0]) } else {stats uu me si ku define x_peak $me}
+			set _xx = xx if(yy>$max_Y-.3 && xx>$x_peak-1 && xx<$x_peak+1) vecminmax _xx min max define fwhm $($max-$min)
+			ctype green rel $($x_peak-1) $($max_Y+.2) draw $($x_peak+1) $($max_Y+.2) ctype 0
+
+			set  Laga_peaks = Laga_peaks concat $x_peak
+			set Laga_fwhm = Laga_fwhm concat $fwhm
+			define aaa ?
+			}
+			set TdLA = 3235.2/10**Laga_peaks
+			set ii=1,105
+			print Laga_props.dat {ii Laga_bol Laga_peaks Laga_fwhm TdLA}
+			#print LagaCold_props.dat {ii Laga_bol Laga_peaks Laga_fwhm TdLA}
+cDH02	00	
+			declare DH02_peaks 0
+			declare DH02_fwhm  0
+			declare DH02_bol 0
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			macro read fSED.sm
+
+			do i=1,57,1 {
+			cd DH02
+			data DH02_mod$i".dat" read {aa 1 bb 2} set bb = bb*aa
+			data DH.LIR read row lir $i set lir=10**lir echo LIR $(lg(lir[0])) 
+			cd ../
+			set DH02_bol = DH02_bol concat $(lg(lir[0])) 
+			set x = (lg(aa)) set y = (lg(bb)) set dy = y*0+.1
+			goc x y
+			set coox = x>(lg(8)) && x<lg(1000) foreach var {x y dy} {set $var = $var if(coox)}
+			ctype red connect x y ctype 0
+			set xx = x set yy = y
+			set _yy = yy if(xx>1 && xx<3) set _xx = xx if(xx>1 && xx<3)  vecminmax _yy min max_Y set uu = _xx if(_yy>$max_Y-1e-2)
+			if(dimen(uu)==1) {define x_peak $(uu[0]) } else {stats uu me si ku define x_peak $me}
+			set _xx = xx if(yy>$max_Y-.3 && xx>$x_peak-1 && xx<$x_peak+1) vecminmax _xx min max define fwhm $($max-$min)
+			ctype green rel $($x_peak-1) $($max_Y+.2) draw $($x_peak+1) $($max_Y+.2) ctype 0
+
+			set  DH02_peaks = DH02_peaks concat $x_peak
+			set DH02_fwhm = DH02_fwhm concat $fwhm
+			define aaa ?
+			}
+			set TdDH = 3235.2/10**DH02_peaks
+			set ii=1,105
+			print DH02_props.dat {ii DH02_bol DH02_peaks DH02_fwhm TdDH}
+Fix250	00	data Fix250.dat read {_id 1 _m 2 _e 3}
+			set _ii =0,dimen(_id)-1 foreach vfr _ii {
+			set m250 = id==_id[$vfr] ?  _m[$vfr] : m250
+			set e250 = id==_id[$vfr] ?  _e[$vfr] : e250
+			}
+Fix350	00	data Fix350.dat read {_id 1 _m 2 _e 3}
+			set _ii =0,dimen(_id)-1 foreach vfr _ii {
+			set m350 = id==_id[$vfr] ?  _m[$vfr] : m350
+			set e350 = id==_id[$vfr] ?  _e[$vfr] : e350
+			}
+Fix500	00	data Fix500.dat read {_id 1 _m 2 _e 3}
+			set _ii =0,dimen(_id)-1 foreach vfr _ii {
+			set m500 = id==_id[$vfr] ?  _m[$vfr] : m500
+			set e500 = id==_id[$vfr] ?  _e[$vfr] : e500
+			}
+FixRadio 00	data FixRadio.dat read {_id 1 _f 2 _df 3}
+			set _ii =0,dimen(_id)-1 foreach vfr _ii {
+			set radio = id==_id[$vfr] ?  _f[$vfr] : radio
+			set eradio = id==_id[$vfr] ?  _df[$vfr] : eradio
+			}
+doAA	00	print highz_sample.dat  {id_ zz_ PLa_ SNa_ lpeak_ all_peaks_ all_peaks_err_ softX_ hardX_ Robust_ radio_ eradio_ f24_ df24_ fch4_ dfch4_ fch2_ dfch2_ all_max_fnu_ zp_radio_ all_max_fnu_err_}
+doBB	00	print doShow_results_05MarMP_alt.dat {id all_peaks all_fluxbol all_max_fnu all_peaks_err all_max_fnu_err all_peaks_min all_peaks_max}
+goHS	00	data cated.txt read {zz 2 f12 3 f25 4 f60 5 f100 6 df12 7  df25 8  df60 9  df100 10  f65 11 f90 12 f140 13 f160 14  df65 15  df90 16  df140 17  df160 18 Td_HS 19 Lir_HS 20}
+			foreach var {12 25 60 100 65 90 140 160} {
+			set coo = f$var !=9.999
+			set f$var = coo ? f$var : -1
+			set df$var = coo ? df$var : -1
+			}
+			#print {f12 f25 f60 f100 f65 f90 f140 f160 df12 df25 df60 df100 df65 df90 df140 df160}
+			set id = 1,dimen(f12)
+			print usex '%.0f\n' {id}
+resHS	00	data hs_rat.txt read {nb 1 l 3 lm 4 y 5 dy 6}
+			set coo = nb>=4
+			foreach var {nb l lm y dy} {set $var = $var if(coo)}
+			set xl = lg(lm/l)
+			gop xl y if(nb>=4)
+			error_y xl y dy
+			set x2 = xl**2
+			set ONE = 1
+			set vec = {ONE xl x2}
+			linfit vec y a var_a
+			set e = D_Y
+			set sig_a = sqrt(var_a)
+			set xx=-5,5,.001
+			set bb = a[0]+a[1]*xx+a[2]*xx**2
+			ctype red connect xx bb ctype 0
+			print {a sig_a}
+			xlabel log Lambda/PeakLambda
+			ylabel Data/MBB
+trHS	00	data hs_lirtd.txt read {nb 1 cf 2 td 3 lir 4 dz 5}
+			set coo = cf==0 && lir>10.4
+			foreach var  {nb td lir dz cf} {set $var = $var if(coo)}
+			gop lir td if(nb==2)
+			ctype red points lir td if(nb==4) ctype 0
+			set v1 = td if(nb==2)
+			set v2 = td if(nb==4)
+			xlabel LIR 
+			ylabel Td
+			smirnov2 v1 v2 val
+			prob_KS $val Eval
+			echo Prob $Eval
+S_Max	00	declare S_Max 0
+			declare Nband 0
+			set _i =0,dimen(id) foreach gar id {
+			declare ssed 0
+			declare esed 0
+			foreach var {f70 f100 f160 f250 f350 f500 f1100} { 
+			set c$var = $var if(id==$gar) 
+			set e$var = d$var if(id==$gar)
+			set ssed = ssed concat c$var 
+			set esed = esed concat e$var
+			} 
+			set coo = ssed>2*(abs(esed)) foreach var {ssed esed} {set $var=$var if(coo)}
+			if(dimen(ssed)) { vecminmax ssed min max }  else {define max 0}
+			set S_Max = S_Max concat $max
+			set coo = ssed>3*(abs(esed)) set ssed = ssed if(coo) set Nband = Nband concat $(dimen(ssed))
+			}
+Set_MIPS_new
+
+			# READ IRAC and MIPS official HGOODS catalogs
+			cd                                  /Users/edaddi/HDFN/HGOODS/Ref_catalogs     # use latest catalog, with corrected astrometry
+			data irac_mips_fluxes_hdfn.dat read {_ra 1 _de 2 _id 3 _fch1 5 _dfch1 6 _fch2 8 _dfch2 9 _fch3 11 _dfch3 12 _fch4 14 _dfch4 15  _mips 17 _emips 18}
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			set edist = (((_ra-189.28987)*cosd(62.367))**2+(_de-62.367267)**2)**.5*3600<1
+			set _ra = edist ? 189.29060 : _ra
+			set _de = edist ? 62.367258 : _de
+			#print '%.0f %.7f %.7f\n' {_id _ra _de}
+
+			# read radio measurements galfit in Morrison's map
+			R_MIPS20cm
+			PBA_corr_radio  # this has to be redone for new map
+			set f20cm_m = f20cm
+			set df20cm_m = df20cm
+			R_MIPS20cm_Owen   # PBA is done inside, but check as it's high by few percent
+			set wei1 = 1/df20cm_m**2 set wei2 = 1/df20cm**2 
+			set f20cm = (f20cm_m*wei1+f20cm*wei2)/(wei1+wei2) set df20cm = (wei1+wei2)**(-0.5) # weighted average di Morrison & Owen
+			set raF = _ra set deF = _de
+			#macro read gofindOwen.sm gofindOwen
+			data Owen_allIRAC.txt read {distR 1 distra 2 distde 3 radioO 4 eradioO 5 peakO 6 epeakO 7} 
+			data IRAC_Table_GOODSN_VLA_v1_8_deg.txt read {radioG 3 eradioG 4 distRG 5}
+			set radioG = edist ? -1 : radioG
+			#set ecoo = radioG/eradioG>3 # && _emips>0 && _mips/_emips<3
+			#foreach var {radioG eradioG distRG f20cm df20cm} {set $var = $var if(ecoo)}
+			print IRAC_radio_HDFN_galfit.txt '%.0f %.7f %.7f\n'  {_id _ra _de f20cm df20cm radioG eradioG radioO eradioO }
+			set radio = radioO>0 ? radioO : radioG>0  ? radioG : f20cm
+			set eradio = radioO>0 ? eradioO : radioG>0 ? eradioG : df20cm
+			define print_noheader 0
+
+			set radiojet = sqrt(((raF-189.18552)*3600*cosd(62.2))**2)<4 && sqrt(((deF-62.192161)*3600)**2)<22
+			set df20cm = radiojet ? 1e5 : df20cm 
+
+			R_MIPS24_E 	   #  this is new 2013 galfit 3 based --> reads f24 df24
+		
+
+			set goodArea = noi24<0.006 
+
+
+			set dist = sqrt(((raF-189.20958)*3600*cosd(62.2))**2+((deF-62.206944)*3600)**2) set coo = dist<30
+
+			set coo = goodArea && radio/eradio>=2.5 && f24/df24>=3 || 1
+			set coo = (f24/df24>3 || f24>30 || radio/eradio>2.5 || radio>15) # general prior list
+			set coo = goodArea || 1
+			set coo = _id==659  
+			#set coo = radioO>0 && radioO/eradioO>10
+
+			foreach var {raF deF _ra _de _id _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 _fch4 _dfch4 _mips _emips  f24 df24 distR radio eradio noi24 goodArea radioO eradioO peakO epeakO f20cm df20cm f20cm_m df20cm_m radioG eradioG pbcor} {set $var = $var if(coo)}
+
+			print '%d\n' { _id f24 df24 f20cm df20cm radioO eradioO radioG eradioG radio eradio}
+			print test.txt '%d %.7f %.7f\n' { _id _ra _de _mips _emips f24 df24 }
+			print RadioOwen_galfit.txt '%d %.7f %.7f\n' {_id _ra _de f24 df24 radio eradio }
+
+			stats_med ((f24/_mips)) me si echo $me
+			ticksize -1 0 0 0
+			ptype 25 3
+			gop (lg(radioO)) ((radioO/f20cm))
+			#error_y (lg(radioO)) (lg(radioO/f20cm)) (1/2.3*df20cm/f20cm)
+			echo $(dimen(_mips))
+			xlabel Log Owen radio
+			ylabel Owen radio / Galfit radio (Linear)
+			rel -1 0 draw 1e6 0
+			ticksize 0  0 0 0 
+
+			print test.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +test.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +test.reg 'fk5;ellipse(%.7f,%.7f,1\",1\",0) \# text={ID%d %.0f %.0f} \n' {_ra _de _id f24 radio}
+
+Set_MIPS	
+			macro read goFine.sm readAll
+			set coo = (distM>2.5 || f24<3*df24 || df24<0) condi       # select radio priors not seen at 24um
+
+			cd                                  /Users/edaddi/HDFN/HGOODS/Ref_catalogs     # use latest catalog, with corrected astrometry
+			data irac_mips_fluxes_hdfn.dat read {_ra 1 _de 2 _id 3 _fch1 5 _dfch1 6 _fch2 8 _dfch2 9 _fch3 11 _dfch3 12 _fch4 14 _dfch4 15  _mips 17 _emips 18}
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			R_MIPS20cm
+			PBA_corr_radio
+			data IRAC_Table_GOODSN_VLA_v1_8_deg.txt read {radioG 3 eradioG 4 distRG 5}
+			#set ecoo = radioG/eradioG>3 # && _emips>0 && _mips/_emips<3
+			#foreach var {radioG eradioG distRG f20cm df20cm} {set $var = $var if(ecoo)}
+			print IRAC_radio_HDFN_galfit.txt '%.0f %.7f %.7f\n'  {_id _ra _de f20cm df20cm radioG eradioG }
+			set radio = radioG>0 ? radioG : f20cm
+			set eradio = radioG>0 ? eradioG : df20cm
+			define print_noheader 0
+
+			data daddilist_idsed_v3.cat read PL 2      # PL list done by Chiara ?
+			set _noi24 = noi24_
+
+			R24_mine       #  read my new 24um catalogue
+			#R_MIPS24_E 	   #  this is new 2013 galfit 3 based
+			#HHH
+
+			print IRAC_radio_HDFN_all.txt '%.0f %.7f %.7f\n'  {_id _ra _de radio eradio _mips _emips _fch1 _fch2 _fch3 _fch4 _dfch1 _dfch2 _dfch3 _dfch4 noi24}
+
+			print IRAC_catalog.dat '%.0f\n' {_id _fch1 _fch2 _fch3 _fch4 _dfch1 _dfch2 _dfch3 _dfch4}
+			print All_IRAC.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +All_IRAC.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +All_IRAC.reg 'fk5;ellipse(%.7f,%.7f,1\",1\",0) \# text={ID%d %.1fuJy} \n' {_ra _de _id _mips}
+
+			# IMPORTANT: choose which MIPS sources to use as priors
+			set xcoo = _emips>0 && _mips>_emips*3
+			set xcoo = xcoo || _id==14342 || _id==5869 || _id==5359      # some objects added based on residual map
+			foreach var {_ra _de _id _mips _emips PL noi24 x24 y24 radio eradio} {set $var = $var if(xcoo)}
+
+			set raF = raF_ concat _ra
+			set deF = deF_ concat _de
+			set xid = 100000 + id_
+			set id = xid concat _id
+			set PL = raF_*0 concat PL
+			set noi24 = _noi24 concat noi24
+			set radio = radio_ concat radio
+			set eradio = eradio_ concat eradio
+
+			foreach var {_fch1 _dfch1 _fch2 _dfch2  _fch3 _dfch3 _fch4 _dfch4} {set $var = $var if(xcoo)}
+			set nmips = mips_ concat _mips
+			set f24 = f24_ concat _mips
+			set df24 = df24_ concat _emips
+			foreach GT {ch1 ch2 ch3 ch4} {
+			set f$GT = f$GT"_" concat "_"f$GT
+			set df$GT = df$GT"_" concat "_"df$GT
+			}
+
+
+			#set id = 1,dimen(raF)
+			print MIPS.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +MIPS.reg '"global color=red font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +MIPS.reg 'fk5;ellipse(%.7f,%.7f,4\",4\",0) \# text={ID%d %.1fuJy} \n' {raF deF id nmips}
+
+			echo $(dimen(raF)) Priors
+
+			set goodArea = noi24<0.006   # measured on the new images v0.37  --> XXX.XX arcmin^2
+
+			macro read gofind_RadioP.sm gofind_RadioP
+
+XR_MIPS		
+			R_MIPS500
+			R_MIPS350
+			R_MIPS250
+			R_MIPS250_X
+			R_MIPS160
+			R_MIPS100
+			R_MIPS16
+			R_MIPS70
+			R_MIPS1100
+
+			set dradio = eradio
+			#set radio = id==3417 ? 5400 : f16*0+1
+			#set dradio = id==3417 ? 500 : f16*0+10
+			set f1100 = id==3417 ? .600 : f1100
+			set df1100 = id==3417 ? .400 : df1100
+
+			foreach var {16 100 160 250 350 500 1100} {
+			set df$var = e$var>=0 ? df$var  : 1e9
+			}
+
+			#cd                                  /Users/edaddi/HDFN
+			#macro read gofindK.sm gofindK
+			#macro read gofindz.sm gofindz
+			#macro read gofindACS.sm gofindACS
+			#macro read gofindDahlen.sm gofindDahlen
+			#macro read gofindPannella.sm gofindPannella
+			#macro read gofindX.sm gofindX
+			#cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+			data HDFN_various_info.dat read {idz 1 idzpD 2 spez 3 distz 4 distzpD 5 zp_D 6 z_acs 7 dz_acs 8 i_acs 9 di_acs 10 v_acs 11 dv_acs 12 b_acs 13 db_acs 14 zq 15} set qz=zq
+			data HDFN_various_info_Pannella.dat read {KtotP 1 zp_P 2 logMP 3 distI 4} set fk = 10**(-0.4*(-23.9+KtotP)) set dfk = fk*.1 
+			data HDFN_various_info_LIRrad read LIRrad 1
+			data HDFN_various_info_X read {hardX 1 softX 2 detX 3}
+			data HDFN_various_info_K read idK 1
+			set zz = spez>=0 ? spez : zp_P>=0 ? zp_P : zp_D>=0 ? zp_D : -1
+			set spez = id==7140 ? 1.79 : spez
+			set spez = id==13563 ? 1.78 : spez
+			set spez = id==10411 ? 3.214 : spez
+			set spez = id==12423 ? 2.929 : spez
+			set XXzXX = spez
+			#macro read HSO.sm 
+			#go100 
+			#set eD = raF if(spez==XXzXX) if(dimen(eD)!=dimen(spez)) {define ERRORR_BAD ?}
+			#go160 
+			#go250 
+			#go3
+			#set spez = XXzXX 
+			set LIR = raF*0-1 set dLIR = LIR  # unfortunately sort does not seem to work well here # --> bug ?   (mixes IDs and Redshifts!)
+			set Mass = 10**(-0.4*(KtotP-1.87-19.51)+0.218*((z_acs-KtotP)-2.29))
+			#set Mass = 10**(logMP-11)
+			set Off_SFR_rodi = lg(LIR*1.73e-10)-lg(Mass*1e11)*.79+6.42
+
+			set BzKCO = idK==4171 || idK==21000 || idK==16000 || idK==17999 || idK==25536 || idK==12591 || idK==5819 || idK==7691 || idK==8049 || idK==15858 || idK==4071
+
+			foreach GT {b v i z} {
+			set f$GT = $GT"_acs">0 && $GT"_acs"<50 ?  10**(-0.4*($GT"_acs"-23.9)) : -100
+			set df$GT = f$GT*d$GT"_acs"/1.08
+			}
+
+			#macro read gofindBenj.sm gofindBenj
+
+			set PLa = fch4>0 && (fch3<fch4/.8) && (fch2<fch3 && fch2>0) &&  (fch1<fch3 && fch1>0)
+
+			set S100 = df100 >0 ? 1 : 0
+			set S160 = df160 >0 ? 1 : 0
+			set S250 = df250 >0 ? 1 : 0
+			set S350 = df350 >0 ? 1 : 0
+			set S500 = df500 >0 ? 1 : 0
+			set S1100 = df1100 >0 ? 1 : 0
+			set S1100 = df1100 >0 ? 1 : 0
+			set SNa = ((f100/df100)**2*S100+(f160/df160)**2*S160+(f250/df250)**2*S250+(f350/df350)**2*S350*0+(f500/df500)**2*S500*0+(f1100/df1100)**2*S1100*0)**.5
+
+
+			#set xcoo = (e250>.3 && e250>0 && xxx_f250_GH/xxx_df250_GH>5 && xxx_f250_GH>0 && xxx_f250_GH/xxx_df250_GH>f250/df250)   && goodArea 
+			#set xcoo = (e250<.3 && e250>0 && f250/df250>5 && !PL && lg(f24/f250)<.8)   && goodArea 
+			set xcoo = (e250<.5 && e250>0)   && goodArea #  && spez>3
+			#set xcoo = xcoo && abs(f250-xxx_f250_GH)/df250>2
+			#set xcoo = id==1356 || id==1337 || id==1338 || id==1333
+			#set xcoo = id==1408 || id==1409 || id==1430 || id==1439 || id==1448 || id==1452 || id==1390
+			set xcoo = goodArea  && (e250<.5 && e250>0 && f250/df250>5) # && PLa # (spez>2.9 || zp_D>2.9)
+			set xcoo = goodArea && SNa>5 && PLa && f250/f160>1.8
+			#set xcoo = goodArea && (spez>0 && spez<1 && zp_D<1) && f24<37.5 && f24>0 # && f250/df250>4
+			#set xcoo = goodArea && f250<1
+			set xcoo = id==564 || id==9710 || id==4990 || id==10750 || id==11580 || id==510 id==14914 # AzTEC/MAMBO bright sources
+			set xcoo = id==12646 || id_radioP==204 || id_radioP==78
+			set eee = {399 401 492 527 549 560 16 78 563 424 400 564 152 378 510 217 402 541 14 122 143 174 181} set ecoo=xcoo*0 foreach ccc eee {set ecoo = ecoo || id_radioP== $ccc}
+			set xcoo = !ecoo && SNa>5 && goodArea && (zp_D>3 || zp_P>3)
+
+			#set xcoo = id_radioP >0  
+			#set xcoo = f100/df100>5 && goodArea && id<20000
+			set xcoo = id_radioP==63
+			set xcoo = id==3417  #IFRS
+
+			set xcoo = radio>0.8*f24 && abs(radio)/eradio>=3 && db_acs>.5 && PLa && f24/fch2<13 && f24/fch4<5 || 1  # D09 z>4 starburst selection
+			set xcoo = SNa>5 && goodArea && spez>1.5 && dz_acs<.2 && db_acs<.4 && KtotP<24 && (f24>3*df24) && Off_SFR_rodi>.5 && spez<3
+			set xcoo = id==1724 || id==10670 || id==11109 || id==12013 || id==15745 || id==15761
+
+			#set xcoo = goodArea && spez>4.12 && spez<5.86 && fch1>0 && fch1/dfch1>3 && KtotP>0 
+			#set xcoo = id==5921 # --> id=78 radio SPIRE Dropout
+			set xcoo = id==13563 #Fabian's A_LP1 IRAC-ID 12694
+			#set xcoo = id==13298 #Fabian's HDF850.1
+			set xcoo = id==13162 || 1
+			set xcoo = BzKCO && !(idK==4071 || idK==15858)
+
+			set EVLAsel = SNa>=4 && spez>1.5 && spez<3.5 && df100<1e2 && df160<1e2
+			set xcoo = EVLAsel && id==12423
+
+			set xcoo = goodArea && distI<0.5   # use for AGN fit
+			#set xcoo = goodArea && distI<0.5 && zq==1 && spez>0 && zp_P>0 && zp_D>0   # use for AGN fit check of redshifts...
+
+			set xcoo = idK==20387  # ID9 from Mullaney X's sample
+
+			set xcoo = goodArea || 1
+
+			# END of coos HERE
+
+			#define xvar 16 set xcoo = f$xvar>0 && df$xvar>0 && f$xvar/df$xvar>=3      # for residuals
+
+			foreach vrr {16 70 100 160 250 350 500 250x 1100} {
+			foreach var {m e f df x y} {set $var""$vrr"_" = $var""$vrr if(xcoo)}
+			}
+			foreach var {raF deF id f24 df24} {set $var"_" = $var if(xcoo)}
+			foreach var {id_radioP dist_radioP spez zq qz distz idz fch1 dfch1 fch2 dfch2 fch3 dfch3 fch4 dfch4 PL} {set $var"_" = $var if(xcoo)}
+			foreach tar {f160 df160 f100 df100 f250 df250 f250_GH df250_GH f350 df350 f350_GH df350_GH f500 df500 f500_GH df500_GH f1100 df1100} { set xxx_$tar"_" = xxx_$tar if(xcoo) }
+			foreach var { goodArea PLa distzpD idzpD zp_D SNa z_acs dz_acs i_acs di_acs v_acs dv_acs b_acs db_acs zp_P KtotP fk dfk radio eradio dradio Mass distI LIR100 LIR160 LIR250 LIR dLIR Off_SFR_rodi zz LIRrad hardX softX detX idK} {set $var"_" = $var if(xcoo)}
+
+			#-------- only to make proper file names for AGN fit stuff
+			foreach vrr {16 70 100 160 250 350 500 250x 1100} {
+			foreach var {m e f df x y} {set $var""$vrr = $var""$vrr if(xcoo)}
+			}
+			foreach var {raF deF id f24 df24} {set $var = $var if(xcoo)}
+			foreach var {id_radioP dist_radioP spez zq qz distz idz fch1 dfch1 fch2 dfch2 fch3 dfch3 fch4 dfch4 PL} {set $var = $var if(xcoo)}
+			foreach tar {f160 df160 f100 df100 f250 df250 f250_GH df250_GH f350 df350 f350_GH df350_GH f500 df500 f500_GH df500_GH f1100 df1100} { set xxx_$tar = xxx_$tar if(xcoo) }
+			foreach var { goodArea PLa distzpD idzpD zp_D SNa z_acs dz_acs i_acs di_acs v_acs dv_acs b_acs db_acs zp_P KtotP fk dfk radio eradio dradio Mass distI LIR100 LIR160 LIR250 LIR dLIR Off_SFR_rodi zz LIRrad hardX softX detX idK} {set $var = $var if(xcoo)}
+			#--------
+
+			##set ee1 = {f350 df350 f500 df500 f1100 df1100}
+			##set ff1 = {9.227       5.632       10.95       6.536       6.081      0.9962} 
+			##set ii1 = 0,dimen(ee1)-1
+			##foreach var ii1 {
+			##set $(ee1[$var]) = id==5921 ? $(ff1[$var]) : $(ee1[$var])
+			##}
+
+			#stats_med df350_ me si echo $me
+			#set df350_ = df350_>$me ? df350_ : $me
+
+			print R_MIPS.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +R_MIPS.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +R_MIPS.reg 'fk5;ellipse(%.7f,%.7f,3\",3\",0) \# text={ID%d}  \n' {raF_ deF_ id_}
+
+			define print_noheader 0
+			print HGOODS_N_ED_MipsRadio_04Mar.cat '%.0f %.7f %.7f\n'  {id_ raF_ deF_ id_radioP_ spez_ zp_D_ zp_P_ f16_ df16_ f24_ df24_ f100_ df100_ f160_ df160_ f250_ df250_}
+			print use.cat '%.0f %.7f %.7f\n'  {id_ raF_ deF_ id_radioP_ spez_ fch1_ dfch1_ fch2_ dfch2_ fch3_ dfch3_ fch4_ dfch4_ f16_ df16_ f24_ df24_ f100_ df100_ f160_ df160_ f250_ df250_ f350_ df350_ f500_ df500_}
+			set bz__=b_acs_-z_acs_ set ktot__=KtotP_ set zk__=z_acs_-KtotP_ set zp_IR__=spez_ macro read clust_models.sm setcosmo mate
+			macro read SFR.sm SFRemp
+			print HGOODS_N_ED_MipsRadio_4Aug_ALL.cat '%.0f %.0f %.7f %.7f\n'  {id idK raF deF spez qz zp_P zp_D KtotP fch1 dfch1 fch2 dfch2 fch3 dfch3 fch4 dfch4 f16 df16 f24 df24 f70 df70 f100 df100 f160 df160 f250 df250 radio eradio Mass distI SFRemp EBV LIR dLIR goodArea b_acs db_acs v_acs dv_acs i_acs di_acs z_acs dz_acs softX hardX}
+			#print HGOODS_N_ED_EVLA.cat '%.0f %.7f %.7f\n'  {id_ raF_ deF_ spez_ f16_ df16_ f24_ df24_ f100_ df100_ f160_ df160_ f250_ df250_ LIR_ dLIR_ Mass_ Off_SFR_rodi_ LIRuv EBV LIRrad_ radio_ eradio_}
+			define print_noheader 1
+
+			expand 1.5 lw 3
+			limits 0 70 0 70 erase box points f350_ xxx_f350_
+			error_x  f350_ xxx_f350_   df350_
+			error_y  f350_ xxx_f350_   xxx_df350_
+			xlabel F100 [mJy]   MIPS priors
+			ylabel F100 [mJy]   Radio priors
+			rel -1 -1 draw 222 222
+			set SN = f250_/df250_
+			set dev_24 = (f250_-xxx_f250_GH_)/df250_
+			set dev_Ra = (f250_-xxx_f250_GH_)/xxx_df250_GH_
+			set xxx_SN = xxx_f250_GH_/xxx_df250_GH_
+			#print {id_ id_radioP_ f250_ df250_ xxx_f250_GH_ xxx_df250_GH_ SN xxx_SN dev_24 dev_Ra}
+			define print_noheader 0
+			#print '%.0f %.7f %.7f\n' {id_ raF_ deF_ id_radioP_ spez_ zp_D_ f250_ df250_ f24_ df24_}
+			print '%.0f %.7f, %.7f %.0f %.0f\n' {id_ raF_ deF_ id_radioP_ idK_ SNa_ spez_ zp_D_ zp_P_ f16_ df16_ f24_ df24_ f100_ df100_ f160_ df160_ f250_ df250_ LIR_ dLIR_}
+			print toGeorgios_CO.txt '%.0f %.7f, %.7f %.0f %.0f\n' {id_ raF_ deF_ id_radioP_ idK_ SNa_ spez_ zp_D_ zp_P_ fch1_ dfch1_ fch2_ dfch2_ fch3_ dfch3_ fch4_ dfch4_ f16_ df16_ f24_ df24_ f100_ df100_ f160_ df160_ f250_ df250_ LIR_ dLIR_ radio_ eradio_}
+			print aaa '%.0f %.7f %.7f\n' {id_ raF_ deF_ id_radioP_ SNa_ spez_ zp_D_ f16_ df16_ f24_ df24_ f100_ df100_ f160_ df160_ f250_ df250_ z_acs_ i_acs_ v_acs_ b_acs_}
+			define print_noheader 1
+
+
+
+R24_mine	00	#data results_24_12Oct read {x24 1 y24 2 m24 4 e24 5 noi24 3}
+			data results_24_14Dec read {x24 1 y24 2 m24 4 e24 5 noi24 3}   # done this with astrometry adjustments, to be checked, simulations to redo ?
+			#set m24 =m24 -.2036   # -0.112 from matching fluxes to Benj's catalog, -.2036 expected ap corr from Benj
+			set m24 =m24 -.112   # -0.112 from matching fluxes to Benj's catalog, -.2036 expected ap corr from Benj
+			define h_24  6.691    # 0.94       # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio #Was used for PEP, no more in HGOODS
+			define m_24  1.000    # use only top correction in mags
+			set f24  = 10**(-0.4*m24)*$h_24/$m_24 
+			set df24  = f24*e24/1.08    
+			define bias24    0.84
+			define conf24    3.7 
+			define reduce24  1
+			define scale24  1
+			set f24 = f24*$scale24+$bias24
+			#set dff = f24/df24  set f24  = e24 <1.5 ? f24 +0.276894*(df24-8.61)+2.10 : f24  
+			#set df24  = e24 <.5 ? f24/dff : df24 
+			set df24  = df24 >0 ? (df24**2+$conf24**2)**.5 : -(df24**2+$conf24**2)**.5
+			set df24  = df24/$reduce24 
+		
+			foreach var {24} {
+			set f$var = e$var>0 ? f$var : -1
+			set df$var = e$var>0 ? df$var : -1
+			}
+
+
+
+
+
+
+
+
+
+
+
+R_MIPS24_E	00	
+			# <Modified><DZLIU> # 
+			# define rrrr_name "results_"$imax"_"$xdate
+			if($?vary_positions==0) { define vary_positions 1 }
+			if($vary_positions==0) { define rrrr_name "results_"$imax"_"$xdate 
+							} else { define rrrr_name "results_"$imax"_"$xdate""_vary }
+			data $rrrr_name read {x24 1 y24 2 m24 4 e24 5 noi24 3}
+			set m24 = m24 -.2036   # -0.112 from matching fluxes to Benj's catalog, -.2036 expected ap corr from Benj
+			set e24 = e24==0.0 ? 0.004 : e24
+			###<DzLIU>### set e24 = e24>.05 ? e24 : .05
+			
+			define h_24  6.691      # photometry fudge factor from Jy/beam definition, for small pixels
+			define m_24 1       # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			set f24 = 10**(-0.4*m24)*$h_24/$m_24 * 1e-3 # mJy
+			set df24 = f24*e24/1.08 # mJy
+			#set aaF = {0 2.66 3.48 4.89 7.7 12.14 17.17 24.07 37.83 67.47 150 500} set ccF= {4.55 4.55 5.50 6.72 9.23 12.71 14.4 15.77 19.55 20.36 29 30} set ccF=ccF*1.07
+			#set uui = 1,dimen(df24) sort {df24 uui} spline aaF ccF df24 Edf sort {uui df24 Edf} set df24 = Edf
+			
+			define use_aaF_ccF 1
+			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
+			if($?doCorrectEdf) {if($doCorrectEdf==0) {define use_aaF_ccF 0}}
+			# 
+			if(!$use_aaF_ccF) {
+				# define scale_error_16 1.75
+				# set df16 = df16 >0 ? (df16*$scale_error_16) : df16
+			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
+			    unset aaF unset ccF unset aaS unset ccS
+			} else {
+				
+				set aaFccF_Normalize = 1.146596
+				set aaSccS_Normalize = 0.8868149
+				set aaDccD_Normalize = 0.878841
+				set final_Normalize = 0.8
+				
+				set aaF = {         0  0.550903  0.870712   1.17185   1.66354   2.64296    24.862 }
+				set ccF = {  0.995968  0.995968   1.26937   1.59645   2.38098   2.15589    4.8366 }
+				set aaS = {   8.95505   25.1965   44.2507   95.3745    670.22 }
+				set ccS = {   1.13791   1.00447   1.01475  0.906867   1.85166 }
+				set aaD = {  -14.8104  -2.23501  -1.14271  -0.49104   -0.1194 }
+				set ccD = {  0.625721  0.708599   1.06009    1.2351   2.31302 }
+				
+				macro read goCorrectdf.sm correctdf
+			}
+			# 
+			set bias24 = -0.001084576197 # -0.553e-3
+			set f24 = f24 + bias24 # mJy
+			# 
+			# mJy to uJy
+			set f24 = f24 * 1e3 # uJy
+			set df24 = df24 * 1e3 # uJy
+			set f24 = e24<=0.0 ? -99 : f24
+			set df24 = e24<=0.0 ? 1e10 : df24
+			# 
+			set f24 =  (x24==-99||y24==-99) ?      -99 : f24
+			set df24 = (x24==-99||y24==-99) ?     1e10 : df24
+			#print Handy_24.txt '%.7f %.7f %f %f\n' {raF deF f24 df24}
+
+
+R_MIPS16	00
+			# <Modified><DZLIU> # 
+			# define rrrr_name "results_16_08Feb11"
+			# define rrrr_name "results_"$imax"_"$xdate"_vary"
+			if($?vary_positions==0) { define vary_positions 1 }
+			if($vary_positions==0) { define rrrr_name "results_"$imax"_"$xdate 
+							} else { define rrrr_name "results_"$imax"_"$xdate""_vary }
+			data $rrrr_name read {x16 1 y16 2 m16 4 e16 5 noi16 3}
+			set e16 = e16>=0 && e16<0.02 ? 0.02 : e16
+			# 
+			define h_16 19.03      # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			define m_16 1.000      # photometry fudge factor for H-GOODS N, finer scale
+			set f16  = 10**(-0.4*m16)*$h_16/$m_16 * 1e-3 # mJy
+			set df16 = f16*e16/1.08 # mJy
+			# 
+			######<20140825><DzLIU>###### # <Modified><DZLIU> # Correct "df" according to aaF ccF # 
+			######<20140825><DzLIU>###### # define scale_error_16    1.75
+			######<20140825><DzLIU>###### # define error_astrometry 0.05  # mags (from *_vary files)
+			######<20140825><DzLIU>###### # set df16 = f16*e16/1.08
+			######<20140825><DzLIU>###### # set f16  = f16+$bias16
+			######<20140825><DzLIU>###### # 
+			######<20140825><DzLIU>###### #<TODO>set aaF = {0.00000 57.91082 118.88068 125.85730 136.80757 163.29934 239.78315 1722.63659}
+			######<20140825><DzLIU>###### #<TODO>set ccF = {196.33576 196.33576 199.91923 210.23254 213.56384 260.04018 351.83431 483.10073}
+			######<20140825><DzLIU>###### # 
+			######<20140825><DzLIU>###### if(is_vector(aaF) && is_vector(ccF)) {
+			######<20140825><DzLIU>###### 	set df16 = f16*e16/1.08
+			######<20140825><DzLIU>###### 	set Tdf = df16/noi16
+			######<20140825><DzLIU>###### 	set uui=1,dimen(Tdf) sort {Tdf uui} spline aaF ccF Tdf Edf sort {uui Tdf Edf} ### USE "aaF" "ccF" TO CORRECT "Tdf/rms" TO "Edf/rms"
+			######<20140825><DzLIU>###### 	set df16 = Edf*noi16                       echo Done Flux Error Correction for $rrrr_name !
+			######<20140825><DzLIU>###### 	print  done_FluxErrorCorrection_for_$rrrr_name 'Done Flux Error Correction for $rrrr_name !\nCorrection Table: \n\n' {}
+			######<20140825><DzLIU>###### 	print +done_FluxErrorCorrection_for_$rrrr_name '%24.5f %16.5f\n' { aaF ccF }
+			######<20140825><DzLIU>###### } else {
+			######<20140825><DzLIU>###### 	define scale_error_16    1.75
+			######<20140825><DzLIU>###### 	set df16 = f16*e16/1.08
+			######<20140825><DzLIU>###### 	### set df16 = df16 >0 ? (df16*$scale_error_16) : -(df16*$scale_error_16)**.5 ### <TODO><DZLIU> DON'T KNOW ???
+			######<20140825><DzLIU>###### 	set df16 = df16 >0 ? (df16*$scale_error_16) : df16
+			######<20140825><DzLIU>###### }
+			# 
+			######<20140825><DzLIU>###### define scale_error_16    1.75
+			######<20140825><DzLIU>###### set df16 = f16*e16/1.08
+			######<20140825><DzLIU>###### ### set df16 = df16 >0 ? (df16*$scale_error_16) : -(df16*$scale_error_16)**.5 ### <TODO><DZLIU> DON'T KNOW ???
+			######<20140825><DzLIU>###### set df16 = df16 >0 ? (df16*$scale_error_16) : df16
+			# 
+			define use_aaF_ccF 1
+			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
+			if($?doCorrectEdf) {if($doCorrectEdf==0) {define use_aaF_ccF 0}}
+			# 
+			if(!$use_aaF_ccF) {
+				# define scale_error_16 1.75
+				# set df16 = df16 >0 ? (df16*$scale_error_16) : df16
+			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
+			    unset aaF unset ccF unset aaS unset ccS
+			} else {
+				###set aaF = {  0.0     57.6671 117.8355 123.7682 132.2349 150.3142 198.9866 465.5257} #<20140825><DZLIU>#
+				###set ccF = {200.1702 200.1702 200.1702 201.3257 209.4586 209.4586 278.4628 465.5257} #<20140825><DZLIU>#
+				###set aaS = {  0.0    0.310816 0.989064 1.758424 2.640151 3.707147 5.039910 7.896811 9.908000} #<20140825><DZLIU>#
+				###set ccS = {1.090862 1.090862 0.944070 0.926273 0.932889 0.930471 0.950785 1.363769 1.363769} #<20140825><DZLIU>#
+				###set aaF = { 0.000000 57.667096 117.835505 123.768232 132.234883 150.314178 198.986568 465.525693 }
+				###set ccF = { 200.170168 200.170168 198.194263 201.325739 209.458593 203.519692 278.462842 465.525693 }
+				###set aaS = { 0.000000 0.310816 0.989064 1.758424 2.640151 3.707147 5.039910 7.896811 9.908000 }
+				###set ccS = { 1.090862 1.090862 0.944070 0.926273 0.932889 0.930471 0.950785 1.363769 1.363769 }
+				###set aaF = { 0.000000 90.159880 113.480484 117.555834 120.911041 124.469737 129.869117 141.617683 170.471078 819.738904 } #<20141006><DZLIU>#
+				###set ccF = { 210.383820 210.383820 195.069547 200.095205 202.436194 206.690558 221.656542 228.327685 255.341714 819.738904 } #<20141006><DZLIU>#
+				###set aaS = { 0.211455 0.632394 1.051583 1.514602 2.092315 2.878947 8.398305 } #<20141006><DZLIU>#
+				###set ccS = { 0.977294 0.992623 1.118761 0.960435 1.014647 1.045936 0.982216 } #<20141006><DZLIU>#
+				###set aaD = { -190.038883 -63.389519 -41.019279 -27.049700 -17.326986 -9.604374 -3.039865 } #<20141006><DZLIU>#
+				###set ccD = { 0.883875 0.874249 0.904055 0.922206 1.019713 1.009487 1.350528 } #<20141006><DZLIU>#
+				##set aaF = {         0   92.9111   118.242   125.172   141.364   196.491   695.401 } #<20141024><DZLIU>#
+				##set ccF = {   208.072   208.072   186.819   204.896   224.772   280.767   695.401 }
+				##set aaS = {  0.147082  0.532157    1.0267   1.55023   2.17966   3.18247   11.8923 }
+				##set ccS = {  0.971502  0.959867  0.912379    1.0079   1.12911   1.00723   1.12359 }
+				##set aaD = {  -15309.3  -1248.28  -705.027   -361.29  -109.468 }
+				##set ccD = {  0.910997  0.888523  0.899103  0.977084    1.2376 }
+				
+				set bias16 = 0.0009227614476
+				set f16 = f16 + bias16
+				
+				set aaFccF_Normalize = 1.121523
+				set aaSccS_Normalize = 0.7505032
+				set aaDccD_Normalize = 0.9408385
+				set final_Normalize = 0.95
+				
+				set aaF = {         0 0.0550925  0.113349  0.121226  0.130618  0.151208  0.778122 }
+				set ccF = {  0.237374  0.237374  0.221402  0.215319  0.228561  0.276072  0.506539 }
+				set aaS = {  0.572397   1.60026   2.60279   3.80804   7.23834  50.0000}  #appended 50
+				set ccS = {  0.918087   1.17632  0.958245   1.35346   1.21724  1.21724}
+				set aaD = {  -177.845  -27.9415  -12.3093  -4.77035  -1.11083 }
+				set ccD = {  0.740004  0.827988  0.897615   1.12743   2.24472 }
+				macro read goCorrectdf.sm correctdf
+			}
+			# mJy to uJy
+			set f16 = f16 * 1e3 # uJy
+			set df16 = df16 * 1e3 # uJy
+			set f16 = e16<=0.0 ? -99 : f16
+			set df16 = e16<=0.0 ? 1e10 : df16
+			# 
+			# define bias16 0.2570066996 # 0.2206000247 # 1.059307588 # -3 # <Modified><DZLIU> 
+			# set f16  = e16>0.0 ? f16+$bias16 : -99
+			# set df16 = e16>0.0 ? df16 : 1e10
+			
+			######<20140825><DzLIU>###### # <Added><DZLIU> # # <Corrected><20140529> #
+			######<20140825><DzLIU>###### set filter = (m16!=99.0 && e16!=-99.0) # out-of-map
+			######<20140825><DzLIU>###### #<Error!!!># set f16 = filter ? f16+$bias16 : -99 #<Error!!!>#
+			######<20140825><DzLIU>###### set f16 = filter ? f16 : -99 #<Corrected><20140529>#
+			######<20140825><DzLIU>###### set df16 = filter ? df16 : 1e10
+			
+			# <Modified><DZLIU> # NOW WE DO NOT DO THE FOLLOWING STEPS ?
+			# define conf16    0.00 
+			
+			# <Modified><DZLIU> # NOW WE DO NOT DO THE FOLLOWING STEPS ?
+			# define imax 16 
+			# define coeff_contam_X 0.0
+			# if(is_file($rrrr_name"_contam_X.dat") && 1) {
+			# data $rrrr_name"_contam_X.dat" read contam_X 1
+			# } else {
+			# echo COMPUTING!!!!
+			# macro read goSimu.sm Xgrowth_data
+			# }
+			# set df$imax = (df$imax**2+($coeff_contam_X*contam_X)**2)**.5
+			# set contam_X$imax = contam_X
+			# define max_noise16  1 
+
+
+R_MIPS100 00
+			# <Modified><DZLIU> # 
+			# define rrrr_name "results_100_22Oct"
+			# define rrrr_name "results_"$imax"_"$xdate"_vary"
+			if($?vary_positions==0) { define vary_positions 1 }
+			if($vary_positions==0) { define rrrr_name "results_"$imax"_"$xdate 
+							} else { define rrrr_name "results_"$imax"_"$xdate""_vary }
+			data $rrrr_name read {x100 1 y100 2 m100 4 e100 5 noi100 3}
+			# 
+			define h_100 1.0 # 0.94  # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio #Was used for PEP, no more in HGOODS
+			###define m_100 0.859    # photometry fudge factor for H-GOODS N, Paola's pixels
+			#define m_100 0.730      # photometry fudge factor H-GOODS N, finer scale
+			define m_100 0.664       # photometry fudge factor H-GOODS N, finer scale, <DZLIU>, readme_PGH_v1.0.pdf
+			set f100 = 10**(-0.4*m100)*1000*$h_100/$m_100
+			set df100 = f100*e100/1.08
+			##define error_astrometry 0.05  # mags (from *_vary files)
+			##set Te100 = ((e100)**2+$error_astrometry**2)**.5
+			##set df100 = f100*Te100/1.08
+			# 
+			define use_aaF_ccF 1
+			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
+			if($?doCorrectEdf) {if($doCorrectEdf==0) {define use_aaF_ccF 0}}
+			# 
+			if(!$use_aaF_ccF) {
+				#define error_scale 1.9 # ratio over galfit error
+				#define error_astrometry 0.05 # mags (from *_vary files)
+				#set Te100 = ((e100*$error_scale)**2+$error_astrometry**2)**.5 #
+				#set df100 = f100*Te100/1.08 #
+			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
+			    unset aaF unset ccF unset aaS unset ccS
+			} else {
+				###set aaF = {0.00000 9652.94761 11672.25562 13049.74388 15192.27997 19156.40249 30111.53552 107588.82240}
+				###set ccF = {19094.70077 19094.70077 19054.67943 18473.58000 21127.65471 25766.77775 29260.73868 51425.49032}
+				###set aaF = { 0.000000 9.300709 11.562472 12.727676 13.969124 15.441680 19.143206 36.337433 }
+				###set ccF = { 19.393488 19.393488 18.830327 18.619011 20.591602 21.718769 20.316188 36.337433 }
+				###set aaS = { 0.000000 0.619648 1.959630 3.699689 5.544294 7.076690 10.148713 12.389432 }
+				###set ccS = { 1.012186 1.012186 0.959332 1.006216 1.011491 1.015916 0.994436 0.994436 }
+				##set aaFccF_Normalize = 1.013651736
+				##set aaSccS_Normalize = 0.9673180813
+				##set aaDccD_Normalize = 0.9822224977
+				##set aaF = {         0   9958.06   12186.4   12827.2     14298   20479.2    122068 }
+				##set ccF = {   19820.3   19820.3   18635.7   21162.2   20647.1   25240.2    122068 }
+				##set aaS = {   206.447   730.219   1412.28   2176.57   3099.35   4457.85   38477.7 }
+				##set aaS = aaS/1000.0
+				##set ccS = {  0.985935    1.0013  0.972602   1.11972   1.05167   1.02221   1.37493 }
+				##set aaD = {   -576776   -137681  -76719.2  -37732.2  -515.193 }
+				##set ccD = {  0.869553  0.899261    1.0269   1.00455   1.28029 }
+				
+				set bias100 = -0.02262971556
+				set f100 = f100 + bias100
+				
+				set aaFccF_Normalize = 1.197239
+				set aaSccS_Normalize = 0.9574903
+				set aaDccD_Normalize = 0.9693243
+				set final_Normalize = 0.95
+				
+				set aaF = {         0   10171.7   12094.1   12588.1   13383.1   16136.1    272140 }
+				set ccF = {   19119.8   19119.8   17724.3     19392   19116.4   19761.8   41875.3 }
+				set aaS = {  0.833595   2.36455   3.79573   5.86571   28.3585 }
+				set ccS = {  0.936557  0.852381   1.01306   1.09053   1.89381 }
+				set aaD = {  -8.58272  -1.14989 -0.489453 -0.144226  0.151053 }
+				set ccD = {  0.787131  0.842555  0.923065   1.25727   1.88692 }
+				
+				macro read goCorrectdf.sm correctdf
+			}
+			# 
+			set f100 = e100<=0.0 ? -99 : f100
+			set df100 = e100<=0.0 ? 1e10 : df100
+			# 
+			######<20140828><DzLIU>###### # <Modified><DZLIU> # NOW WE DO NOT DO THE FOLLOWING STEPS ?
+			######<20140828><DzLIU>###### # define imax 100
+			######<20140828><DzLIU>###### # define coeff_contam_X 0.20
+			######<20140828><DzLIU>###### # if(is_file($rrrr_name"_contam_X.dat") && 1) {
+			######<20140828><DzLIU>###### # data $rrrr_name"_contam_X.dat" read contam_X 1
+			######<20140828><DzLIU>###### # } else {
+			######<20140828><DzLIU>###### # echo COMPUTING!!!!
+			######<20140828><DzLIU>###### # macro read goSimu.sm Xgrowth_data
+			######<20140828><DzLIU>###### # }
+			######<20140828><DzLIU>###### # set df$imax = (df$imax**2+($coeff_contam_X*contam_X)**2)**.5
+			######<20140828><DzLIU>###### # set contam_X$imax = contam_X
+			######<20140825><DzLIU>###### define max_noise100 3.2e-4   # check
+
+
+
+R_MIPS160 00
+			# <Modified><DZLIU> # 
+			# define rrrr_name "results_160_22Oct"
+			# define rrrr_name "results_"$imax"_"$xdate"_vary"
+			if($?vary_positions==0) { define vary_positions 1 }
+			if($vary_positions==0) { define rrrr_name "results_"$imax"_"$xdate 
+							} else { define rrrr_name "results_"$imax"_"$xdate""_vary }
+			# define rrrr_name "results_"$imax"_"$xdate
+			data $rrrr_name read {x160 1 y160 2 m160 4 e160 5 noi160 3}
+			# 
+			define h_160 1.0 #0.90   # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			###define m_160 0.807    # photometry fudge factor for  H-GOODS N, Paola's pixels
+			##define m_160 0.775     # photometry fudge factor for H-GOODS N, finer scale
+			define m_160 0.682       # photometry fudge factor for H-GOODS N, <DZLIU>, from readme_PGH_v1.0.pdf
+			set f160 = 10**(-0.4*m160)*1000*$h_160/$m_160
+			set df160 = f160*e160/1.08
+			##define error_astrometry 0.05 # mags (from *_vary files)
+			##set Te160 = ((e160)**2+$error_astrometry**2)**.5 #
+			##set df160 = f160*Te160/1.08
+			# 
+			define use_aaF_ccF 1
+			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
+			if($?doCorrectEdf) {if($doCorrectEdf==0) {define use_aaF_ccF 0}}
+			# 
+			if(!$use_aaF_ccF) {
+				#define error_scale 2.1 # ratio over galfit error
+				#define error_astrometry 0.05 # mags (from *_vary files)
+				#set Te160 = ((e160*$error_scale)**2+$error_astrometry**2)**.5 #
+				#set df160 = f160*Te160/1.08 # make sure you scaled up the error map
+			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
+			    unset aaF unset ccF unset aaS unset ccS
+			} else { # make sure you scaled up the error map
+				## set aaF = {0.000000 8009.983850 10496.666290 14601.484750 22013.461410 32768.093440 56909.562080 147442.614800 1078496.879000}
+				## set ccF = {17409.557570 17409.557570 17858.101230 19234.587040 24746.377000 31310.552560 34381.141460 68220.700930 72039.934700}
+				### set aaF = {  0.000000  8.189674 10.963576 14.955176 22.369842 74.428001 }
+				### set ccF = { 18.947714 18.947714 19.298170 20.417369 27.291583 74.428001 }
+				### set aaS = { 0.000000 0.159861 0.823066 2.534075 5.110075 8.825539 26.469776 41.349731 }
+				### set ccS = { 0.901696 0.901696 0.882525 0.960115 0.989875 1.013083  1.972826  1.972826 }
+				#set aaFccF_Normalize = 0.9823428127
+				#set aaSccS_Normalize = 0.9906686485
+				#set aaDccD_Normalize = 1.024561682
+				#set aaF = {         0   8003.57   11368.3   13696.9     18770   32309.8    183175 }
+				#set ccF = {   18148.6   18148.6   17895.6   20980.4   22971.6   32309.8    183175 }
+				#set aaS = {   201.948   715.679   1351.93   2045.87    2892.5   4133.07   8329.75 }
+				#set aaS = aaS/1000.0
+				#set ccS = {  0.951974   1.06265   1.05652  0.975637   1.03889  0.988956  0.954658 }
+				#set aaD = {   -108198  -24254.4  -11865.6  -4192.57   6685.03 }
+				#set ccD = {  0.856592  0.894602   1.01523   1.02844   1.02844 }
+				
+				set bias160 = 0.05620864019
+				set f160 = f160 + bias160
+				
+				set aaFccF_Normalize = 1.23663
+				set aaSccS_Normalize = 0.8607261
+				set aaDccD_Normalize = 0.9632333
+				set final_Normalize = 0.97
+				
+				set aaF = {         0   8534.08   11187.2   13017.3   16328.1     23786    825324 }
+				set ccF = {   18694.8   18694.8   18833.3   19926.1   21727.5   27373.3   64932.2 }
+				set aaS = {  0.886623   2.55963   4.28104   8.02698   44.3844 }
+				set ccS = {  0.931327  0.931149  0.882091   1.01868     2.229 }
+				set aaD = {  -2.76339 -0.335377 -0.0675478  0.120307   0.36851 }
+				set ccD = {   0.66573  0.718292    1.0712   1.36447   2.04817 }
+				
+				macro read goCorrectdf.sm correctdf
+			}
+			# 
+			set f160 = e160<=0.0 ? -99 : f160
+			set df160 = e160<=0.0 ? 1e10 : df160
+			######<20140828><DzLIU>###### 
+			######<20140828><DzLIU>###### # <Modified><DZLIU> # NOW WE DO NOT DO THE FOLLOWING STEPS ?
+			######<20140828><DzLIU>###### # define conf160   0.3 
+			######<20140828><DzLIU>###### # set df160 = df160>0 ? (df160**2+$conf160**2)**.5 : -(df160**2+$conf160**2)**.5
+			######<20140828><DzLIU>###### 
+			######<20140828><DzLIU>###### # <Modified><DZLIU> # NOW WE DO NOT DO THE FOLLOWING STEPS ?
+			######<20140828><DzLIU>###### # define imax 160
+			######<20140828><DzLIU>###### # define coeff_contam_X 0.1
+			######<20140828><DzLIU>###### # if(is_file($rrrr_name"_contam_X.dat") && 1) {
+			######<20140828><DzLIU>###### # data $rrrr_name"_contam_X.dat" read contam_X 1
+			######<20140828><DzLIU>###### # } else {
+			######<20140828><DzLIU>###### # echo COMPUTING!!!!
+			######<20140828><DzLIU>###### # macro read goSimu.sm Xgrowth_data
+			######<20140828><DzLIU>###### # }
+			######<20140828><DzLIU>###### # set df$imax = (df$imax**2+($coeff_contam_X*contam_X)**2)**.5
+			######<20140828><DzLIU>###### # set contam_X$imax = contam_X
+			######<20140828><DzLIU>###### define max_noise160 3e-4   # check
+
+R_MIPS250_E	00
+			#data results_250_23Apr_sub read {x250 1 y250 2 m250 4 e250 5 noi250 3}  ###<Modified><DZLIU>###
+			define rrrr_name "results_"$imax"_"$xdate                    ###<Modified><DZLIU>### NO vary FOR 250!!!
+			data $rrrr_name read {x250 1 y250 2 m250 4 e250 5 noi250 3}  ###<Modified><DZLIU>### NO vary FOR 250!!!
+			#define h_250 $(1/10.37)      # photometry fudge factor from Jy/beam definition, for big pixels
+			define h_250 $(1/31.16)       # photometry fudge factor from Jy/beam definition, for small pixels
+			define m_250 1                # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			set f250 = 10**(-0.4*m250)*1000*$h_250/$m_250
+			set df250 = f250*e250/1.08
+			#  
+			define bias250  0.0
+			define conf250  0.0
+			###<dzliu><daddi><20151126><old>### set dff = f250/df250 set f250 = e250<.5 ? f250+1.0070*(df250-1.524)+.725 : f250 #<Note># this is Daddi's original flux bias equation
+			###<dzliu><daddi><20151126><tes>### set dff = f250/df250 set f250 = e250<.5 ? f250+1.0070*(df250-1.12)-0.175 : f250 #<Note># this is dzliu's test
+			###<dzliu><daddi><20151126><new>### set dff = f250/df250 set f250 = e250<.5 ? f250+0.45*df250-0.725 : f250
+	        ###<dzliu><daddi><20151130><new>### set dff = f250/df250 set f250 = e250<.5 ? f250-(0.6332-1.138*lg(df250)-5.11*lg(df250)**2) : f250
+	        ###<dzliu><daddi><20151201<new>### see below
+			set dff = f250/df250 set f250 = e250<.5 ? f250-0.30 : f250
+			set df250 = e250<.5 ? f250/dff : df250
+			# 
+			define use_aaF_ccF 1
+			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
+			if($?doCorrectEdf) {if($doCorrectEdf==0) {define use_aaF_ccF 0}}
+			# 
+			if(!$use_aaF_ccF) {
+			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
+			    unset aaF unset ccF unset aaS unset ccS
+			} else {
+				##set aaFccF_Normalize = 0.951646704
+				##set aaSccS_Normalize = 1.191288629
+				##set aaDccD_Normalize = 0.9819490235
+				##set aaF = {         0   309.283   519.389   764.917   1329.26   2948.87   65655.2 }
+				##set ccF = {   795.097   795.097   886.457   1088.84   1460.98   2948.87   65655.2 }
+				##set aaS = {   226.773   791.812   1486.95   2283.35    3281.9   4805.41   23649.7 }
+				##set aaS = aaS/1000.0
+				##set ccS = {  0.745435  0.756803  0.838961  0.863935  0.847436  0.915745   1.04371 }
+				##set aaD = {  -14491.9  -3083.88  -1735.18  -884.068  -194.149 }
+				##set ccD = {  0.930648   1.03404   1.04811   1.00225   1.00225 }
+			    
+				#<20151130><updated><dzliu># before20151130
+				#set aaFccF_Normalize = 1.123842
+				#set aaSccS_Normalize = 0.7658885
+				#set aaDccD_Normalize = 0.8913624
+				#set final_Normalize = 0.82
+				#
+				#set aaF = {         0   317.478   497.467   696.501   1244.53   20326.5 }
+				#set ccF = {   873.708   873.708   959.842   1168.36   1702.91   3571.99 }
+				#set aaS = {  0.437324   1.39109   2.50108   3.87542   21.1122 }
+				#set ccS = {    1.0099  0.950107   1.20441   1.20024   1.69753 }
+				#set aaD = {  -18.6603   -3.3147  -2.17777   -1.2004 -0.555489 -0.141473 }
+				#set ccD = {  0.605024  0.666393  0.866847   1.04643   1.49886   2.24648 }
+				
+				#<20151130><updated><dzliu># 
+				#set aaFccF_Normalize = 1.143677
+				#set aaSccS_Normalize = 0.7730182
+				#set aaDccD_Normalize = 0.8841114
+				#set final_Normalize = 0.82
+				#
+				#set aaF = {         0   317.478   497.467   696.501   1244.53   20326.5 }
+				#set ccF = {   849.431   849.431   905.052   1144.22   1601.35   3483.12 }
+				#set aaS = {  0.437324   1.39109   2.50108   3.87542   21.1122 }
+				#set ccS = {   1.04405  0.948471   1.22497   1.17817   1.65013 }
+				#set aaD = {  -18.6603   -3.3147  -2.17777   -1.2004 -0.555489 -0.141473 }
+				#set ccD = {  0.591162  0.680883  0.891152   1.01107   1.50867   2.31054 }
+				
+				#20151201><updated><dzliu># 
+				set aaFccF_Normalize = 1.171069
+				set aaSccS_Normalize = 0.7623984
+				set aaDccD_Normalize = 0.8937437
+				set final_Normalize = 0.82
+				
+				set aaF = {         0   317.478   497.467   696.501   1244.53   20326.5 }
+				set ccF = {   868.802   868.802   921.185   1137.36   1621.15   3753.11 }
+				set aaS = {  0.437324   1.39109   2.50108   3.87542   21.1122 }
+				set ccS = {   1.11334  0.959884   1.23325   1.16856   1.65076 }
+				set aaD = {  -18.6603   -3.3147  -2.17777   -1.2004 -0.555489 -0.141473 }
+				set ccD = {  0.573158  0.661273  0.861333  0.977129   1.57199   2.36635 }
+				
+				macro read goCorrectdf.sm correctdf
+			}
+			# 
+			#data all_priors_RAD_250.txt read {ra 1 de 2} 
+			#print Handy_250.txt '%.7f %.7f %f %f\n' {ra de f250 df250}
+
+R_MIPS350_E	00
+			#data results_350_23Apr13_sub read {x350 1 y350 2 m350 4 e350 5 noi350 3} ###<Commented><DZLIU>###
+			define rrrr_name "results_"$imax"_"$xdate                    ###<Modified><DZLIU>### NO vary FOR 350!!!
+			data $rrrr_name read {x350 1 y350 2 m350 4 e350 5 noi350 3}  ###<Modified><DZLIU>### NO vary FOR 350!!!
+			define bias350  0.0                                          ###<Modified><DZLIU>### 
+			#define h_350 $(1/10.37)       # photometry fudge factor from Jy/beam definition, for big pixels
+			define h_350 $(1/34.42)       # photometry fudge factor from Jy/beam definition, for small pixels
+			define m_350 1               # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			set f350 = 10**(-0.4*m350)*1000*$h_350/$m_350
+			set df350 = f350*e350/1.08
+			# 
+    		###<dzliu><daddi><20151126><old>### set dff = f350/df350 set f350 = e350<.5 ? f350+0.3566*(df350-1.778)-0.35 : f350 #<Note># this is Daddi's original flux bias equation
+			###<Test><DzLIU>###                 set dff = f350/df350 set f350 = e350<.5 ? f350+0.3566*(df350-0.93)-0.325 : f350 
+            ###<dzliu><daddi><20151130><new>### set dff = f350/df350 set f350 = e350<.5 ? f350-(0.058-1.7*lg(df350)-7.366*lg(df350)**2) : f350
+            ###<dzliu><daddi><20151201><new>### see below
+			set dff = f350/df350 set f350 = e350<.5 ? f350+0.20 : f350
+			set df350 = e350<.5 ? f350/dff : df350
+			# 
+			define use_aaF_ccF 1
+			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
+			if($?doCorrectEdf) {if($doCorrectEdf==0) {define use_aaF_ccF 0}}
+			# 
+			if(!$use_aaF_ccF) {
+			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
+			    unset aaF unset ccF unset aaS unset ccS
+			} else {
+				##set aaFccF_Normalize = 0.9978099484
+				##set aaSccS_Normalize = 0.9950345846
+				##set aaDccD_Normalize = 0.9965172356
+				##set aaF = {         0   305.498   485.177   633.896   945.839   1883.08   12505.4 }
+				##set ccF = {   1234.02   1234.02   1345.14    1510.8   1889.76   2616.98   12505.4 }
+				##set aaS = {   559.269    1960.7   3723.43   5743.42   8195.86   11675.4   25600.7 }
+				##set ccS = {  0.973681   1.00817   1.05197   1.03892  0.993765   1.08563   1.06082 }
+				##set aaD = {    -20025  -5826.58  -3352.91  -1731.31  -466.648 }
+				##set ccD = {  0.899009  0.932733   1.05331   1.04463   1.04463 }
+				
+				#<20151130><updated><dzliu># before20151130
+				#set aaFccF_Normalize = 1.065211
+				#set aaSccS_Normalize = 0.6655671
+				#set aaDccD_Normalize = 0.7947804
+				#set final_Normalize = 0.93
+				#
+				#set aaF = {         0    310.48   499.535    653.32   904.962   1478.84   25378.9 }
+				#set ccF = {   1163.25   1163.25   1229.03   1417.29   1641.14   2319.08   4787.22 }
+				#set aaS = {   1.94663   5.52139   8.84042   12.6683   29.5405 500.000 } #<added><20150909><dzliu># 500.000
+				#set ccS = {   1.15271   1.36703   1.45785   1.59269   1.36537 1.36537 }
+				#set aaD = {  -17.4453  -3.22447  -1.52423 -0.591683 0.00030315 }
+				#set ccD = {  0.575723  0.732267  0.965135   1.64451   2.46437 }
+				
+				#<20151130><updated><dzliu># 
+				#set aaFccF_Normalize = 1.15134
+				#set aaSccS_Normalize = 0.6926806
+				#set aaDccD_Normalize = 0.8728057
+				#set final_Normalize = 0.93
+				#
+				#set aaF = {         0    310.48   499.535    653.32   904.962   1478.84   25378.9 }
+				#set ccF = {   1051.27   1051.27   1124.25   1324.18   1541.86    2225.4   4514.48 }
+				#set aaS = {   1.94663   5.52139   8.84042   12.6683   29.5405 }
+				#set ccS = {   1.10717   1.28008   1.30128   1.44106   1.25685 }
+				#set aaD = {  -17.4453  -3.22447  -1.52423 -0.591683 0.00030315 }
+				#set ccD = {  0.536621  0.680565  0.920337   1.54638   2.31102 }
+				
+				#<20151201><updated><dzliu># 
+				set aaFccF_Normalize = 1.167727
+				set aaSccS_Normalize = 0.6691863
+				set aaDccD_Normalize = 0.8680103
+				set final_Normalize = 0.93
+				
+				set aaF = {         0    310.48   499.535    653.32   904.962   1478.84   25378.9 }
+				set ccF = {   1038.32   1038.32    1118.6   1311.62   1544.12   2267.37   4919.67 }
+				set aaS = {   1.94663   5.52139   8.84042   12.6683   29.5405 }
+				set ccS = {   1.09176   1.31193   1.42173   1.54138   1.29313 }
+				set aaD = {  -17.4453  -3.22447  -1.52423 -0.591683 0.00030315 }
+				set ccD = {  0.527117  0.656748  0.902129   1.58699   2.39873 }
+				
+				macro read goCorrectdf.sm correctdf
+			}
+			######<20140831><DzLIU>###### #data all_priors_RAD_350.txt read {ra 1 de 2}   ###<Commented><DZLIU>###
+			######<20140831><DzLIU>###### #print Handy_350.txt '%.7f %.7f %f %f\n' {ra de f350 df350}  ###<Commented><DZLIU>###
+
+R_MIPS500_E 00
+			#data results_500_18Feb13_sub read {x500 1 y500 2 m500 4 e500 5 noi500 3} ###<Commented><DZLIU>###
+			define rrrr_name "results_"$imax"_"$xdate                    ###<Modified><DZLIU>### NO vary FOR 500!!!
+			data $rrrr_name read {x500 1 y500 2 m500 4 e500 5 noi500 3}  ###<Modified><DZLIU>### NO vary FOR 500!!!
+			define bias500  0.0                                          ###<Modified><DZLIU>### 
+			#define h_500 $(1/10.37)       # photometry fudge factor from Jy/beam definition, for big pixels
+			define h_500 $(1/32.198)      # photometry fudge factor from Jy/beam definition, for small pixels
+			define m_500 1               # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			set f500 = 10**(-0.4*m500)*1000*$h_500/$m_500
+			set df500 = f500*e500/1.08   #  
+			# 
+			###<dzliu><daddi><20151126><old>### set dff = f500/df500 set f500 = e500<.5 ? f500+0.6620*(df500-3.008)+0.69 : f500 #<Note># this is Daddi's original flux bias equation
+			###<dzliu><daddi><20151126><tes>### set dff = f500/df500 set f500 = e500<.5 ? f500+0.6620*(df500-1.24)-0.00 : f #<Note># this is dzliu's test
+			###<dzliu><daddi><20151130><new>### set dff = f500/df500 set f500 = e500<.5 ? f500-(0.2345-0.9639*lg(df500)-3.865*lg(df500)**2) : f500
+            ###<dzliu><daddi><20151201><new>### see below
+			set dff = f500/df500 set f500 = e500<.5 ? f500+0.20 : f500
+			set df500 = e500<.5 ? f500/dff : df500
+			# 
+			define use_aaF_ccF 1
+			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
+			if($?doCorrectEdf) {if($doCorrectEdf==0) {define use_aaF_ccF 0}}
+			# 
+			if(!$use_aaF_ccF) {
+			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
+			    unset aaF unset ccF unset aaS unset ccS
+			} else {
+				###set aaF = { 0.000000 278.904783  594.536778 1370.193830 2984.281741 5061.883715 7035.628268 10327.148456 }
+				###set ccF = { 848.8821 848.882127 1049.224821 1586.786669 2984.281741 5061.883715 7035.628268 10327.148456 }
+				###set aaS = { 0.000000 67.781394 440.617320 1430.813872 3334.092612 5672.850197 15413.362754 23793.405300 }
+				###set ccS = { 0.999558  0.999558   1.135163    1.074788    1.038063    1.280086     1.401180     1.401180 }
+				####set aaF = { 0.000000 282.915744 413.798699 498.264675 591.550992 699.673496 836.714530 1071.372742 1574.549489 11635.260062 }
+				####set ccF = { 1134.071838 1134.071838 1237.345580 1148.562881 1120.926859 1288.783045 1336.603382 1564.607369 2032.435404 11635.260062 }
+				####set aaS = { 434.550024 1319.738228 2248.127282 3297.958941 4511.237543 6145.019001 21462.980647 }
+				####set ccS = { 0.875601 0.919927 0.892664 0.978621 0.894443 1.028570 1.039079 }
+				##set aaFccF_Normalize = 0.982565483
+				##set aaSccS_Normalize = 1.057701278
+				##set aaDccD_Normalize = 0.9989853692
+				##set aaF = {         0   311.108   495.176   670.263   1031.09   2008.05   17549.2 }
+				##set ccF = {   1143.73   1143.73   1140.84   1273.44    1729.2   2706.83   17549.2 }
+				###set aaS = {   312.413   1106.18    2100.6   3211.31   4630.65   6863.41   20654.7 }
+				###set ccS = {  0.990666  0.965771  0.936339   1.02932  0.934755   1.02308   1.12975 }
+				##set aaS = {    313.13   1107.49   2102.21   3213.56   4632.83   6878.44   20668.8 }
+				##set ccS = {  0.986304  0.959025  0.941629  0.988954  0.853536  0.984343     1.065 }
+				###set aaD = {  -11280.2  -3380.82  -1987.69  -1073.71  -278.536 }
+				###set ccD = {   0.88417  0.901183   1.00267   1.09604   1.09604 }
+				##set aaD = {  -11277.5  -3376.93  -1985.45  -1071.42  -270.297 }
+				##set ccD = {  0.882021  0.899577   1.00044   1.09345   1.09345 }
+				
+				#<20151130><updated><dzliu># before20151130
+				#set aaFccF_Normalize = 1.137339
+				#set aaSccS_Normalize = 0.664874
+				#set aaDccD_Normalize = 0.823892
+				#set final_Normalize = 0.93
+				#
+				#set aaF = {         0   312.538   523.609   715.666   1036.65   1732.45   29156.2 }
+				#set ccF = {    1077.5    1077.5   1112.32   1527.93   1800.75   2542.19   5377.14 }
+				#set aaS = {   1.07257   3.12617   5.24747   8.13827    21.726 }
+				#set ccS = {   1.18405    1.3756   1.34858   1.47879   1.39402 }
+				#set aaD = {  -14.1053  -2.37054  -1.14884 -0.461675 0.0892864 }
+				#set ccD = {  0.505149  0.721897  0.943855   1.34315    2.6078 }
+				
+				#<20151130><updated><dzliu># 
+				#set aaFccF_Normalize = 1.158746
+				#set aaSccS_Normalize = 0.6640653
+				#set aaDccD_Normalize = 0.8346811
+				#set final_Normalize = 0.93
+				#
+				#set aaF = {         0   312.538   523.609   715.666   1036.65   1732.45   29156.2 }
+				#set ccF = {   969.264   969.264   1086.65   1523.23   1795.22   2536.98   5389.14 }
+				#set aaS = {   1.07257   3.12617   5.24747   8.13827    21.726 }
+				#set ccS = {   1.17835   1.36411     1.322   1.47788   1.39371 }
+				#set aaD = {  -14.1053  -2.37054  -1.14884 -0.461675 0.0892864 }
+				#set ccD = {  0.488564  0.711376  0.928672   1.31501    2.5996 }
+				
+				#<20151201><updated><dzliu># 
+				set aaFccF_Normalize = 1.167898
+				set aaSccS_Normalize = 0.6526518
+				set aaDccD_Normalize = 0.8373731
+				set final_Normalize = 0.93
+				
+				set aaF = {         0   312.538   523.609   715.666   1036.65   1732.45   29156.2 }
+				set ccF = {    953.59    953.59   1106.93   1529.41   1801.35   2583.93   5605.45 }
+				set aaS = {   1.07257   3.12617   5.24747   8.13827    21.726 }
+				set ccS = {   1.19224   1.36096   1.32308   1.52672   1.42187 }
+				set aaD = {  -14.1053  -2.37054  -1.14884 -0.461675 0.0892864 }
+				set ccD = {  0.486293  0.681229  0.908766   1.34035   2.65067 }
+				
+				macro read goCorrectdf.sm correctdf
+				#unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
+				#unset aaF unset ccF unset aaS unset ccS unset aaD unset ccD
+			}
+			######<20140831><DzLIU>###### #data all_priors_RAD_500.txt read {ra 1 de 2}  ###<Commented><DZLIU>###
+			######<20140831><DzLIU>###### #print Handy_500.txt '%.7f %.7f %f %f\n' {ra de f500 df500} ###<Commented><DZLIU>###
+
+R_MIPS1160_E	00
+			#data results_1160_18Feb13_sub read {x1160 1 y1160 2 m1160 4 e1160 5 noi1160 3} ###<Commented><DZLIU>###
+			define rrrr_name "results_"$imax"_"$xdate                         ###<Modified><DZLIU>### NO vary FOR 1160
+			data $rrrr_name read {x1160 1 y1160 2 m1160 4 e1160 5 noi1160 3}  ###<Modified><DZLIU>### NO vary FOR 1160
+			define bias1160  0.0                                              ###<Modified><DZLIU>### 
+			#define h_1160 $(1/10.37)       # photometry fudge factor from Jy/beam definition, for big pixels
+			#define h_1160 $(1/45.41)       # photometry fudge factor from Jy/beam definition, for small pixels ###<Commented><DZLIU>###
+			define h_1160 $(1/46.95)        # GN20 calibrated photometry fudge factor from Jy/beam definition <TODO>
+			define m_1160 1                 # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			set f1160 = 10**(-0.4*m1160)*$h_1160/$m_1160 # *1000
+			set df1160 = f1160*e1160/1.08   # 
+			# 
+			define use_aaF_ccF 1
+			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
+			# 
+			if(!$use_aaF_ccF) {
+			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
+			    unset aaF unset ccF unset aaS unset ccS
+			} else {
+				####set aaF = { 0.000000 0.074990 0.101582 0.125185 0.145767 0.169974 0.219440 0.307485 0.622579 }
+				####set ccF = { 0.926423 0.926423 0.976300 1.051682 1.121815 1.079184 1.031462 1.013209 1.017775 }
+				####set aaS = { 0.000000 5.609779 17.37916 32.28258 50.89910 74.13333 108.6384 272.7480 411.5383 }
+				####set ccS = { 0.918312 0.918312 0.867996 0.927754 0.982121 1.021685 1.163553 2.310420 2.310420 }
+				####set aaF = { 0.000000 0.073460 0.096592 0.105502 0.113281 0.120718 0.128570 0.138562 0.162991 1.063047 } #<20141006>#
+				####set ccF = { 0.995081 0.995081 1.161989 1.090509 1.068553 1.153494 1.275382 1.274881 1.498453 1.657447 } #<20141006>#
+				####set aaS = { 2.560927 7.555614 12.462052 17.900553 24.757140 34.509165 185.387252 } #<20141006>#
+				####set ccS = { 0.884976 0.868434 0.900701 0.946990 0.992365 0.997997 1.376683 } #<20141006>#
+				####set aaD = { -169.021919 -67.422516 -45.570359 -31.108635 -20.132580 -11.584043 -4.000258 } #<20141006>#
+				####set ccD = { 0.891473 1.013836 0.881231 0.862903 1.023204 1.162226 1.326309 } #<20141006>#
+				##set aaFccF_Normalize = 1.00791327
+				##set aaSccS_Normalize = 1.006330085
+				##set aaDccD_Normalize = 0.9791622277
+				##set aaF = {         0 0.0713535   0.10501  0.118242  0.133778  0.202464    1.4817 }
+				##set ccF = {  0.962477  0.962477    1.0321   1.07682   1.13043   1.34633    1.4817 }
+				##set aaS = {   1.60881   5.77752   11.1715   17.0243   24.2451    35.793   184.037 }
+				##set ccS = {  0.921065  0.969833  0.970639  0.947873  0.993566   1.02583   1.27635 }
+				##set aaD = {  -953.115  -93.9285  -54.6455  -29.1823   -9.1774 }
+				##set ccD = {  0.990972  0.998925  0.975863   1.06354   1.06354 }
+				
+				set bias1160 = 0.1564847442
+				set f1160 = f1160 + bias1160
+				
+				set aaFccF_Normalize = 1.074703
+				set aaSccS_Normalize = 0.4767612
+				set aaDccD_Normalize = 1.089109
+				set final_Normalize = 0.84
+				
+				set aaF = {         0 0.0797496  0.108293  0.121283  0.135883  0.163149    1.5354 }
+				set ccF = {   1.08305   1.08305   1.20881   1.23946   1.86721   2.35079   3.41967 }
+				set aaS = {   6.28278    18.113   30.5543   52.1349   500.134 }
+				set ccS = {  0.657315   0.69688  0.687075  0.710486   3.03729 }
+				set aaD = {  -5.33246  -0.95377 -0.418194 -0.140049   0.18164 }
+				set ccD = {  0.922297  0.904985   1.01044   1.02464   1.54003 }
+				
+				macro read goCorrectdf.sm correctdf
+			}
+			######<20140905><DzLIU>###### #<TODO><DZLIU>#set dff = f1160/df1160 set f1160 = e1160<.5 ? f1160+0.6620*(df1160-3.008)+0.69 : f1160 
+			######<20140905><DzLIU>###### #<TODO><DZLIU>#set df1160 = e1160<.5 ? f1160/dff : df1160
+			######<20140905><DzLIU>###### #<TODO><DZLIU>#data all_priors_RAD_1160.txt read {ra 1 de 2} 
+			######<20140905><DzLIU>###### #<TODO><DZLIU>#print Handy_1160.txt '%.7f %.7f %f %f\n' {ra de f1160 df1160}
+
+R_MIPS1100	data results_1100_12Oct read {x1100 1 y1100 2 m1100 4 e1100 5 noi1100 3}
+			define h_1100 1              # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio (here I already divided the map by 4.404)
+			define m_1100 1              # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			define corr_1100  $(1/2.6)   # correlation factor for errors, scale up errors with this number 
+			set f1100 = 10**(-0.4*m1100)*1000*$h_1100/$m_1100
+			set df1100 = f1100*e1100/1.08   #*$corr_1100    # make sure you scaled up the error map; I scaled down by 2.6, to match Perera et al 
+			define bias1100  0.0 
+			define conf1100  0.0
+			set f1100 = f1100+$bias1100
+			set df1100 = df1100>0 ? (df1100**2+$conf1100**2)**.5 : -(df1100**2+$conf1100**2)**.5
+
+
+R_MIPS250_X	00
+			data results_250_12Oct read {x250x 1 y250x 2 m250x 4 e250x 5}         # use for variation test
+			define h_250 $(1/31.16)     # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			define m_250 1              # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			define corr_250  1          # correlation factor for errors, scale up errors with this number 
+			set f250x = 10**(-0.4*m250)*1000*$h_250/$m_250
+			set df250x = f250x*e250x/1.08    #    *$corr_250    # make sure you scaled up the error map
+			define bias250  0.0   #0.57
+			define conf250   0.0
+			define reduce250 1.393
+			set dff = f250x/df250x set f250x = e250x<.5 ? f250x+1.2664*(df250x-2.275)+.559 : f250x 
+			set df250x = e250x<.5 ? f250x/dff : df250x
+			set df250x = df250x>0 ? (df250x**2+$conf250**2)**.5 : -(df250x**2+$conf250**2)**.5
+			set df250x = df250x/$reduce250
+
+R_MIPS350 00	data results_350_12Oct read {x350 1 y350 2 m350 4 e350 5 noi350 3}
+		
+			#define h_350 $(1/7.17)      # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			define h_350 $(1/34.42)      # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			define m_350 1               # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			define corr_350  1           # correlation factor for errors, scale up errors with this number 
+			set f350 = 10**(-0.4*m350)*1000*$h_350/$m_350
+			set df350 = f350*e350/1.08   #    *$corr_350    # make sure you scaled up the error map
+			define bias350   0
+			define conf350   0.0
+			define reduce350 .5
+			set dff = f350/df350 set f350 = e350<.5 ? f350+1.738*(df350-4.6790)+3.484 : f350
+			set df350 = e350<.5 ? f350/dff : df350
+			#set df350 = df350>0 ? (df350**2+$conf350**2)**.5 : -(df350**2+$conf350**2)**.5
+			set df350 = df350/$reduce350
+
+R_MIPS500	00
+			data results_500_12Oct read {x500 1 y500 2 m500 4 e500 5 noi500 3}
+			#define h_500 $(1/7.618)       # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			define h_500 $(1/32.198)       # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			define m_500 1       # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			define corr_500  1   # correlation factor for errors, scale up errors with this number 
+			set f500 = 10**(-0.4*m500)*1000*$h_500/$m_500
+			set df500 = f500*e500/1.08    #    *$corr_500    # make sure you scaled up the error map
+			define bias500   0
+			define conf500   0.0
+			define reduce500 .5
+			set dff = f500/df500 set f500 = e500<.5 ? f500+3.051*(df500-7.4616)+12.9585 : f500
+			set df500 = e500<.5 ? f500/dff : df500
+			#set df500 = df500>0 ? (df500**2+$conf500**2)**.5 : -(df500**2+$conf500**2)**.5
+			set df500 = df500/$reduce500
+
+
+R_MIPS70	00
+			data results_70_12Oct read {x70  1 y70  2 m70  4 e70  5 noi70  3}
+			define h_70  $(1/7.618)       # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			define m_70  1       # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			define corr_70   1   # correlation factor for errors, scale up errors with this number 
+			set f70  = 10**(-0.4*m70)*1000*$h_70/$m_70 
+			set df70  = f70*e70/1.08    #    *$corr_70     # make sure you scaled up the error map
+			define bias70    0
+			define conf70    0.0
+			define reduce70  1.3
+			set dff = f70 /df70  set f70  = e70 <.5 ? f70 +3.051*(df70 -7.4616)+12.9585 : f70 
+			set df70  = e70 <.5 ? f70 /dff : df70 
+			set df70  = df70 >0 ? (df70 **2+$conf70 **2)**.5 : -(df70 **2+$conf70 **2)**.5
+			set df70  = df70 /$reduce70 
+
+
+R_MIPS20cm	data results_20cm_19May read {x20cm 1 y20cm 2 m20cm 4 e20cm 5 noi20cm 3}
+			set m20cm = m20cm-0.0067
+			set e20cm = e20cm*2.48
+			define h_20cm $(1.004/13.23*1e6)       # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio (here I already divided the map by 4.404)
+			set f20cm = 10**(-0.4*m20cm)*$h_20cm
+			set e20cm = sqrt(e20cm**2+.019**2)
+			set df20cm = f20cm*e20cm/1.08   
+			set f20cm = f20cm-0.6   # from comparison to Simu
+			set f20cm = f20cm/.74   # from comparison to Glenn (average source size ?)
+			set df20cm = df20cm/(.74**.5)
+
+			stats_med df20cm me si echo $me $si
+			set df20cm = df20cm>=.9*$me ? df20cm : .9*$me
+
+
+R_MIPS20cm_Owen	
+			data results_20cm_01Oct13 read {x20cm 1 y20cm 2 m20cm 4 e20cm 5 noi20cm 3}
+			define h_20cm $(1.00/37.5055*1e6)       # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio (here I already divided the map by 4.404)
+			set f20cm = 10**(-0.4*m20cm)*$h_20cm
+			set df20cm = f20cm*e20cm/1.08   
+			set aaF = {0 0.38 0.45 0.59 0.82 1.23 1.71 2.34 6.49} set ccF = {2.76 2.76 2.76 2.76 3.13 3.60 3.65 7.44 8.62}
+			set uui = 1,dimen(df20cm) sort {df20cm uui} spline aaF ccF df20cm Edf sort {uui df20cm Edf} set df20cm = Edf
+			set df20cm  = e20cm>=0 ? df20cm : 1e9
+
+			set f20cm = f20cm-0.05  # from comparison to Simu
+			#PBA_Owen
+			data PBA_Owen.txt read {pbcor 1}
+			foreach vax {f20cm df20cm} {set $vax = $vax*pbcor}
+			foreach vax {f20cm df20cm} {set $vax = $vax*10**0.01415850129}  # comparison to bright Owen sources
+			set df20cm = df20cm>2.6 ? df20cm : 2.6
+
+
+R_MIPS20cm_Owen_dzliu	00
+			# <Modified><DZLIU> # 
+			# define rrrr_name "results_"$imax"_"$xdate
+			if($?vary_positions==0) { define vary_positions 1 }
+			if($vary_positions==0) { define rrrr_name "results_"$imax"_"$xdate 
+							} else { define rrrr_name "results_"$imax"_"$xdate""_vary }
+			data $rrrr_name read {x20cm 1 y20cm 2 m20cm 4 e20cm 5 noi20cm 3}
+			set noi20cm = noi20cm*0.0 + 2.75e-06 #<TODO>#
+			define h_20cm $(1.00/37.5055*1e6) # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio (here I already divided the map by 4.404)
+			set f20cm = 10**(-0.4*m20cm)*$h_20cm * 1e-3 # mJy
+			set df20cm = f20cm*e20cm/1.08 # mJy
+			# 
+			define use_aaF_ccF 1
+			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
+			if($?doCorrectEdf) {if($doCorrectEdf==0) {define use_aaF_ccF 0}}
+			# 
+			if(!$use_aaF_ccF) {
+			    
+			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
+			    unset aaF unset ccF unset aaS unset ccS
+			    
+			} else {
+				
+				set aaFccF_Normalize = 1.129282
+				set aaSccS_Normalize = 0.650541
+				set aaDccD_Normalize = 1.009307
+				set final_Normalize = 0.9
+				
+				set aaF = {         0   217.516   269.376   293.533   317.162   350.943   4253.25 }
+				set ccF = {   1504.95   1504.95    1340.7   1398.96   1462.84   1615.43   3874.49 }
+				set aaS = {  0.730299   2.09869   3.48969   5.30822   7.94123   67.6943 }
+				set ccS = {  0.836508  0.949171  0.951584  0.864089   0.88588   1.80049 }
+				set aaD = {  -146.478  -43.5945  -26.7658   -14.727  -7.09325  -2.46207 }
+				set ccD = {  0.908064  0.878177  0.927734  0.941344  0.927914   1.56757 }
+				
+				macro read goCorrectdf.sm correctdf
+			}
+			
+			set bias20cm = -8.409195558e-05
+			set f20cm = f20cm + bias20cm
+			# 
+			# mJy to uJy
+			set f20cm = f20cm * 1e3 # uJy
+			set df20cm = df20cm * 1e3 # uJy
+			set f20cm = e20cm<=0.0 ? -99 : f20cm
+			set df20cm = e20cm<=0.0 ? 1e10 : df20cm
+			# 
+			set f20cm =  (x20cm==-99||y20cm==-99) ?      -99 : f20cm
+			set df20cm = (x20cm==-99||y20cm==-99) ?     1e10 : df20cm
+			#
+			#PBA_Owen
+			data PBA_Owen.txt read {pbcor 1}
+			foreach vax {f20cm df20cm} {set $vax = $vax*pbcor}
+			foreach vax {f20cm df20cm} {set $vax = $vax*10**0.01415850129}  # comparison to bright Owen sources
+			#<commented><dzliu># set df20cm = df20cm>2.6 ? df20cm : 2.6
+
+
+PBA_corr_radio
+			set dis = 6*sqrt(((_ra-189.2058333)*cosd(62.2161111))**2+(_de-62.2161111)**2)
+			set pbcorr= 1.-(1.343/10.**3)*(dis*1.4)**2.+(6.579/10.**7)*(dis*1.4)**4.-(1.186/10.**10)*(dis*1.4)**6.
+			foreach vax {f20cm df20cm} {set $vax = $vax*pbcorr}
+
+
+Rec		00	data rec.dat read {l1 1 l2 2 good 3 bad 4} set l = 0.5*(l1+l2) set frac = good/(good+bad)
+			ticksize -1 0 0 0 
+			gop (lg(l)) frac
+			connect (lg(l)) frac
+			set xl = lg(l) set xinte = lg(inte) spline xl frac xinte xrec ctype red connect xinte xrec ctype 0
+			set xhist = hist/xrec
+			goi inte xhist
+			echo $(sum(inte*xhist)/133.15)   Total  mJy/arcmin^2
+			echo $(sum(inte*hist)/133.15)    Uncorrected mJy/arcmin^2
+			echo $(sum(inte*xhist)/133.15*1.42e-1)   Total  nW m^-2 sr^-1 
+			echo $(sum(inte*hist)/133.15*1.42e-1)    Uncorrected nW m^-2 sr^-1
+			echo $(sum(inte*xhist)/133.15*1.42e-1/14*100)   Total background fraction  (%)
+			echo $(sum(inte*hist)/133.15*1.42e-1/14*100)    Uncorrected background fraction (%)
+HHH		00	set coox = _mips>0 && f24>=0 & f24/df24>3 & noi24<0.005
+			#set coox =  _id==14342 || _id==5869 || _id==5359      # some objects added based on residual map
+			foreach var {_id _ra _de _mips f24 _emips df24 m24 e24} {set $var = $var if(coox)}
+			limits 0 50 0 50 erase box points _mips f24
+			ctype red rel -1 -1 draw 1e4 1e4 ctype 0
+			xlabel MIPS24 Ref catalog 
+			ylabel MIPS24 Galfit  
+			print xxx.reg '\# Region file format: DS9 version 3.0\n' {}
+			print +xxx.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+			print +xxx.reg 'fk5;ellipse(%.7f,%.7f,1\",1\",0) \# text={ID%d %.1fuJy} \n' {_ra _de _id f24}
+
+
+ppp_growth
+			if(is_file($rrrr_name"_contam_X.dat") && 0) {
+			data $rrrr_name"_contam_X.dat" read contam_X 1
+			} else {
+			macro read goFine.sm R_MIPS$imax
+			macro read goSimu.sm Xgrowth_data_RP
+			}
+			set df$imax""_GH = ((df$imax""_GH)**2+($coeff_contam_X*contam_X)**2)**.5
+			set contam_X$imax""_GH = contam_X
+
+Set_zero_SPIRE_data
+			data $zero_SPIRE_file read a 1
+			data x$zero_SPIRE_file read {me_x 1 me_y 2} define me_x $(me_x[0]) define me_y $(me_y[0])
+			define step_x .1
+			set xx = -400,500,$step_x set yy = xx*0
+			do i=0,dimen(a)-1 {
+			set yy = yy+a[$i]*(xx)**(dimen(a)-1-$i)
+			}
+			set xx = xx+$me_x
+			set yy = yy+$me_y
+			spline xx yy contam_X$imax""_GH zero_SPIRE
+			set zero_SPIRE = contam_X$imax""_GH>50 ? 0 : zero_SPIRE
+			set f$imax""_GH = f$imax""_GH + zero_SPIRE
+
+R_RP250_N_GH
+			define rrrr_name "results_250_19Oct_RP"
+			data $rrrr_name read {x250_GH 1 y250_GH 2 noi250_GH 3 m250_GH 4 e250_GH 5}
+			define h_250_GH $(1/31.16)       # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			set f250_GH = 10**(-0.4*m250_GH)*1000*$h_250_GH
+			set df250_GH = f250_GH*e250_GH/1.08
+			define imax 250
+			define coeff_contam_X 0.3
+			ppp_growth
+			define max_noise250 1
+			define zero_SPIRE_file "zero_SPIRE_250_N.dat"
+			Set_zero_SPIRE_data
+			set df250_GH = df250_GH > 1 ? df250_GH : 1
+			set f250_GH = f250_GH>0 ? f250_GH : 0
+			print R_RP250_N_GH.dat  {f250_GH df250_GH contam_X250_GH x250_GH y250_GH noi250_GH m250_GH e250_GH zero_SPIRE}
+
+R_RP350_N_GH
+			define rrrr_name "results_350_19Oct_RP"
+			data  $rrrr_name read {x350_GH 1 y350_GH 2 noi350_GH 3 m350_GH 4 e350_GH 5}
+			define h_350_GH $(1/34.42)      # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			set f350_GH = 10**(-0.4*m350_GH)*1000*$h_350_GH
+			set df350_GH = f350_GH*e350_GH/1.08   
+			define imax 350
+			define coeff_contam_X 0.28
+			ppp_growth
+			define max_noise350 1
+			define zero_SPIRE_file "zero_SPIRE_350_N.dat"
+			Set_zero_SPIRE_data
+			set df350_GH = df350_GH > 1.5 ? df350_GH : 1.5
+			set f350_GH = f350_GH>0 ? f350_GH : 0
+			print R_RP350_N_GH.dat  {f350_GH df350_GH contam_X350_GH x350_GH y350_GH noi350_GH m350_GH e350_GH zero_SPIRE}
+
+R_RP500_N_GH
+			define rrrr_name "results_500_19Oct_RP"
+			data  $rrrr_name read {x500_GH 1 y500_GH 2 noi500_GH 3 m500_GH 4 e500_GH 5}
+			define h_500_GH $(1/32.198)      # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
+			set f500_GH = 10**(-0.4*m500_GH)*1000*$h_500_GH
+			set df500_GH = f500_GH*e500_GH/1.08   
+			define imax 500
+			define coeff_contam_X 0.25
+			ppp_growth
+			define max_noise500 1
+			define zero_SPIRE_file "zero_SPIRE_500_N.dat"
+			Set_zero_SPIRE_data
+			set df500_GH = df500_GH > 2 ? df500_GH : 2
+			set f500_GH = f500_GH>0 ? f500_GH : 0
+			print R_RP500_N_GH.dat  {f500_GH df500_GH contam_X500_GH x500_GH y500_GH noi500_GH m500_GH e500_GH zero_SPIRE}
+
+AllGlenn	data Glenn_GOODSN_VLA_v1_8_deg.txt  read {raF 16 deF 17 radio 9 dradio 10}
+			data GN_1.4GHz_v1.8plus.txt read {raF 2 deF 3 radio 4 dradio 5}
+			#xFit_250
+			xFit_350
+			xFit_500
+			bbb
+bbb	00	
+			cd                                  /Users/edaddi/HDFN
+			#macro read match_IRAC_Rad.sm goIRAC
+			#macro read gofindACS.sm gofindACS
+			macro read gofindPannella.sm gofindPannella
+			cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+
+			#data Glenn_Pannella.dat read {zp_P 1 KtotP 2 ztotP 3 eztotP 4}
+
+			#data results_250_21Mar_Glenn	read {x250 1 y250 2 m250 4 e250 5 noi250 3}
+			data results_250_23Mar_Pannella	read {x250 1 y250 2 m250 4 e250 5 noi250 3}
+			set id = 1,dimen(radio)
+
+			define h_250 $(1/31.16)       # photometry fudge factor from Jy/beam definition, for small pixels
+			define m_250 1       # photometry fudge factor from PEP, from use of finite PSF  (divise)
+			set f250 = 10**(-0.4*m250)*1000*$h_250/$m_250
+			set df250 = f250*e250/1.08    #  
+			define bias250  0.65   #0.57
+			define conf250   3.4
+			set f250 = f250+$bias250
+			set df250 = df250>0 ? (df250**2+$conf250**2)**.5 : -(df250**2+$conf250**2)**.5
+
+			set coo = f250/df250>3 && df250>0 
+			foreach var {raF deF raK deK id f250 df250 radio dradio zp_P KtotP ztotP eztotP} {set $var = $var if(coo)}
+			set SN250=f250/df250
+			define print_noheader 0
+			print '%.0f %.7f %.7f\n' {id raF deF SN250 f250 df250 radio dradio zp_P KtotP ztotP eztotP}
+			print HSO250_PannellaPriors.dat '%.0f %.7f %.7f %.7f %.7f\n' {id raF deF raK deK SN250 f250 df250 radio dradio zp_P KtotP ztotP eztotP}
+			define print_noheader 1
+
+PBA_Owen
+			!\rm aaa_noise
+			set x24 = x20cm set y24 = y20cm
+			set x1=x24 -1 set x2=x24 +1
+			set y1=y24 -1 set y2=y24 +1
+			define XL1 3 define XL2 7000 define YL1 3 define YL2 7000   # dimensioni immagine in pixels
+			foreach xpp {1 2} {
+			set x$xpp = x$xpp>$XL1 ? x$xpp : $XL1
+			set x$xpp = x$xpp<$XL2 ? x$xpp : $XL2
+			set y$xpp = y$xpp>$YL1 ? y$xpp : $YL1
+			set y$xpp = y$xpp<$YL2 ? y$xpp : $YL2
+			}
+			print do.cl 'images\n imutil\n' {}
+			print +do.cl 'imstat VLA_Owen_2arcsec_big_PBC.fits[%.0f:%.0f,%.0f:%.0f] nclip=0 >> aaa_noise \n' {x1 x2 y1 y2}
+			print +do.cl 'logout\n' {}
+			#echo go run do.cl in IRAF
+			#define aaa ?
+			# go run do.cl in IRAF
+			!cl < do.cl
+
+			data aaa_noise read pbcor  6
+			set pbcor = pbcor>1 ? pbcor : 1
+			print PBA_Owen.txt '%.3f\n' {pbcor}

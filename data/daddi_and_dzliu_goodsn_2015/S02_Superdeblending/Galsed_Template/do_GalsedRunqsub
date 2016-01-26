@@ -30,7 +30,7 @@ if [[ $* == *-cleanall*    ]]; then
     exit
 fi
 # 
-# 
+# start from and finish up to some sources
 if [[ $* == *-overwrite*      ]]; then OVERWRITING=1; fi
 if [[ $* == *-donotoverwrite* ]]; then OVERWRITING=1; fi
 if [[ $* == *-donotbackup*    ]]; then DONOTBACKUP=1; fi
@@ -39,7 +39,9 @@ if [[ $* == *-dryrun*         ]]; then TRIALDRYRUN=1; fi
 if [[ $* == *-catalog*        ]]; then CATALOGFILE=$(echo $* | sed -e 's/.*-catalog[ ]*\([^ ]*\).*/\1/g'); echo CATALOGFILE=$CATALOGFILE; echo "We will use catalog file $CATALOGFILE!"; fi
 if [[ $* == *-resume*         ]]; then RESUMEINDEX=$(echo $* | sed -e 's/.*-resume[ ]*\([^ ]*\).*/\1/g'); echo RESUMEINDEX=$RESUMEINDEX; if [[ $RESUMEINDEX != *[[:digit:]]* ]]; then echo "Error! -resume parameter invalid!"; exit; else echo "We will resume from $RESUMEINDEX (not including)!"; fi; fi
 if [[ $* == *-start*          ]]; then STARTSOURCE=$(echo $* | sed -e 's/.*-start[ ]*\([^ -]*\).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -start parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
+if [[ $* == *-begin*          ]]; then STARTSOURCE=$(echo $* | sed -e 's/.*-begin[ ]*\([^ -]*\).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -begin parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
 if [[ $* == *-from*           ]]; then STARTSOURCE=$(echo $* | sed -e 's/.*-from[ ]*\([^ -]*\).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -from parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
+if [[ $* == *-finish*         ]]; then FINALSOURCE=$(echo $* | sed -e 's/.*-finish[ ]*\([^ -]*\).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -finish parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
 if [[ $* == *-upto*           ]]; then FINALSOURCE=$(echo $* | sed -e 's/.*-upto[ ]*\([^ -]*\).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -upto parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
 if [[ $* == *-end*            ]]; then FINALSOURCE=$(echo $* | sed -e 's/.*-end[ ]*\([^ -]*\).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -end parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
 #exit
@@ -97,6 +99,8 @@ for i in $runsedid; do
     # 
     # <todo><debug> $i -lt 16502
     # 
+    # 
+    # start from and finish up to some sources
     if [[ $i -le $RESUMEINDEX ]]; then
         continue
     fi
@@ -167,29 +171,18 @@ for i in $runsedid; do
             chmod a+x "fit_parallel_HDFN/run_$i.sh"
             cat "fit_parallel_HDFN/run_$i.sh"
             if [[ $TRIALDRYRUN == 0 ]]; then
-                if [[ $(hostname) == *localhost* ]]; then 
-                    echo localhost
+                if [[ $(hostname) == *localhost* || $(hostname) == *sapmcm116* || $(hostname) == *sappcb34* ]]; then 
+                    echo $(hostname)
                     ./"fit_parallel_HDFN/run_$i.sh"
                     sleep 1.5
                 fi
-                if [[ $(hostname) == *sapmcm116* ]]; then 
-                    echo sapmcm116
-                    ./"fit_parallel_HDFN/run_$i.sh"
-                    sleep 0.5
-                fi
-                if [[ $(hostname) == *sappcb34* ]]; then 
-                    echo planer
-                    echo -n Adding qsub task "fit_parallel_HDFN/run_$i.sh" : ''
-                    qsub -l walltime=2:30:00 "fit_parallel_HDFN/run_$i.sh"
-                    sleep 3.5
-                fi
                 if [[ $(hostname) == *planer* ]]; then 
-                    echo planer
+                    echo $(hostname)
                     echo Counting qsub task "$(showq | grep $USER | wc -l)"
-                    echo Counting qsub task "$(qstat | grep $USER | wc -l)"
-                    while      [[   12  -le "$(qstat | grep $USER | wc -l)" ]]; do
-                    sleep           12
-                    echo Counting qsub task "$(qstat | grep $USER | wc -l)"
+                    echo Counting qsub task "$(showq | grep $USER | wc -l)"
+                    while      [[   22  -le "$(showq | grep $USER | wc -l)" ]]; do
+                    sleep           10
+                    echo Counting qsub task "$(showq | grep $USER | wc -l)"
                     done
                     echo                "$PWD/fit_parallel_HDFN/run_$i.sh"
                     cat                      "fit_parallel_HDFN/run_$i.sh"

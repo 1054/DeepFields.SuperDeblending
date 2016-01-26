@@ -169,7 +169,7 @@ xfitAGN	01
 		foreach var xShortNames { set df$var = df$var>0 ? df$var : 1e5 }  ### For single band non-detect sources, set very large error. 
 		foreach var xShortNames { set df$var = f$var/df$var<10 ? df$var : f$var/10 }  ### Error should not be too small.
 		
-		set fk = (KtotX!=-99) ? 10**(-0.4*(KtotX-23.9)-3.0) : -99   ###<TODO><20140326><DZLIU>###
+		set fk = (KtotX!=-99) ? 10**(-0.4*(KtotX-23.9)-3.0) : -99   ###<20140326><DZLIU>### now fK is mJy
 		set dfk = (KtotX!=-99) ? fk/10.0 : 1e5
 		
 		

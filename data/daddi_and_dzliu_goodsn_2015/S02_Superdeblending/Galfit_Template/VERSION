@@ -1,0 +1,12 @@
+2016-01-25 dzliu
+2016-01-26 dzliu
+
+We have synced the same data and scripts on the disk upgal
+
+scp do_Preset do_Galsub do_Galfit do_Galsim goFine.sm goSimu.sm run_simu_stats_v7.sm run_update_catalog_v7.sm \
+    dliu@hubble:/dsm/upgal/data/dliu/Superdeblending/GOODSN/
+
+scp 00__HOWTO__00 \
+    dliu@hubble:/dsm/upgal/data/dliu/Superdeblending/GOODSN/Galfit_100/
+
+

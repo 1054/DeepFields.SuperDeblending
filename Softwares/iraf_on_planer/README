@@ -1,0 +1,25 @@
+# use IRAF on planer:
+    
+    ssh -X planer
+    
+    # We can start an interactive qsub job:
+        
+        qsub -IX -q herschel -l walltime=24:00:00 -l mem=10GB
+        
+        module avail iraf
+        
+        module load iraf64/2.15 # this will also be done in "source SETUP"
+        
+        source ../SETUP
+        
+        cl
+    
+    # Or we can submit a non-interactive qsub job:
+        
+        source ../SETUP   # this will automatically load IRAF if hostname is planer*
+        
+        qsub -l walltime=00:10:00 "tmp.sh"   # submit the qsub job
+        
+        cat tmp.sh.o* tmp.sh.e*    # after a while, check the qsub job output and error files
+
+

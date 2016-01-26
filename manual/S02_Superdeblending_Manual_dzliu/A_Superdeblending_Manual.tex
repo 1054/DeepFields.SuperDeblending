@@ -1495,6 +1495,17 @@ Because we highly rely on the SED prediction to decide which sources to fit and 
 %\textcolor{blue}{f\_galfit v.s. f\_predict diagram}
 %\\
 
+\subsection{Spec-z from various literature issue}
+
+\textcolor{green!90!black!60!orange}{Date: 2015-09-25}
+
+\textcolor{green!90!black!60!orange}{Date: 2016-01-15}
+
+Wirth et al. 2015 Keck MOSFIRE $z\sim2$ spec-z survey. We have cross-matched their catalog with our 24+radio catalog, and got 55 matched sources with quality flag $\ge2.5$. Note that their quality flag $=2.0$ means "Degenerate redshift, does not match z phot", $=2.5$ means "Degenerate redshift, but matches z phot", $=3.0$ means "Secure redshift ($P>$95\%)", $=4.0$ means "Very secure redshift ($P>$99\%)". In which, 18 are new spec-z sources and a significant part of them are at and above redshift 2, while 37 are duplicated spec-z sources. \textcolor{red}{TODO: compare the agreements of Wirth2015 spec-z and our previous spec-z for 37 duplicated spec-z sources.}
+
+Kriek et al. 2015 Keck MOSFIRE high-z spec-z survey. We have cross-matched their catalog with the GOODS-Spitzer IRAC 19437 catalog, and got 102 matched sources with their $z_{MOSFIRE}>0$ ($z_{MOSFIRE}=-1$ means unreliable). As to our 24+radio 3306 catalog, we got about 22 new spec-z sources. \textcolor{red}{TODO: compare the agreements of Wirth2015 spec-z and our previous spec-z for the duplicated spec-z sources.}
+
+
 \subsection{Stellar mass from various literature issue}
 
 \textcolor{green!90!black!60!orange}{Date: 2015-12-31}
@@ -1537,7 +1548,7 @@ set e20cm = e20cm>0.05 ? e20cm : 0.05
 \end{lstlisting}
 
 
-\subsection{SED prediction and prior source selection criterion issue}
+\subsection{SED prediction and criterion issue for selecting prior source selection for fitting}
 
 \textcolor{green!90!black!60!orange}{Date: 2016-01-07}
 
@@ -1549,10 +1560,12 @@ Do we enlarge U range so as to derive better U values for at least GN20 at $z=4.
 
 Do we apply this criterion when selecting prior sources to fit: if a source has more than $3\sigma$ detection at previous FIR band (i.e. $24{\mu}m$ to $1160{\mu}m$), then we fit it at current band, ignoring its SED flux criterion? ---- This is being tested. 
 
-\subsubsection{do we always fit a previous band detected source?}
+\subsubsection{do we always fit a previous band detected ($S/N>3$) source?}
 
 We are doing the tests now.
 \textcolor{red}{(TODO)}
+
+At band 100, we first run galfit with the full 24+radio catalog sources. 
 
 
 

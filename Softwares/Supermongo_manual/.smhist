@@ -1,0 +1,19 @@
+macro read supermongo_go.sm supermongo_go
+help fonts
+help default_font
+echo $default_font
+macro read supermongo_go.sm supermongo_go
+fonts
+make_char
+quit
+macro read supermongo_go.sm supermongo_go
+help putlabel
+macro read supermongo_go.sm supermongo_go
+echo $(10**10.41/3.834)
+echo $(10**0.41/3.834)
+echo $(49.0/8*10**1.8/3.086)
+echo $(11.5/3.086/10**0.2)
+quit
+calc 189/255.
+calc 38/255.
+quit

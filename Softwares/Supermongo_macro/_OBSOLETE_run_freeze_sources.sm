@@ -1,0 +1,50 @@
+freezeSources 02
+    # 
+    #  We will freeze some faint galaxies by their SED flux
+    # 
+    #  We will automatically search DataDir/
+    # 
+    if($?1==0||$?2==0){
+        print 'Usage: freezeSources goodsn 24\n' {} 
+        define errorbreak 1
+        define errorbreak ?
+        return
+    }
+    # read SED predictions
+    set PfitSED_prediction = DataDir+{"/SED/SED_predictions"}+sprintf('_%s','$1')+sprintf('_%s.txt','$2')
+    if(!is_file($(PfitSED_prediction))){
+        print 'freezeSources:Error! PfitSED_prediction $(PfitSED_prediction) not found! Give Ctrl+C to break!\n' {} 
+        define errorbreak 1
+        define errorbreak ?
+        return
+    }
+    if($verbose){define freeze_verbose 1}else{define freeze_verbose 0}
+    data $(PfitSED_prediction) read < exc$(boxBand) 4 xf$(boxBand) 7 xe$(boxBand) 8 >
+    verbose $freeze_verbose
+    # 
+    # <added><20150515><dzliu> additional new objects selected from residual maps
+    set nObjAdd = 0
+    set nObjAdd = (dimen(id$(boxBand))-dimen(exc$(boxBand)))
+    if(nObjAdd>0) { 
+        set dimen(vObjAdd) = $(nObjAdd)
+        set vObjAdd = vObjAdd*0
+        set exc$(boxBand) = exc$(boxBand) concat vObjAdd
+        set xf$(boxBand) = xf$(boxBand) concat vObjAdd
+        set xe$(boxBand) = xe$(boxBand) concat vObjAdd
+    }
+    # 
+    # convert_flux2mag
+    load astroPhot.sm convert_flux2mag $1 $2 xf$(boxBand) xe$(boxBand)
+    set PfitSED_predict_mag = m$(boxBand) # +- em$(boxBand)
+    set PfitSED_predict_mag = PfitSED_predict_mag>25 ? 25 : PfitSED_predict_mag #<corrected><20150503><dzliu>#
+    set pmF = exc$(boxBand)? PfitSED_predict_mag : 5.0
+    set pmG = 1-exc$(boxBand)
+    # set pmF and pmG = 0 will let astroGalbox.sm fix these magnitude values
+    set m$(boxBand) = exc$(boxBand)? m$(boxBand) : 5.0
+    set em$(boxBand) = exc$(boxBand)? em$(boxBand) : 0.0
+    # 
+    # set pmF and pmG then astroGalbox will use these two vectors 
+    # to fix magnitude
+    # print {idF xf100 xe100 pmF pmG}
+
+
