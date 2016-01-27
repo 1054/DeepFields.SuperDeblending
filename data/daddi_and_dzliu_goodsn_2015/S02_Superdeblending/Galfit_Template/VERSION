@@ -3,8 +3,11 @@
 
 We have synced the same data and scripts on the disk upgal
 
-scp do_Preset do_Galsub do_Galfit do_Galsim goFine.sm goSimu.sm run_simu_stats_v7.sm run_update_catalog_v7.sm \
+scp goFine.sm goSimu.sm run_simu_stats_v7.sm run_update_catalog_v7.sm \
     dliu@hubble:/dsm/upgal/data/dliu/Superdeblending/GOODSN/
+
+scp goFine.sm goSimu.sm run_simu_stats_v7.sm run_update_catalog_v7.sm \
+    dliu@hubble:/dsm/upgal/data/dliu/daddi_jin_goodsn_2016/S02_Superdeblending/Galfit_Band100_Test20160127/
 
 scp 00__HOWTO__00 \
     dliu@hubble:/dsm/upgal/data/dliu/Superdeblending/GOODSN/Galfit_100/

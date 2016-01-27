@@ -13,17 +13,37 @@ if [[ $PATH != *"$SUPERDIR"* ]]; then
 fi
 #
 # IRAF
-if [[ $(hostname) == planer* ]]; then
-    if [[ $(type cl 2>/dev/null | wc -l) == 0 ]]; then
-        module load iraf64/2.15
+if [[ $(type cl 2>/dev/null | wc -l) == 0 ]]; then
+    # if on planer or in planer qsub job
+    if [[ ($(hostname) == planer* || $(hostname) == sapherschel*)  && -d "/opt/core-3.1-amd64/iraf64/2.14.1/iraf/" ]]; then
+        ##module load iraf64/2.15 # iraf64/2.15 has imstat precision bug, have to fall back to iraf 2.14
+        ##export MACH="linux64"
+        ##export IRAFARCH="linux64"
+        ##source "$SUPERDIR/iraf_on_planer/irafuser_2.15.sh"
+        ##module load iraf64/2.14.1 # iraf64/2.14.1 however could not be successfully module load, have to do it manually
+        #export iraf="/opt/core-3.1-amd64/iraf64/2.15/iraf/"
+        #export PATH="/opt/core-3.1-amd64/iraf64/2.15/local/bin/:$PATH"
+        #export MACH="linux64"
+        #export IRAFARCH="linux64"
+        #source "$SUPERDIR/iraf_on_planer/irafuser_2.15.sh"
+        #export LOADEDMODULES="iraf64/2.15:$LOADEDMODULES"
+        export iraf="/opt/core-3.1-amd64/iraf64/2.14.1/iraf/"
+        export PATH="/opt/core-3.1-amd64/iraf64/2.14.1/iraf/bin.linux/:$SUPERDIR/iraf_on_planer/bin:$PATH"
         export MACH="linux64"
-        export IRAFARCH="linux64"
-        source "$SUPERDIR/iraf_on_planer/irafuser.sh"
+        export IRAFARCH="linux"
+        source "$SUPERDIR/iraf_on_planer/irafuser_2.14.sh"
+        export LOADEDMODULES="iraf64/2.14.1:$LOADEDMODULES"
+    else
+        echo 
+        echo "************************************************************************************"
+        echo "Warning! IRAF was not found! cl command not found! This will cause unknown problem!"
+        echo "************************************************************************************"
+        echo 
     fi
 fi
 # 
 # CHECK
-for TEMPNAME in galfit sm cl sky2xy xy2sky CrabPhotAperPhot; do
+for TEMPNAME in galfit sm cl cl.e sky2xy xy2sky CrabPhotAperPhot; do
     type $TEMPNAME
 done
 

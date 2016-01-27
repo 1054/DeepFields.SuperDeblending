@@ -797,36 +797,39 @@ Fit_XXX
 				echo CRASH !!!!!!!
 				define aaa ? 
 			}
-		} else {                                                                ###<Added><DZLIU>### doParallel
-			if($vary_positions) {                                               ###<Added><DZLIU>### doParallel
-				define idBox "boxgalfit_vary/box"$runid                         ###<Added><DZLIU>### doParallel
-				define idRun "boxgalfit_vary/runbox"$runid".sh"                 ###<Added><DZLIU>### doParallel
-				define idTar "../doing"$imax".box.galfit_vary"                  ###<Added><DZLIU>### doParallel
-			} else {                                                            ###<Added><DZLIU>### doParallel
-				define idBox "boxgalfit/box"$runid                              ###<Added><DZLIU>### doParallel
-				define idRun "boxgalfit/runbox"$runid".sh"                      ###<Added><DZLIU>### doParallel
-				define idTar "../doing"$imax".box.galfit"                       ###<Added><DZLIU>### doParallel
-			}                                                                   ###<Added><DZLIU>### doParallel
-			if($?doParallel==1) {                                               ###<Added><DZLIU>### doParallel
-				!rm -rf                        $idBox                           ###<Added><DZLIU>### doParallel
-				!mkdir -p                      $idBox                           ###<Added><DZLIU>### doParallel
-				!cp HSO_$imax.INPUT            $idBox/                          ###<Added><DZLIU>### doParallel
-				!cp HSO_$imax.CONSTRAINTS      $idBox/                          ###<Added><DZLIU>### doParallel
-				!ln -fs ../$imax_name.fits     $idBox/$imax_name.fits           ###<Added><DZLIU>### doParallel
-				!ln -fs ../$imax_name_rms.fits $idBox/$imax_name_rms.fits       ###<Added><DZLIU>### doParallel
-				!ln -fs ../$imax_name_psf.fits $idBox/$imax_name_psf.fits       ###<Added><DZLIU>### doParallel
-				print  runqsub '\#!/bin/bash\n' {}                              ###<TODO>### !!!
-				print +runqsub 'cd box$runid\n' {}                              ###<TODO>### !!!
-				print +runqsub 'rm fit.log galfit.* > /dev/null 2>&1\n' {}      ###<TODO>### !!!
-				print +runqsub 'galfit ' {}                                     ###<TODO>### !!!
-				print +runqsub 'HSO_$imax.INPUT > HSO_$imax.STDOUT\n' {}        ###<Added><DZLIU>### doParallel
-				print +runqsub 'ln -fs fit.log fit$runid.log\n' {}              ###<Added><DZLIU>### doParallel
-				!mv runqsub $idRun                                              ###<Added><DZLIU>### doParallel
-				if($runid==1 && 1==1) {                                         ###<Added><DZLIU>### doParallel
-				!cp $imax_name.fits     $idBox/../$imax_name.fits               ###<Added><DZLIU>### doParallel
-				!cp $imax_name_rms.fits $idBox/../$imax_name_rms.fits           ###<Added><DZLIU>### doParallel
-				!cp $imax_name_psf.fits $idBox/../$imax_name_psf.fits }         ###<Added><DZLIU>### doParallel
-			}                                                                   ###<Added><DZLIU>### doParallel
+		} else {                                                                  ###<Added><DZLIU>### doParallel
+			if($vary_positions) {                                                 ###<Added><DZLIU>### doParallel
+				define idBox "boxgalfit_vary/box"$runid                           ###<Added><DZLIU>### doParallel
+				define idRun "boxgalfit_vary/runbox"$runid".sh"                   ###<Added><DZLIU>### doParallel
+				define idTar "../doing"$imax".box.galfit_vary"                    ###<Added><DZLIU>### doParallel
+			} else {                                                              ###<Added><DZLIU>### doParallel
+				define idBox "boxgalfit/box"$runid                                ###<Added><DZLIU>### doParallel
+				define idRun "boxgalfit/runbox"$runid".sh"                        ###<Added><DZLIU>### doParallel
+				define idTar "../doing"$imax".box.galfit"                         ###<Added><DZLIU>### doParallel
+			}                                                                     ###<Added><DZLIU>### doParallel
+			if($?doParallel==1) {                                                 ###<Added><DZLIU>### doParallel
+				!rm -rf                        $idBox                             ###<Added><DZLIU>### doParallel
+				!mkdir -p                      $idBox                             ###<Added><DZLIU>### doParallel
+				!cp HSO_$imax.INPUT            $idBox/                            ###<Added><DZLIU>### doParallel
+				!cp HSO_$imax.CONSTRAINTS      $idBox/                            ###<Added><DZLIU>### doParallel
+				!ln -fs ../$imax_name.fits     $idBox/$imax_name.fits             ###<Added><DZLIU>### doParallel
+				!ln -fs ../$imax_name_rms.fits $idBox/$imax_name_rms.fits         ###<Added><DZLIU>### doParallel
+				!ln -fs ../$imax_name_psf.fits $idBox/$imax_name_psf.fits         ###<Added><DZLIU>### doParallel
+				print  $idRun '\#!/bin/bash\n' {}                                 ###<Added><DZLIU>### doParallel
+				print +$idRun 'set -e\n' {}                                       ###<Added><DZLIU>### doParallel
+				print +$idRun 'cd box$runid\n' {}                                 ###<Added><DZLIU>### doParallel
+				print +$idRun 'if [[ -f fit.log ]]; then rm fit.log; fi\n' {}     ###<Added><DZLIU>### doParallel
+				print +$idRun 'if [[ -f galfit.01 ]]; then rm galfit.*; fi\n' {}  ###<Added><DZLIU>### doParallel
+				print +$idRun 'galfit HSO_$imax.INPUT > HSO_$imax.STDOUT\n' {}    ###<Added><DZLIU>### doParallel
+				print +$idRun 'ln -fs fit.log fit$runid.log\n' {}                 ###<Added><DZLIU>### doParallel
+				print +$idRun 'chmod 777 *\n' {}                                  ###<Added><DZLIU>### doParallel
+				print +$idRun '\n' {}                                             ###<Added><DZLIU>### doParallel
+				if($runid==1 && 1==1) {                                           ###<Added><DZLIU>### doParallel
+				!cp $imax_name.fits     $idBox/../$imax_name.fits                 ###<Added><DZLIU>### doParallel
+				!cp $imax_name_rms.fits $idBox/../$imax_name_rms.fits             ###<Added><DZLIU>### doParallel
+				!cp $imax_name_psf.fits $idBox/../$imax_name_psf.fits             ###<Added><DZLIU>### doParallel
+				}                                                                 ###<Added><DZLIU>### doParallel
+			}                                                                     ###<Added><DZLIU>### doParallel
 			### return
 		} # end if($?doParallel==0&&$?doPostParallel==0)
 		###<DZLIU><Modified>### 

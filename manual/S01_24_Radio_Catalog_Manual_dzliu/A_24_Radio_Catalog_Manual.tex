@@ -487,11 +487,11 @@ load astroPhot.sm # `{\color{gray}\fontsize{5}{5}{\url{https://github.com/1054/D
 convert_flux2mag goodsn 16 $(0.005*01) 1 # 1.45117
 convert_flux2mag goodsn 16 $(0.005*50) 1 # -2.79625
 # then do the simulation
-./do_Galsim 16 201500 -mag0 -2.79625 -mag1 1.45117 -number 6000 \
+do_Galsim 16 201500 -mag0 -2.79625 -mag1 1.45117 -number 6000 \
 -catalog RadioOwenMIPS24_priors_April18_2014.txt \
 -fitsname goods_north_wdriz_frac0pt6_norm_19dec06_subbackDL.fits
 cd boxgalsim; do_GalsimRunqsub; cd ..
-./do_Galsim 16 201500 -mag0 -3.5 -mag1 0.0 -number 6000 \
+do_Galsim 16 201500 -mag0 -2.79625 -mag1 1.45117 -number 6000 \
 -catalog RadioOwenMIPS24_priors_April18_2014.txt \
 -fitsname goods_north_wdriz_frac0pt6_norm_19dec06_subbackDL.fits -postparallel
 \end{lstlisting}

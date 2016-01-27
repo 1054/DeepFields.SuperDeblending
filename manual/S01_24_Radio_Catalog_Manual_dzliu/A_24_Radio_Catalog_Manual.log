@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015) (preloaded format=xelatex 2015.10.29)  25 JAN 2016 23:10
+This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015) (preloaded format=xelatex 2015.10.29)  28 JAN 2016 05:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1031,37 +1031,93 @@ File: galsim_24_hist_dfcorr_2.pdf Graphic file (type QTm)
 File: galsim_24_hist_dfcorr_3.pdf Graphic file (type QTm)
 
 <use  "galsim_24_hist_dfcorr_3.pdf" > [7]
-File: compare_f24_dzliu_with_daddi_20160119.pdf Graphic file (type QTm)
 
-<use  "compare_f24_dzliu_with_daddi_20160119.pdf" >
-File: compare_f24_dzliu_with_daddi_log_20160119.pdf Graphic file (type QTm)
+! LaTeX Error: File `compare_f24_dzliu_with_daddi_20160119' not found.
 
-<use  "compare_f24_dzliu_with_daddi_log_20160119.pdf" > [8] [9]
-Overfull \vbox (8.94406pt too high) has occurred while \output is active []
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.242 ...h]{compare_f24_dzliu_with_daddi_20160119}
+                                                  
+I could not locate the file with any of these extensions:
+.pdf,.PDF,.eps,.EPS,.ps,.PS,.png,.PNG,.jpg,.JPG,.jpeg,.JPEG,.jp2,.JP2,.jpf,.JPF
+,.bmp,.BMP,.pict,.PICT,.psd,.PSD,.mac,.MAC,.TGA,.tga,.gif,.GIF,.tif,.TIF,.tiff,
+.TIFF,
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
 
 
-[10]
-File: compare_f24_dzliu_with_elbaz_2013_20160119.pdf Graphic file (type QTm)
- <use  "compare_f24_dzliu_with_elbaz_2013_20160119.pdf" >
+! LaTeX Error: File `compare_f24_dzliu_with_daddi_log_20160119' not found.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.243 ...ompare_f24_dzliu_with_daddi_log_20160119}
+                                                  
+I could not locate the file with any of these extensions:
+.pdf,.PDF,.eps,.EPS,.ps,.PS,.png,.PNG,.jpg,.JPG,.jpeg,.JPEG,.jp2,.JP2,.jpf,.JPF
+,.bmp,.BMP,.pict,.PICT,.psd,.PSD,.mac,.MAC,.TGA,.tga,.gif,.GIF,.tif,.TIF,.tiff,
+.TIFF,
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+[8]
+
+! LaTeX Error: File `compare_f24_dzliu_with_elbaz_2013_20160119' not found.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.248 ...mpare_f24_dzliu_with_elbaz_2013_20160119}
+                                                  
+I could not locate the file with any of these extensions:
+.pdf,.PDF,.eps,.EPS,.ps,.PS,.png,.PNG,.jpg,.JPG,.jpeg,.JPEG,.jp2,.JP2,.jpf,.JPF
+,.bmp,.BMP,.pict,.PICT,.psd,.PSD,.mac,.MAC,.TGA,.tga,.gif,.GIF,.tif,.TIF,.tiff,
+.TIFF,
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
 File: compare_f24_histogram_dzliu_daddi_elbaz_20160124.pdf Graphic file (type Q
 Tm)
-
 <use  "compare_f24_histogram_dzliu_daddi_elbaz_20160124.pdf" >
 File: compare_df24_histogram_dzliu_daddi_elbaz_20160124.pdf Graphic file (type 
 QTm)
 
 <use  "compare_df24_histogram_dzliu_daddi_elbaz_20160124.pdf" >
-Overfull \vbox (103.7922pt too high) has occurred while \output is active []
 
+! LaTeX Error: File `compare_f24_dzliu_with_elbaz_2013_20160119' not found.
 
-[11]
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.256 ...mpare_f24_dzliu_with_elbaz_2013_20160119}
+                                                  
+I could not locate the file with any of these extensions:
+.pdf,.PDF,.eps,.EPS,.ps,.PS,.png,.PNG,.jpg,.JPG,.jpeg,.JPEG,.jp2,.JP2,.jpf,.JPF
+,.bmp,.BMP,.pict,.PICT,.psd,.PSD,.mac,.MAC,.TGA,.tga,.gif,.GIF,.tif,.TIF,.tiff,
+.TIFF,
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+File: compare_f24_histogram_dzliu_daddi_elbaz_20160124.pdf Graphic file (type Q
+Tm)
+<use  "compare_f24_histogram_dzliu_daddi_elbaz_20160124.pdf" >
+File: compare_df24_histogram_dzliu_daddi_elbaz_20160124.pdf Graphic file (type 
+QTm)
+
+<use  "compare_df24_histogram_dzliu_daddi_elbaz_20160124.pdf" > [9] [10]
 File: galsim_20cm_fbias_1.pdf Graphic file (type QTm)
- <use  "galsim_20cm_fbias_1.pdf" >
+
+<use  "galsim_20cm_fbias_1.pdf" >
 File: galsim_20cm_fbias_2.pdf Graphic file (type QTm)
  <use  "galsim_20cm_fbias_2.pdf" >
 File: galsim_20cm_fbias_3.pdf Graphic file (type QTm)
 
-<use  "galsim_20cm_fbias_3.pdf" > [12
+<use  "galsim_20cm_fbias_3.pdf" > [11
 
 ]
 File: galsim_20cm_dfcorr_1.pdf Graphic file (type QTm)
@@ -1070,7 +1126,7 @@ File: galsim_20cm_dfcorr_2.pdf Graphic file (type QTm)
 
 <use  "galsim_20cm_dfcorr_2.pdf" >
 File: galsim_20cm_dfcorr_3.pdf Graphic file (type QTm)
- <use  "galsim_20cm_dfcorr_3.pdf" > [13]
+ <use  "galsim_20cm_dfcorr_3.pdf" > [12]
 File: galsim_20cm_hist_dfcorr_1.pdf Graphic file (type QTm)
 
 <use  "galsim_20cm_hist_dfcorr_1.pdf" >
@@ -1079,21 +1135,34 @@ File: galsim_20cm_hist_dfcorr_2.pdf Graphic file (type QTm)
 <use  "galsim_20cm_hist_dfcorr_2.pdf" >
 File: galsim_20cm_hist_dfcorr_3.pdf Graphic file (type QTm)
 
-<use  "galsim_20cm_hist_dfcorr_3.pdf" > [14]
-File: compare_f24_dzliu_with_elbaz_2013_20160119.pdf Graphic file (type QTm)
+<use  "galsim_20cm_hist_dfcorr_3.pdf" > [13]
 
-<use  "compare_f24_dzliu_with_elbaz_2013_20160119.pdf" > [15] [16] [17
+! LaTeX Error: File `compare_f24_dzliu_with_elbaz_2013_20160119' not found.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.342 ...mpare_f24_dzliu_with_elbaz_2013_20160119}
+                                                  
+I could not locate the file with any of these extensions:
+.pdf,.PDF,.eps,.EPS,.ps,.PS,.png,.PNG,.jpg,.JPG,.jpeg,.JPEG,.jp2,.JP2,.jpf,.JPF
+,.bmp,.BMP,.pict,.PICT,.psd,.PSD,.mac,.MAC,.TGA,.tga,.gif,.GIF,.tif,.TIF,.tiff,
+.TIFF,
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+[14] [15] [16
 
 ]
 File: galsim_20cm_Glenn_fbias_1.pdf Graphic file (type QTm)
-
-<use  "galsim_20cm_Glenn_fbias_1.pdf" >
+ <use  "galsim_20cm_Glenn_fbias_1.pdf" >
 File: galsim_20cm_Glenn_fbias_2.pdf Graphic file (type QTm)
 
 <use  "galsim_20cm_Glenn_fbias_2.pdf" >
 File: galsim_20cm_Glenn_fbias_3.pdf Graphic file (type QTm)
 
-<use  "galsim_20cm_Glenn_fbias_3.pdf" > [18]
+<use  "galsim_20cm_Glenn_fbias_3.pdf" > [17]
 File: galsim_20cm_Glenn_dfcorr_1.pdf Graphic file (type QTm)
 
 <use  "galsim_20cm_Glenn_dfcorr_1.pdf" >
@@ -1102,7 +1171,7 @@ File: galsim_20cm_Glenn_dfcorr_2.pdf Graphic file (type QTm)
 <use  "galsim_20cm_Glenn_dfcorr_2.pdf" >
 File: galsim_20cm_Glenn_dfcorr_3.pdf Graphic file (type QTm)
 
-<use  "galsim_20cm_Glenn_dfcorr_3.pdf" > [19]
+<use  "galsim_20cm_Glenn_dfcorr_3.pdf" > [18]
 File: galsim_20cm_Glenn_hist_dfcorr_1.pdf Graphic file (type QTm)
 
 <use  "galsim_20cm_Glenn_hist_dfcorr_1.pdf" >
@@ -1111,84 +1180,91 @@ File: galsim_20cm_Glenn_hist_dfcorr_2.pdf Graphic file (type QTm)
 <use  "galsim_20cm_Glenn_hist_dfcorr_2.pdf" >
 File: galsim_20cm_Glenn_hist_dfcorr_3.pdf Graphic file (type QTm)
 
-<use  "galsim_20cm_Glenn_hist_dfcorr_3.pdf" > [20]
+<use  "galsim_20cm_Glenn_hist_dfcorr_3.pdf" > [19]
 File: compare_f20cm_dzliu_with_morrison_2010_20160119.pdf Graphic file (type QT
 m)
 
-<use  "compare_f20cm_dzliu_with_morrison_2010_20160119.pdf" > [21]
+<use  "compare_f20cm_dzliu_with_morrison_2010_20160119.pdf" > [20]
 File: compare_f20cm_dzliu_with_daddi_20160119.pdf Graphic file (type QTm)
 
-<use  "compare_f20cm_dzliu_with_daddi_20160119.pdf" > [22]
+<use  "compare_f20cm_dzliu_with_daddi_20160119.pdf" > [21]
 File: compare_df20cm_histogram_dzliu_daddi_morrison_20160124.pdf Graphic file (
 type QTm)
 
-<use  "compare_df20cm_histogram_dzliu_daddi_morrison_20160124.pdf" > [23]
+<use  "compare_df20cm_histogram_dzliu_daddi_morrison_20160124.pdf" > [22]
 File: compare_f20cm_histogram_dzliu_daddi_morrison_20160124.pdf Graphic file (t
 ype QTm)
 
-<use  "compare_f20cm_histogram_dzliu_daddi_morrison_20160124.pdf" > [24]
-[25]
-Overfull \hbox (11.61295pt too wide) in paragraph at lines 475--476
+<use  "compare_f20cm_histogram_dzliu_daddi_morrison_20160124.pdf" > [23]
+[24] [25
+
+] [26
+
+]
+Overfull \hbox (11.61295pt too wide) in paragraph at lines 525--526
 [][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
 ][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
  []
 
-[26
-
-]
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 487.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\mu' on input line 487.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 487.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 493.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 493.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 499.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\mu' on input line 499.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 499.
-
 [27
 
 ]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 510.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 510.
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 537.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\mu' on input line 537.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 537.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 543.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 543.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 549.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\mu' on input line 549.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 549.
+
+[28
+
+]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 560.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 560.
  (./A_24_Radio_Catalog_Manual.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 510.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 510.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 560.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 560.
 
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 510.
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 560.
  ) 
 Here is how much of TeX's memory you used:
- 24533 strings out of 495487
- 444705 string characters out of 6181014
+ 24565 strings out of 495487
+ 444824 string characters out of 6181014
  552912 words of memory out of 5000000
- 27539 multiletter control sequences out of 15000+600000
+ 27540 multiletter control sequences out of 15000+600000
  11692 words of font info for 71 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
  37i,6n,58p,10400b,1731s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on A_24_Radio_Catalog_Manual.pdf (27 pages).
+Output written on A_24_Radio_Catalog_Manual.pdf (28 pages).

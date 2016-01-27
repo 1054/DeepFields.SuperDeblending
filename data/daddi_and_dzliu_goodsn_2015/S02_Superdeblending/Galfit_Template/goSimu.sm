@@ -101,7 +101,7 @@ SimuX_1160	macro read goFine.sm xSet_1160
 			goSS
 			SimuX
 
-SimuX	00	## define Nsimu 1000
+SimuX	00	## define Nsimu 6000
 			#define outfile   "xsimuGH_RAD_SPInew_"$imax".dat"
 			#define outfile   "xsimuGH_RAD_SPInewX2_"$imax".dat"
 			#define outfile   "xsimu_South_GH9_2014_"$imax".dat"     # GOODS-S
@@ -110,8 +110,8 @@ SimuX	00	## define Nsimu 1000
 			#!\rm $outfile
 			#!\rm simu*fits >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
 			if(is_file($outfile)) {
-				define ToNewOutFile Append
-				define ToNewOutFile ? <$outfile exists! Append or replace? [a/r]>
+				define ToNewOutFile Replace
+				#<TODO># define ToNewOutFile ? <$outfile exists! Append or replace? [a/r]>
 				if(index('$ToNewOutFile','r')==0||index('$ToNewOutFile','R')==0) {
 				    echo 
 				    echo mv $outfile $outfile.backup
@@ -418,32 +418,18 @@ Simu_ 00
 					!ln -s ../$imax_name_psf.fits $idBox/$imax_name_psf.fits          ###<Added><DZLIU>### doParallel
 					!\rm "fit.log" >> /dev/null 2>&1                                  ###<Added><DZLIU>### doParallel
 					echo doParallel: preparing $idBox                                 ###<Added><DZLIU>### doParallel
-					print  runqsub '\#!/bin/bash\n' {}                                ###<Added><DZLIU>### doParallel
-					print +runqsub 'cd ~/GOODS-North/doing$imax/$idBox \n' {}         ###<TODO>### PATH of doing$imax
-					print +runqsub 'rm fit.log galfit.* > /dev/null 2>&1\n' {}        ###<TODO>### !!!
-					print +runqsub '~/Software/galfit/galfit ' {}                     ###<TODO>### PATH of galfit
-					print +runqsub 'HSO_$imax.INPUT > HSO_$imax.STDOUT\n' {}          ###<Added><DZLIU>### doParallel
-					!cp runqsub $idRun                                                ###<Added><DZLIU>### doParallel
+					print  $idRun '\#!/bin/bash\n' {}                                 ###<Added><DZLIU>### doParallel
+					print +$idRun 'set -e\n' {}                                       ###<Added><DZLIU>### doParallel
+					print +$idRun 'cd $idBox\n' {}                                    ###<Added><DZLIU>### doParallel
+					print +$idRun 'if [[ -f fit.log ]]; then rm fit.log; fi\n' {}     ###<Added><DZLIU>### doParallel
+					print +$idRun 'if [[ -f galfit.01 ]]; then rm galfit.*; fi\n' {}  ###<Added><DZLIU>### doParallel
+					print +$idRun 'galfit HSO_$imax.INPUT > HSO_$imax.STDOUT\n' {}    ###<Added><DZLIU>### doParallel
+					print +$idRun 'chmod 777 *\n' {}                                  ###<Added><DZLIU>### doParallel
+					print +$idRun '\n' {}                                             ###<Added><DZLIU>### doParallel
 					if($sar==0 && 1==1) {                                             ###<Added><DZLIU>### doParallel
 					!cp $imax_name.fits     $idBox/../$imax_name.fits                 ###<Added><DZLIU>### doParallel
 					!cp $imax_name_rms.fits $idBox/../$imax_name_rms.fits             ###<Added><DZLIU>### doParallel
-					!cp $imax_name_psf.fits $idBox/../$imax_name_psf.fits }           ###<Added><DZLIU>### doParallel
-					if($sar==0) {                                                     ###<Added><DZLIU>### doParallel runpreqsub
-					print  runpreqsub '\#!/bin/bash\n' {}                             ###<Added><DZLIU>### doParallel
-					print +runpreqsub 'tar -cf $idTar.tar $sumfile \n' {} }           ###<Added><DZLIU>### doParallel
-					print +runpreqsub 'chmod a+x $idRun\n' {}                         ###<Added><DZLIU>### doParallel
-					print +runpreqsub 'tar -rf $idTar.tar $idRun $idBox\n' {}         ###<Added><DZLIU>### doParallel
-					if($sar==0) {                                                     ###<Added><DZLIU>### doParallel runpostqsub
-					print  runpostqsub '\#!/bin/bash\n' {}                            ###<Added><DZLIU>### doParallel
-					print +runpostqsub 'tar -cf $idTar.results.tar $sumfile \n' {} }  ###<Added><DZLIU>### doParallel
-					print +runpostqsub 'tar -rf $idTar.results.tar $idBox\n' {}       ###<Added><DZLIU>### doParallel
-					if($sar==dimen(x_si)-1) {                                         ###<Added><DZLIU>### doParallel runpreqsub
-					print +runpreqsub 'tar -rhf $idTar.tar run*qsub ' {}              ###<Added><DZLIU>### doParallel
-					print +runpreqsub '$imax_name.fits ' {}                           ###<Added><DZLIU>### doParallel
-					print +runpreqsub '$imax_name_rms.fits $imax_name_psf.fits\n' {}  ###<Added><DZLIU>### doParallel
-					!chmod a+x run*qsub                                               ###<Added><DZLIU>### doParallel
-					!echo "runpreqsub"                                                ###<Added><DZLIU>### doParallel
-					#!./runpreqsub                                                    ###<Added><DZLIU>### doParallel
+					!cp $imax_name_psf.fits $idBox/../$imax_name_psf.fits             ###<Added><DZLIU>### doParallel
 					}                                                                 ###<Added><DZLIU>### doParallel
 					return                                                            ###<Added><DZLIU>### doParallel
 				}                                                                     ###<Added><DZLIU>### doParallel
@@ -1035,7 +1021,7 @@ goSS	00
 			set Xid_ = Xid_ + float($xdate)*1e6
 			if(is_file("xpriorGN_RAD_"$imax"_"$xdate".txt")) {
 				define ToNewOutFile Replace
-				define ToNewOutFile ? <"xpriorGN_RAD_"$imax"_"$xdate".txt" exists! Do you really want to replace it? [Replace/No]>
+				# define ToNewOutFile ? <"xpriorGN_RAD_"$imax"_"$xdate".txt" exists! Do you really want to replace it? [Replace/No]>
 				if(index('$ToNewOutFile','r')==0||index('$ToNewOutFile','R')==0) {
 				    set BkOldOutFile = substr('$date',index('$date',':')+7,4)
 				    set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',':')+7,4)
@@ -1043,6 +1029,7 @@ goSS	00
 				    !\mv "xpriorGN_RAD_"$imax"_"$xdate".txt" "xpriorGN_RAD_"$imax"_"$xdate".txt".backup.$(BkOldOutFile)
 				    echo 
 					echo Backuping "xpriorGN_RAD_"$imax"_"$xdate".txt" as "xpriorGN_RAD_"$imax"_"$xdate".txt".backup.$(BkOldOutFile)
+					echo 
 					echo Creating new "xpriorGN_RAD_"$imax"_"$xdate".txt"
 					echo 
 				} else {

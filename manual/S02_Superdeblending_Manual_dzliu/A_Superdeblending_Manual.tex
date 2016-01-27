@@ -335,10 +335,16 @@ We also decide to subtract the contribution of faint sources that are not going 
 The commands used for creating faint source model image and then the image subtraction are:
 
 \begin{lstlisting}[language=bash]
-./do_Galsub 100 201512 \
--catalog "RadioOwenMIPS24_priors_v6_20151221_BeforeBand100.txt" \
+ssh -X planer # login
+qsub -IX -l walltime=24:00:00 # start qsub environment
+source /dsm/upgal/data/dliu/Superdeblending/Softwares/SETUP
+cd /dsm/upgal/data/$USER/Superdeblending/GOODSN/Galfit_Band100/
+./do_Galsub 100 201601 \
+-catalog "RadioOwenMIPS24_priors_v6_24.txt" \
 -fitsname "pgh_goodsn_green_Map_v1.0_sci_DL.fits" \
--sedpredict "SED_predictions_100_201512.txt"
+-sedpredict "SED_predictions_100_201601.txt"
+exit # end qsub environment
+exit # logout
 \end{lstlisting}
 
 The figure below shows the original observed image, the faint source model image, and the faint source subtracted image from left to right at current band. 
@@ -357,12 +363,48 @@ Using the faint-sources-subtracted image, we perform prior source fitting photom
 \subsection{Galfit photometry at band 100}
 \label{Band100_Galfit}
 
-We use supermongo code + galfit software to do the prior source fitting photometry. 
+We use the following command to run supermongo code + galfit software for the prior source fitting photometry. 
 
-We use the sky background value based on previous simulation results. 
+\begin{lstlisting}[language=bash]
+ssh -X planer # login
+# 
+# step 1. divide image into box regions
+# 
+qsub -IX -l walltime=24:00:00 # start qsub environment
+source '/dsm/upgal/data/dliu/Superdeblending/Softwares/SETUP'
+cd /dsm/upgal/data/$USER/Superdeblending/GOODSN/Galfit_Band100/
+do_Galfit "100" "201601" \
+-catalog "RadioOwenMIPS24_priors_v6_24.txt" \
+-fitsname "pgh_goodsn_green_Map_v1.0_sci_subfaintDL.fits" \
+-sedpredict "SED_predictions_100_201601.txt"
+exit # end qsub environment
+# 
+# step 2. run galfit for all box regions
+# 
+cd boxgalfit/
+do_GalfitRunqsub
+cd ../
+# 
+# step 3. combine all fitted results in box regions
+# 
+qsub -IX -l walltime=24:00:00 # start qsub environment
+source '/dsm/upgal/data/dliu/Superdeblending/Softwares/SETUP'
+cd /dsm/upgal/data/$USER/Superdeblending/GOODSN/Galfit_Band100/
+do_Galfit "100" "201601" \
+-catalog "RadioOwenMIPS24_priors_v6_24.txt" \
+-fitsname "pgh_goodsn_green_Map_v1.0_sci_subfaintDL.fits" \
+-sedpredict "SED_predictions_100_201601.txt" -postparallel
+exit # end qsub environment
+# 
+# end
+# 
+exit # logout
+\end{lstlisting}
+
+We use the sky background value based on previous simulation results (define Xback XXX in goFine.sm). 
 %% But because we use Monte-Carlo simulation to correct flux bias and flux uncertainty in a sophisticated way, the choice of sky background value during the photometry will have very little bias to our final measurements. 
 
-We correct astrometry when needed. For the PACS 100 and 160 images from PEP project, no additional astrometry needs to be corrected. 
+We correct astrometry when needed (goSimu.sm). For the PACS 100 and 160 images from PEP project, no additional astrometry needs to be corrected. 
 
 But for PACS 100 and 160 images, the flux measurements need high-pass filtering correction: 
 

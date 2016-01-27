@@ -5,10 +5,10 @@
 \contentsline {subsection}{\numberline {4.1}SED fitting before band 100}{6}{subsection.4.1}
 \contentsline {subsection}{\numberline {4.2}SED prediction for band 100}{8}{subsection.4.2}
 \contentsline {subsection}{\numberline {4.3}Faint flux subtraction at band 100}{10}{subsection.4.3}
-\contentsline {subsection}{\numberline {4.4}Galfit photometry at band 100}{10}{subsection.4.4}
-\contentsline {subsection}{\numberline {4.5}Residual image at band 100}{11}{subsection.4.5}
-\contentsline {subsection}{\numberline {4.6}Monte-Carlo simulation at band 100}{11}{subsection.4.6}
-\contentsline {subsection}{\numberline {4.7}Flux bias and flux uncertainty correction}{11}{subsection.4.7}
+\contentsline {subsection}{\numberline {4.4}Galfit photometry at band 100}{11}{subsection.4.4}
+\contentsline {subsection}{\numberline {4.5}Residual image at band 100}{12}{subsection.4.5}
+\contentsline {subsection}{\numberline {4.6}Monte-Carlo simulation at band 100}{12}{subsection.4.6}
+\contentsline {subsection}{\numberline {4.7}Flux bias and flux uncertainty correction}{12}{subsection.4.7}
 \contentsline {section}{\numberline {5}Band 160}{15}{section.5}
 \contentsline {subsection}{\numberline {5.1}SED fitting before band 160}{15}{subsection.5.1}
 \contentsline {subsection}{\numberline {5.2}SED prediction for band 160}{16}{subsection.5.2}

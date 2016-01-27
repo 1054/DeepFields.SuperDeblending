@@ -3,19 +3,23 @@
 \contentsline {subsection}{\numberline {2.1}Galfit at band 24}{3}{subsection.2.1}
 \contentsline {subsection}{\numberline {2.2}Galsim at band 24}{4}{subsection.2.2}
 \contentsline {subsection}{\numberline {2.3}Galsim Analysis at band 24}{5}{subsection.2.3}
-\contentsline {subsection}{\numberline {2.4}Comparing the measurements with literature at band 24}{10}{subsection.2.4}
-\contentsline {section}{\numberline {3}Band 20cm (Owen's map)}{12}{section.3}
-\contentsline {subsection}{\numberline {3.1}Galfit at band 20cm (Owen's map)}{12}{subsection.3.1}
-\contentsline {subsection}{\numberline {3.2}Galsim at band 20cm (Owen's map)}{12}{subsection.3.2}
-\contentsline {subsection}{\numberline {3.3}Galsim Analysis at band 20cm (Owen's map)}{12}{subsection.3.3}
-\contentsline {subsection}{\numberline {3.4}Compare with literature: Elbaz et al. 2013}{16}{subsection.3.4}
-\contentsline {section}{\numberline {4}Band 20cm (Morrison's map)}{17}{section.4}
-\contentsline {subsection}{\numberline {4.1}Galfit at band 20cm (Morrison's map)}{17}{subsection.4.1}
-\contentsline {subsection}{\numberline {4.2}Galsim at band 20cm (Morrison's map)}{17}{subsection.4.2}
-\contentsline {subsection}{\numberline {4.3}Galsim Analysis at band 20cm (Morrison's map)}{18}{subsection.4.3}
-\contentsline {subsection}{\numberline {4.4}Compare with literature: Morrison et al. 2010}{22}{subsection.4.4}
-\contentsline {section}{\numberline {A}Software Dependencies}{26}{appendix.A}
-\contentsline {section}{\numberline {B}Discussed Issues}{27}{appendix.B}
-\contentsline {subsection}{\numberline {B.1}Do we use dzliu 2015 24${\mu }m$ measurements?}{27}{subsection.B.1}
-\contentsline {subsection}{\numberline {B.2}Do we use dzliu 2015 20$cm$ measurements?}{27}{subsection.B.2}
-\contentsline {subsection}{\numberline {B.3}How are dzliu 2015 24${\mu }m$ measurements affecting 24+radio catalog selection?}{27}{subsection.B.3}
+\contentsline {subsection}{\numberline {2.4}Comparing the measurements with literature at band 24}{9}{subsection.2.4}
+\contentsline {section}{\numberline {3}Band 20cm (Owen's map)}{11}{section.3}
+\contentsline {subsection}{\numberline {3.1}Galfit at band 20cm (Owen's map)}{11}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Galsim at band 20cm (Owen's map)}{11}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Galsim Analysis at band 20cm (Owen's map)}{11}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}Compare with literature: Elbaz et al. 2013}{15}{subsection.3.4}
+\contentsline {section}{\numberline {4}Band 20cm (Morrison's map)}{16}{section.4}
+\contentsline {subsection}{\numberline {4.1}Galfit at band 20cm (Morrison's map)}{16}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Galsim at band 20cm (Morrison's map)}{16}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Galsim Analysis at band 20cm (Morrison's map)}{17}{subsection.4.3}
+\contentsline {subsection}{\numberline {4.4}Compare with literature: Morrison et al. 2010}{21}{subsection.4.4}
+\contentsline {section}{\numberline {5}Selecting 24+radio source}{25}{section.5}
+\contentsline {section}{\numberline {6}Band 16}{26}{section.6}
+\contentsline {subsection}{\numberline {6.1}Galsim at band 24}{26}{subsection.6.1}
+\contentsline {subsection}{\numberline {6.2}Galsim Analysis at band 16}{26}{subsection.6.2}
+\contentsline {section}{\numberline {A}Software Dependencies}{27}{appendix.A}
+\contentsline {section}{\numberline {B}Discussed Issues}{28}{appendix.B}
+\contentsline {subsection}{\numberline {B.1}Do we use dzliu 2015 24${\mu }m$ measurements?}{28}{subsection.B.1}
+\contentsline {subsection}{\numberline {B.2}Do we use dzliu 2015 20$cm$ measurements?}{28}{subsection.B.2}
+\contentsline {subsection}{\numberline {B.3}How are dzliu 2015 24${\mu }m$ measurements affecting 24+radio catalog selection?}{28}{subsection.B.3}
