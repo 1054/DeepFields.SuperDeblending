@@ -88,8 +88,10 @@ RunGalfit 04
         # pmG = 0 will freeze the magnitude in astroGalbox.sm
         
         writeResults
+        echo 
         
         astroGalbox_cd_DirPathVector PfitDir
+        echo 
         
         set boxBuff = $gBuff_$(boxBand) + $fBuff_$(boxBand)
         astroGalbox_make_boxes $SciPhoto_$(boxBand).fits $xStep_$(boxBand) $yStep_$(boxBand) \
@@ -108,7 +110,7 @@ RunGalfit 04
     }
     
     
-    if($?4) {
+    if($?4 && 0) {
     
         readCatalog
         
@@ -124,10 +126,24 @@ RunGalfit 04
         set     fRes$(boxBand) = astroGalbox_ResultResPix #<added><20150430><dzliu>#
         set closeDis$(boxBand) = astroGalbox_ResultCloDis #<added><20150430><dzliu>#
         convert_mag2flux $1 $(boxBand) m$(boxBand) em$(boxBand) # convert mag to flux --> output f_$(boxBand) df_$(boxBand)
+        echo 
         
         writeResults
+        echo 
         
+        # # <TODO> rebuild by re-modeling
+        # rebuildSources
+        # echo 
+        
+        VisitDirPathVector DataDir
+        echo
+        
+        VisitDirPathVector PfitDir
+        echo
+        
+        # <TODO> rebuild by mosaicing -- BUG: some boxes are at the edge and were cut
         # see also run_rebuild_map.sm
+        # !ln -fs $DirPhoto_$(boxBand)/$SciPhoto_$(boxBand).fits
         set boxBuff = $gBuff_$(boxBand) + $fBuff_$(boxBand)
         astroGalbox_mosaic_boxes $SciPhoto_$(boxBand).fits $xStep_$(boxBand) $yStep_$(boxBand) \
                                  $(boxBuff) $(boxBuff)
@@ -150,7 +166,7 @@ RunGalfit 04
     !echo 
     !echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
     !echo 
-    !echo Current directory \$(pwd -P) # 
+    !echo Current directory \$(pwd -P)
     
     # 
     # END
@@ -271,6 +287,48 @@ backupResults 01
         print 'backupResults: $1 already exists! We will backup it as $1$(_s)!\n' {} 
         !\cp $1 $1$(_s)
     }
+
+
+rebuildSources
+    # needed vectors: x$(boxBand) y$(boxBand) m$(boxBand) id$(boxBand)
+    echo "Rebuilding source models"
+    echo 
+    readResults
+    echo 
+    astroGalbox_cd_DirPathVector PfitDir
+    echo
+    !mkdir "rebuild" 2>/dev/null
+    chdir "rebuild"
+    !echo Current directory \$(pwd -P)
+    echo 
+    
+    if(!is_file($SciPhoto_$(boxBand).fits)) {
+    astroGalbox_find_and_copy $DirPhoto_$(boxBand) $SciPhoto_$(boxBand).fits
+    astroGalbox_find_and_copy $DirPhoto_$(boxBand) $RmsPhoto_$(boxBand).fits
+    astroGalbox_find_and_copy $DirPhoto_$(boxBand) $PsfPhoto_$(boxBand).fits }
+    if(!is_file($SciPhoto_$(boxBand).fits)){print 'Error! $SciPhoto_$(boxBand).fits not found!\n' {} return}
+    if(!is_file($RmsPhoto_$(boxBand).fits)){print 'Error! $RmsPhoto_$(boxBand).fits not found!\n' {} return}
+    if(!is_file($PsfPhoto_$(boxBand).fits)){print 'Error! $PsfPhoto_$(boxBand).fits not found!\n' {} return}
+    
+    echo "Preparing large galfit input file"
+    initGalfitParam x$(boxBand) y$(boxBand) 0 0 0
+    set Mags = m$(boxBand)
+    set Note = id$(boxBand)
+    writeGalfitParam fit.param
+    writeGalfitInput fit.input $SciPhoto_$(boxBand).fits rebuilt_sources.fits \
+                               $RmsPhoto_$(boxBand).fits $PsfPhoto_$(boxBand).fits
+    echo "Please run galfit fit.input"
+    echo 
+
+
+
+
+
+
+
+
+
+
 
 
 

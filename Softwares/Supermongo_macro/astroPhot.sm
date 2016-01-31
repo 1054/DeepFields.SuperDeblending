@@ -340,7 +340,7 @@ set_cosmos_photometry_constants_24 00
     define SciPhoto_24 "mips_24_GO3_sci_10" # S-COSMOS BUNIT='MJy/sr'
     define RmsPhoto_24 "mips_24_GO3_unc_10" # S-COSMOS
     define PsfPhoto_24 "hdfn_dao_mipspsf" # <TODO> use HDFN MIPS PSF for now
-    define DirPhoto_24 "~/Data/DeepFields/COSMOS_Photo"
+    define DirPhoto_24 "~/Data/DeepFields/COSMOS_Photo/MIPS_Photo"
 
 set_GOODSN_photometry_constants_20cm 00
     set_goodsn_photometry_constants_20cm

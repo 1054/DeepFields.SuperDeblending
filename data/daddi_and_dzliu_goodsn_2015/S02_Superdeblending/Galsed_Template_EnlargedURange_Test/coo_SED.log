@@ -1,0 +1,11 @@
+2015-12-31 00:55:29
+Writting to coo_SED.txt!
+We have 27 out of 3417 sources classified as pure starburst.
+We have 1197 out of 3417 sources classified as pure mainsequence.
+We have 2193 out of 3417 sources unable to be classified.
+Successfully output to coo_SED.txt!
+Please use the output file coo_SED.txt in the second-pass SED fitting!
+
+20151231 04:27:00
+Modified id 12610 Type_SED from 0 to 0
+Modified id 10335 Type_SED from 1 to 0

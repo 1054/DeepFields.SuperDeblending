@@ -489,53 +489,75 @@ initGalfitParam 05
         # initialize all galfit parameters by input coordinate x,y
         if(!$?1||!$?2) {print 'astroGalfit::initGalfitParam PosX PosY [VaryX [VaryY [VaryMag]]] => Type Mags Rads Sers Elli Roti Param*\n' {} return}
         set PosX = $1 set PosY = $2 # x,y coordinate for all objects
+        if(dimen(PosX)!=dimen(PosY)) {print 'astroGalfit::initGalfitParam: Error! Input $1 and $2 do not have the same dimension!\n' {} return}
         if($?3){set VaryX = $3} else{set VaryX = 0.0} # <added><20150607><dzliu> do not vary pos in default
         if($?4){set VaryY = $4} else{set VaryY = 0.0} # <added><20150607><dzliu> do not vary pos in default
         if($?5){set VaryM = $5} else{set VaryM = 1.0} # <added><20151216><dzliu> do vary magnitude in default
-        if(dimen(PosX)!=dimen(PosY)) {print 'astroGalfit::initGalfitParam: Error! Input $1 and $2 do not have the same dimension!\n' {} return}
-        do initgparam_i=0,dimen(PosX)-1 {
-            if(0==$initgparam_i) { 
-              set Type='psf' set Mags=5.0 set Note='_' set IObj=($initgparam_i+1) #<TODO># Mags default value is 5.0
-              foreach initgparam_ptr {Rads Sers Elli Roti} {set $initgparam_ptr = 0.0}
-              foreach initgparam_ptr {Rads Sers Elli Roti PosX PosY Mags} {foreach initgparam_lim {ParamFit ParamMin ParamMax} {
-              set $initgparam_lim""$initgparam_ptr = 0.0}}
-            } else {
-              set Type=Type concat Type[0] set Mags=Mags concat Mags[0] set Note=Note concat '_' set IObj=IObj concat ($initgparam_i+1)
-              foreach initgparam_ptr {Rads Sers Elli Roti} {set $initgparam_ptr = $initgparam_ptr concat 0.0}
-              foreach initgparam_ptr {Rads Sers Elli Roti PosX PosY Mags} {foreach initgparam_lim {ParamMin ParamMax ParamFit} {
-              set $initgparam_lim""$initgparam_ptr = $initgparam_lim""$initgparam_ptr concat 0.0}}
+        if(dimen(VaryX)==1) {set VaryX = float(PosX*0)+VaryX[0]}
+        if(dimen(VaryY)==1) {set VaryY = float(PosX*0)+VaryY[0]}
+        if(dimen(VaryM)==1) {set VaryM = float(PosX*0)+VaryM[0]}
+        # initialize all galfit parameters
+        set Mags = float(PosX*0)+5.0 #<TODO># Mags default value is 5.0
+        set IObj = 1,dimen(PosX)
+        foreach initgparam_ptr {Rads Sers Elli Roti} {
+            set $initgparam_ptr = float(PosX*0)
+        }
+        foreach initgparam_ptr {Rads Sers Elli Roti PosX PosY Mags} {
+            foreach initgparam_lim {ParamFit ParamMin ParamMax} {
+                set $initgparam_lim""$initgparam_ptr = float(PosX*0)
             }
         }
+        set dimen(Type) = $(dimen(PosX)).s
+        set dimen(Note) = $(dimen(PosX)).s
+        do initgparam_i=0,dimen(PosX)-1 {
+            set Type[$initgparam_i] = 'psf'
+            set Note[$initgparam_i] = '_'
+        }
+        # 
+        # do initgparam_i=0,dimen(PosX)-1 {
+        #     if(0==$initgparam_i) { 
+        #       set Type='psf' set Mags=5.0 set Note='_' set IObj=($initgparam_i+1) #<TODO># Mags default value is 5.0
+        #       foreach initgparam_ptr {Rads Sers Elli Roti} {set $initgparam_ptr = 0.0}
+        #       foreach initgparam_ptr {Rads Sers Elli Roti PosX PosY Mags} {foreach initgparam_lim {ParamFit ParamMin ParamMax} {
+        #       set $initgparam_lim""$initgparam_ptr = 0.0}}
+        #     } else {
+        #       set Type=Type concat Type[0] set Mags=Mags concat Mags[0] set Note=Note concat '_' set IObj=IObj concat ($initgparam_i+1)
+        #       foreach initgparam_ptr {Rads Sers Elli Roti} {set $initgparam_ptr = $initgparam_ptr concat 0.0}
+        #       foreach initgparam_ptr {Rads Sers Elli Roti PosX PosY Mags} {foreach initgparam_lim {ParamMin ParamMax ParamFit} {
+        #       set $initgparam_lim""$initgparam_ptr = $initgparam_lim""$initgparam_ptr concat 0.0}}
+        #     }
+        # }
         do initgparam_i=0,dimen(VaryX)-1 { # <added><20150607><dzliu> 
-            set ParamFitPosX[$initgparam_i] = int(VaryX>0) # = 1 --> = VaryX # <fixed><20151215><dzliu>
+            set ParamFitPosX[$initgparam_i] = int(VaryX[$initgparam_i]>0) # = 1 --> = VaryX # <fixed><20151215><dzliu>
             set ParamMinPosX[$initgparam_i] = -VaryX[$initgparam_i]
             set ParamMaxPosX[$initgparam_i] = VaryX[$initgparam_i]
-            set ParamFitPosY[$initgparam_i] = int(VaryY>0) # = 1 --> = VaryY # <fixed><20151215><dzliu>
+        }
+        do initgparam_i=0,dimen(VaryY)-1 { # <added><20150607><dzliu> 
+            set ParamFitPosY[$initgparam_i] = int(VaryY[$initgparam_i]>0) # = 1 --> = VaryY # <fixed><20151215><dzliu>
             set ParamMinPosY[$initgparam_i] = -VaryY[$initgparam_i]
             set ParamMaxPosY[$initgparam_i] = VaryY[$initgparam_i]
-            set ParamFitMags[$initgparam_i] = int(VaryM>0)
         }
-        do initgparam_i=0,dimen(PosX)-1 { # <added><20150717><dzliu> 
-            #set ParamFitMags[$initgparam_i] = 1
-            set ParamMinMags[$initgparam_i] = -10.0
-            set ParamMaxMags[$initgparam_i] = 20.0
-            set         Rads[$initgparam_i] = 0.0
-            set ParamFitRads[$initgparam_i] = 0
-            set ParamMinRads[$initgparam_i] = 0.20
-            set ParamMaxRads[$initgparam_i] = 99.0
-            set         Sers[$initgparam_i] = 1.0
-            set ParamFitSers[$initgparam_i] = 0
-            set ParamMinSers[$initgparam_i] = 0.10
-            set ParamMaxSers[$initgparam_i] = 99.0
-            set         Elli[$initgparam_i] = 1.0   # a/b ratio
-            set ParamFitElli[$initgparam_i] = 0
-            set ParamMinElli[$initgparam_i] = 0.10
-            set ParamMaxElli[$initgparam_i] = 99.0
-            set         Roti[$initgparam_i] = 0.0
-            set ParamFitRoti[$initgparam_i] = 0
-            set ParamMinRoti[$initgparam_i] = 0.000
-            set ParamMaxRoti[$initgparam_i] = 360.0
+        do initgparam_i=0,dimen(VaryM)-1 { # <added><20150607><dzliu> 
+            set ParamFitMags[$initgparam_i] = int(VaryM[$initgparam_i]>0)
         }
+        set ParamMinMags = float(PosX*0)-10.0 # <added><20150717><dzliu><20160130>
+        set ParamMaxMags = float(PosX*0)+20.0
+        set         Rads = float(PosX*0)+0.0
+        set ParamFitRads = float(PosX*0)+0
+        set ParamMinRads = float(PosX*0)+0.20
+        set ParamMaxRads = float(PosX*0)+99.0
+        set         Sers = float(PosX*0)+1.0
+        set ParamFitSers = float(PosX*0)+0
+        set ParamMinSers = float(PosX*0)+0.10
+        set ParamMaxSers = float(PosX*0)+99.0
+        set         Elli = float(PosX*0)+1.0 # a/b ratio
+        set ParamFitElli = float(PosX*0)+0
+        set ParamMinElli = float(PosX*0)+0.10
+        set ParamMaxElli = float(PosX*0)+99.0
+        set         Roti = float(PosX*0)+0.0
+        set ParamFitRoti = float(PosX*0)+0
+        set ParamMinRoti = float(PosX*0)+0.000
+        set ParamMaxRoti = float(PosX*0)+360.0
         unset VaryX # <added><20150607><dzliu> 
         unset VaryY # <added><20150607><dzliu> 
         unset VaryM # <added><20151216><dzliu> 

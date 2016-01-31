@@ -1,0 +1,3 @@
+#   SAVEDid      xmeAGN       xfAGN       xeAGN      xmeSFR       xfSFR       xeSFR       xfTOT       xeTOT       xf_zz       xe_zz
+#
+659       43.53       56.24       42.79         413       418.1        91.2       467.1       56.26       4.056           0

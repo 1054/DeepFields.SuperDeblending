@@ -1,0 +1,106 @@
+#!/bin/bash
+# 
+
+set -e
+
+. do_Preset $*
+
+sm << EOF | tee "$DG_FLOG.smlog"
+    
+    ##### EDIT goFine.sm xSet_$DG_IMAX
+    macro read goFine.sm xSet_$DG_IMAX
+    ##### EDIT goSimu.sm FixAstrometry
+    define xdate <"$DG_DATE">
+    ###### R_MIPS$DG_IMAX
+    load "astroPhot.sm" set_goodsn_photometry_constants_$DG_IMAX
+    
+    ####  EXCLUDING SOURCES
+    echo 
+    load "rfile.sm" rfile "$DG_FSED.txt" 
+    set idFull = _id
+    set raFull = _ra
+    set deFull = _de
+    set    exc = exc$DG_IMAX
+    set     xf = xf$DG_IMAX
+    set     xe = xe$DG_IMAX
+    set    idF = idFull if(exc==1)
+    set    raF = raFull if(exc==1)
+    set    deF = deFull if(exc==1)
+    
+    ###   SET PRIOR MAG
+    echo 
+    echo "Checking non-positive xf" 
+    if(sum((xf-\$fBias_\$imax)<=0.0)>0) {
+    set   xfNonPositive = 0,dimen(xf)-1
+    set   xfNonPositive = xfNonPositive if((xf-\$fBias_\$imax)<=0.0)
+    set   idNonPositive = idFull[xfNonPositive] set xfNonPositive = xf[xfNonPositive] 
+    print '%15d%15g\n' {idNonPositive xfNonPositive}
+    }
+    echo 
+    echo "Converting flux to magnitude" 
+    convert_flux2mag goodsn $DG_IMAX xf xe
+    # set   xm\$imax = lg((xf-\$fBias_\$imax)/\$mJy_\$imax/\$h_\$imax*\$m_\$imax)/(-0.4) if(exc==1) #<TODO># fBias
+    set xm\$imax = m\$imax if(exc==1)
+    set xf\$imax = f\$imax if(exc==1)
+    echo "dimen(xf)"=\$(dimen(xf\$imax))
+    echo "dimen(xm)"=\$(dimen(xm\$imax))
+    echo "dimen(ra)"=\$(dimen(raF))
+    echo "dimen(de)"=\$(dimen(deF))
+    load vecStats.sm vecStats xf\$imax
+    
+    ####
+    !echo " " > history.txt
+    !date +'%F %B %T %Z' >> history.txt
+    !echo "Subtracted "\$(dimen(idF))" sources that are predicted to be very faint at $DG_IMAX um." >> history.txt
+    !echo "When subtracting these sources, Xback = 0, and prior magnitude from " >> history.txt
+    !echo "SED_predictions_goodsn_$DG_FSED.txt" >> history.txt 
+    !echo " " >> history.txt
+    ###### FIT & REBUILD
+    define use_prior_mags 1
+    define vary_positions 0
+    define fix_astrometry 1
+    define make_residuals 1
+    define xdate <"$DG_DATE">
+    if(\$make_residuals==1) {define Xback 0} ###<Added><20140402><EDaddi>### THIS IS IMPORTANT !!!
+    Fit_XXX
+    Rebuild_XXX
+    ### CLEAN
+    !cp "FIT_goodsn_${DG_IMAX}_Map_${DG_DATE}.fits" "FIT_goodsn_${DG_IMAX}_Map_${DG_DATE}_Galsub.fits"
+    !rm galfit.* fit*.log fit*.input fit*.stdout fit*.limit fit*.fits HSO_*.* null.fits do.cl summary_run
+    #### FINISH
+    echo 
+    echo SM SubExcl Finished!
+    quit
+EOF
+# 
+# 
+cl << EOF | tee "$DG_FLOG.cllog"
+    string fitsINP = "FIT_goodsn_${DG_IMAX}_Map_${DG_DATE}.fits"
+    string fitsOUT
+    if($DG_IMAX==100) { fitsOUT = "pgh_goodsn_green_Map_v1.0_sci_subfaintDL.fits" };
+    if($DG_IMAX==160) { fitsOUT = "pgh_goodsn_red_Map_v1.0_sci_subfaintDL.fits" };
+    if($DG_IMAX==250) { fitsOUT = "spire250_ima_3p6_v0_100615_subfaintDL.fits" };
+    if($DG_IMAX==350) { fitsOUT = "spire350_ima_4p8_v0_100615_subfaintDL.fits" };
+    if($DG_IMAX==500) { fitsOUT = "spire500_ima_7p2_v0_100615_subfaintDL.fits" };
+    if($DG_IMAX==1160) { fitsOUT = "combined_maw0_4_azw0_5_sig_subfaintDL.fits" };
+    print ""
+    print(fitsOUT)
+    ## 
+    if(strlen(fitsOUT)>6) {
+        imdel(fitsOUT)
+        print ""
+        print("imcopy "//fitsINP//"[2]"//" "//fitsOUT)
+        imcopy(fitsINP//"[2]",fitsOUT)
+    }
+    ;
+    ######
+    print ""
+    nhedit(fitsOUT,"add_textf","history.txt","",add+,verify-)
+    ##### FINISH 
+    print ""
+    print "IRAF Subtract Background Finished!"
+    logout
+EOF
+# 
+echo Done!
+exit

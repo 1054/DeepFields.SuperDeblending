@@ -3,23 +3,26 @@
 PRO CrabGalfitResidual, Galfit_results, Galfit_SCI_Fits, Galfit_RMS_Fits, Galfit_PSF_Fits, Verbose=Verbose, DoNotSaveFits=DoNotSaveFits, $
                         Galfit_X=xx, Galfit_Y=yy, Galfit_Mag=mm, Galfit_Err=me, Galfit_Flux=ff, Galfit_FErr=fe, Galfit_RMS=ee
     
-    ; spawn, "rm galfit.01 fit.log fit.stdout"
+    
+    
+    ; PREF_SET <added><20150430><dzliu>
+    IF NOT STRMATCH(!PATH,'*/crab*') THEN BEGIN
+        PREF_SET, 'IDL_PATH', '/home/dzliu/Cloud/Github/DeepFields.SuperDeblending/Softwares/idl_lib_dzliu/crab:<IDL_DEFAULT>', /COMMIT
+        resolve_crab
+    ENDIF
     
     ; Read results_ximax_xdate
     ; use default params
-   ;CD, "/Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North-Do1160-ReTry"
-   ;CD, "/Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North-Do1160-ReTry-5/doing1160_Step4_Galfit_20140520/"
-   ;CD, "/Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North/doing1160_Step5_PostGalfit_201406_255_NoInitialGuess/"
-    CD, "/Users/dliu/Working/2014-CEA/Tool/Level_3_SciData/GalFit/doing1160/"
-    IF N_ELEMENTS(Galfit_SCI_Fits) EQ 0 THEN Galfit_SCI_Fits = "combined_maw0_4_azw0_5_sig_astro_subfaintDL.fits"
-    IF N_ELEMENTS(Galfit_RMS_Fits) EQ 0 THEN Galfit_RMS_Fits = "combined_maw0_4_azw0_5_rms.fits"
-    IF N_ELEMENTS(Galfit_PSF_Fits) EQ 0 THEN Galfit_PSF_Fits = "totPSFnew.fits"
-   ;IF N_ELEMENTS(Galfit_results)  EQ 0 THEN Galfit_results  = "results_1160_201406" ; <TODO>
-    IF N_ELEMENTS(Galfit_results)  EQ 0 THEN Galfit_results  = "results_1160_201408" ; <TODO>
+    IF N_ELEMENTS(Galfit_results)  EQ 0 THEN RETURN ; CD, "/upgal/Temp/dzliu_goodsn/Data/Photometry/20150324/doing24/"
+    IF N_ELEMENTS(Galfit_SCI_Fits) EQ 0 THEN RETURN ; Galfit_SCI_Fits = "boxgalfit/n_mips_1_s1_v0.37_sci_BS.fits"
+    IF N_ELEMENTS(Galfit_RMS_Fits) EQ 0 THEN RETURN ; Galfit_RMS_Fits = "boxgalfit/n_mips_1_s1_v0_37_rms_ED.fits"
+    IF N_ELEMENTS(Galfit_PSF_Fits) EQ 0 THEN RETURN ; Galfit_PSF_Fits = "boxgalfit/hdfn_dao_mipspsf.fits"
+    IF N_ELEMENTS(Galfit_results)  EQ 0 THEN RETURN ; Galfit_results  = "results_goodsn_24" ; <TODO>
     
     IF NOT FILE_TEST(Galfit_results) THEN MESSAGE, "Error! Galfit result is invalid! ("+Galfit_results+")"
     
-    PRINT, "CrabGalfitResidual"
+    PRINT, "CrabGalfitResidual" & CD, Current=CurrentDirectory
+    PRINT, "Current Directory " + CurrentDirectory
     PRINT, "Galfit_SCI_Fits = " + Galfit_SCI_Fits
     PRINT, "Galfit_RMS_Fits = " + Galfit_RMS_Fits
     PRINT, "Galfit_PSF_Fits = " + Galfit_PSF_Fits
@@ -27,7 +30,9 @@ PRO CrabGalfitResidual, Galfit_results, Galfit_SCI_Fits, Galfit_RMS_Fits, Galfit
     
     IF NOT KEYWORD_SET(Verbose) THEN Silent=1
     
+    ; If the input Galfit_results is *.fits
     IF STRMATCH(Galfit_results,"*.fits",/F) THEN BEGIN
+        
         ; input is the galfit output fits
         ; get galfit result
         xx = [] & yy = [] & mm = [] & me = [] & ff = [] & fe = [] & nn = 0
@@ -68,7 +73,10 @@ PRO CrabGalfitResidual, Galfit_results, Galfit_SCI_Fits, Galfit_RMS_Fits, Galfit
             i = i+1
         ENDWHILE
         Galfit_ResName = STRMID(Galfit_results,0,STRPOS(Galfit_results,".fits"))
+        
+    ; If the input Galfit_results is *.fits
     ENDIF ELSE IF STRMATCH(Galfit_results,"results_*",/F) THEN BEGIN
+        
         ; if input is Daddi's supermongo + galfit output table "results_XXX_YYYYYYY"
         readcol, Galfit_results, FORMAT='(F,F,F,F,F,F,F)', xx, yy, ee, mm, me, ra, de, COUNT=nn, Silent=Silent
         vk = WHERE(mm GT -99 AND mm LE 20,/NULL)
@@ -78,8 +86,18 @@ PRO CrabGalfitResidual, Galfit_results, Galfit_SCI_Fits, Galfit_RMS_Fits, Galfit
         fe[vk] = me[vk]*ff[vk]/1.08574    ; <TODO> convert magnitude to flux!
 ;       readcol, Galfit_results, FORMAT='(F,F,F,F,F,F,F,I,F,F)', xx, yy, ee, mm, me, ra, de, id, ff, fe, COUNT=nn, Silent=Silent
         Galfit_ResName = Galfit_results
+        
+    ; If the input Galfit_results is *.fits
+    ENDIF ELSE IF STRMATCH(Galfit_results,"Res_*.txt",/F) THEN BEGIN
+        
+        readcol, Galfit_results, FORMAT='(F,F,F,F,F,F,F,I,F,F)', xx, yy, ee, mm, me, ra, de, id, ff, fe, COUNT=nn, Silent=Silent
+        ff = ff * 1e3 ; <WRONG><20150430><dzliu> now all flux in AstroDepth Catalogs are in unit of mJy. But in Image it should be Jy/beam. 
+        fe = fe * 1e3 ; <WRONG><20150430><dzliu> now all flux in AstroDepth Catalogs are in unit of mJy. But in Image it should be Jy/beam. 
+        
     ENDIF ELSE BEGIN
+        
         MESSAGE, "Error! Unsupport galfit result!"
+        
     ENDELSE
     
     
@@ -151,6 +169,7 @@ PRO CrabGalfitResidual, Galfit_results, Galfit_SCI_Fits, Galfit_RMS_Fits, Galfit
         ; RETURN
         ; 
     ENDFOR
+    
     OriImage = Galfit_SCI_Image
     OriImage[WHERE(~FINITE(OriImage))] = 0.0
     OriHeader = Galfit_SCI_Header
@@ -196,6 +215,7 @@ PRO CrabGalfitResidual, Galfit_results, Galfit_SCI_Fits, Galfit_RMS_Fits, Galfit
     sxaddpar, ResHeader, "HISTORY", " "
     MWRFITS, ResImage, Galfit_ResName+".residual.fits", ResHeader, /CREATE, Silent=Silent
     
+    PRINT, 'Successfully saved to '+Galfit_ResName+".res.fits"
     PRINT, 'Done!'
     
     RETURN

@@ -1,0 +1,180 @@
+#!/bin/bash
+# 
+if [ $# -lt 2 ]; then 
+    echo "Usage: $0 16 201407"
+    echo "       $0 100 201412 -vary -catalog RadioOwenMIPS24_priors_April18_2014.txt"
+    echo "       $0 100 201412 -vary -catalog RadioOwenMIPS24_priors_April18_2014.txt -catalog-add Residual_priors_Band160.txt"
+    echo "       $0 160 201407 -vary -priormag"
+    echo "       $0 250 201407 -vary -priormag -fitsname goods_north_wdriz_frac0pt6_norm_19dec06_subbackDL"
+    echo "       $0 350 201407 -parallel"
+    echo "       $0 500 201407 -postparallel"
+    echo "       $0 500 201407 -sedpredict SED_predictions_100_201512.txt"
+    echo "       $0 1160 201410 -parallel -fitexclude -fitsname spire500_ima_7p2_v0_100615_subfitDL"
+    exit
+fi
+# 
+export DG_IMAX=$1
+export DG_DATE=$2
+export DG_VARY=0
+export DG_PRIM=0 # PRIORMAG
+export DG_PARA=1 # PARALLEL
+export DG_PFIT=0 # fit full catalog? 0=fitAll 1=fitInclSubIncl 2=fitExclSubExcl
+export DG_FSED="SED_predictions_goodsn_$1" # _$2
+export DG_FRES=""
+export DG_CATA="RadioOwenMIPS24_priors_April18_2014.txt"
+export DG_CATB="none"
+export DG_NAME=""
+export DG_FLOG=$(pwd)'/doing_'$1'_'$2
+export DG_FPWD=`pwd` # Current Path
+# 
+# Print Date
+echo ""
+date +"%F %T %Z"
+#
+# Now check software dependencies on planer
+if [[ $(hostname) == planer* ]]; then
+    if [[ -d "/dsm/upgal/data/dliu/Superdeblending/Softwares/" ]]; then 
+        echo ""
+        echo We are running on planer! Loading "/dsm/upgal/data/dliu/Superdeblending/Softwares/SETUP"
+        echo ""
+        source "/dsm/upgal/data/dliu/Superdeblending/Softwares/SETUP"
+    else
+        echo ""
+        echo Warning! "/dsm/upgal/data/dliu/Superdeblending/Softwares/" was not found! "Please make sure you have prepared your own galfit, iraf, sm, wcstools, etc.!"
+        echo ""
+        type galfit
+        type cl
+        type sm
+        type sky2xy
+        type xy2sky
+        type CrabPhotAperPhot
+    fi
+fi
+#
+if [[ $* == *-vary* ]]; then
+DG_VARY=1
+DG_FSED=$DG_FSED # "_vary"
+DG_FLOG=$DG_FLOG"_Vary"
+echo ; echo We are varying prior positions!
+fi
+# 
+if [[ $* == *-priormag* ]]; then
+DG_PRIM=1
+DG_FLOG=$DG_FLOG"_PriorMag"
+fi
+# 
+if [[ $* == *-parallel* ]]; then
+DG_PARA=1
+DG_FLOG=$DG_FLOG"_Parallel"
+echo ; echo We are doing parallel!
+fi
+# 
+if [[ $* == *-postparallel* ]]; then
+DG_PARA=2
+DG_FLOG=$DG_FLOG"_PostParallel"
+echo ; echo We are doing post parallel!
+fi
+# 
+if [[ $* == *-catalog* ]]; then
+DG_CATA=`expr "$*" : '.*-catalog[a-zA-Z]* \([^ -]*\)'`
+fi
+if [[ x"$DG_CATA" != x"" ]]; then
+    if [ ! -f $DG_CATA ]; then
+        #echo ; echo Warning! Catalog file $DG_CATA not found!
+        #if [[ -f "/upgal/GOODSN/GalSED/GalSed_201412_avec24_diffAGN/$DG_CATA" ]]; then
+        #    echo ; echo We will copy the SED prediction file from "/upgal/GOODSN/GalSED/GalSed_201412_avec24_diffAGN/$DG_CATA"!
+        #    cp "/upgal/GOODSN/GalSED/GalSed_201412_avec24_diffAGN/$DG_CATA" .
+        #else
+        #    echo ; echo Error! Catalog file $DG_CATA does not exist! Abort!; exit 1
+        #fi
+        echo ; echo Error! Catalog file $DG_CATA does not exist! Abort!; exit 1
+    fi
+    echo ; echo We are using catalog $DG_CATA
+else 
+    echo ; echo Error! We have no catalog!; exit 1
+fi
+# 
+if [[ $* == *-fitsname* ]]; then
+DG_NAME=`expr "$*" : '.*-fitsname[a-zA-Z]* \([^ -]*\)' | sed 's/.fits//g'`
+if [ ! -f $DG_NAME.fits ]; then
+echo Error! Fits file $DG_NAME.fits does not exist! Abort!; exit 1
+else
+echo ; echo We are using map $DG_NAME.fits instead of the map in goFine.sm
+fi
+fi
+# 
+if [[ $* == *-fitall* ]]; then
+DG_PFIT=0
+DG_FLOG=$DG_FLOG"_FitALL"
+fi
+# 
+if [[ $* == *-fitincl* ]]; then
+DG_PFIT=1
+DG_FLOG=$DG_FLOG"_FitIncl"
+fi
+# 
+if [[ $* == *-fitexcl* ]]; then
+DG_PFIT=2
+DG_FLOG=$DG_FLOG"_FitExcl"
+fi
+# 
+if [[ $* == *-fitadds* ]]; then
+DG_CATB="Radec_of_new_priors.txt"
+DG_FLOG=$DG_FLOG"_FitAdds"
+fi
+# 
+if [[ $* == *-catalog-add* ]]; then
+DG_CATB=`expr "$*" : '.*-catalog-add* \([^ -]*\)'`
+if [[ "$DG_CATB" == "none" ]]; then DG_CATB="none"; fi
+fi
+# 
+if [[ x"$DG_CATB" != x"none" ]]; then
+    if [[ -f $DG_CATB ]]; then
+        echo ; echo We will fit additional objects in $DG_CATB!
+    else
+        echo ; echo Error! Additonal catalog $DG_CATB does not exist! Abort!; exit 1
+    fi
+else
+    echo ; echo We do not set any additonal catalog!
+fi
+# 
+if [[ $* == *-sedpredict* ]]; then
+DG_FSED=`expr "$*" : '.*-sedpredict[a-zA-Z]* \([^ -]*\)' | sed 's/.txt//g'`
+fi
+if [[ $DG_PFIT -gt 0 ]]; then
+    if [[ ! -f $DG_FSED.txt ]]; then
+        # echo ; echo Warning! SED prediction file $DG_FSED.txt not found!
+        # if [[ -f "/upgal/GOODSN/GalSED/GalSed_201412_avec24_diffAGN/$DG_FSED.csv" ]]; then
+        #     echo ; echo We will copy the SED prediction file from "/upgal/GOODSN/GalSED/GalSed_201412_avec24_diffAGN/$DG_FSED.csv"!
+        #     cp "/upgal/GOODSN/GalSED/GalSed_201412_avec24_diffAGN/$DG_FSED.csv" .
+        # else
+        #     echo ; echo Error! SED prediction file $DG_FSED.csv does not exist! Abort!; exit 1
+        # fi
+        echo ; echo Error! SED prediction file $DG_FSED.txt does not exist! Abort!; exit 1
+    else
+        echo ; echo We are using SED prediction $DG_FSED.txt
+        if [[ $DG_PFIT -eq 1 && x"$DG_CATB" == x ]]; then echo ; echo We are fitting included objects only!; fi
+        if [[ $DG_PFIT -eq 1 && x"$DG_CATB" != x ]]; then echo ; echo We are fitting included objects and additional objects only!; fi
+        if [[ $DG_PFIT -eq 2 && x"$DG_CATB" == x ]]; then echo ; echo We are fitting excluded objects only!; fi
+        if [[ $DG_PFIT -eq 2 && x"$DG_CATB" != x ]]; then echo ; echo We are fitting excluded objects only!; fi #<TODO># adds
+    fi
+else 
+    echo ; echo We will fit all catalog objects!
+fi
+# 
+echo ; echo We will log into $DG_FLOG.smlog
+# 
+# more -- checking files
+# if [[ ! -f "do_Cleans" ]]; then ln -fs "../do_Cleans"; fi
+if [[ ! -f "goFine.sm" ]]; then ln -fs "../goFine.sm"; fi
+if [[ ! -f "goSimu.sm" ]]; then ln -fs "../goSimu.sm"; fi
+# if [[ ! -f "goCorrectdf.sm" ]]; then ln -fs "../goCorrectdf.sm"; fi
+# if [[ ! -f "do_PostGalfit" ]]; then ln -fs "../do_PostGalfit"; fi
+# if [[ ! -f "run_image_util.sm" ]]; then ln -fs "../run_image_util.sm"; fi
+# if [[ ! -f "run_update_catalog.sm" ]]; then ln -fs "../run_update_catalog.sm"; fi
+# if [[ ! -f "${DG_FSED}.csv" ]]; then cp "../../CatalogDeblend/$DG_FSED.csv" .; fi
+# if [[ ! $DG_VARY -eq 0 ]]; then if [[ ! -f "${DG_FSED}_vary.csv" ]]; then cp "../../CatalogDeblend/$DG_FSED.csv" .; fi; fi
+# if [[ ! -f "astroPhot.sm" ]]; then ln -fs "/Users/dliu/Working/2014-CEA/Tool/Level_5_SciDataDiagram/supermongo_go/code/astroPhot.sm"; fi
+# if [[ ! -f "Radec_of_new_priors.txt" ]]; then ln -fs "/Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North/GOODSN_Catalog/Select_on_Reisudal/Radec_of_new_priors.txt"; fi
+# 
+# 

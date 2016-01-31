@@ -364,10 +364,10 @@ astroGalbox_make_box 07
     set nBoxLj1 = nBoxPosJ1 - nBoxBuff2
     set nBoxLi2 = nBoxPosI2 + nBoxBuff1
     set nBoxLj2 = nBoxPosJ2 + nBoxBuff2
-    set nBoxLi1 = nBoxLi1>=0 ? nBoxLi1 : 0
-    set nBoxLj1 = nBoxLj1>=0 ? nBoxLj1 : 0
-    set nBoxLi2 = nBoxLi2<=nAxis1-1 ? nBoxLi2 : nAxis1-1
-    set nBoxLj2 = nBoxLj2<=nAxis2-1 ? nBoxLj2 : nAxis2-1
+    set nBoxLi1 = nBoxLi1>=0 ? nBoxLi1 : 0                #<TODO># CrabFitsImageCrop should take care of cutting range overflow
+    set nBoxLj1 = nBoxLj1>=0 ? nBoxLj1 : 0                #<TODO># CrabFitsImageCrop should take care of cutting range overflow
+    set nBoxLi2 = nBoxLi2<=nAxis1-1 ? nBoxLi2 : nAxis1-1  #<TODO># CrabFitsImageCrop should take care of cutting range overflow
+    set nBoxLj2 = nBoxLj2<=nAxis2-1 ? nBoxLj2 : nAxis2-1  #<TODO># CrabFitsImageCrop should take care of cutting range overflow
     # now we got the buffer rect, start to select objects inside box and buffer box
     # requiring pxF pyF sciMap rmsMap psfMap
     # outputing PosX PosY fit.param fit.input fit.limit
@@ -581,19 +581,19 @@ astroGalbox_read_boxes 05
                 set astroGalbox_ResultResPix  = astroGalbox_ResultResPix  concat ResultResPix
                 set astroGalbox_ResultCloDis  = astroGalbox_ResultCloDis  concat ResultCloDis
                 set astroGalbox_countBox = astroGalbox_countBox + 1
-                print '\n' {}
+                #print '\n' {}
                 print 'astroGalbox_read_boxes: got $(dimen(ResultNote)) results from box$iBox\n' {}
                 # now we got the results for one box
                 # print {PosX PosY ResultRmsPix ResultMags ResultMagsErr Note}
                 # and concat the results into large arrays astroGalbox_Result***
                 } else {
-                print '\n' {}
+                #print '\n' {}
                 print 'astroGalbox_read_boxes: box$iBox contains no good object.\n' {}
                 }
                 # <DEBUG>
                 # if(astroGalbox_countBox>=10) {return} #<TODO><Debug>#
             } else {
-                print '\n' {}
+                #print '\n' {}
                 print 'astroGalbox_read_boxes: Warning!\n' {}
                 print 'astroGalbox_read_boxes: Warning!\n' {}
                 print 'astroGalbox_read_boxes: Warning!\n' {}
@@ -788,7 +788,7 @@ astroGalbox_read_box 07
         if(is_vector(astroGalbox_Result_fres)) {set ResultResPix = astroGalbox_Result_fres print 'ResultResPix ' {}}
         if(is_vector(astroGalbox_Result_fcwd)) {set ResultCloDis = astroGalbox_Result_fcwd print 'ResultCloDis ' {}}
         print '\n' {}
-        print '\n' {}
+        #print '\n' {}
     }
     #
     # cd back
@@ -808,8 +808,14 @@ astroGalbox_mosaic_boxes 05
     if(!$astroGalbox_check_command_ok) {return}
     # 
     if(!is_file($1)){
+    print '\n' {}
     print 'astroGalbox_mosaic_boxes: Error! $1 not found under current directory! Give Ctrl+C to break!\n' {}
+    print '\n' {}
     define errorbreak ?
+    } else {
+    if($verbose) {
+    print 'astroGalbox_mosaic_boxes: $1 $2 $3 $4 $5\n' {}
+    }
     }
     get_image_size $1 # get Map NAXIS nAxis1 nAxis2
     set nBoxStep1 = $2
@@ -818,8 +824,8 @@ astroGalbox_mosaic_boxes 05
     set nBoxBuff2 = $5
     set nBoxSize1 = float(nAxis1)/float($2)
     set nBoxSize2 = float(nAxis2)/float($3)
-    if((nBoxSize1-int(nBoxSize1))>0.0) {set nBoxSize1=int(nBoxSize1)+1}
-    if((nBoxSize2-int(nBoxSize2))>0.0) {set nBoxSize2=int(nBoxSize2)+1}
+    if((nBoxSize1-float(int(nBoxSize1)))>0.0) {set nBoxSize1=int(nBoxSize1)+1}
+    if((nBoxSize2-float(int(nBoxSize2)))>0.0) {set nBoxSize2=int(nBoxSize2)+1}
     # 
     # create the iraf script "rebuild_mosaic_XXX.cl"
     print  "rebuild_mosaic_model.cl"    'images\n\n' {}
@@ -831,11 +837,11 @@ astroGalbox_mosaic_boxes 05
     print +"rebuild_mosaic_model.cl"    'print \"\"\n' {}
     print +"rebuild_mosaic_residual.cl" 'print \"\"\n' {}
     # 
-    do iBox=1,nBoxSize1*nBoxSize2 { # 
+    do iBox=1,nBoxSize1*nBoxSize2 {
         if(astroGalbox_is_dir("box"$iBox)) {
             if(is_file("box"$iBox"/fit.fits")) {
                 echo 
-                echo "box"$iBox""
+                echo "Mosaicing box"$iBox""
                 echo 
                 #astroGalboxOnMute
                 astroGalbox_mosaic_box $iBox
@@ -864,53 +870,21 @@ astroGalbox_mosaic_box 05
     # prepare to read one box results
     set nBoxId = $1
     set nBoxDir = {"}+sprintf('box%0d',$1)+{"}
-    # decide box rect
-    if(!$?2||!$?3||!$?4||!$?5) {
-        # decide box rect by dividing image into every small box
-        if(!is_vector(nBoxSize1)){print 'Usage: astroGalbox_mosaic_box boxid [boxi1 boxi2 boxj1 boxj2 [buff1 buff2]]\n' {} return}
-        set nBoxPosY0 = int( int(nBoxId-1) / int(nBoxSize1) + 1 )
-        set nBoxPosX0 = int( int(nBoxId-1) % int(nBoxSize1) + 1 )
-        if(nBoxPosX0>nBoxSize1){print 'astroGalbox_mosaic_box: Error! nBoxId=$(nBoxId) out of x range!\n'{} return}
-        if(nBoxPosY0>nBoxSize2){print 'astroGalbox_mosaic_box: Error! nBoxId=$(nBoxId) out of y range!\n'{} return}
-        if(!is_vector(nBoxStep1)){print 'astroGalbox_mosaic_box: Error! nBoxId=$(nBoxId) requires vector nBoxStep1!\n'{} return}
-        if(!is_vector(nBoxStep2)){print 'astroGalbox_mosaic_box: Error! nBoxId=$(nBoxId) requires vector nBoxStep2!\n'{} return}
-        set nBoxPosI1 = (nBoxPosX0-1) * nBoxStep1
-        set nBoxPosJ1 = (nBoxPosY0-1) * nBoxStep2
-        set nBoxPosI2 = (nBoxPosX0+0) * nBoxStep1 - 1 + 1  #<corrected><20150223><dzliu># step is int, width should include fractional region between steps
-        set nBoxPosJ2 = (nBoxPosY0+0) * nBoxStep2 - 1 + 1  #<corrected><20150223><dzliu># step is int, width should include fractional region between steps
-        set nBoxPosXC = float(nBoxPosI1+1+nBoxPosI2+1)/2.0 #<corrected><20150223><dzliu># step is int, width should include fractional region between steps
-        set nBoxPosYC = float(nBoxPosJ1+1+nBoxPosJ2+1)/2.0 #<corrected><20150223><dzliu># step is int, width should include fractional region between steps
-        set nBoxWidth = float(nBoxStep1+1.0)               #<corrected><20150223><dzliu># step is int, width should include fractional region between steps
-        set nBoxHaute = float(nBoxStep2+1.0)               #<corrected><20150223><dzliu># step is int, width should include fractional region between steps
-    } else {
-        # directly input box rect <Added><20150218><DzLIU>
-        set nBoxPosI1 = $2
-        set nBoxPosI2 = $3
-        set nBoxPosJ1 = $4
-        set nBoxPosJ2 = $5
-    }
-    # decide box buffer
-    if($?6) {set nBoxBuff1 = $6}
-    if($?7) {set nBoxBuff2 = $7}
-    if(!is_vector(nBoxBuff1)) {set nBoxBuff1=0}
-    if(!is_vector(nBoxBuff2)) {set nBoxBuff2=0}
-    # now we got the box rect i,j coordinate, start to select the buffer rect
-    set nBoxLi1 = nBoxPosI1 - nBoxBuff1
-    set nBoxLj1 = nBoxPosJ1 - nBoxBuff2
-    set nBoxLi2 = nBoxPosI2 + nBoxBuff1
-    set nBoxLj2 = nBoxPosJ2 + nBoxBuff2
-    set nBoxLi1 = nBoxLi1>=0 ? nBoxLi1 : 0
-    set nBoxLj1 = nBoxLj1>=0 ? nBoxLj1 : 0
-    if(is_vector(nAxis1)&&is_vector(nAxis2)) {
-    set nBoxLi2 = nBoxLi2<=nAxis1-1 ? nBoxLi2 : nAxis1-1
-    set nBoxLj2 = nBoxLj2<=nAxis2-1 ? nBoxLj2 : nAxis2-1
-    }
+    # #<20160130>#
+    # read box rect from sci.fits.log
+    chdir $(nBoxDir)
+    if(!is_file("sci.fits.log")) {print 'astroGalbox_mosaic_box: Error! \"sci.fits.log\" not found!\n' {} define errorbreak ?}
+    !cat "sci.fits.log" | grep 'rect(i0,j0,i1,j1)=' | sed -e 's/.*rect(i0,j0,i1,j1)=(//g' | sed -e 's/)//g' > "aaa_rect"
+    astroGalboxOnMute
+    data "aaa_rect" read {nBoxPosI1 1 nBoxPosJ1 2 nBoxPosI2 3 nBoxPosJ2 4}
+    astroGalboxUnMute
+    chdir ".."
     # ok
     # now mosaic the fit.fits
-    set nBoxPosX1INN = nBoxPosI1-nBoxLi1+1 # the inner cutout coordinate, iraf coordinate, starts from 1
-    set nBoxPosY1INN = nBoxPosJ1-nBoxLj1+1 # the inner cutout coordinate, iraf coordinate, starts from 1
-    set nBoxPosX2INN = nBoxPosI2-nBoxLi1+1 # the inner cutout coordinate, iraf coordinate, starts from 1
-    set nBoxPosY2INN = nBoxPosJ2-nBoxLj1+1 # the inner cutout coordinate, iraf coordinate, starts from 1
+    set nBoxPosX1INN = nBoxPosI1-nBoxPosI1+1 # the inner cutout coordinate, iraf coordinate, starts from 1
+    set nBoxPosY1INN = nBoxPosJ1-nBoxPosJ1+1 # the inner cutout coordinate, iraf coordinate, starts from 1
+    set nBoxPosX2INN = nBoxPosI2-nBoxPosI1+1 # the inner cutout coordinate, iraf coordinate, starts from 1
+    set nBoxPosY2INN = nBoxPosJ2-nBoxPosJ1+1 # the inner cutout coordinate, iraf coordinate, starts from 1
     set nBoxPosX1 = nBoxPosI1 + 1 # the outer image coordinate, iraf coordinate, starts from 1
     set nBoxPosY1 = nBoxPosJ1 + 1 # the outer image coordinate, iraf coordinate, starts from 1
     set nBoxPosX2 = nBoxPosI2 + 1 # the outer image coordinate, iraf coordinate, starts from 1

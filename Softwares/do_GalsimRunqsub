@@ -117,6 +117,7 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
                 sed --in-place -e "2 i export PATH=/dsm/upgal/data/dliu/Superdeblending/Softwares:\$PATH"     "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> prepend the $PATH where one can find galfit
                 sed --in-place -e "s%cd .*/boxgalsim_vary/%cd $(pwd)/%g"                                      "${GalfitRunList[i]}.$(hostname).sh"
                 sed --in-place -e "s%cd .*/boxgalsim/%cd $(pwd)/%g"                                           "${GalfitRunList[i]}.$(hostname).sh"
+                sed --in-place -e "s%cd box%cd $(pwd)/box%g"                                                  "${GalfitRunList[i]}.$(hostname).sh"
                 sed --in-place -e "s%^.*/galfit %galfit %g"                                                   "${GalfitRunList[i]}.$(hostname).sh"
                 echo "chmod 777 *"                                                                         >> "${GalfitRunList[i]}.$(hostname).sh"
                 echo Counting qsub task "$(showq | grep $USER | wc -l)"

@@ -418,14 +418,15 @@ Simu_ 00
 					!ln -s ../$imax_name_psf.fits $idBox/$imax_name_psf.fits          ###<Added><DZLIU>### doParallel
 					!\rm "fit.log" >> /dev/null 2>&1                                  ###<Added><DZLIU>### doParallel
 					echo doParallel: preparing $idBox                                 ###<Added><DZLIU>### doParallel
-					print  $idRun '\#!/bin/bash\n' {}                                 ###<Added><DZLIU>### doParallel
-					print +$idRun 'set -e\n' {}                                       ###<Added><DZLIU>### doParallel
-					print +$idRun 'cd $idBox\n' {}                                    ###<Added><DZLIU>### doParallel
-					print +$idRun 'if [[ -f fit.log ]]; then rm fit.log; fi\n' {}     ###<Added><DZLIU>### doParallel
-					print +$idRun 'if [[ -f galfit.01 ]]; then rm galfit.*; fi\n' {}  ###<Added><DZLIU>### doParallel
-					print +$idRun 'galfit HSO_$imax.INPUT > HSO_$imax.STDOUT\n' {}    ###<Added><DZLIU>### doParallel
-					print +$idRun 'chmod 777 *\n' {}                                  ###<Added><DZLIU>### doParallel
-					print +$idRun '\n' {}                                             ###<Added><DZLIU>### doParallel
+					print  runqsub '\#!/bin/bash\n' {}                                ###<Added><DZLIU>### doParallel
+					print +runqsub 'set -e\n' {}                                      ###<Added><DZLIU>### doParallel
+					print +runqsub 'cd $idBox\n' {}                                   ###<Added><DZLIU>### doParallel
+					print +runqsub 'if [[ -f fit.log ]]; then rm fit.log; fi\n' {}    ###<Added><DZLIU>### doParallel
+					print +runqsub 'if [[ -f galfit.01 ]]; then rm galfit.*; fi\n' {} ###<Added><DZLIU>### doParallel
+					print +runqsub 'galfit HSO_$imax.INPUT > HSO_$imax.STDOUT\n' {}   ###<Added><DZLIU>### doParallel
+					print +runqsub 'chmod 777 *\n' {}                                 ###<Added><DZLIU>### doParallel
+					print +runqsub '\n' {}                                            ###<Added><DZLIU>### doParallel
+					!mv runqsub $idRun                                                ###<Added><DZLIU>### doParallel
 					if($sar==0 && 1==1) {                                             ###<Added><DZLIU>### doParallel
 					!cp $imax_name.fits     $idBox/../$imax_name.fits                 ###<Added><DZLIU>### doParallel
 					!cp $imax_name_rms.fits $idBox/../$imax_name_rms.fits             ###<Added><DZLIU>### doParallel

@@ -436,9 +436,47 @@ We simulate one source at each time, and add its PSF-modeled image to the real o
 
 We repeat the procedure 6000 times, so that we have 6000 pairs of $S_{in}$, $S_{out}$, and $\sigma_{S_{out}}$. Statistical analyses are in the following section. 
 
+The commands for running the simulations are:
 
-\subsection{Flux bias and flux uncertainty correction}
-\label{Band100_dfcorr}
+\begin{lstlisting}[language=bash]
+ssh -X planer # login
+# 
+# step 1. divide image into box regions
+# 
+qsub -IX -l walltime=24:00:00 # start qsub environment
+source '/dsm/upgal/data/dliu/Superdeblending/Softwares/SETUP'
+cd /dsm/upgal/data/$USER/Superdeblending/GOODSN/Galsim_100/
+do_Galsim "100" "201601" -mag0 6 -mag1 10 \
+-catalog "RadioOwenMIPS24_priors_v6_24.txt" \
+-fitsname "pgh_goodsn_green_Map_v1.0_sci_subfaintDL.fits" \
+-sedpredict "SED_predictions_100_201601.txt"
+exit # end qsub environment
+# 
+# step 2. run galfit for all box regions
+# 
+cd boxgalsim/
+do_GalsimRunqsub
+cd ../
+# 
+# step 3. combine all fitted results in box regions
+# 
+qsub -IX -l walltime=24:00:00 # start qsub environment
+source '/dsm/upgal/data/dliu/Superdeblending/Softwares/SETUP'
+cd /dsm/upgal/data/$USER/Superdeblending/GOODSN/Galfit_Band100/
+do_Galsim "100" "201601" -mag0 6 -mag1 10 \
+-catalog "RadioOwenMIPS24_priors_v6_24.txt" \
+-fitsname "pgh_goodsn_green_Map_v1.0_sci_subfaintDL.fits" \
+-sedpredict "SED_predictions_100_201601.txt" -postparallel
+exit # end qsub environment
+# 
+# end
+# 
+exit # logout
+\end{lstlisting}
+
+
+\subsection{Flux bias and flux error analyses}
+\label{Band100_simanalyses}
 
 In one aspect, statistically, the differences between $S_{in}$ and $S_{out}$ should have a mean of 0. Any non-zero mean of the differences $\left<(S_{in}-S_{out})\right>$ is indicating that there have flux bias in the photometry procedure. 
 
@@ -479,6 +517,12 @@ Therefore, more sophisticated recipes are analyzed here. \textcolor{red}{(TODO: 
 \indent\hspace{15pt}$\circ$ 
 \textcolor{blue}{Note: Flux uncertainty corrections: Seems performing well. The correlation of $\sigma{f}corr.$ correction factor with $f_{residual}$ is not as prominent as the other two parameters, but it might have stronger correlation at longer wavelength bands.}
 \\
+
+
+\subsection{Flux bias and flux error correction}
+\label{Band100_dfcorr}
+
+Now we apply the 3-step correction recipe to real measurements. 
 
 %*************************************************************************************
 

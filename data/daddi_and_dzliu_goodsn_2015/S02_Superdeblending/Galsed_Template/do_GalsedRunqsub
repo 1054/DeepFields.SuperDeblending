@@ -56,16 +56,20 @@ if [[ -f $EXCLUDEFILE ]]; then runsedid=$(cat $EXCLUDEFILE | grep -v '#' | sed '
 # 
 # 
 # 
-#if [[ $(echo echo OK | sm 2>/dev/null) != OK ]]; then
-#  if [[ ! -f /dsm/upgal/data/dliu/Software/sm/resolve_sm ]]; then
-#    echo /dsm/upgal/data/dliu/Software/sm/resolve_sm not found!
-#    echo Maybe you should first check /dsm/upgal/data/dliu/Software/sm/resolve_sm ?
-#    exit 1
-#  fi
-#fi
+if [[ $(echo echo OK | sm 2>/dev/null) != OK ]]; then
+    echo 
+    echo 
+    echo "Error! supermongo \"sm\" command was not working! Please check the installation of supermongo!"
+    echo 
+    echo 
+    exit 1
+fi
 if [[ ! -d Magdis ]]; then
-    echo SED library not found under current dir $PWD!
-    echo Maybe you should first check current dit $PWD?
+    echo 
+    echo 
+    echo "Error! SED library dir \"Magdis/\" was not found under current dir $PWD!"
+    echo 
+    echo 
     exit 1
 fi
 if [[ ! -d fit_parallel_HDFN ]]; then

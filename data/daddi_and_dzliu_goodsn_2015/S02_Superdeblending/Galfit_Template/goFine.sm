@@ -815,15 +815,16 @@ Fit_XXX
 				!ln -fs ../$imax_name.fits     $idBox/$imax_name.fits             ###<Added><DZLIU>### doParallel
 				!ln -fs ../$imax_name_rms.fits $idBox/$imax_name_rms.fits         ###<Added><DZLIU>### doParallel
 				!ln -fs ../$imax_name_psf.fits $idBox/$imax_name_psf.fits         ###<Added><DZLIU>### doParallel
-				print  $idRun '\#!/bin/bash\n' {}                                 ###<Added><DZLIU>### doParallel
-				print +$idRun 'set -e\n' {}                                       ###<Added><DZLIU>### doParallel
-				print +$idRun 'cd box$runid\n' {}                                 ###<Added><DZLIU>### doParallel
-				print +$idRun 'if [[ -f fit.log ]]; then rm fit.log; fi\n' {}     ###<Added><DZLIU>### doParallel
-				print +$idRun 'if [[ -f galfit.01 ]]; then rm galfit.*; fi\n' {}  ###<Added><DZLIU>### doParallel
-				print +$idRun 'galfit HSO_$imax.INPUT > HSO_$imax.STDOUT\n' {}    ###<Added><DZLIU>### doParallel
-				print +$idRun 'ln -fs fit.log fit$runid.log\n' {}                 ###<Added><DZLIU>### doParallel
-				print +$idRun 'chmod 777 *\n' {}                                  ###<Added><DZLIU>### doParallel
-				print +$idRun '\n' {}                                             ###<Added><DZLIU>### doParallel
+				print  runqsub '\#!/bin/bash\n' {}                                ###<Added><DZLIU>### doParallel
+				print +runqsub 'set -e\n' {}                                      ###<Added><DZLIU>### doParallel
+				print +runqsub 'cd box$runid\n' {}                                ###<Added><DZLIU>### doParallel
+				print +runqsub 'if [[ -f fit.log ]]; then rm fit.log; fi\n' {}    ###<Added><DZLIU>### doParallel
+				print +runqsub 'if [[ -f galfit.01 ]]; then rm galfit.*; fi\n' {} ###<Added><DZLIU>### doParallel
+				print +runqsub 'galfit HSO_$imax.INPUT > HSO_$imax.STDOUT\n' {}   ###<Added><DZLIU>### doParallel
+				print +runqsub 'ln -fs fit.log fit$runid.log\n' {}                ###<Added><DZLIU>### doParallel
+				print +runqsub 'chmod 777 *\n' {}                                 ###<Added><DZLIU>### doParallel
+				print +runqsub '\n' {}                                            ###<Added><DZLIU>### doParallel
+				!mv runqsub $idRun                                                ###<Added><DZLIU>### doParallel
 				if($runid==1 && 1==1) {                                           ###<Added><DZLIU>### doParallel
 				!cp $imax_name.fits     $idBox/../$imax_name.fits                 ###<Added><DZLIU>### doParallel
 				!cp $imax_name_rms.fits $idBox/../$imax_name_rms.fits             ###<Added><DZLIU>### doParallel
@@ -2695,13 +2696,12 @@ R_MIPS24_E	00
 			# <Modified><DZLIU> # 
 			define imax 24
 			define xdate 201500
-			# define rrrr_name "results_"$imax"_"$xdate
 			if($?vary_positions==0) { define vary_positions 1 }
 			if($vary_positions==0) { define rrrr_name "results_"$imax"_"$xdate 
 							} else { define rrrr_name "results_"$imax"_"$xdate""_vary }
-			data $rrrr_name read {x24 1 y24 2 noi24 3 m24 4 e24 5 ra24 6 de24 7 id24 8}
+			data $rrrr_name read {x24 1 y24 2 noi24 3 m24 4 e24 5 ra24 6 de24 7 id24 8} # now we read also ra de id
 			set m24 = m24 -.2036   # -0.112 from matching fluxes to Benj's catalog, -.2036 expected ap corr from Benj
-			set e24 = e24>.05 || e24<0 ? e24 : .05
+			set e24 = e24>.05 || e24<0 ? e24 : .05   # fix very small error got zero value problem
 			define h_24  6.691      # photometry fudge factor from Jy/beam definition, for small pixels
 			define m_24 1       # photometry fudge factor from PEP, from use of finite PSF  (divise)
 			set f24 = 10**(-0.4*m24)*$h_24/$m_24 * 1e-3 # mJy
@@ -2784,114 +2784,91 @@ R_MIPS24_E	00
 
 R_MIPS16	00
 			# <Modified><DZLIU> # 
-			# define rrrr_name "results_16_08Feb11"
-			# define rrrr_name "results_"$imax"_"$xdate"_vary"
+			define imax 16
+			define xdate 201500
 			if($?vary_positions==0) { define vary_positions 1 }
 			if($vary_positions==0) { define rrrr_name "results_"$imax"_"$xdate 
 							} else { define rrrr_name "results_"$imax"_"$xdate""_vary }
-			data $rrrr_name read {x16 1 y16 2 m16 4 e16 5 noi16 3}
+			data $rrrr_name read {x16 1 y16 2 noi16 3 m16 4 e16 5 ra16 6 de16 7 id16 8} # now we read also ra de id
+			# very-small-error sources
 			set e16 = e16>=0 && e16<0.02 ? 0.02 : e16
 			# 
 			define h_16 19.03      # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
 			define m_16 1.000      # photometry fudge factor for H-GOODS N, finer scale
 			set f16  = 10**(-0.4*m16)*$h_16/$m_16 * 1e-3 # mJy
 			set df16 = f16*e16/1.08 # mJy
-			# 
-			######<20140825><DzLIU>###### # <Modified><DZLIU> # Correct "df" according to aaF ccF # 
-			######<20140825><DzLIU>###### # define scale_error_16    1.75
-			######<20140825><DzLIU>###### # define error_astrometry 0.05  # mags (from *_vary files)
-			######<20140825><DzLIU>###### # set df16 = f16*e16/1.08
-			######<20140825><DzLIU>###### # set f16  = f16+$bias16
-			######<20140825><DzLIU>###### # 
-			######<20140825><DzLIU>###### #<TODO>set aaF = {0.00000 57.91082 118.88068 125.85730 136.80757 163.29934 239.78315 1722.63659}
-			######<20140825><DzLIU>###### #<TODO>set ccF = {196.33576 196.33576 199.91923 210.23254 213.56384 260.04018 351.83431 483.10073}
-			######<20140825><DzLIU>###### # 
-			######<20140825><DzLIU>###### if(is_vector(aaF) && is_vector(ccF)) {
-			######<20140825><DzLIU>###### 	set df16 = f16*e16/1.08
-			######<20140825><DzLIU>###### 	set Tdf = df16/noi16
-			######<20140825><DzLIU>###### 	set uui=1,dimen(Tdf) sort {Tdf uui} spline aaF ccF Tdf Edf sort {uui Tdf Edf} ### USE "aaF" "ccF" TO CORRECT "Tdf/rms" TO "Edf/rms"
-			######<20140825><DzLIU>###### 	set df16 = Edf*noi16                       echo Done Flux Error Correction for $rrrr_name !
-			######<20140825><DzLIU>###### 	print  done_FluxErrorCorrection_for_$rrrr_name 'Done Flux Error Correction for $rrrr_name !\nCorrection Table: \n\n' {}
-			######<20140825><DzLIU>###### 	print +done_FluxErrorCorrection_for_$rrrr_name '%24.5f %16.5f\n' { aaF ccF }
-			######<20140825><DzLIU>###### } else {
-			######<20140825><DzLIU>###### 	define scale_error_16    1.75
-			######<20140825><DzLIU>###### 	set df16 = f16*e16/1.08
-			######<20140825><DzLIU>###### 	### set df16 = df16 >0 ? (df16*$scale_error_16) : -(df16*$scale_error_16)**.5 ### <TODO><DZLIU> DON'T KNOW ???
-			######<20140825><DzLIU>###### 	set df16 = df16 >0 ? (df16*$scale_error_16) : df16
-			######<20140825><DzLIU>###### }
-			# 
-			######<20140825><DzLIU>###### define scale_error_16    1.75
-			######<20140825><DzLIU>###### set df16 = f16*e16/1.08
-			######<20140825><DzLIU>###### ### set df16 = df16 >0 ? (df16*$scale_error_16) : -(df16*$scale_error_16)**.5 ### <TODO><DZLIU> DON'T KNOW ???
-			######<20140825><DzLIU>###### set df16 = df16 >0 ? (df16*$scale_error_16) : df16
-			# 
-			define use_aaF_ccF 1
-			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
-			if($?doCorrectEdf) {if($doCorrectEdf==0) {define use_aaF_ccF 0}}
-			# 
-			if(!$use_aaF_ccF) {
-				# define scale_error_16 1.75
-				# set df16 = df16 >0 ? (df16*$scale_error_16) : df16
-			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
-			    unset aaF unset ccF unset aaS unset ccS
-			} else {
-				###set aaF = {  0.0     57.6671 117.8355 123.7682 132.2349 150.3142 198.9866 465.5257} #<20140825><DZLIU>#
-				###set ccF = {200.1702 200.1702 200.1702 201.3257 209.4586 209.4586 278.4628 465.5257} #<20140825><DZLIU>#
-				###set aaS = {  0.0    0.310816 0.989064 1.758424 2.640151 3.707147 5.039910 7.896811 9.908000} #<20140825><DZLIU>#
-				###set ccS = {1.090862 1.090862 0.944070 0.926273 0.932889 0.930471 0.950785 1.363769 1.363769} #<20140825><DZLIU>#
-				###set aaF = { 0.000000 57.667096 117.835505 123.768232 132.234883 150.314178 198.986568 465.525693 }
-				###set ccF = { 200.170168 200.170168 198.194263 201.325739 209.458593 203.519692 278.462842 465.525693 }
-				###set aaS = { 0.000000 0.310816 0.989064 1.758424 2.640151 3.707147 5.039910 7.896811 9.908000 }
-				###set ccS = { 1.090862 1.090862 0.944070 0.926273 0.932889 0.930471 0.950785 1.363769 1.363769 }
-				###set aaF = { 0.000000 90.159880 113.480484 117.555834 120.911041 124.469737 129.869117 141.617683 170.471078 819.738904 } #<20141006><DZLIU>#
-				###set ccF = { 210.383820 210.383820 195.069547 200.095205 202.436194 206.690558 221.656542 228.327685 255.341714 819.738904 } #<20141006><DZLIU>#
-				###set aaS = { 0.211455 0.632394 1.051583 1.514602 2.092315 2.878947 8.398305 } #<20141006><DZLIU>#
-				###set ccS = { 0.977294 0.992623 1.118761 0.960435 1.014647 1.045936 0.982216 } #<20141006><DZLIU>#
-				###set aaD = { -190.038883 -63.389519 -41.019279 -27.049700 -17.326986 -9.604374 -3.039865 } #<20141006><DZLIU>#
-				###set ccD = { 0.883875 0.874249 0.904055 0.922206 1.019713 1.009487 1.350528 } #<20141006><DZLIU>#
-				##set aaF = {         0   92.9111   118.242   125.172   141.364   196.491   695.401 } #<20141024><DZLIU>#
-				##set ccF = {   208.072   208.072   186.819   204.896   224.772   280.767   695.401 }
-				##set aaS = {  0.147082  0.532157    1.0267   1.55023   2.17966   3.18247   11.8923 }
-				##set ccS = {  0.971502  0.959867  0.912379    1.0079   1.12911   1.00723   1.12359 }
-				##set aaD = {  -15309.3  -1248.28  -705.027   -361.29  -109.468 }
-				##set ccD = {  0.910997  0.888523  0.899103  0.977084    1.2376 }
-				
-				set bias16 = 0.0009227614476
-				set f16 = f16 + bias16
-				
-				set aaFccF_Normalize = 1.121523
-				set aaSccS_Normalize = 0.7505032
-				set aaDccD_Normalize = 0.9408385
-				set final_Normalize = 0.95
-				
-				set aaF = {         0 0.0550925  0.113349  0.121226  0.130618  0.151208  0.778122 }
-				set ccF = {  0.237374  0.237374  0.221402  0.215319  0.228561  0.276072  0.506539 }
-				set aaS = {  0.572397   1.60026   2.60279   3.80804   7.23834  50.0000}  #appended 50
-				set ccS = {  0.918087   1.17632  0.958245   1.35346   1.21724  1.21724}
-				set aaD = {  -177.845  -27.9415  -12.3093  -4.77035  -1.11083 }
-				set ccD = {  0.740004  0.827988  0.897615   1.12743   2.24472 }
-				macro read goCorrectdf.sm correctdf
+			# out-of-map sources
+			set f16 =  (x16==-99||y16==-99) ?  -99 :  f16
+			set df16 = (x16==-99||y16==-99) ? 1e10 : df16
+			
+			
+			# go correct fbias
+			# go correct df
+			define rBeam_16 3.6 #<TODO># PSF FWHM at each band
+			set fit_coo = (x$imax!=-99&&y$imax!=-99)
+			set fit_sid = 0,dimen(id$imax)-1
+			set fit_sid = fit_sid if(fit_coo)
+			set fit_ra = ra$imax if(fit_coo)
+			set fit_de = de$imax if(fit_coo)
+			# calc residual flux
+			if(is_file("aaa_fresidual.txt")) {data "aaa_fresidual.txt" read fres$imax 1}
+			if(is_vector(fres$imax)) {if(dimen(fres$imax)==dimen(id$imax)) {set fit_fres=fres$imax[fit_sid]} else {unset fres$imax}}
+			if(!is_vector(fres$imax)) {
+				load fresidual.sm
+				set fit_fres = fresidual("FIT_goodsn_"$imax"_Map_"$xdate"_vary.fits[2]", fit_ra, fit_de, $rBeam_$imax/2.0)
+				set fres$imax = float(ra$imax)*0.0-99
+				set fres$imax[fit_sid] = fit_fres
+				print "aaa_fresidual.txt" '%15g%15.0f%15.3f%15.3f%15g%15g\n' <fres$imax id$imax x$imax y$imax f$imax df$imax>
 			}
-			# mJy to uJy
-			set f16 = f16 * 1e3 # uJy
-			set df16 = df16 * 1e3 # uJy
-			set f16 = e16<=0.0 ? -99 : f16
-			set df16 = e16<=0.0 ? 1e10 : df16
+			# calc crowdiness number density
+			if(is_file("aaa_crowdiness.txt")) {data "aaa_crowdiness.txt" read crow$imax 1}
+			if(is_vector(crow$imax)) {if(dimen(crow$imax)==dimen(id$imax)) {set fit_crow=crow$imax[fit_sid]} else {unset crow$imax}}
+			if(!is_vector(crow$imax)) {
+				load crowdiness.sm
+				set fit_crow = crowdiness(fit_ra, fit_de, $rBeam_$imax, 1.5)
+				set crow$imax = float(ra$imax)*0.0-99
+				set crow$imax[fit_sid] = fit_crow
+				print "aaa_crowdiness.txt" '%15g%15.0f%15.3f%15.3f%15g%15g\n' <crow$imax id$imax x$imax y$imax f$imax df$imax>
+			}
+			# load simulation-based correction functions
+			data "sim_diagram_output_v7/FUN_fbias_1.txt"  read FUN_fbias_1  1
+			data "sim_diagram_output_v7/FUN_fbias_2.txt"  read FUN_fbias_2  1
+			data "sim_diagram_output_v7/FUN_fbias_3.txt"  read FUN_fbias_3  1
+			data "sim_diagram_output_v7/FUN_dfcorr_1.txt" read FUN_dfcorr_1 1
+			data "sim_diagram_output_v7/FUN_dfcorr_2.txt" read FUN_dfcorr_2 1
+			data "sim_diagram_output_v7/FUN_dfcorr_3.txt" read FUN_dfcorr_3 1
+			data "sim_diagram_output_v7/NOM_fbias_1.txt"  read NOM_fbias_1  1
+			data "sim_diagram_output_v7/NOM_fbias_2.txt"  read NOM_fbias_2  1
+			data "sim_diagram_output_v7/NOM_fbias_3.txt"  read NOM_fbias_3  1
+			data "sim_diagram_output_v7/NOM_dfcorr_1.txt" read NOM_dfcorr_1 1
+			data "sim_diagram_output_v7/NOM_dfcorr_2.txt" read NOM_dfcorr_2 1
+			data "sim_diagram_output_v7/NOM_dfcorr_3.txt" read NOM_dfcorr_3 1
+			# do simulation-based corrections
+			macro read run_simu_stats_v7.sm
+			go_correct_fbias   1   (lg(df$imax/noi$imax))      "\sigma_{flux}/\sigma_{rms\,noise}"
+			go_correct_df      1   (lg(df$imax/noi$imax))      "\sigma_{flux}/\sigma_{rms\,noise}"
+			go_correct_fbias   2   (lg(fres$imax/noi$imax))    "f_{residual}/\sigma_{rms\,noise}"
+			go_correct_df      2   (lg(fres$imax/noi$imax))    "f_{residual}/\sigma_{rms\,noise}"
+			go_correct_fbias   3   (lg(crow$imax))              "crowdiness"
+			go_correct_df      3   (lg(crow$imax))              "crowdiness"
+			# output 3-step correction intermediate values
+			print "aaa_sim_recipe_output_fbias.txt" '%13.0f%16g%16g%16g%16g\n' \
+			<id$imax f$imax""_uncorr_1 f$imax""_corr_1 f$imax""_corr_2 f$imax""_corr_3>
+			print "aaa_sim_recipe_output_dfcorr.txt" '%13.0f%16g%16g%16g%16g\n' \
+			<id$imax df$imax""_uncorr_1 df$imax""_corr_1 df$imax""_corr_2 df$imax""_corr_3>
+			
+			
 			# 
-			# define bias16 0.2570066996 # 0.2206000247 # 1.059307588 # -3 # <Modified><DZLIU> 
-			# set f16  = e16>0.0 ? f16+$bias16 : -99
-			# set df16 = e16>0.0 ? df16 : 1e10
+			# mJy to uJy
+			set  f16 =  f16 * 1e3 # uJy
+			set df16 = df16 * 1e3 # uJy
+			# out-of-map sources
+			set f16 =  (x16==-99||y16==-99) ?  -99 :  f16
+			set df16 = (x16==-99||y16==-99) ? 1e10 : df16
+			print "results_16_201500_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
 			
-			######<20140825><DzLIU>###### # <Added><DZLIU> # # <Corrected><20140529> #
-			######<20140825><DzLIU>###### set filter = (m16!=99.0 && e16!=-99.0) # out-of-map
-			######<20140825><DzLIU>###### #<Error!!!># set f16 = filter ? f16+$bias16 : -99 #<Error!!!>#
-			######<20140825><DzLIU>###### set f16 = filter ? f16 : -99 #<Corrected><20140529>#
-			######<20140825><DzLIU>###### set df16 = filter ? df16 : 1e10
-			
-			# <Modified><DZLIU> # NOW WE DO NOT DO THE FOLLOWING STEPS ?
+			# <Modified><DZLIU> # NOW WE DO NOT DO THE FOLLOWING STEPS
 			# define conf16    0.00 
-			
-			# <Modified><DZLIU> # NOW WE DO NOT DO THE FOLLOWING STEPS ?
 			# define imax 16 
 			# define coeff_contam_X 0.0
 			# if(is_file($rrrr_name"_contam_X.dat") && 1) {
@@ -2931,6 +2908,8 @@ R_MIPS100 00
 			macro read run_simu_stats_v7.sm
 			go_correct_three_step_recipes
 			
+			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
+			
 			
 			######<20140828><DzLIU>###### # <Modified><DZLIU> # NOW WE DO NOT DO THE FOLLOWING STEPS ?
 			######<20140828><DzLIU>###### # define imax 100
@@ -2951,11 +2930,12 @@ R_MIPS160 00
 			# <Modified><DZLIU> # 
 			# define rrrr_name "results_160_22Oct"
 			# define rrrr_name "results_"$imax"_"$xdate"_vary"
+			define imax 160
+			define xdate 201601
 			if($?vary_positions==0) { define vary_positions 1 }
 			if($vary_positions==0) { define rrrr_name "results_"$imax"_"$xdate 
 							} else { define rrrr_name "results_"$imax"_"$xdate""_vary }
-			# define rrrr_name "results_"$imax"_"$xdate
-			data $rrrr_name read {x160 1 y160 2 m160 4 e160 5 noi160 3}
+			data $rrrr_name read {x160 1 y160 2 m160 4 e160 5 noi160 3 ra160 6 de160 7 id160 8}
 			# 
 			define h_160 1.0 #0.90   # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio
 			###define m_160 0.807    # photometry fudge factor for  H-GOODS N, Paola's pixels
@@ -2966,56 +2946,15 @@ R_MIPS160 00
 			##define error_astrometry 0.05 # mags (from *_vary files)
 			##set Te160 = ((e160)**2+$error_astrometry**2)**.5 #
 			##set df160 = f160*Te160/1.08
-			# 
-			define use_aaF_ccF 1
-			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
-			if($?doCorrectEdf) {if($doCorrectEdf==0) {define use_aaF_ccF 0}}
-			# 
-			if(!$use_aaF_ccF) {
-				#define error_scale 2.1 # ratio over galfit error
-				#define error_astrometry 0.05 # mags (from *_vary files)
-				#set Te160 = ((e160*$error_scale)**2+$error_astrometry**2)**.5 #
-				#set df160 = f160*Te160/1.08 # make sure you scaled up the error map
-			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
-			    unset aaF unset ccF unset aaS unset ccS
-			} else { # make sure you scaled up the error map
-				## set aaF = {0.000000 8009.983850 10496.666290 14601.484750 22013.461410 32768.093440 56909.562080 147442.614800 1078496.879000}
-				## set ccF = {17409.557570 17409.557570 17858.101230 19234.587040 24746.377000 31310.552560 34381.141460 68220.700930 72039.934700}
-				### set aaF = {  0.000000  8.189674 10.963576 14.955176 22.369842 74.428001 }
-				### set ccF = { 18.947714 18.947714 19.298170 20.417369 27.291583 74.428001 }
-				### set aaS = { 0.000000 0.159861 0.823066 2.534075 5.110075 8.825539 26.469776 41.349731 }
-				### set ccS = { 0.901696 0.901696 0.882525 0.960115 0.989875 1.013083  1.972826  1.972826 }
-				#set aaFccF_Normalize = 0.9823428127
-				#set aaSccS_Normalize = 0.9906686485
-				#set aaDccD_Normalize = 1.024561682
-				#set aaF = {         0   8003.57   11368.3   13696.9     18770   32309.8    183175 }
-				#set ccF = {   18148.6   18148.6   17895.6   20980.4   22971.6   32309.8    183175 }
-				#set aaS = {   201.948   715.679   1351.93   2045.87    2892.5   4133.07   8329.75 }
-				#set aaS = aaS/1000.0
-				#set ccS = {  0.951974   1.06265   1.05652  0.975637   1.03889  0.988956  0.954658 }
-				#set aaD = {   -108198  -24254.4  -11865.6  -4192.57   6685.03 }
-				#set ccD = {  0.856592  0.894602   1.01523   1.02844   1.02844 }
-				
-				set bias160 = 0.05620864019
-				set f160 = f160 + bias160
-				
-				set aaFccF_Normalize = 1.23663
-				set aaSccS_Normalize = 0.8607261
-				set aaDccD_Normalize = 0.9632333
-				set final_Normalize = 0.97
-				
-				set aaF = {         0   8534.08   11187.2   13017.3   16328.1     23786    825324 }
-				set ccF = {   18694.8   18694.8   18833.3   19926.1   21727.5   27373.3   64932.2 }
-				set aaS = {  0.886623   2.55963   4.28104   8.02698   44.3844 }
-				set ccS = {  0.931327  0.931149  0.882091   1.01868     2.229 }
-				set aaD = {  -2.76339 -0.335377 -0.0675478  0.120307   0.36851 }
-				set ccD = {   0.66573  0.718292    1.0712   1.36447   2.04817 }
-				
-				macro read goCorrectdf.sm correctdf
-			}
-			# 
-			set f160 = e160<=0.0 ? -99 : f160
-			set df160 = e160<=0.0 ? 1e10 : df160
+			
+			
+		    define rBeam_160 12.0 #<TODO># PSF FWHM at each band
+			macro read run_simu_stats_v7.sm
+			go_correct_three_step_recipes
+			
+			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
+			
+			
 			######<20140828><DzLIU>###### 
 			######<20140828><DzLIU>###### # <Modified><DZLIU> # NOW WE DO NOT DO THE FOLLOWING STEPS ?
 			######<20140828><DzLIU>###### # define conf160   0.3 
@@ -3036,318 +2975,95 @@ R_MIPS160 00
 
 R_MIPS250_E	00
 			#data results_250_23Apr_sub read {x250 1 y250 2 m250 4 e250 5 noi250 3}  ###<Modified><DZLIU>###
-			define rrrr_name "results_"$imax"_"$xdate                    ###<Modified><DZLIU>### NO vary FOR 250!!!
-			data $rrrr_name read {x250 1 y250 2 m250 4 e250 5 noi250 3}  ###<Modified><DZLIU>### NO vary FOR 250!!!
+			define imax 250
+			define xdate 201601
+			define rrrr_name "results_"$imax"_"$xdate ###<Modified><DZLIU>### NO vary FOR 250!!!
+			data $rrrr_name read {x250 1 y250 2 m250 4 e250 5 noi250 3 ra250 6 de250 7 id250 8}
 			#define h_250 $(1/10.37)      # photometry fudge factor from Jy/beam definition, for big pixels
 			define h_250 $(1/31.16)       # photometry fudge factor from Jy/beam definition, for small pixels
 			define m_250 1                # photometry fudge factor from PEP, from use of finite PSF  (divise)
 			set f250 = 10**(-0.4*m250)*1000*$h_250/$m_250
 			set df250 = f250*e250/1.08
-			#  
-			define bias250  0.0
-			define conf250  0.0
-			###<dzliu><daddi><20151126><old>### set dff = f250/df250 set f250 = e250<.5 ? f250+1.0070*(df250-1.524)+.725 : f250 #<Note># this is Daddi's original flux bias equation
-			###<dzliu><daddi><20151126><tes>### set dff = f250/df250 set f250 = e250<.5 ? f250+1.0070*(df250-1.12)-0.175 : f250 #<Note># this is dzliu's test
-			###<dzliu><daddi><20151126><new>### set dff = f250/df250 set f250 = e250<.5 ? f250+0.45*df250-0.725 : f250
-	        ###<dzliu><daddi><20151130><new>### set dff = f250/df250 set f250 = e250<.5 ? f250-(0.6332-1.138*lg(df250)-5.11*lg(df250)**2) : f250
-	        ###<dzliu><daddi><20151201<new>### see below
-			set dff = f250/df250 set f250 = e250<.5 ? f250-0.30 : f250
-			set df250 = e250<.5 ? f250/dff : df250
-			# 
-			define use_aaF_ccF 1
-			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
-			if($?doCorrectEdf) {if($doCorrectEdf==0) {define use_aaF_ccF 0}}
-			# 
-			if(!$use_aaF_ccF) {
-			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
-			    unset aaF unset ccF unset aaS unset ccS
-			} else {
-				##set aaFccF_Normalize = 0.951646704
-				##set aaSccS_Normalize = 1.191288629
-				##set aaDccD_Normalize = 0.9819490235
-				##set aaF = {         0   309.283   519.389   764.917   1329.26   2948.87   65655.2 }
-				##set ccF = {   795.097   795.097   886.457   1088.84   1460.98   2948.87   65655.2 }
-				##set aaS = {   226.773   791.812   1486.95   2283.35    3281.9   4805.41   23649.7 }
-				##set aaS = aaS/1000.0
-				##set ccS = {  0.745435  0.756803  0.838961  0.863935  0.847436  0.915745   1.04371 }
-				##set aaD = {  -14491.9  -3083.88  -1735.18  -884.068  -194.149 }
-				##set ccD = {  0.930648   1.03404   1.04811   1.00225   1.00225 }
-			    
-				#<20151130><updated><dzliu># before20151130
-				#set aaFccF_Normalize = 1.123842
-				#set aaSccS_Normalize = 0.7658885
-				#set aaDccD_Normalize = 0.8913624
-				#set final_Normalize = 0.82
-				#
-				#set aaF = {         0   317.478   497.467   696.501   1244.53   20326.5 }
-				#set ccF = {   873.708   873.708   959.842   1168.36   1702.91   3571.99 }
-				#set aaS = {  0.437324   1.39109   2.50108   3.87542   21.1122 }
-				#set ccS = {    1.0099  0.950107   1.20441   1.20024   1.69753 }
-				#set aaD = {  -18.6603   -3.3147  -2.17777   -1.2004 -0.555489 -0.141473 }
-				#set ccD = {  0.605024  0.666393  0.866847   1.04643   1.49886   2.24648 }
-				
-				#<20151130><updated><dzliu># 
-				#set aaFccF_Normalize = 1.143677
-				#set aaSccS_Normalize = 0.7730182
-				#set aaDccD_Normalize = 0.8841114
-				#set final_Normalize = 0.82
-				#
-				#set aaF = {         0   317.478   497.467   696.501   1244.53   20326.5 }
-				#set ccF = {   849.431   849.431   905.052   1144.22   1601.35   3483.12 }
-				#set aaS = {  0.437324   1.39109   2.50108   3.87542   21.1122 }
-				#set ccS = {   1.04405  0.948471   1.22497   1.17817   1.65013 }
-				#set aaD = {  -18.6603   -3.3147  -2.17777   -1.2004 -0.555489 -0.141473 }
-				#set ccD = {  0.591162  0.680883  0.891152   1.01107   1.50867   2.31054 }
-				
-				#20151201><updated><dzliu># 
-				set aaFccF_Normalize = 1.171069
-				set aaSccS_Normalize = 0.7623984
-				set aaDccD_Normalize = 0.8937437
-				set final_Normalize = 0.82
-				
-				set aaF = {         0   317.478   497.467   696.501   1244.53   20326.5 }
-				set ccF = {   868.802   868.802   921.185   1137.36   1621.15   3753.11 }
-				set aaS = {  0.437324   1.39109   2.50108   3.87542   21.1122 }
-				set ccS = {   1.11334  0.959884   1.23325   1.16856   1.65076 }
-				set aaD = {  -18.6603   -3.3147  -2.17777   -1.2004 -0.555489 -0.141473 }
-				set ccD = {  0.573158  0.661273  0.861333  0.977129   1.57199   2.36635 }
-				
-				macro read goCorrectdf.sm correctdf
-			}
+			
+			
+		    define rBeam250 18.2 #<TODO># PSF FWHM at each band
+			macro read run_simu_stats_v7.sm
+			go_correct_three_step_recipes
+			
+			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
+			
+			
 			# 
 			#data all_priors_RAD_250.txt read {ra 1 de 2} 
 			#print Handy_250.txt '%.7f %.7f %f %f\n' {ra de f250 df250}
 
 R_MIPS350_E	00
 			#data results_350_23Apr13_sub read {x350 1 y350 2 m350 4 e350 5 noi350 3} ###<Commented><DZLIU>###
-			define rrrr_name "results_"$imax"_"$xdate                    ###<Modified><DZLIU>### NO vary FOR 350!!!
-			data $rrrr_name read {x350 1 y350 2 m350 4 e350 5 noi350 3}  ###<Modified><DZLIU>### NO vary FOR 350!!!
-			define bias350  0.0                                          ###<Modified><DZLIU>### 
+			define imax 350
+			define xdate 201601
+			define rrrr_name "results_"$imax"_"$xdate ###<Modified><DZLIU>### NO vary FOR 350!!!
+			data $rrrr_name read {x350 1 y350 2 m350 4 e350 5 noi350 3 ra350 6 de350 7 id350 8}
 			#define h_350 $(1/10.37)       # photometry fudge factor from Jy/beam definition, for big pixels
 			define h_350 $(1/34.42)       # photometry fudge factor from Jy/beam definition, for small pixels
 			define m_350 1               # photometry fudge factor from PEP, from use of finite PSF  (divise)
 			set f350 = 10**(-0.4*m350)*1000*$h_350/$m_350
 			set df350 = f350*e350/1.08
-			# 
-    		###<dzliu><daddi><20151126><old>### set dff = f350/df350 set f350 = e350<.5 ? f350+0.3566*(df350-1.778)-0.35 : f350 #<Note># this is Daddi's original flux bias equation
-			###<Test><DzLIU>###                 set dff = f350/df350 set f350 = e350<.5 ? f350+0.3566*(df350-0.93)-0.325 : f350 
-            ###<dzliu><daddi><20151130><new>### set dff = f350/df350 set f350 = e350<.5 ? f350-(0.058-1.7*lg(df350)-7.366*lg(df350)**2) : f350
-            ###<dzliu><daddi><20151201><new>### see below
-			set dff = f350/df350 set f350 = e350<.5 ? f350+0.20 : f350
-			set df350 = e350<.5 ? f350/dff : df350
-			# 
-			define use_aaF_ccF 1
-			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
-			if($?doCorrectEdf) {if($doCorrectEdf==0) {define use_aaF_ccF 0}}
-			# 
-			if(!$use_aaF_ccF) {
-			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
-			    unset aaF unset ccF unset aaS unset ccS
-			} else {
-				##set aaFccF_Normalize = 0.9978099484
-				##set aaSccS_Normalize = 0.9950345846
-				##set aaDccD_Normalize = 0.9965172356
-				##set aaF = {         0   305.498   485.177   633.896   945.839   1883.08   12505.4 }
-				##set ccF = {   1234.02   1234.02   1345.14    1510.8   1889.76   2616.98   12505.4 }
-				##set aaS = {   559.269    1960.7   3723.43   5743.42   8195.86   11675.4   25600.7 }
-				##set ccS = {  0.973681   1.00817   1.05197   1.03892  0.993765   1.08563   1.06082 }
-				##set aaD = {    -20025  -5826.58  -3352.91  -1731.31  -466.648 }
-				##set ccD = {  0.899009  0.932733   1.05331   1.04463   1.04463 }
-				
-				#<20151130><updated><dzliu># before20151130
-				#set aaFccF_Normalize = 1.065211
-				#set aaSccS_Normalize = 0.6655671
-				#set aaDccD_Normalize = 0.7947804
-				#set final_Normalize = 0.93
-				#
-				#set aaF = {         0    310.48   499.535    653.32   904.962   1478.84   25378.9 }
-				#set ccF = {   1163.25   1163.25   1229.03   1417.29   1641.14   2319.08   4787.22 }
-				#set aaS = {   1.94663   5.52139   8.84042   12.6683   29.5405 500.000 } #<added><20150909><dzliu># 500.000
-				#set ccS = {   1.15271   1.36703   1.45785   1.59269   1.36537 1.36537 }
-				#set aaD = {  -17.4453  -3.22447  -1.52423 -0.591683 0.00030315 }
-				#set ccD = {  0.575723  0.732267  0.965135   1.64451   2.46437 }
-				
-				#<20151130><updated><dzliu># 
-				#set aaFccF_Normalize = 1.15134
-				#set aaSccS_Normalize = 0.6926806
-				#set aaDccD_Normalize = 0.8728057
-				#set final_Normalize = 0.93
-				#
-				#set aaF = {         0    310.48   499.535    653.32   904.962   1478.84   25378.9 }
-				#set ccF = {   1051.27   1051.27   1124.25   1324.18   1541.86    2225.4   4514.48 }
-				#set aaS = {   1.94663   5.52139   8.84042   12.6683   29.5405 }
-				#set ccS = {   1.10717   1.28008   1.30128   1.44106   1.25685 }
-				#set aaD = {  -17.4453  -3.22447  -1.52423 -0.591683 0.00030315 }
-				#set ccD = {  0.536621  0.680565  0.920337   1.54638   2.31102 }
-				
-				#<20151201><updated><dzliu># 
-				set aaFccF_Normalize = 1.167727
-				set aaSccS_Normalize = 0.6691863
-				set aaDccD_Normalize = 0.8680103
-				set final_Normalize = 0.93
-				
-				set aaF = {         0    310.48   499.535    653.32   904.962   1478.84   25378.9 }
-				set ccF = {   1038.32   1038.32    1118.6   1311.62   1544.12   2267.37   4919.67 }
-				set aaS = {   1.94663   5.52139   8.84042   12.6683   29.5405 }
-				set ccS = {   1.09176   1.31193   1.42173   1.54138   1.29313 }
-				set aaD = {  -17.4453  -3.22447  -1.52423 -0.591683 0.00030315 }
-				set ccD = {  0.527117  0.656748  0.902129   1.58699   2.39873 }
-				
-				macro read goCorrectdf.sm correctdf
-			}
+			
+			
+		    define rBeam350 24.9 #<TODO># PSF FWHM at each band
+			macro read run_simu_stats_v7.sm
+			go_correct_three_step_recipes
+			
+			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
+			
+			
 			######<20140831><DzLIU>###### #data all_priors_RAD_350.txt read {ra 1 de 2}   ###<Commented><DZLIU>###
 			######<20140831><DzLIU>###### #print Handy_350.txt '%.7f %.7f %f %f\n' {ra de f350 df350}  ###<Commented><DZLIU>###
 
 R_MIPS500_E 00
 			#data results_500_18Feb13_sub read {x500 1 y500 2 m500 4 e500 5 noi500 3} ###<Commented><DZLIU>###
-			define rrrr_name "results_"$imax"_"$xdate                    ###<Modified><DZLIU>### NO vary FOR 500!!!
-			data $rrrr_name read {x500 1 y500 2 m500 4 e500 5 noi500 3}  ###<Modified><DZLIU>### NO vary FOR 500!!!
-			define bias500  0.0                                          ###<Modified><DZLIU>### 
+			define imax 500
+			define xdate 201601
+			define rrrr_name "results_"$imax"_"$xdate ###<Modified><DZLIU>### NO vary FOR 500!!!
+			data $rrrr_name read {x500 1 y500 2 m500 4 e500 5 noi500 3 ra500 6 de500 7 id500 8}
 			#define h_500 $(1/10.37)       # photometry fudge factor from Jy/beam definition, for big pixels
 			define h_500 $(1/32.198)      # photometry fudge factor from Jy/beam definition, for small pixels
 			define m_500 1               # photometry fudge factor from PEP, from use of finite PSF  (divise)
 			set f500 = 10**(-0.4*m500)*1000*$h_500/$m_500
 			set df500 = f500*e500/1.08   #  
-			# 
-			###<dzliu><daddi><20151126><old>### set dff = f500/df500 set f500 = e500<.5 ? f500+0.6620*(df500-3.008)+0.69 : f500 #<Note># this is Daddi's original flux bias equation
-			###<dzliu><daddi><20151126><tes>### set dff = f500/df500 set f500 = e500<.5 ? f500+0.6620*(df500-1.24)-0.00 : f #<Note># this is dzliu's test
-			###<dzliu><daddi><20151130><new>### set dff = f500/df500 set f500 = e500<.5 ? f500-(0.2345-0.9639*lg(df500)-3.865*lg(df500)**2) : f500
-            ###<dzliu><daddi><20151201><new>### see below
-			set dff = f500/df500 set f500 = e500<.5 ? f500+0.20 : f500
-			set df500 = e500<.5 ? f500/dff : df500
-			# 
-			define use_aaF_ccF 1
-			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
-			if($?doCorrectEdf) {if($doCorrectEdf==0) {define use_aaF_ccF 0}}
-			# 
-			if(!$use_aaF_ccF) {
-			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
-			    unset aaF unset ccF unset aaS unset ccS
-			} else {
-				###set aaF = { 0.000000 278.904783  594.536778 1370.193830 2984.281741 5061.883715 7035.628268 10327.148456 }
-				###set ccF = { 848.8821 848.882127 1049.224821 1586.786669 2984.281741 5061.883715 7035.628268 10327.148456 }
-				###set aaS = { 0.000000 67.781394 440.617320 1430.813872 3334.092612 5672.850197 15413.362754 23793.405300 }
-				###set ccS = { 0.999558  0.999558   1.135163    1.074788    1.038063    1.280086     1.401180     1.401180 }
-				####set aaF = { 0.000000 282.915744 413.798699 498.264675 591.550992 699.673496 836.714530 1071.372742 1574.549489 11635.260062 }
-				####set ccF = { 1134.071838 1134.071838 1237.345580 1148.562881 1120.926859 1288.783045 1336.603382 1564.607369 2032.435404 11635.260062 }
-				####set aaS = { 434.550024 1319.738228 2248.127282 3297.958941 4511.237543 6145.019001 21462.980647 }
-				####set ccS = { 0.875601 0.919927 0.892664 0.978621 0.894443 1.028570 1.039079 }
-				##set aaFccF_Normalize = 0.982565483
-				##set aaSccS_Normalize = 1.057701278
-				##set aaDccD_Normalize = 0.9989853692
-				##set aaF = {         0   311.108   495.176   670.263   1031.09   2008.05   17549.2 }
-				##set ccF = {   1143.73   1143.73   1140.84   1273.44    1729.2   2706.83   17549.2 }
-				###set aaS = {   312.413   1106.18    2100.6   3211.31   4630.65   6863.41   20654.7 }
-				###set ccS = {  0.990666  0.965771  0.936339   1.02932  0.934755   1.02308   1.12975 }
-				##set aaS = {    313.13   1107.49   2102.21   3213.56   4632.83   6878.44   20668.8 }
-				##set ccS = {  0.986304  0.959025  0.941629  0.988954  0.853536  0.984343     1.065 }
-				###set aaD = {  -11280.2  -3380.82  -1987.69  -1073.71  -278.536 }
-				###set ccD = {   0.88417  0.901183   1.00267   1.09604   1.09604 }
-				##set aaD = {  -11277.5  -3376.93  -1985.45  -1071.42  -270.297 }
-				##set ccD = {  0.882021  0.899577   1.00044   1.09345   1.09345 }
-				
-				#<20151130><updated><dzliu># before20151130
-				#set aaFccF_Normalize = 1.137339
-				#set aaSccS_Normalize = 0.664874
-				#set aaDccD_Normalize = 0.823892
-				#set final_Normalize = 0.93
-				#
-				#set aaF = {         0   312.538   523.609   715.666   1036.65   1732.45   29156.2 }
-				#set ccF = {    1077.5    1077.5   1112.32   1527.93   1800.75   2542.19   5377.14 }
-				#set aaS = {   1.07257   3.12617   5.24747   8.13827    21.726 }
-				#set ccS = {   1.18405    1.3756   1.34858   1.47879   1.39402 }
-				#set aaD = {  -14.1053  -2.37054  -1.14884 -0.461675 0.0892864 }
-				#set ccD = {  0.505149  0.721897  0.943855   1.34315    2.6078 }
-				
-				#<20151130><updated><dzliu># 
-				#set aaFccF_Normalize = 1.158746
-				#set aaSccS_Normalize = 0.6640653
-				#set aaDccD_Normalize = 0.8346811
-				#set final_Normalize = 0.93
-				#
-				#set aaF = {         0   312.538   523.609   715.666   1036.65   1732.45   29156.2 }
-				#set ccF = {   969.264   969.264   1086.65   1523.23   1795.22   2536.98   5389.14 }
-				#set aaS = {   1.07257   3.12617   5.24747   8.13827    21.726 }
-				#set ccS = {   1.17835   1.36411     1.322   1.47788   1.39371 }
-				#set aaD = {  -14.1053  -2.37054  -1.14884 -0.461675 0.0892864 }
-				#set ccD = {  0.488564  0.711376  0.928672   1.31501    2.5996 }
-				
-				#<20151201><updated><dzliu># 
-				set aaFccF_Normalize = 1.167898
-				set aaSccS_Normalize = 0.6526518
-				set aaDccD_Normalize = 0.8373731
-				set final_Normalize = 0.93
-				
-				set aaF = {         0   312.538   523.609   715.666   1036.65   1732.45   29156.2 }
-				set ccF = {    953.59    953.59   1106.93   1529.41   1801.35   2583.93   5605.45 }
-				set aaS = {   1.07257   3.12617   5.24747   8.13827    21.726 }
-				set ccS = {   1.19224   1.36096   1.32308   1.52672   1.42187 }
-				set aaD = {  -14.1053  -2.37054  -1.14884 -0.461675 0.0892864 }
-				set ccD = {  0.486293  0.681229  0.908766   1.34035   2.65067 }
-				
-				macro read goCorrectdf.sm correctdf
-				#unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
-				#unset aaF unset ccF unset aaS unset ccS unset aaD unset ccD
-			}
+			
+			
+		    define rBeam500 36.3 #<TODO># PSF FWHM at each band
+			macro read run_simu_stats_v7.sm
+			go_correct_three_step_recipes
+			
+			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
+			
+			
 			######<20140831><DzLIU>###### #data all_priors_RAD_500.txt read {ra 1 de 2}  ###<Commented><DZLIU>###
 			######<20140831><DzLIU>###### #print Handy_500.txt '%.7f %.7f %f %f\n' {ra de f500 df500} ###<Commented><DZLIU>###
 
 R_MIPS1160_E	00
 			#data results_1160_18Feb13_sub read {x1160 1 y1160 2 m1160 4 e1160 5 noi1160 3} ###<Commented><DZLIU>###
-			define rrrr_name "results_"$imax"_"$xdate                         ###<Modified><DZLIU>### NO vary FOR 1160
-			data $rrrr_name read {x1160 1 y1160 2 m1160 4 e1160 5 noi1160 3}  ###<Modified><DZLIU>### NO vary FOR 1160
-			define bias1160  0.0                                              ###<Modified><DZLIU>### 
+			define imax 1160
+			define xdate 201601
+			define rrrr_name "results_"$imax"_"$xdate ###<Modified><DZLIU>### NO vary FOR 1160
+			data $rrrr_name read {x1160 1 y1160 2 m1160 4 e1160 5 noi1160 3 ra1160 6 de1160 7 id1160 8}
 			#define h_1160 $(1/10.37)       # photometry fudge factor from Jy/beam definition, for big pixels
 			#define h_1160 $(1/45.41)       # photometry fudge factor from Jy/beam definition, for small pixels ###<Commented><DZLIU>###
 			define h_1160 $(1/46.95)        # GN20 calibrated photometry fudge factor from Jy/beam definition <TODO>
 			define m_1160 1                 # photometry fudge factor from PEP, from use of finite PSF  (divise)
 			set f1160 = 10**(-0.4*m1160)*$h_1160/$m_1160 # *1000
 			set df1160 = f1160*e1160/1.08   # 
-			# 
-			define use_aaF_ccF 1
-			if($?doCorrectEdf) {if($doCorrectEdf!=0) {define use_aaF_ccF 1}}
-			# 
-			if(!$use_aaF_ccF) {
-			    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
-			    unset aaF unset ccF unset aaS unset ccS
-			} else {
-				####set aaF = { 0.000000 0.074990 0.101582 0.125185 0.145767 0.169974 0.219440 0.307485 0.622579 }
-				####set ccF = { 0.926423 0.926423 0.976300 1.051682 1.121815 1.079184 1.031462 1.013209 1.017775 }
-				####set aaS = { 0.000000 5.609779 17.37916 32.28258 50.89910 74.13333 108.6384 272.7480 411.5383 }
-				####set ccS = { 0.918312 0.918312 0.867996 0.927754 0.982121 1.021685 1.163553 2.310420 2.310420 }
-				####set aaF = { 0.000000 0.073460 0.096592 0.105502 0.113281 0.120718 0.128570 0.138562 0.162991 1.063047 } #<20141006>#
-				####set ccF = { 0.995081 0.995081 1.161989 1.090509 1.068553 1.153494 1.275382 1.274881 1.498453 1.657447 } #<20141006>#
-				####set aaS = { 2.560927 7.555614 12.462052 17.900553 24.757140 34.509165 185.387252 } #<20141006>#
-				####set ccS = { 0.884976 0.868434 0.900701 0.946990 0.992365 0.997997 1.376683 } #<20141006>#
-				####set aaD = { -169.021919 -67.422516 -45.570359 -31.108635 -20.132580 -11.584043 -4.000258 } #<20141006>#
-				####set ccD = { 0.891473 1.013836 0.881231 0.862903 1.023204 1.162226 1.326309 } #<20141006>#
-				##set aaFccF_Normalize = 1.00791327
-				##set aaSccS_Normalize = 1.006330085
-				##set aaDccD_Normalize = 0.9791622277
-				##set aaF = {         0 0.0713535   0.10501  0.118242  0.133778  0.202464    1.4817 }
-				##set ccF = {  0.962477  0.962477    1.0321   1.07682   1.13043   1.34633    1.4817 }
-				##set aaS = {   1.60881   5.77752   11.1715   17.0243   24.2451    35.793   184.037 }
-				##set ccS = {  0.921065  0.969833  0.970639  0.947873  0.993566   1.02583   1.27635 }
-				##set aaD = {  -953.115  -93.9285  -54.6455  -29.1823   -9.1774 }
-				##set ccD = {  0.990972  0.998925  0.975863   1.06354   1.06354 }
-				
-				set bias1160 = 0.1564847442
-				set f1160 = f1160 + bias1160
-				
-				set aaFccF_Normalize = 1.074703
-				set aaSccS_Normalize = 0.4767612
-				set aaDccD_Normalize = 1.089109
-				set final_Normalize = 0.84
-				
-				set aaF = {         0 0.0797496  0.108293  0.121283  0.135883  0.163149    1.5354 }
-				set ccF = {   1.08305   1.08305   1.20881   1.23946   1.86721   2.35079   3.41967 }
-				set aaS = {   6.28278    18.113   30.5543   52.1349   500.134 }
-				set ccS = {  0.657315   0.69688  0.687075  0.710486   3.03729 }
-				set aaD = {  -5.33246  -0.95377 -0.418194 -0.140049   0.18164 }
-				set ccD = {  0.922297  0.904985   1.01044   1.02464   1.54003 }
-				
-				macro read goCorrectdf.sm correctdf
-			}
+			
+			
+		    define rBeam1160 19.5 #<TODO># PSF FWHM at each band
+			macro read run_simu_stats_v7.sm
+			go_correct_three_step_recipes
+			
+			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
+			
+			
 			######<20140905><DzLIU>###### #<TODO><DZLIU>#set dff = f1160/df1160 set f1160 = e1160<.5 ? f1160+0.6620*(df1160-3.008)+0.69 : f1160 
 			######<20140905><DzLIU>###### #<TODO><DZLIU>#set df1160 = e1160<.5 ? f1160/dff : df1160
 			######<20140905><DzLIU>###### #<TODO><DZLIU>#data all_priors_RAD_1160.txt read {ra 1 de 2} 

@@ -4,13 +4,16 @@
 #
 #BASH_VERBOSE=0
 #
-# SUPERDIR
-SUPERDIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
+# DIR
+SUPERDEBLENDDIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
 #
 # PATH
-if [[ $PATH != *"$SUPERDIR"* ]]; then
-    export PATH="$SUPERDIR":$PATH
+if [[ $PATH != *"$SUPERDEBLENDDIR"* ]]; then
+    export PATH="$SUPERDEBLENDDIR":$PATH
 fi
+#
+#LIST
+SUPERDEBLENDCMD=(galfit sm cl sky2xy xy2sky CrabPhotAperPhot)
 #
 # IRAF
 if [[ $(type cl 2>/dev/null | wc -l) == 0 ]]; then
@@ -19,20 +22,21 @@ if [[ $(type cl 2>/dev/null | wc -l) == 0 ]]; then
         ##module load iraf64/2.15 # iraf64/2.15 has imstat precision bug, have to fall back to iraf 2.14
         ##export MACH="linux64"
         ##export IRAFARCH="linux64"
-        ##source "$SUPERDIR/iraf_on_planer/irafuser_2.15.sh"
+        ##source "$SUPERDEBLENDDIR/iraf_on_planer/irafuser_2.15.sh"
         ##module load iraf64/2.14.1 # iraf64/2.14.1 however could not be successfully module load, have to do it manually
         #export iraf="/opt/core-3.1-amd64/iraf64/2.15/iraf/"
         #export PATH="/opt/core-3.1-amd64/iraf64/2.15/local/bin/:$PATH"
         #export MACH="linux64"
         #export IRAFARCH="linux64"
-        #source "$SUPERDIR/iraf_on_planer/irafuser_2.15.sh"
+        #source "$SUPERDEBLENDDIR/iraf_on_planer/irafuser_2.15.sh"
         #export LOADEDMODULES="iraf64/2.15:$LOADEDMODULES"
         export iraf="/opt/core-3.1-amd64/iraf64/2.14.1/iraf/"
-        export PATH="/opt/core-3.1-amd64/iraf64/2.14.1/iraf/bin.linux/:$SUPERDIR/iraf_on_planer/bin:$PATH"
+        export PATH="/opt/core-3.1-amd64/iraf64/2.14.1/iraf/bin.linux/:$SUPERDEBLENDDIR/iraf_on_planer/bin:$PATH"
         export MACH="linux64"
         export IRAFARCH="linux"
-        source "$SUPERDIR/iraf_on_planer/irafuser_2.14.sh"
+        source "$SUPERDEBLENDDIR/iraf_on_planer/irafuser_2.14.sh"
         export LOADEDMODULES="iraf64/2.14.1:$LOADEDMODULES"
+        SUPERDEBLENDCMD=($(echo "${SUPERDEBLENDCMD[@]}" | sed -e 's/ cl / cl cl.e /g'))
     else
         echo 
         echo "************************************************************************************"
@@ -43,7 +47,7 @@ if [[ $(type cl 2>/dev/null | wc -l) == 0 ]]; then
 fi
 # 
 # CHECK
-for TEMPNAME in galfit sm cl cl.e sky2xy xy2sky CrabPhotAperPhot; do
+for TEMPNAME in ${SUPERDEBLENDCMD[@]}; do
     type $TEMPNAME
 done
 

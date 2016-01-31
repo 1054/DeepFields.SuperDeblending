@@ -1,0 +1,31 @@
+xSu     
+		define f1 256
+		define f2 258
+		define f3 272 
+		define f4 274
+		define rms1 0.1234
+		define rms2 0.1253
+		define rms3 0.1303
+		define rms4 0.1320
+		define bwidth 1.875 # GHz
+		define c 288792
+		set xxWS = 1,6,.001
+		data sed_z6_U6_radio.txt  read {ws 1 fsfr 2} set fsfr = fsfr*ws set ws=lg(ws)
+	    spline ws fsfr xxWS xfsfr
+		gop xxWS (lg(xfsfr)) 
+		set xxWS = xxWS +lg(3.5)
+		set ff = xfsfr if(xxWS>=lg($c/276) && xxWS<=lg($c/254)) stats ff me si ku set xfsfr_ = xfsfr/$me
+		goi xxWS (lg(xfsfr_))
+		rel  $(lg(1.1)) -1e5 draw $(lg(1.1)) 1e5
+		set flux1 = xfsfr_ if(xxWS>=lg($c/($f1+$bwidth)) && xxWS<=lg($c/($f1-$bwidth)))  stats flux1 me1 si ku
+		set flux2 = xfsfr_ if(xxWS>=lg($c/($f2+$bwidth)) && xxWS<=lg($c/($f2-$bwidth)))  stats flux2 me2 si ku
+		set flux3 = xfsfr_ if(xxWS>=lg($c/($f3+$bwidth)) && xxWS<=lg($c/($f3-$bwidth)))  stats flux3 me3 si ku
+		set flux4 = xfsfr_ if(xxWS>=lg($c/($f4+$bwidth)) && xxWS<=lg($c/($f4-$bwidth)))  stats flux4 me4 si ku
+		echo $me1 $me2 $me3 $me4
+		echo $(($me1+$me2+$me3+$me4)/4) $(sqrt($rms1**2+$rms2**2+$rms3**2+$rms4**2)/4) $((($me1+$me2+$me3+$me4)/4)/(sqrt($rms1**2+$rms2**2+$rms3**2+$rms4**2)/4))
+		set lir = {1 1 1 1}
+		set xme = $me1 concat $me2 concat $me3 concat $me4
+		set xsi = $rms1 concat $rms2 concat $rms3 concat $rms4
+		set wei = (xme/xsi)**2
+		echo $(sum(xme*wei)/sum(wei)) $(sum(wei)**(-0.5)) $(sum(xme*wei)/sum(wei)/sum(wei)**(-0.5))
+		print {xme xsi sn wei}
