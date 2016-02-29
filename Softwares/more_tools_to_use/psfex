@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+#${BASH_SOURCE[0]}
+#
+# Linux
+if [[ $(uname -s) == Linux ]]; then
+    if [[ $(hostname) == planer* || $(hostname) == sapherschel* ]]; then
+        # the supercomputer planer has an old GLIBC version 2.5
+        $(dirname $(readlink -f $0))/psfex_linux_Glibc_2.12/psfex $*
+    else
+        $(dirname $(readlink -f $0))/psfex_linux_Glibc_2.14/psfex $*
+    fi
+fi
+# Darwin
+if [[ $(uname -s) == Darwin ]]; then
+    $(dirname $0)/psfex_mac/psfex $*
+fi
+

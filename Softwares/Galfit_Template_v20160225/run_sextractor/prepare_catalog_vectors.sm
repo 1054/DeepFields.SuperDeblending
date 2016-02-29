@@ -1,0 +1,23 @@
+prepare_catalog_vectors 01
+    # 
+    # check input
+    if(!$?1) {return}
+    # 
+    # prepare vectors
+    if('$1'=='160') {
+      set catalog_vectors = {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 radio eradio _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 _fch4 _dfch4 KtotX MassX distX spezX zq source distz idz goodArea}
+    }
+    if('$1'=='250') {
+      set catalog_vectors = {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 f160 df160 radio eradio _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 _fch4 _dfch4 KtotX MassX distX spezX zq source distz idz goodArea}
+    }
+    if('$1'=='350') {
+      set catalog_vectors = {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 f160 df160 f250 df250 radio eradio _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 _fch4 _dfch4 KtotX MassX distX spezX zq source distz idz goodArea}
+    }
+    if('$1'=='500') {
+      set catalog_vectors = {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 f160 df160 f250 df250 f350 df350 radio eradio _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 _fch4 _dfch4 KtotX MassX distX spezX zq source distz idz goodArea}
+    }
+    if('$1'=='1160') {
+      set catalog_vectors = {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 f160 df160 f250 df250 f350 df350 f500 df500 radio eradio _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 _fch4 _dfch4 KtotX MassX distX spezX zq source distz idz goodArea}
+    }
+
+

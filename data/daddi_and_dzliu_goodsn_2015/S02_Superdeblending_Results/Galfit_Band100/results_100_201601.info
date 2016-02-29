@@ -1,0 +1,23 @@
+ imax 100 
+ imax_name pgh_goodsn_green_Map_v1.0_sci_subfaintDL 
+ imax_name_rms pgh_goodsn_green_Map_v1.0_rms_DL 
+ imax_name_psf pgh_goodsn_green_Psf_v1.0 
+ psf_resampl 1 
+ xdate 201601 
+ 
+ mag_toofaint 20 
+ max_noise 0.001 
+ mag_start 5 
+ Xback -2.5e-06 
+ 
+ ystep 80 
+ xstep 80 
+ g_buff 12 
+ f_buff 1 
+ use_prior_mags 0 
+ vary_position 0 
+ max_vary 0 
+ fix_astrometry 1 
+ make_residuals 0 
+ fit_gaussian 0 
+ fit_sky 0

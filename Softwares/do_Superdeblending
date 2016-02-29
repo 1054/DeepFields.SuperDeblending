@@ -1,0 +1,705 @@
+#!/bin/bash
+#
+
+
+echo ""
+echo "# This is the Superdeblending Toolkit for deep field far-infrared photometry."
+echo "# We present the bash code below for the data processing at the given band. "
+echo "# One can type the following commands in a bash shell to run the processes. "
+echo "# But first make sure that the commands are run under the data directory "
+echo "# which contains necessary fits format image data files. "
+
+
+# 
+# Prepare Variables
+# 
+Superdeblending_SrcDir="$(dirname ${BASH_SOURCE[0]})"
+Superdeblending_Field="GOODSN"
+Superdeblending_Band=""
+Superdeblending_Step=""
+Superdeblending_Date=""
+GALFIT_CATALOG_INP=""
+GALFIT_CATALOG_OUT=""
+GALFIT_CATALOG_ADD=""
+GALSED_PREDICT_SED=""
+GALSED_RESULTS_OLD=()
+GALSED_FITTING_OLD=""
+GALFIT_FITTING_IMG=""
+
+
+# 
+# Check Superdeblending Toolkit
+# 
+if [[ -f "$Superdeblending_SrcDir/SETUP" ]]; then
+    if [[ ! -e "$Superdeblending_SrcDir/SETUP" ]]; then
+        chmod -R +x $Superdeblending_SrcDir/*
+    fi
+    echo ""
+    source "$Superdeblending_SrcDir/SETUP" > "aaa_Superdeblending_Setup_log"
+    sed 's/^/# /g' "aaa_Superdeblending_Setup_log"
+    rm "aaa_Superdeblending_Setup_log" 2>/dev/null
+    echo ""
+else
+    echo ""
+    echo "Error! The Superdeblending Toolkit is incomplete! $Superdeblending_SrcDir/SETUP does not exist?!"
+    echo ""
+    exit
+fi
+
+
+# 
+# Read inputs
+# 
+while [[ $# -gt 0 ]]; do
+    
+    case "$1" in
+                     
+            "-field") shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              Superdeblending_Field="$1"
+                          else break; fi; shift
+                      done
+                      ;;
+                      
+             "-band") shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              Superdeblending_Band="$1"
+                          else break; fi; shift
+                      done
+                      ;;
+                      
+             "-step") shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              Superdeblending_Step="$1"
+                          else break; fi; shift
+                      done
+                      ;;
+                      
+             "-date") shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              Superdeblending_Date="$1"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+     "-catalog-inp"*) shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              GALFIT_CATALOG_INP="$1"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+     "-catalog-out"*) shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              GALFIT_CATALOG_OUT="$1"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+     "-catalog-add"*) shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              GALFIT_CATALOG_ADD="$1"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+      "-sedpredict"*) shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              GALSED_PREDICT_SED="$1"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+"-previous-sed-fitting"*) shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              GALSED_FITTING_OLD="$1"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+"-previous-sed-results"*) shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              GALSED_RESULTS_OLD=(${GALSED_RESULTS_OLD[@]} "$1")
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+        "-fitsname"*) shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              GALFIT_FITTING_IMG="$1"
+                          else break; fi; shift
+                      done
+                      ;;
+                      
+                   *) shift
+                   
+    esac
+done
+
+if [[ "${Superdeblending_Step^^}" == "GALFIT"* && "$GALFIT_CATALOG_OUT"x == ""x ]]; then 
+    GALFIT_CATALOG_OUT="$(echo ${GALFIT_CATALOG_INP} | sed s%\.txt$%_${Superdeblending_Band}.txt%g)"
+    echo ""
+    echo "# *******"
+    echo "# Warning! -catalog-out was not given! We will set the output catalog file as"
+    echo "# ${GALFIT_CATALOG_OUT}!"
+    echo "# *******"
+    echo ""
+fi
+
+echo "#" Superdeblending_SrcDir="$Superdeblending_SrcDir"
+echo "#" Superdeblending_Field="$Superdeblending_Field"
+echo "#" Superdeblending_Band="$Superdeblending_Band"
+echo "#" Superdeblending_Step="$Superdeblending_Step"
+echo "#" Superdeblending_Date="$Superdeblending_Date"
+echo "#" GALFIT_CATALOG_INP="$GALFIT_CATALOG_INP"
+echo "#" GALFIT_CATALOG_OUT="$GALFIT_CATALOG_OUT"
+echo "#" GALFIT_CATALOG_ADD="$GALFIT_CATALOG_ADD"
+echo "#" GALSED_PREDICT_SED="$GALSED_PREDICT_SED"
+echo "#" GALSED_RESULTS_OLD="$GALSED_RESULTS_OLD"
+echo "#" GALSED_FITTING_OLD="$GALSED_FITTING_OLD"
+echo "#" GALFIT_FITTING_IMG="$GALFIT_FITTING_IMG"
+
+
+# 
+# Check variables
+# 
+if [[ x"$Superdeblending_Field" == x"" || x"$Superdeblending_Band" == x"" || x"$Superdeblending_Step" == x"" || x"$Superdeblending_Date" == x"" || x"$GALFIT_CATALOG_INP" == x"" ]]; then
+    echo ""
+    echo "Usage: "
+    echo " do_Superdeblending -field goodsn \\"
+    echo "                    -band 250 \\"
+    echo "                    -date 201601 \\"
+    echo "                    -step Galfit \\"
+    echo "                    -catalog-input RadioOwenMIPS24_priors_XXX.txt \\"
+    echo "                    -catalog-output RadioOwenMIPS24_priors_XXX_w250.txt \\"
+    echo "                    -catalog-additional Residual_priors_Band250_Revised.txt \\"
+    echo "                    -fitresults-flux results_250_201601_WithAddSources_Pass1__fluxes.txt \\"
+    echo "                    -sedpredict SED_predictions_250.txt -detect-thresh 3.0"
+    echo ""
+    echo "Example 1 galfit fitting without additional sources: "
+    echo " do_Superdeblending -field goodsn \\"
+    echo "                    -band 160 \\"
+    echo "                    -date 201601 \\"
+    echo "                    -step Galfit_Band160 \\"
+    echo "                    -catalog-input Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band100.txt \\"
+    echo "                    -catalog-out Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt \\"
+    echo "                    -sedpredict Galsed_BeforeBand160/do_Type_FIT/SED_predictions_160.txt"
+    echo ""
+    echo "Example 2 galfit fitting with additional sources: "
+    echo " do_Superdeblending -field goodsn \\"
+    echo "                    -band 160 \\"
+    echo "                    -date 201601 \\"
+    echo "                    -step Galfit_Band160_WithAddSources_Pass1 \\"
+    echo "                    -catalog-input Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band100.txt \\"
+    echo "                    -catalog-out Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt \\"
+    echo "                    -catalog-add Galfit_Band160/run_sextractor/Residual_priors_160_Trial.txt \\"
+    echo "                    -sedpredict Galsed_BeforeBand160/do_Type_FIT/SED_predictions_160.txt"
+    echo ""
+    echo " do_Superdeblending -field goodsn \\"
+    echo "                    -band 160 \\"
+    echo "                    -date 201601 \\"
+    echo "                    -step Galfit_Band160_WithAddSources_Pass2 \\"
+    echo "                    -catalog-input Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band100.txt \\"
+    echo "                    -catalog-out Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt \\"
+    echo "                    -catalog-add Galfit_Band160_WithAddSources_Pass1/run_sextractor_postanalysis/Residual_priors_160_Revised.txt \\"
+    echo "                    -sedpredict Galsed_BeforeBand160/do_Type_FIT/SED_predictions_160.txt"
+    echo ""
+    echo "Example 3 SED fitting and prediction: "
+    echo " do_Superdeblending -field goodsn \\"
+    echo "                    -band 250 \\"
+    echo "                    -date 201601 \\"
+    echo "                    -step Galsed_BeforeBand250 \\"
+    echo "                    -catalog-input Galfit_Band160_WithAddSources_Pass2/RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt \\"
+    echo "                    -sedpredict Galfit_Band160_WithAddSources_Pass2/SED_predictions_160.txt \\"
+    echo "                    -previous-sed-fitting Galsed_BeforeBand160 \\"
+    echo "                    -previous-sed-results Galsed_BeforeBand160/ResLMT*Band100.txt"
+    echo ""
+    echo "Example 4 SED fitting: "
+    echo " do_Superdeblending -field goodsn \\"
+    echo "                    -band 1160 \\"
+    echo "                    -date 201601 \\"
+    echo "                    -step galsed_after_galfit \\"
+    echo "                    -catalog-input Galfit_Band1160_WithAddSources_Pass2/RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt \\"
+    echo "                    -sedpredict Galfit_Band1160_WithAddSources_Pass2/SED_predictions_1160.txt \\"
+    echo "                    -previous-sed-fitting Galsed_BeforeBand1160 \\"
+    echo "                    -previous-sed-results Galsed_BeforeBand1160/ResLMT*Band500.txt"
+    echo ""
+    echo "Note: "
+    echo " do_Superdeblending can only deal with the GOODSN field for now."
+    echo " do_Superdeblending can only deal with band 100 160 250 350 500 1160 24 16 20cm for the deep field goodsn."
+    echo ""
+    exit
+fi
+
+
+# 
+# Check software
+# 
+if [[ $(type sm 2>/dev/null) != "sm is "* ]]; then
+    echo ""; echo "Error! sm is not installed or not found!"; echo ""; exit 1
+fi
+
+
+# 
+# Check band
+# 
+if [[ x"$Superdeblending_Field" == x"GOODSN" || \
+      x"$Superdeblending_Field" == x"goodsn" || \
+      x"$Superdeblending_Field" == x"GOODS-N" || \
+      x"$Superdeblending_Field" == x"goods-n" ]]; then
+    Superdeblending_Field="goodsn"
+    if [[ "$Superdeblending_Band" == "100" || \
+          "$Superdeblending_Band" == "160" || \
+          "$Superdeblending_Band" == "250" || \
+          "$Superdeblending_Band" == "350" || \
+          "$Superdeblending_Band" == "500" || \
+          "$Superdeblending_Band" == "1160" || \
+          "$Superdeblending_Band" == "16" || \
+          "$Superdeblending_Band" == "24" || \
+          "$Superdeblending_Band" == "20cm" ]]; then
+        echo ""
+    else
+        echo " Error..."
+        echo " do_Superdeblending can only deal with band 100 160 250 350 500 1160 24 16 20cm for the deep field goodsn."
+        echo ""
+        exit
+    fi
+else
+    echo " Error..."
+    echo " do_Superdeblending can only deal with the GOODSN deep field for now."
+    echo ""
+    exit
+fi
+
+
+# 
+# 
+# 
+echo "#######################################"
+echo "# Prepare the Superdeblending Toolkit #"
+echo "#######################################"
+echo "date +\"%Y-%m-%d %H:%M:S %Z\""
+echo "source \"$Superdeblending_SrcDir/SETUP\""
+echo ""
+
+
+# 
+# 
+# 
+function checkdatadirpasses() {
+    if [[ $# -gt 0 ]]; then
+        if [[ -d "${1}" ]]; then 
+            local i=1
+            while [[ -d "${1}_Pass$i" ]]; do local i=$(bc <<< "$i+1"); done
+            echo "${1}_Pass$i"
+        else 
+            echo "${1}"
+        fi
+    else
+        echo ""
+    fi
+}
+
+
+# 
+# 
+# 
+echo "########################################"
+echo "# Prepare the data reduction directory #"
+echo "########################################"
+if [[ "${Superdeblending_Step^^}" == "GALFIT"* ]]; then
+    echo "cd    $(pwd)/"
+    echo "mkdir $(checkdatadirpasses ${Superdeblending_Step})/" "#<TODO># Define the data dir name"
+    echo "cd    $(checkdatadirpasses ${Superdeblending_Step})/" "#<TODO># Define the data dir name"
+    echo ""
+elif [[ "${Superdeblending_Step^^}" == "GALSIM"* ]]; then
+    echo "cd    $(pwd)/"
+    echo "mkdir $(checkdatadirpasses Galsim_Band${Superdeblending_Band})/" "#<TODO># Define the data dir name"
+    echo "cd    $(checkdatadirpasses Galsim_Band${Superdeblending_Band})/" "#<TODO># Define the data dir name"
+    echo ""
+elif [[ "${Superdeblending_Step^^}" == "GALSED"* && "${Superdeblending_Step^^}" != *"AFTER"* ]]; then
+    echo "cd    $(pwd)/"
+    echo "mkdir $(checkdatadirpasses Galsed_BeforeBand${Superdeblending_Band})/" "#<TODO># Define the data dir name"
+    echo "cd    $(checkdatadirpasses Galsed_BeforeBand${Superdeblending_Band})/" "#<TODO># Define the data dir name"
+    echo ""
+elif [[ "${Superdeblending_Step^^}" == "GALSED"* && "${Superdeblending_Step^^}" == *"AFTER"* ]]; then
+    echo "cd    $(pwd)/"
+    echo "mkdir $(checkdatadirpasses Galsed_AfterBand${Superdeblending_Band})/" "#<TODO># Define the data dir name"
+    echo "cd    $(checkdatadirpasses Galsed_AfterBand${Superdeblending_Band})/" "#<TODO># Define the data dir name"
+    echo ""
+else
+    echo ""
+    echo "Error! The step \"${Superdeblending_Step}\" could not be understood. Please use text starting with \"galfit\" \"galsed\" or \"galsim\"."
+    echo ""
+    exit
+fi
+
+
+# 
+# 
+# 
+if [[ "${Superdeblending_Step^^}" == "GALFIT"* ]]; then
+    echo "######################################"
+    echo "# Prepare the data reduction scripts #"
+    echo "######################################"
+    echo "ln -fs ../goFine.sm"
+    echo "ln -fs ../goSimu.sm"
+    echo "ln -fs ../run_simu_stats_v7.sm"
+    echo "ln -fs ../run_update_catalog_v7.sm"
+    echo ""
+    if [[ ! -f "goFine.sm" || ! -f "goSimu.sm" || ! -f "run_simu_stats_v7.sm" || ! -f "run_update_catalog_v7.sm" ]]; then
+        echo "***************************************************************************************************************************"
+        #echo "pwd: $(pwd)/"
+        #ls "goFine.sm" "goSimu.sm" "run_simu_stats_v7.sm" "run_update_catalog_v7.sm"
+        echo "Error! The supermongo macros could not be found under current dir $(readlink -f .)/!"
+        ls "goFine.sm" 
+        ls "goSimu.sm" 
+        ls "run_simu_stats_v7.sm" 
+        ls "run_update_catalog_v7.sm"
+        echo "You can consider copying these files from $Superdeblending_SrcDir/Galfit_Template_v20160225/ to $(readlink -f .)"
+        echo "***************************************************************************************************************************"
+        echo ""
+        exit
+    fi
+elif [[ "${Superdeblending_Step^^}" == "GALSED"* ]]; then
+    echo "###################################"
+    echo "# Prepare the SED fitting scripts #"
+    echo "###################################"
+    echo "cp -r ${Superdeblending_SrcDir}/Galsed_Template_v20160225/* ."
+    if [[ "$GALSED_FITTING_OLD"x != ""x ]]; then 
+        # use previous SED fitting results
+        if [[ -d "$GALSED_FITTING_OLD/fit_parallel_HDFN" ]]; then 
+            echo "cp -r $(readlink -f $GALSED_FITTING_OLD)/fit_parallel_HDFN ."
+        else 
+            echo "*****"; echo "Error! The previous SED fitting data directory \"$GALSED_FITTING_OLD/fit_parallel_HDFN/\" does not exist!"; echo ""; exit
+        fi
+    fi
+    if [[ "$GALSED_PREDICT_SED"x != ""x && "$GALSED_FITTING_OLD"x == ""x ]]; then 
+        echo "*******"; echo "Warning! When running SED fitting with -sedpredict \"$GALSED_PREDICT_SED\", we must make sure we have the data for the full catalog in \"fit_parallel_HDFN\" from previous SED fitting runs. If not, we can use -previous-sed-fitting \"/path/to/previous/Galsed_XXX\" to indicate where to find them. "; echo ""
+    fi
+    if [[ "${GALSED_RESULTS_OLD[@]}"x != ""x ]]; then 
+        for GALSED_RESULT in ${GALSED_RESULTS_OLD[@]}; do
+           if [[ -f "$GALSED_RESULT" ]]; then 
+                 echo "cp $(readlink -f $GALSED_RESULT) ."
+           else 
+                 echo "*****"; echo "Error! The previous SED fitting result file \"$GALSED_RESULT\" does not exist!"; echo ""; exit
+            fi
+        done
+    else
+        echo "*******"; echo "Warning! No previous SED fitting results are given! We will not generate the \"coo_XXX.txt\" parameter files which can improve the fitting. We can still fit without the parameters, or we can use -previous-sed-results \"/path/to/previous/Galsed_XXX/\"ResLMT*.txt to indicate where to find the files. "; echo ""
+    fi
+    echo ""
+elif [[ "${Superdeblending_Step^^}" == "GALSIM"* ]]; then
+    echo "TODO" # TODO
+    echo ""
+fi
+
+
+# 
+# 
+# 
+if [[ "${Superdeblending_Step^^}" == "GALFIT"* || \
+       "${Superdeblending_Step^^}" == "GALSIM"* ]]; then
+    echo "#################################"
+    echo "# Prepare the input fits images #"
+    echo "#################################"
+    echo "#as defined in ${Superdeblending_SrcDir}/Supermongo_macro/astroPhot.sm"
+    echo "#set_${Superdeblending_Field}_photometry_constants_$Superdeblending_Band"
+    #echo "#define SciPhoto_$Superdeblending_Band"
+    #echo "#define RmsPhoto_$Superdeblending_Band"
+    #echo "#define PsfPhoto_$Superdeblending_Band"
+sm << EOF
+    load astroPhot.sm
+    set_${Superdeblending_Field}_photometry_constants_$Superdeblending_Band
+    echo ln -fs ../\$SciPhoto_${Superdeblending_Band}.fits
+    echo ln -fs ../\$RmsPhoto_${Superdeblending_Band}.fits
+    echo ln -fs ../\$PsfPhoto_${Superdeblending_Band}.fits
+    !echo \$SciPhoto_${Superdeblending_Band}.fits > aaa_input_photo_sci
+    !echo \$RmsPhoto_${Superdeblending_Band}.fits > aaa_input_photo_rms
+    !echo \$PsfPhoto_${Superdeblending_Band}.fits > aaa_input_photo_psf
+    !echo \$SciPhoto_${Superdeblending_Band}\"\"_subfaintDL.fits > aaa_input_photo_sub
+    quit
+EOF
+    GALFIT_IMPHOTO_SCI=$(cat aaa_input_photo_sci)
+    GALFIT_IMPHOTO_RMS=$(cat aaa_input_photo_rms)
+    GALFIT_IMPHOTO_PSF=$(cat aaa_input_photo_psf)
+    GALFIT_IMPHOTO_SUB=$(cat aaa_input_photo_sub | sed -e 's/_astro_subfaintDL.fits/_subfaintDL.fits/g' | sed -e 's/_DL_subfaintDL.fits/_subfaintDL.fits/g')
+    #echo "#" GALFIT_IMPHOTO_SCI=$GALFIT_IMPHOTO_SCI
+    #echo "#" GALFIT_IMPHOTO_RMS=$GALFIT_IMPHOTO_RMS
+    #echo "#" GALFIT_IMPHOTO_PSF=$GALFIT_IMPHOTO_PSF
+    #echo "#" GALFIT_IMPHOTO_SUB=$GALFIT_IMPHOTO_SUB
+    rm aaa_input_photo_sci aaa_input_photo_rms aaa_input_photo_psf aaa_input_photo_sub
+    echo ""
+    
+    if [[ ! -f "$GALFIT_IMPHOTO_SCI" || ! -f "$GALFIT_IMPHOTO_RMS" || ! -f "$GALFIT_IMPHOTO_PSF" ]]; then
+        echo "***************************************************************************************************************************"
+        echo "pwd: $(pwd)/"
+        ls "$GALFIT_IMPHOTO_SCI" "$GALFIT_IMPHOTO_RMS" "$GALFIT_IMPHOTO_PSF"
+        echo "Error! The ${Superdeblending_Field} ${Superdeblending_Band} fits image files could not be found under $(readlink -f .)/!"
+        echo "***************************************************************************************************************************"
+        echo ""
+        exit
+    fi
+fi
+
+
+# 
+# 
+# 
+echo "##############################"
+echo "# Prepare the input catalogs #"
+echo "##############################"
+if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then if [[ ! -f "$GALFIT_CATALOG_INP" ]]; then echo "*********************************************"; echo "Error! \"$GALFIT_CATALOG_INP\" does not exist!"; echo "*********************************************"; exit; fi; fi
+if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then if [[ ! -f "$GALSED_PREDICT_SED" ]]; then echo "*********************************************"; echo "Error! \"$GALSED_PREDICT_SED\" does not exist!"; echo "*********************************************"; exit; fi; fi
+if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then echo "cp -i \"$(readlink -f $GALFIT_CATALOG_INP | sed -e 's%\.[^.]*$%.%g')\"* ."; fi
+if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then echo "cp -i \"$(readlink -f $GALSED_PREDICT_SED | sed -e 's%\.[^.]*$%.%g')\"* ."; fi
+if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then echo "cp -i \"$(readlink -f $GALFIT_CATALOG_ADD | sed -e 's%\.[^.]*$%.%g')\"* ."; fi
+echo ""
+
+
+# 
+# 
+# 
+if [[ "${Superdeblending_Step^^}" == "GALFIT"* ]]; then
+    echo "###########################################################"
+    echo "# Run galfit with input catalog and source position fixed #"
+    echo "###########################################################"
+    echo "#source ../../../../Softwares/SETUP"
+    if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then 
+        echo "do_Galsub $Superdeblending_Band $Superdeblending_Date \\"
+        if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then echo "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
+        if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then echo "          -sedpredict $(basename $GALSED_PREDICT_SED)"; fi
+    else 
+        echo ""; echo "*******"; echo "Warning! No SED prediction file given! No need to do_Galsub?!"; GALFIT_IMPHOTO_SUB=""
+    fi
+    echo ""
+    echo "do_Galfit $Superdeblending_Band $Superdeblending_Date \\"
+    if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then echo "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
+    if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then echo "          -sedpredict $(basename $GALSED_PREDICT_SED) \\"; fi
+    if [[ "$GALFIT_IMPHOTO_SUB"x != ""x ]]; then echo "          -fitsname $(basename $GALFIT_IMPHOTO_SUB) \\"; fi
+    if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then echo "          -catalog-add $(basename $GALFIT_CATALOG_ADD) \\"; fi
+                                                  echo "          -parallel"
+    echo ""
+    echo "cd boxgalfit;"
+    if [[ "$Superdeblending_Band" == "1160" ]]; then echo "do_GalfitRunqsub255;"; else echo "do_GalfitRunqsub;"; fi
+    echo "cd .."
+    echo ""
+    echo "do_Galfit $Superdeblending_Band $Superdeblending_Date \\"
+    if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then echo "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
+    if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then echo "          -sedpredict $(basename $GALSED_PREDICT_SED) \\"; fi
+    if [[ "$GALFIT_IMPHOTO_SUB"x != ""x ]]; then echo "          -fitsname $(basename $GALFIT_IMPHOTO_SUB) \\"; fi
+    if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then echo "          -catalog-add $(basename $GALFIT_CATALOG_ADD) \\"; fi
+                                                  echo "          -postparallel"
+    echo ""
+elif [[ "${Superdeblending_Step^^}" == "GALSED"* ]]; then
+    echo "##################################################################################"
+    echo "# Run SED fitting with the input catalog and old SED fitting results if provided #"
+    echo "##################################################################################"
+    if [[ "${GALSED_RESULTS_OLD[@]}"x != ""x ]]; then
+        echo -n "./do_Type_AGN.sh -catalog $(basename $GALFIT_CATALOG_INP)"
+        echo -n " -sedresults"
+        for GALSED_RESULT in ${GALSED_RESULTS_OLD[@]}; do
+            echo -n " $(basename $GALSED_RESULT)"
+        done
+        echo ""
+    fi
+    if [[ "${GALSED_RESULTS_OLD[@]}"x != ""x ]]; then
+        echo -n "./do_Type_SED.sh -catalog $(basename $GALFIT_CATALOG_INP)"
+        echo -n " -sedresults"
+        for GALSED_RESULT in ${GALSED_RESULTS_OLD[@]}; do
+            echo -n " $(basename $GALSED_RESULT)"
+        done
+        echo ""
+    fi
+    echo -n "./do_Type_FIR.sh -catalog $(basename $GALFIT_CATALOG_INP)"
+    echo ""
+    echo -n "./do_GalsedRunqsub -catalog $(basename $GALFIT_CATALOG_INP)"
+    if [[ "${GALSED_PREDICT_SED}"x != ""x ]]; then
+        echo -n " -sedpred $(basename $GALSED_PREDICT_SED)"
+    fi
+    echo ""
+    echo "./do_GalsedRunqsub -catalog $(basename $GALFIT_CATALOG_INP) -postparallel"
+    echo ""
+    echo "#########################################################"
+    echo "# Run SED prediction scripts to select most possible   #"
+    echo "# sources for the next step galfit fitting, while the  #"
+    echo "# rest are fainter sources and have a high possibility #"
+    echo "# of not being detected in the observed image data     #"
+    echo "# Please tune -fcut [mJy] to select more or less       #"
+    echo "# sources, and check the do_Type_FIT/*.pdf plots       #"
+    echo "#########################################################"
+    echo "./do_Type_FIT.sh -band ${Superdeblending_Band} -fcut TODO -catalog $(basename $GALFIT_CATALOG_INP) -sedresults ResLMT*$(basename $GALFIT_CATALOG_INP)"
+    echo ""
+    exit
+elif [[ "${Superdeblending_Step^^}" == "GALSIM"* ]]; then
+    echo "TODO" # TODO
+    echo ""
+fi
+
+
+# 
+# 
+# 
+if [[ "$Superdeblending_Band" == "100" || \
+      "$Superdeblending_Band" == "160" || \
+      "$Superdeblending_Band" == "16" || \
+      "$Superdeblending_Band" == "24" || \
+      "$Superdeblending_Band" == "20cm" ]]; then
+    GALFIT_VARYING_POS="_vary"
+    echo "############################################################"
+    echo "# Run galfit again allowing bright source position to vary #"
+    echo "############################################################"
+    echo "#source ../../../../Softwares/SETUP"
+    echo "do_Galfit $Superdeblending_Band $Superdeblending_Date \\"
+    if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then echo "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
+    if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then echo "          -sedpredict $(basename $GALSED_PREDICT_SED) \\"; fi
+    if [[ "$GALFIT_IMPHOTO_SUB"x != ""x ]]; then echo "          -fitsname $(basename $GALFIT_IMPHOTO_SUB) \\"; fi
+    if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then echo "          -catalog-add $(basename $GALFIT_CATALOG_ADD) \\"; fi
+                                                  echo "          -vary -parallel"
+    echo ""
+    echo "cd boxgalfit_vary;"
+    if [[ "$Superdeblending_Band" == "1160" ]]; then echo "do_GalfitRunqsub255;"; else echo "do_GalfitRunqsub;"; fi
+    echo "cd .."
+    echo ""
+    echo "do_Galfit $Superdeblending_Band $Superdeblending_Date \\"
+    if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then echo "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
+    if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then echo "          -sedpredict $(basename $GALSED_PREDICT_SED) \\"; fi
+    if [[ "$GALFIT_IMPHOTO_SUB"x != ""x ]]; then echo "          -fitsname $(basename $GALFIT_IMPHOTO_SUB) \\"; fi
+    if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then echo "          -catalog-add $(basename $GALFIT_CATALOG_ADD) \\"; fi
+                                                  echo "          -vary -postparallel"
+    echo ""
+else
+    GALFIT_VARYING_POS=""
+fi
+
+
+# 
+# 
+# 
+echo "##########################################################"
+echo "# OK, the galfit output fits image and ascii tables are: #"
+echo "##########################################################"
+echo "ls FIT_*.fits results_*"
+if [[ -d "Galsim_${Superdeblending_Band}" ]]; then
+    echo "cp -r ../Galsim_${Superdeblending_Band}/sim_diagram_output_v7 ." # TODO
+else
+    echo "# *******"
+    echo "# Warning! The simulation data dir \"Galsim_${Superdeblending_Band}\" was not found!"
+    echo "# We will copy the simulation-based flux and flux error correction recipes for current band ${Superdeblending_Band}"
+    echo "# from \"$Superdeblending_SrcDir/Galsim_Results_v20160225/Galsim_Band${Superdeblending_Band}_CorrectionRecipes.tar.gz\""
+    echo "# *******"
+    echo "tar -xzf \"$Superdeblending_SrcDir/Galsim_Results_v20160225/Galsim_Band${Superdeblending_Band}_CorrectionRecipes.tar.gz\""
+fi
+if [[ "$Superdeblending_Band" == "100" || \
+      "$Superdeblending_Band" == "160" || \
+      "$Superdeblending_Band" == "16" || \
+      "$Superdeblending_Band" == "24" || \
+      "$Superdeblending_Band" == "20cm" ]]; then
+    echo "sm <<< \"macro read goFine.sm R_MIPS${Superdeblending_Band}\""
+else
+    echo "sm <<< \"macro read goFine.sm R_MIPS${Superdeblending_Band}_E\""
+fi
+echo ""
+
+
+# 
+# 
+# 
+if [[ "${Superdeblending_Step^^}" != "GALFIT"*"WITH"*"ADD"*"TRIAL"* && \
+      "${Superdeblending_Step^^}" != "GALFIT"*"WITH"*"ADD"*"PASS1"* ]]; then
+    echo "#################################################################################"
+    echo "# Next, check the residual image and extract additional sources with sextractor #"
+    echo "# To make sure the residual sources are more possibly real, we recommand to run #"
+    echo "# galfit again with the argument -catalog-add \"Residual_priors_XXX.txt\"       #"
+    echo "#################################################################################"
+    echo "cp -r $Superdeblending_SrcDir/Galfit_Template_v20160225/run_sextractor ."
+    echo "cp -r $Superdeblending_SrcDir/Galfit_Template_v20160225/run_sextractor.sh ."
+    echo "./run_sextractor.sh -band ${Superdeblending_Band} \\"
+    if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then 
+    echo "                    -catalog-old $(basename $GALFIT_CATALOG_ADD) \\"
+    fi
+    echo "                    -catalog-output Residual_priors_${Superdeblending_Band}_Trial.txt \\"
+    echo "                    -fitresults-map FIT_${Superdeblending_Field}_${Superdeblending_Band}_Map_${Superdeblending_Date}${GALFIT_VARYING_POS}.fits \\"
+    echo "                    -rms-map $(basename $GALFIT_IMPHOTO_RMS) \\"
+    echo "                    -detect-thresh 1.5 \\"
+    echo "                    -detect-minarea 2"
+    echo "#<TODO># Define -catalog-output for output catalog name"
+    echo "#<TODO># Tune -detect-thresh for better source extraction"
+    echo ""
+else
+    echo "###################################################################################"
+    echo "# Next, check the galfit fitting results of the additional sources extracted from #"
+    echo "# the residual image and only keep those additional sources with S/N_galfit > 3.0 #"
+    echo "# or any other S/N_galfit threshold limit by giving the argument -detect-thresh.  #"
+    echo "###################################################################################"
+    echo "cp -r $Superdeblending_SrcDir/Galfit_Template_v20160225/run_sextractor_postanalysis ."
+    echo "cp -r $Superdeblending_SrcDir/Galfit_Template_v20160225/run_sextractor_postanalysis.sh ."
+    echo "./run_sextractor_postanalysis.sh -band ${Superdeblending_Band} \\"
+    if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then 
+    echo "                                 -catalog-old $(basename $GALFIT_CATALOG_ADD) \\"
+    fi
+    echo "                                 -catalog-output Residual_priors_${Superdeblending_Band}_Revised.txt \\"
+    echo "                                 -fitresults-flux results_${Superdeblending_Band}_${Superdeblending_Date}${GALFIT_VARYING_POS}__fluxes.txt \\"
+    echo "                                 -sedpredict $(basename $GALSED_PREDICT_SED) \\"
+    echo "                                 -detect-thresh 3.0"
+    echo "#<TODO># Define -catalog-output for output catalog name"
+    echo "#<TODO># Tune -detect-thresh for different S/N selection"
+    echo ""
+fi
+
+
+# 
+# 
+# 
+if [[ "${Superdeblending_Step^^}" == "GALFIT"* ]]; then
+    echo "#######################################################"
+    echo "# Finally, update the catalog with new galfit results #"
+    echo "#######################################################"
+    echo "sm << EOF"
+    echo "define imax ${Superdeblending_Band}"
+    echo "define xdate ${Superdeblending_Date}"
+    echo "set old_catalog = {\"$(basename $GALFIT_CATALOG_INP)\"}"
+    echo "set new_catalog = {\"$(basename $GALFIT_CATALOG_OUT)\"}"
+    echo "set sed_predict = {\"$(basename $GALSED_PREDICT_SED)\"}"
+    echo "set result_mags = {\"results_${Superdeblending_Band}_${Superdeblending_Date}${GALFIT_VARYING_POS}\"}"
+    echo "set result_flux = {\"results_${Superdeblending_Band}_${Superdeblending_Date}${GALFIT_VARYING_POS}__fluxes.txt\"}"
+    echo "macro read run_update_catalog_v7.sm run_update_catalog_v7 go"
+    echo "quit"
+    echo "EOF"
+    echo ""
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

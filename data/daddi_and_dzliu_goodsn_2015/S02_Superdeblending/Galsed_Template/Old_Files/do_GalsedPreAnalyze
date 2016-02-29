@@ -1,0 +1,40 @@
+#!/bin/bash
+# 
+
+GALSED_CATALOG=""
+GALSED_BAND=0
+
+# 
+# Read input arguments
+# 
+while [[ $# -gt 0 ]]; do
+    
+    if [[ "$1" == "-catalog" && $# -gt 1 ]]; then
+        shift; GALSED_CATALOG="$1"
+    fi
+    
+    shift
+    
+done
+
+echo GALSED_CATALOG=$GALSED_CATALOG
+echo GALSED_BAND=$GALSED_BAND
+
+# 
+# Check software dependencies
+# 
+
+type sm
+
+# 
+# 
+# 
+
+if [[ -d "do_Type_FIR" ]]; then
+    cd do_Type_FIR
+    sm <<< "macro read do_Type_FIR.sm go $GALSED_BAND"
+    cd ..
+fi
+
+
+

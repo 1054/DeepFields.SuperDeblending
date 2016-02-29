@@ -1,0 +1,9 @@
+
+cp ../Galsed_BeforeBand100_NoParameter/do_Type_AGN/coo_AGN.* .
+
+cp ../Galsed_BeforeBand100_NoParameter/do_Type_SED/coo_SED.* .
+
+# NOTE We do not do "do_Type_FIR" at Galsed BeforeBand100
+
+# TODO We will derive do_Type_FIT after this SED fitting. 
+

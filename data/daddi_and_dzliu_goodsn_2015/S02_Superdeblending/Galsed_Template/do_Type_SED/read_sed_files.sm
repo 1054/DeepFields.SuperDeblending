@@ -4,11 +4,20 @@ read_sed_files
     #    macro read read_sed_files.sm read_sed_files
     # 
     # prepare sed txt files to read
-    !ls -1 "../"*".txt" | grep -i -v "readme" | grep -i -v "mullaney" > "aaa_input_sed_files"
-    if(0!=$exit_status) {
-        print 'Error! Could not find any \"*.txt\" in the parent directory \"../\"!\n' {}
+    ##!ls "../ResLMT_"*".txt"
+    ##if(0!=$exit_status) {
+    ##    print 'Error! Could not find any \"ResLMT_*.txt\" in the parent directory \"../\"!\n' {}
+    ##    return
+    ##}
+    ##!ls -1tr "../ResLMT"*".txt" | grep -i -v "readme" | grep -i -v "mullaney" > "aaa_input_sed_files"
+    ##
+    if(!is_file("aaa_input_sed_files")) {
+        echo "Error! \"aaa_input_sed_files\" was not found!"
+        define aaa 0
+        define aaa ?
         return
     }
+    ##
     # read sed txt files
     define sedi 1
     declare sedfile 0

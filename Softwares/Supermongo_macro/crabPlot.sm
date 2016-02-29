@@ -3,8 +3,9 @@ crabPlot
     # 
     # 
     echo Usage:
-    echo     crabPlotOpenPS
-    echo     crabPlotQuickPlot
+    echo     crabPlotQuickPlot vectorX vectorY [output.eps] [keepopen]
+    echo     crabPlotOpenPS "aaa.eps"
+    echo     crabPlotClosePS
 
 
 
@@ -25,7 +26,7 @@ crabPlotUnMute 00
                                   undef __crabPlot_verbose }
 
 crabPlotOpenPS 01
-    # load crabPlot.sm crabPlotOpenPS
+    # load crabPlot.sm crabPlotOpenPS $1
     if($?1==0) { return }
     # convert $1 to string
     !echo $1 > "..crabPlot..PSFILE.."
@@ -97,10 +98,10 @@ crabPlotDefaultPenForBox 00
     expand 1.5 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype default
 
 crabPlotDefaultPenForCrossPoints 00
-    expand 1.2 lweight 2.0 ltype 0 ltype expand 1.0 ptype 4 1
+    expand 1.2 lweight 2.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype blue
 
 crabPlotDefaultPenForSquarePoints 00
-    expand 2.4 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 0
+    expand 2.4 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 0 ctype blue
 
 crabPlotResetPen 00
     expand 1.5 lweight 3.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype default 

@@ -1,0 +1,98 @@
+calc_detections
+    # 
+    #  macro read do_Detections.sm calc_detections
+    # 
+    load vecSNR.sm
+    load rfile.sm
+    load crabPlot.sm
+    load crabPlotHistogram.sm
+    
+    define imax 100
+    define hmax 24   # previous band h<i
+    
+    # read $imax
+    
+    rfile "../aaa_sim_recipe_output_id_f_df.txt"
+    
+    set snr$imax = vecSNR(f$imax,df$imax)
+    
+    # read $hmax
+    
+    rfile "../RadioOwenMIPS24_priors_v5_20151201_BeforeBand100.txt"
+    
+    set snr$hmax = vecSNR(f$hmax,df$hmax)
+    
+    # list outliers
+    
+    set coo = (snr$hmax>15 && snr$imax<3 && goodArea) # previously detected but now undetected
+    foreach var <id$imax f$imax df$imax snr$imax f$hmax df$hmax snr$hmax goodArea> {set filt_$var = $var if(coo)}
+    set var = 1e7-snr$hmax set var = var if(coo)
+    sort <var filt_id$imax filt_f$imax filt_df$imax filt_snr$imax filt_f$hmax filt_df$hmax filt_snr$hmax filt_goodArea>
+    print "list_coo_.txt" '%15.0f%15g%15g%15g%15g%15g%15g%15g\n' \
+          <filt_id$imax filt_f$imax filt_df$imax filt_snr$imax filt_f$hmax filt_df$hmax filt_snr$hmax filt_goodArea>
+    
+    # print S/N
+    
+    echo "S/N>3 at "$imax"um "$(sum(snr$imax>3))
+    
+    echo "S/N>3 at "$hmax"um "$(sum(snr$hmax>3))
+    echo "S/N>3 at "$hmax"um and S/N>3 at "$imax"um "$(sum(snr$hmax>3 && snr$imax>3))
+    echo "S/N>3 at "$hmax"um and S/N<=3 at "$imax"um "$(sum(snr$hmax>3 && snr$imax<=3))
+    echo "S/N>3 at "$hmax"um and S/N<=3 at "$imax"um "$(sum(snr$hmax>3 && snr$imax<=3 && goodArea))" (goodArea)"
+    
+    echo "S/N>5 at "$hmax"um "$(sum(snr$hmax>5))
+    echo "S/N>5 at "$hmax"um and S/N>3 at "$imax"um "$(sum(snr$hmax>5 && snr$imax>3))
+    echo "S/N>5 at "$hmax"um and S/N<=3 at "$imax"um "$(sum(snr$hmax>5 && snr$imax<=3))
+    echo "S/N>5 at "$hmax"um and S/N<=3 at "$imax"um "$(sum(snr$hmax>5 && snr$imax<=3 && goodArea))" (goodArea)"
+    
+    echo "S/N>10 at "$hmax"um "$(sum(snr$hmax>10))
+    echo "S/N>10 at "$hmax"um and S/N>3 at "$imax"um "$(sum(snr$hmax>10 && snr$imax>3))
+    echo "S/N>10 at "$hmax"um and S/N<=3 at "$imax"um "$(sum(snr$hmax>10 && snr$imax<=3))
+    echo "S/N>10 at "$hmax"um and S/N<=3 at "$imax"um "$(sum(snr$hmax>10 && snr$imax<=3 && goodArea))" (goodArea)"
+    
+    echo "S/N>15 at "$hmax"um "$(sum(snr$hmax>15))
+    echo "S/N>15 at "$hmax"um and S/N>3 at "$imax"um "$(sum(snr$hmax>15 && snr$imax>3))
+    echo "S/N>15 at "$hmax"um and S/N<=3 at "$imax"um "$(sum(snr$hmax>15 && snr$imax<=3))
+    echo "S/N>15 at "$hmax"um and S/N<=3 at "$imax"um "$(sum(snr$hmax>15 && snr$imax<=3 && goodArea))" (goodArea)"
+    
+    #echo "S/N<=3 at "$hmax"um and S/N>3 at "$imax"um "$(sum(snr$hmax<=3 && snr$imax>3)) # perhaps only indicating radio sources
+    
+    # plot histogram of f$hmax for snr$imax selected sources
+    
+    if(1) {
+        location 6000 31500 16000 31500
+        ticksize -1 10 0 0
+        
+        set plot_j = 0,dimen(snr$imax)-1
+        set plot_j = plot_j if(snr$imax>1.0 && goodArea) #<TODO># 
+        set plot_f = lg(f$hmax[plot_j])
+        ctype orange lweight 5.0
+        crabPlotHistogramPlot plot_f -1 5 0.1 histogram_of_f$hmax.pdf keep
+        
+        set plot_j = 0,dimen(snr$imax)-1
+        set plot_j = plot_j if(snr$imax>2.0 && goodArea) #<TODO># 
+        set plot_f = lg(f$hmax[plot_j])
+        ctype seagreen lweight 5.0
+        crabPlotHistogramOverPlot plot_f -1 5 0.1
+        
+        set plot_j = 0,dimen(snr$imax)-1
+        set plot_j = plot_j if(snr$imax>3.0 && goodArea) #<TODO># 
+        set plot_f = lg(f$hmax[plot_j])
+        ctype blue lweight 5.0
+        crabPlotHistogramOverPlot plot_f -1 5 0.1
+        
+        #ctype default lweight 2.0 ltype 1 # plot a dashed line indicating median flux uncertainty
+        #rel $plot_f_MED $fy1 draw $plot_f_MED $fy2 lweight 3.0 expand 0.75 # print median flux uncertainty
+        #puts ""
+        #puts ""
+        #puts "median "$(sprintf('%.4g',$plot_f_MED))" uJy"
+        
+        ctype default lweight 5.0 expand 2.0 xlabel "f"$hmax" [uJy]"
+        crabPlotResetAll
+        device nodevice
+        !pdfcrop --margins 15 histogram_of_f$hmax.pdf histogram_of_f$hmax.pdf >/dev/null
+    }
+
+
+
+

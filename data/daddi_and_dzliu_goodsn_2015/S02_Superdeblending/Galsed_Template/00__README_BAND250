@@ -1,0 +1,16 @@
+
+cp ../Galsed_BeforeBand160/do_Type_AGN/coo_AGN.* .
+
+cp ../Galsed_BeforeBand160/do_Type_SED/coo_SED.* .
+
+cd do_Type_FIR; sm <<< "macro read do_Type_FIR.sm do_Type_FIR"; cd ../
+cp do_Type_FIR/coo_FIR.* .
+
+do_GalsedRunqsub -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt -sedpred SED_predictions_160.txt
+
+do_GalsedRunqsub -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt -postparallel
+
+cd do_Type_FIT; sm <<< "macro read do_Type_FIT.sm go 250"; cd ../
+TODO
+
+

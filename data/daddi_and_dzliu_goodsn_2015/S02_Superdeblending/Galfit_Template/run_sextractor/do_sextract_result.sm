@@ -1,0 +1,163 @@
+go 01
+    # 
+    #  macro read do_sextract_result.sm go 160
+    # 
+    # 
+    if(!$?1) {print 'Usage: macro read do_sextract_result.sm go 160\n' {}}
+    define band $1
+    set rmsfits24 = {"n_mips_1_s1_v0_37_rms_ED.fits"}
+    
+    if(is_file("aaa_input_residual_prior_file")) {
+        print 'We will also include ' {}
+        !cat "aaa_input_residual_prior_file"
+        macro read read_residual_prior_file.sm read_residual_prior_file
+        foreach var rfile_vectors {set old_$var = $var}
+        set old_id = _id
+    } else {
+        if(is_vector(old_id)) {unset old_id}
+    }
+    
+    if(!is_file("aaa_output_residual_prior_file")) {
+        echo Error! Could not find "aaa_output_residual_prior_file"!
+        define aaa 0 
+        define aaa ?
+        return
+    } else {
+        data "aaa_output_residual_prior_file" read row catalogadd 1.s
+    }
+    
+    if(!is_file("aaa_output_residual_prior_log")) {
+        echo Error! Could not find "aaa_output_residual_prior_log"!
+        define aaa 0 
+        define aaa ?
+        return
+    } else {
+        data "aaa_output_residual_prior_log" read row cataloglog 1.s
+    }
+    
+    # 
+    # read SExtractor OutputList
+    data "SExtractor_OutputList.txt"
+    #<20160217><dzliu># read {add_id 1 add_px 2 add_py 3} # position might not be so good
+    read {add_id 1 add_px 6 add_py 7}
+    
+    # 
+    # convert posxy to radec
+    print "zzz_xy2sky_input" '%15.3f%15.3f\n' {add_px add_py}
+    !xy2sky -d -n 7 "SExtractor_Signal.fits" @"zzz_xy2sky_input" > "zzz_xy2sky_output"
+    data "zzz_xy2sky_output"
+    read {add_ra 1 add_de 2}
+    
+    # 
+    # prepare add id array
+    set add_id = 1,dimen(add_ra)
+    set add_id = float(add_id) + float($band)*1000 # format: 160001, 160002, ...
+    
+    # 
+    # prepare catalog vectors
+    macro read prepare_catalog_vectors.sm prepare_catalog_vectors $band
+    foreach var catalog_vectors {
+        if(index('$var','df')==0 || index('$var','_df')==0 || index('$var','eradio')==0) {
+            set $var = add_id*0.0+1e10
+        } else {
+            if(index('$var','source')==0) {
+                set $var = string(add_id*0)
+            } else {
+                set $var = add_id*0.0-99
+            }
+        }
+    }
+    
+    # 
+    # check old catalog vectors
+    if(is_vector(old_id)) {
+        foreach var catalog_vectors {
+            if(!is_vector(old_$var)) {
+                if(index('$var','df')==0 || index('$var','_df')==0 || index('$var','eradio')==0) {
+                    set old_$var = old_id*0.0+1e10
+                } else {
+                    set old_$var = old_id*0.0-99
+                }
+            }
+        }
+    }
+    
+    # 
+    # convert radec to posxy for noise24
+    print "zzz_sky2xy_input" '%15.3f%15.3f\n' {add_ra add_de}
+    !sky2xy -j -n 5 $(rmsfits24) @"zzz_sky2xy_input" > "zzz_sky2xy_output"
+    data "zzz_sky2xy_output"
+    read {n24_px 5 n24_py 6}
+    
+    # 
+    # compute noise24 for goodArea
+    set n24_rad = n24_px*0.0+3.0
+    print "zzz_aperphot_input" '%15.3f%15.3f%15g\n' {n24_px n24_py n24_rad}
+    !CrabPhotAperPhot $(rmsfits24) noinfo "zzz_aperphot_input" > "zzz_aperphot_output"
+    !CrabTableReadColumn "zzz_aperphot_output" "max" > "zzz_aperphot_output_colmax"
+    data "zzz_aperphot_output_colmax" lines 2 0
+    read noi24 1
+    
+    # 
+    # fill in 
+    set _id = add_id
+    set _ra = add_ra
+    set _de = add_de
+    set goodArea = noi24<0.006   #<TODO># see goFine.sm
+    
+    # 
+    # prepend old catalog vectors
+    if(is_vector(old_id)) {
+        foreach var catalog_vectors {
+            set $var = old_$var concat $var
+        }
+    }
+    
+    # 
+    # write to file
+    macro read write_residual_prior_file.sm write_residual_prior_file $band
+    
+    
+    
+    ##set coo_AGN = _id*0.0
+    ##set coo_SED = _id*0.0
+    ##print "coo_AGN_additional.txt" '%15.0f%15.0f\n' {coo_AGN _id}
+    ##print "coo_SED_additional.txt" '%15.0f%15.0f\n' {coo_SED _id}
+    
+    # check catalog 
+    ##!ls -1v ../RadioOwenMIPS24_*.txt > zzz_catalog_file_name
+    ##if(0==$exit_status) {
+    ##  verbose 0
+    ##  data zzz_catalog_file_name read row catalogfile 1.s
+    ##  set catalogfile = {"}+catalogfile+{"}
+    ##  !echo $(catalogfile) | sed -e 's%../%%g' | sed -e 's%.txt%_WithAddSources.txt%g' > zzz_catalog_file_name_new
+    ##  data zzz_catalog_file_name_new read row catalognew 1.s
+    ##  !cat $(catalogfile) > $(catalognew)
+    ##  !cat $(catalogadd) | grep -v "^#" >> $(catalognew)
+    ##  verbose 1
+    ##  echo Successfully output to $(catalognew)
+    ##}
+    
+    ##if(is_file("../SED_predictions_"$band".txt")) {
+    ##  define print_noheader 1
+    ##  set _exc = int(_id*0.0)
+    ##  set _fit = int(_id*0.0+1)
+    ##  !cat "../SED_predictions_"$band".txt" > "SED_predictions_"$band"_WithAddSources.txt" 
+    ##  print +"SED_predictions_"$band"_WithAddSources.txt" '%10.0f%13.7f%13.7f%8d%8d%10d%10d%10d%10d\n' <_id _ra _de _exc _fit _exc _exc _exc _exc>
+    ##  echo Successfully output to new "SED_predictions_"$band"_WithAddSources.txt"
+    ##  define print_noheader 0
+    ##}
+    
+    define print_noheader 1
+    set _radius = _ra*0.0 + 15.0
+    set _color = _id>100000 ? {red} : {yellow}
+    set _dash = _id>100000 ? 0 : 0
+    print "DS9_regions_additional.reg" 'fk5\n' {}
+    print +"DS9_regions_additional.reg" 'circle(%0.7f,%0.7f,%0.3f\") \# text={%.0f} color=%s dash=%d\n' {_ra _de _radius _id _color _dash}
+    define print_noheader 0
+
+
+
+
+
+

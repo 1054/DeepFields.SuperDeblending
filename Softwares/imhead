@@ -13,7 +13,7 @@
 # 
 # Linux
 if [[ $(uname -s) == Linux ]]; then
-    if [[ $(hostname) == planer* ]]; then
+    if [[ $(hostname) == planer* || $(hostname) == sapherschel* ]]; then
         # the supercomputer planer has an old GLIBC version 2.5
         $(dirname $0)/wcstools_linux_Glibc_2.12/$(basename $0) $*
     else

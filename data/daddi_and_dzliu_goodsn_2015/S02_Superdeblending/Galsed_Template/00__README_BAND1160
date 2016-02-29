@@ -1,0 +1,29 @@
+
+cd /home/dzliu/Data/DeepFields/daddi_and_dzliu_goodsn_2016/S02_Superdeblending_FIR/
+mkdir Galsed_BeforeBand1160/
+cd    Galsed_BeforeBand1160/
+
+cp -r /home/dzliu/Cloud/Github/DeepFields.SuperDeblending/data/daddi_and_dzliu_goodsn_2015/S02_Superdeblending/Galsed_Template/* .
+
+cp -r ../Galsed_BeforeBand500/fit_parallel_HDFN .
+
+cp ../Galsed_BeforeBand500/ResLMT*_Band350.txt .
+
+cp ../Galfit_Band500_WithAddSources_Pass2/RadioOwenMIPS24_priors_dzliu_20160128_Band500.txt .
+
+cp ../Galfit_Band500_WithAddSources_Pass2/SED_predictions_500.* .
+
+./do_Type_AGN.sh -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band500.txt -sedresults ResLMT*_Band350.txt
+
+./do_Type_SED.sh -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band500.txt -sedresults ResLMT*_Band350.txt
+
+./do_Type_FIR.sh -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band500.txt
+
+./do_GalsedRunqsub -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band500.txt -sedpred SED_predictions_500.txt
+
+./do_GalsedRunqsub -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band500.txt -postparallel
+
+./do_Type_FIT.sh -band 1160 -fcut 0.66 -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band500.txt -sedresults ResLMT*_Band500.txt
+
+
+

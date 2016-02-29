@@ -1,4 +1,3 @@
-../RadioOwenMIPS24_priors_v5_20151201_BeforeBand100.txt
-../ResLMTfluxes_v6_BeforeBand100_Pass1.txt
-../ResLMTparams_v6_BeforeBand100_Pass1.txt
-../ResLMT_v6_BeforeBand100_Pass1.txt
+ResLMTfluxes_parallel_RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt
+ResLMT_parallel_RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt
+ResLMTparams_parallel_RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt

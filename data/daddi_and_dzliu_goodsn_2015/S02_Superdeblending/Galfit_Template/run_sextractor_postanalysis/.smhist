@@ -1,0 +1,24 @@
+macro read do_sextract_postanalysis.sm go 160
+quit
+macro read do_sextract_postanalysis.sm go 160
+quit
+macro read do_sextract_postanalysis.sm go 160
+quit
+macro read do_sextract_postanalysis.sm go 160
+quit
+macro read do_sextract_postanalysis.sm go 160
+echo $(dimen(_id))
+macro read do_sextract_postanalysis.sm go 160
+quit
+macro read do_sextract_postanalysis.sm go 250
+QUIT
+macro read do_sextract_postanalysis.sm go 250
+QUIT
+macro read do_sextract_postanalysis.sm go 250
+QUIT
+macro read do_sextract_postanalysis.sm go 250
+QUIT
+macro read do_sextract_postanalysis.sm go 250
+QUIT
+macro read do_sextract_postanalysis.sm go 250
+QUIT

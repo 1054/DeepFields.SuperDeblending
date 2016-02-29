@@ -1,0 +1,27 @@
+Solved issues:
+
+\subsection{Spec-z from various literature issue}
+
+\subsection{Stellar mass from various literature issue}
+
+\subsection{Radio galfit output error got zero value issue}
+
+\subsection{GN20, GN20.2a and GN20.2b source position issue}
+
+
+
+
+
+Updates:
+
+24um galfit fitting with PSF models (TODO: Gaussian?)
+
+24um galsim correction with 3 steps
+
+16um galfit fitting with PSF models (TODO: Gaussian?)
+
+16um galsim correction with 3 steps
+
+About radio fluxes and uncertainties, we are using Emanuele 2014?'s work. New galfit and galsim were done and show 10% larger uncertainties, and slightly brighter fluxes for faint (~<20uJy) sources. 
+
+

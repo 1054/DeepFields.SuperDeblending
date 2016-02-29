@@ -37,6 +37,7 @@ if [[ $* == *-donotbackup*    ]]; then DONOTBACKUP=1; fi
 if [[ $* == *-donotupload*    ]]; then DONOTUPLOAD=1; fi
 if [[ $* == *-dryrun*         ]]; then TRIALDRYRUN=1; fi
 if [[ $* == *-catalog*        ]]; then CATALOGFILE=$(echo $* | sed -e 's/.*-catalog[ ]*\([^ ]*\).*/\1/g'); echo CATALOGFILE=$CATALOGFILE; echo "We will use catalog file $CATALOGFILE!"; fi
+if [[ $* == *-sedpred*        ]]; then EXCLUDEFILE=$(echo $* | sed -e 's/.*-sedpred[^ ]*[ ]*\([^ ]*\).*/\1/g'); echo EXCLUDEFILE=$EXCLUDEFILE; echo "We will use sedpredict file $EXCLUDEFILE!"; fi
 if [[ $* == *-resume*         ]]; then RESUMEINDEX=$(echo $* | sed -e 's/.*-resume[ ]*\([^ ]*\).*/\1/g'); echo RESUMEINDEX=$RESUMEINDEX; if [[ $RESUMEINDEX != *[[:digit:]]* ]]; then echo "Error! -resume parameter invalid!"; exit; else echo "We will resume from $RESUMEINDEX (not including)!"; fi; fi
 if [[ $* == *-start*          ]]; then STARTSOURCE=$(echo $* | sed -e 's/.*-start[ ]*\([^ -]*\).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -start parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
 if [[ $* == *-begin*          ]]; then STARTSOURCE=$(echo $* | sed -e 's/.*-begin[ ]*\([^ -]*\).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -begin parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
@@ -50,7 +51,7 @@ if [[ $* == *-end*            ]]; then FINALSOURCE=$(echo $* | sed -e 's/.*-end[
 if [[ $DONOTBACKUP -eq 1 ]]; then echo 'We will not backup old SED results!!'; fi
 # 
 if [[ -f $CATALOGFILE ]]; then runsedid=$(cat $CATALOGFILE | grep -v '#' | sed 's/^[ ]*//g' | tr -s ' ' | cut -d ' ' -f $CATALOGIDCN); else echo Error! $CATALOGFILE not found!; exit; fi
-if [[ -f $EXCLUDEFILE ]]; then runsedid=$(cat $EXCLUDEFILE | grep -v '#' | sed 's/^[ ]*//g' | tr -s ' ' | grep ' 0 ' | cut -d ' ' -f 1); echo We are updating $(wc -l <<< "$runsedid") SEDs; fi
+if [[ -f $EXCLUDEFILE ]]; then runsedid=$(cat $EXCLUDEFILE | grep -v '#' | sed 's/^[ ]*//g' | tr -s ' ' | cut -d ' ' -f 1,4 | grep '[0-9]* 0$' | cut -d ' ' -f 1); echo We are updating $(wc -l <<< "$runsedid") sources!; fi
 ### http://stackoverflow.com/questions/6314679/in-bash-how-do-i-count-the-number-of-lines-in-a-variable
 #exit
 # 
@@ -157,6 +158,7 @@ for i in $runsedid; do
                       cp fit_plots_HDFN/Plot_SED_${i}.pdf         fit_plots_HDFN/Plot_SED_${i}_before${CURRENTBAND}.pdf ; echo 
                 fi
             fi
+            echo "-------------------------------------------------------------------------------------"
             echo "#!/bin/bash -e" > "fit_parallel_HDFN/run_$i.sh"
             echo "echo \$(date +%Y-%m-%d:%H:%M:%S)" >> "fit_parallel_HDFN/run_$i.sh"
             echo "cd $PWD" >> "fit_parallel_HDFN/run_$i.sh"
@@ -174,6 +176,7 @@ for i in $runsedid; do
             fi
             chmod a+x "fit_parallel_HDFN/run_$i.sh"
             cat "fit_parallel_HDFN/run_$i.sh"
+            echo "-------------------------------------------------------------------------------------"
             if [[ $TRIALDRYRUN == 0 ]]; then
                 if [[ $(hostname) == *localhost* || $(hostname) == *sapmcm116* || $(hostname) == *sappcb34* ]]; then 
                     echo $(hostname)
@@ -184,8 +187,8 @@ for i in $runsedid; do
                     echo $(hostname)
                     echo Counting qsub task "$(showq | grep $USER | wc -l)"
                     echo Counting qsub task "$(showq | grep $USER | wc -l)"
-                    while      [[   22  -le "$(showq | grep $USER | wc -l)" ]]; do
-                    sleep           10
+                    while      [[   30  -le "$(showq | grep $USER | wc -l)" ]]; do
+                    sleep           12
                     echo Counting qsub task "$(showq | grep $USER | wc -l)"
                     done
                     echo                "$PWD/fit_parallel_HDFN/run_$i.sh"
@@ -216,21 +219,5 @@ if [[ $RUNQSUBDLIU_PARA == 2 ]]; then
     echo 
     tail Res{LMT,LMTfluxes}_parallel_$CATALOGFILE
     echo 
-    if [[ $DONOTUPLOAD == 0 ]]; then
-        if [[ ! -d ../../CatalogDeblend ]]; then mkdir ../../CatalogDeblend; fi
-        cp $CATALOGFILE  ../../CatalogDeblend/
-        cp $ResLMTOutput ../../CatalogDeblend/
-        cp $ResLMFOutput ../../CatalogDeblend/
-        cp $ResLMPOutput ../../CatalogDeblend/
-        echo 
-        echo Copied to ../../CatalogDeblend/$CATALOGFILE
-        echo Copied to ../../CatalogDeblend/$ResLMTOutput
-        echo Copied to ../../CatalogDeblend/$ResLMFOutput
-        echo Copied to ../../CatalogDeblend/$ResLMPOutput
-        echo 
-    else
-        echo 
-        echo We will not copy new files to ../../CatalogDeblend/, please do the copy by hand!
-        echo 
-    fi
+    echo Done!
 fi

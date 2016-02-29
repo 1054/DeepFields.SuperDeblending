@@ -88,7 +88,7 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
             echo "${GalfitBoxList[i]}"
             # 
             # check hostname
-            if [[ $(hostname) == *bogon* || $(hostname) == *mars* || $(hostname) == *localhost* || $(hostname) == *sapmcm116* || $(hostname) == *sapherschel8* || $(hostname) == *sappcb34* ]]; then
+            if [[ $(hostname) == *localhost* || $(hostname) == *bogon* || $(hostname) == *mars* || $(hostname) == *sapmcm116* || $(hostname) == *sapherschel* || $(hostname) == *sappcb34* ]]; then
                 echo Checking hostname $(hostname)
                 cp  "${GalfitRunList[i]}"                          "${GalfitRunList[i]}.$(hostname).sh"
                 sed --in-place -e "s%^cd .*/boxgalfit_vary/%cd %g" "${GalfitRunList[i]}.$(hostname).sh"
@@ -112,7 +112,7 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
                 sed --in-place -e "s%^.*/galfit %galfit %g"                                                   "${GalfitRunList[i]}.$(hostname).sh"
                 echo "chmod 777 *"                                                                         >> "${GalfitRunList[i]}.$(hostname).sh"
                 echo Counting qsub task "$(showq | grep $USER | wc -l)"
-                while      [[   18  -le "$(showq | grep $USER | wc -l)" ]]; do
+                while      [[   30  -le "$(showq | grep $USER | wc -l)" ]]; do
                 sleep           18
                 echo Counting qsub task "$(showq | grep $USER | wc -l)"
                 done
@@ -121,8 +121,8 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
                 cat                      "${GalfitRunList[i]}.$(hostname).sh"
                 echo -n Adding qsub task "${GalfitRunList[i]}.$(hostname).sh" : ''
                 qsub -l walltime=3:15:00 "${GalfitRunList[i]}.$(hostname).sh"
-                echo Sleeping 6s
-                sleep 6
+                echo Sleeping 4s
+                sleep 4
             fi
         fi
     fi

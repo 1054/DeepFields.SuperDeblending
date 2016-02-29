@@ -4,7 +4,13 @@
 #
 #BASH_VERBOSE=0
 #
-# DIR
+# readlink
+if [[ $(uname) == *"Darwin"* ]]; then
+    function readlink() {
+        if [[ $# -gt 1 ]]; then if [[ "$1" == "-f" ]]; then shift; fi; fi
+        DIR=$(echo "${1%/*}"); (cd "$DIR" && echo "$(pwd -P)/$(basename ${1})")
+    }
+fi
 SUPERDEBLENDDIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
 #
 # PATH
@@ -13,10 +19,10 @@ if [[ $PATH != *"$SUPERDEBLENDDIR"* ]]; then
 fi
 #
 #LIST
-SUPERDEBLENDCMD=(galfit sm cl sky2xy xy2sky CrabPhotAperPhot)
+SUPERDEBLENDCMD=(galfit sm cl sky2xy xy2sky sex CrabPhotAperPhot)
 #
 # IRAF
-if [[ $(type cl 2>/dev/null | wc -l) == 0 ]]; then
+if [[ $(type cl 2>/dev/null | wc -l) -eq 0 ]]; then
     # if on planer or in planer qsub job
     if [[ ($(hostname) == planer* || $(hostname) == sapherschel*)  && -d "/opt/core-3.1-amd64/iraf64/2.14.1/iraf/" ]]; then
         ##module load iraf64/2.15 # iraf64/2.15 has imstat precision bug, have to fall back to iraf 2.14
@@ -38,10 +44,52 @@ if [[ $(type cl 2>/dev/null | wc -l) == 0 ]]; then
         export LOADEDMODULES="iraf64/2.14.1:$LOADEDMODULES"
         SUPERDEBLENDCMD=($(echo "${SUPERDEBLENDCMD[@]}" | sed -e 's/ cl / cl cl.e /g'))
     else
-        echo 
         echo "************************************************************************************"
         echo "Warning! IRAF was not found! cl command not found! This will cause unknown problem!"
         echo "************************************************************************************"
+        echo 
+    fi
+fi
+#
+# SEXTRACTOR
+if [[ $(type sex 2>/dev/null | wc -l) -eq 0 ]]; then
+    # if on planer or in planer qsub job
+    if [[ ($(hostname) == planer* || $(hostname) == sapherschel*)  && -d "/opt/core-3.1-amd64/sextractor/2.19.5/bin/" ]]; then
+        ##module load sextractor/2.19.5
+        export PATH="/opt/core-3.1-amd64/sextractor/2.19.5/bin:$PATH"
+    else
+        echo "******************************************************************************************"
+        echo "Warning! SEXTRACTOR was not found! sex command not found! This will cause unknown problem!"
+        echo "******************************************************************************************"
+        echo 
+    fi
+fi
+#
+# IDL
+if [[ $(type idl 2>/dev/null | wc -l) -eq 0 ]]; then
+    # if on planer or in planer qsub job
+    if [[ ($(hostname) == planer* || $(hostname) == sapherschel*)  && -d "/opt/core-3.1-amd64/idl/8.2/bin/" ]]; then
+        ##module load idl
+        export PATH="/opt/core-3.1-amd64/idl/8.2/bin:$PATH"
+        export EXELIS_DIR_DIR="/opt/core-3.1-amd64/idl/8.2"
+        export IDL_DIR="/opt/core-3.1-amd64/idl/8.2"
+        export RSI_DIR="/opt/core-3.1-amd64/idl/8.2"
+        export IDL_PATH="+/dsm/upgal/data/dliu/Superdeblending/Softwares/idl_lib_dzliu/crab:+/opt/core-3.1-amd64/astrolib/200901:+/opt/core-3.1-amd64/craigm/20090329:+/opt/core-3.1-amd64/idl/8.2/lib:+/opt/core-3.1-amd64/idl/8.2/examples"
+        export LM_LICENSE_FILE="/opt/core-3.1-amd64/idl/8.2/../license/license.dat"
+
+
+        ##
+        ##IDL_LIB_DZLIU
+        ##
+        if [[ "$PATH" != *"/dsm/upgal/data/dliu/Superdeblending/Softwares/idl_lib_dzliu/crab:"* ]]; then
+            ##!PATH = "idl_lib_dzliu/crab:"+!PATH
+            ##resolve_crab ; , "idl_lib_dzliu/crab"
+            export PATH="/dsm/upgal/data/dliu/Superdeblending/Softwares/idl_lib_dzliu/crab:$PATH"
+        fi
+    else
+        echo "***********************************************************************************"
+        echo "Warning! IDL was not found! idl command not found! This will cause unknown problem!"
+        echo "***********************************************************************************"
         echo 
     fi
 fi

@@ -1,0 +1,142 @@
+do_Crowdiness
+    # 
+    # aim:
+    #      compute the crowdiness and plot a histogram figure
+    # 
+    # usage: 
+    #        macro read do_Crowdiness.sm do_Crowdiness
+    #  
+    load astroPhot.sm
+    load crowdiness.sm
+    load rfile.sm 
+    rfile "../RadioOwenMIPS24_priors_v5_20151201_BeforeBand100.txt"
+    
+    define imax 100
+    set_goodsn_photometry_constants_$imax
+    set crow = crowdiness(_ra, _de, $rBeam_$imax)
+    
+    plot_histogram_of_crowdiness crow
+    plot_histogram_of_crowdiness
+
+
+plot_histogram_of_crowdiness 01
+    
+    if($?1) {
+        ctype blue
+        plot_histo_var $1
+        xlabel "crowdiness"
+        # 
+        ctype magenta lweight 3.5 expand 1.2
+        relocate $($fx2-0.25*($fx2-$fx1)) $fy2
+        puts ""
+        puts ""
+        puts ""
+        puts ""
+        puts "N_{>1.50}="$(sum($1>1.50))
+        puts "N_{>1.40}="$(sum($1>1.40))
+        puts "N_{>1.30}="$(sum($1>1.30))
+        puts "N_{>1.20}="$(sum($1>1.20))
+        puts "N_{>1.10}="$(sum($1>1.10))
+        
+    } else {
+        ctype default ltype 1 
+        rel $fx1 0.0 draw $fx2 0.0 ltype 0
+        plot_histo_var
+    }
+    
+
+
+
+plot_histo_var 01
+    # 
+    # aim:
+    #      core function for plotting an histogram of input crowdiness var
+    # 
+    # usage: 
+    #        plot_histo_var var1
+    #        plot_histo_var var2
+    #        plot_histo_var      # with no input to close the file
+    # 
+    
+    load vecStats.sm
+    load crabPlot.sm
+    load crabPlotHistogram.sm
+    
+    if($?1) {
+        set plot_var = $1
+    } else {
+        if(is_vector(_histo_var_file)) {
+            crabPlotResetAll
+            device nodevice
+            !pdfcrop --margins 15 $(_histo_var_file).pdf $(_histo_var_file).pdf >/dev/null
+            echo "Plotted to "$(_histo_var_file)".pdf!"
+            unset _histo_var_file
+        } else {
+            print 'Usage: plot_histo_var var\n' {}
+            print '       plot_histo_var var2 \# plot a second histo\n' {}
+            print '       plot_histo_var \# close the plot\n' {}
+        }
+        return
+    }
+    
+    # first compute flux crowdiness range
+    vecStats plot_var
+    define plot_var_MIN $(plot_var_MIN_2SIGMA)
+    define plot_var_MAX $(plot_var_MAX_2SIGMA)
+    define plot_var_ITV $(plot_var_SIGMA_2SIGMA*0.05)
+    define plot_var_SIG $(plot_var_SIGMA_2SIGMA)
+    define plot_var_MED $(plot_var_MEDIAN_2SIGMA)
+    set plot_var_corr = plot_var # if(f>0)
+    
+    # plot flux crowdiness histogram
+    if(!is_vector(_histo_var_file)) {
+        set _histo_var_file = {"histogram_of_crowdiness_"}
+        set _histo_var_fmin = $plot_var_MIN
+        set _histo_var_fmax = $plot_var_MAX
+        set _histo_var_step = $plot_var_ITV
+        set _histo_var_line = 0
+        crabPlotSavePen
+        location 6000 31500 16000 31500
+        lweight 5.0
+        crabPlotHistogramPlot plot_var_corr _histo_var_fmin _histo_var_fmax _histo_var_step $(_histo_var_file).pdf keep
+        echo "Plotting to "$(_histo_var_file).pdf
+        crabPlotRestorePen
+    } else {
+        # overplot flux crowdiness histogram
+        crabPlotSavePen
+        crabPlotHistogramOverPlot plot_var_corr _histo_var_fmin _histo_var_fmax _histo_var_step
+        crabPlotRestorePen
+    }
+    
+    # plot legend text starting line
+    set _histo_var_line = _histo_var_line + 2
+    
+    # plot a dashed line indicating median value
+    rel $plot_var_MED $fy1 ltype 1 draw $plot_var_MED $fy2 ltype 0 lweight 3.5 expand 1.2
+    #ctype blue 
+    do _histo_var_li=1,_histo_var_line {puts ""}
+    puts ""
+    puts "Median="$(sprintf('%.4g',$plot_var_MED))" (<\pm3\sigma)"
+    #puts "Sigma="$(sprintf('%.4g',$plot_var_SIG))" mJy (within 3\sigma)"
+    
+    # plot legend text
+    relocate $($fx2-0.25*($fx2-$fx1)) $fy2 lweight 3.5 expand 1.2
+    #ctype blue 
+    do _histo_var_li=1,_histo_var_line {puts ""}
+    puts "N_{total}="$(dimen(plot_var))
+    puts "N_{<\pm3\sigma}="$(plot_var_N3SIGMA)
+    
+    # plot axis title
+    ctype default lweight 5.0 expand 2.0 # xlabel "\sigma\,flux [mJy]"
+    
+    # done
+
+
+
+
+
+
+
+
+
+

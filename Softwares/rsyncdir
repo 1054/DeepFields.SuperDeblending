@@ -8,7 +8,7 @@ rsyncdir_rexec="do_rsync_dirs.sh"
 rsyncdir_relog="do_rsync_dirs.log"
 rsyncdir_rdssh=$(echo "$1" "$2" | grep ':' | wc -l) # use ssh if dir contains :
 rsyncdir_rdir2=$(echo "$2" | sed -e 's/.*://g')
-rsyncdir_rsync="mkdir -p $rsyncdir_rdir2 && rsync" # we will create remote dir if not exists <TODO> should not contain white space!!!
+rsyncdir_rsync="mkdir -p $rsyncdir_rdir2 && rsync --delete" # we will create remote dir if not exists <TODO> should not contain white space!!!
 
 # <TODO> mkdir -p permission problem
 # for (( rsyncdir_i = 1; rsyncdir_i < $#; rsyncdir_i++ )); do

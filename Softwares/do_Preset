@@ -1,30 +1,30 @@
 #!/bin/bash
 # 
-if [ $# -lt 2 ]; then 
-    echo "Usage: $0 16 201407"
-    echo "       $0 100 201412 -vary -catalog RadioOwenMIPS24_priors_April18_2014.txt"
-    echo "       $0 100 201412 -vary -catalog RadioOwenMIPS24_priors_April18_2014.txt -catalog-add Residual_priors_Band160.txt"
-    echo "       $0 160 201407 -vary -priormag"
-    echo "       $0 250 201407 -vary -priormag -fitsname goods_north_wdriz_frac0pt6_norm_19dec06_subbackDL"
-    echo "       $0 350 201407 -parallel"
-    echo "       $0 500 201407 -postparallel"
-    echo "       $0 500 201407 -sedpredict SED_predictions_100_201512.txt"
-    echo "       $0 1160 201410 -parallel -fitexclude -fitsname spire500_ima_7p2_v0_100615_subfitDL"
+if [ $# -lt 3 ]; then 
+    echo "Usage: $1 16 201407"
+    echo "       $1 100 201412 -vary -catalog RadioOwenMIPS24_priors_April18_2014.txt"
+    echo "       $1 100 201412 -vary -catalog RadioOwenMIPS24_priors_April18_2014.txt -catalog-add Residual_priors_Band160.txt"
+    echo "       $1 160 201407 -vary -priormag"
+    echo "       $1 250 201407 -vary -priormag -fitsname goods_north_wdriz_frac0pt6_norm_19dec06_subbackDL"
+    echo "       $1 350 201407 -parallel"
+    echo "       $1 500 201407 -postparallel"
+    echo "       $1 500 201407 -sedpredict SED_predictions_100_201512.txt"
+    echo "       $1 1160 201410 -parallel -fitexclude -fitsname spire500_ima_7p2_v0_100615_subfitDL"
     exit
 fi
 # 
-export DG_IMAX=$1
-export DG_DATE=$2
+export DG_IMAX=$2
+export DG_DATE=$3
 export DG_VARY=0
 export DG_PRIM=0 # PRIORMAG
 export DG_PARA=1 # PARALLEL
 export DG_PFIT=0 # fit full catalog? 0=fitAll 1=fitInclSubIncl 2=fitExclSubExcl
-export DG_FSED="SED_predictions_goodsn_$1" # _$2
+export DG_FSED="" # "SED_predictions_goodsn_$1" # _$2
 export DG_FRES=""
-export DG_CATA="RadioOwenMIPS24_priors_April18_2014.txt"
+export DG_CATA="" # "RadioOwenMIPS24_priors_April18_2014.txt"
 export DG_CATB="none"
 export DG_NAME=""
-export DG_FLOG=$(pwd)'/doing_'$1'_'$2
+export DG_FLOG=$(pwd)'/log_'$1'_'$2'_'$3
 export DG_FPWD=`pwd` # Current Path
 # 
 # Print Date
@@ -32,7 +32,7 @@ echo ""
 date +"%F %T %Z"
 #
 # Now check software dependencies on planer
-if [[ $(hostname) == planer* ]]; then
+if [[ $(hostname) == planer* || $(hostname) == sapherschel* ]]; then
     if [[ -d "/dsm/upgal/data/dliu/Superdeblending/Softwares/" ]]; then 
         echo ""
         echo We are running on planer! Loading "/dsm/upgal/data/dliu/Superdeblending/Softwares/SETUP"

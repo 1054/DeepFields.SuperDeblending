@@ -525,7 +525,7 @@ set_goodsn_photometry_constants_100 00
     define m_100        0.664           # photometry fudge factor H-GOODS N, finer scale, <DZLIU>, readme_PGH_v1.0.pdf
     define mJy_100      1e+3            # converting pixel flux to mJy
     define mBias_100    0.0             # <TODO>
-    define fBias_100   -0.03262711935   # <TODO> mJy
+    define fBias_100    0.0             # <TODO> -0.03262711935 mJy
     define rBeam_100    7.2             # <TODO> FWHM of PSF in arcsec # refer readme_PGH_v1.0.pdf
     set_default_astrometry_constants 100
     define xStep_100    80              # <TODO> box x length, from Dr. Daddi's goFine.sm
@@ -711,7 +711,7 @@ set_goodsn_photometry_constants_1160 00
     define m_1160        1                 # photometry fudge factor from PEP, from use of finite PSF  (divise)
     define mJy_1160      1.0               # converting pixel flux to mJy
     define mBias_1160    0.0               # 
-    define fBias_1160    -0.06306955002    # mJy
+    define fBias_1160    0.0               # -0.06306955002 # mJy
     define rBeam_1160    19.5              # FWHM of PSF in arcsec # (JCMT) Penner 2011 AzTEC+MAMBO
     set_default_astrometry_constants 1160
     define xStep_1160    35  # box x length, from Dr. Daddi's goFine.sm

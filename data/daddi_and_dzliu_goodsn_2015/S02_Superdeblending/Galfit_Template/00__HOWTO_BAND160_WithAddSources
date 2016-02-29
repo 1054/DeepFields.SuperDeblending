@@ -1,0 +1,79 @@
+
+#########################################
+#|-------------------------------------|#
+#| This is an example of galfit at 160 |#
+#|-------------------------------------|#
+#########################################
+
+
+
+###################################
+# Prepare scripts and fits images #
+###################################
+
+mkdir Galfit_Band160_WithAddSources/
+cd    Galfit_Band160_WithAddSources/
+
+ln -s ../pgh_goodsn_red_Map_v1.0_rms_DL.fits
+ln -s ../pgh_goodsn_red_Map_v1.0_sci_DL.fits
+ln -s ../pgh_goodsn_red_Psf_v1.0.fits
+
+ln -s ../goFine.sm
+ln -s ../goSimu.sm
+ln -s ../run_simu_stats_v7.sm
+
+cp -i ../Galfit_Band160/run_sextractor_MINAREA_2/RadioOwenMIPS24_priors_dzliu_20160128_Band100_WithAddSources.* .
+
+cp -i ../Galfit_Band160/run_sextractor_MINAREA_2/SED_predictions_160_WithAddSources.* .
+
+
+
+##########################################################
+# Run galfit with input catalog but fix source positions #
+##########################################################
+
+source ../../../../Softwares/SETUP
+
+#do_Galsub 160 201601 -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band100_WithAddSources.txt -sedpredict SED_predictions_160_WithAddSources.txt
+
+do_Galfit 160 201601 -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band100_WithAddSources.txt -sedpredict SED_predictions_160_WithAddSources.txt -fitsname pgh_goodsn_red_Map_v1.0_sci_subfaintDL.fits
+
+cd boxgalfit; do_GalfitRunqsub; cd ..
+
+do_Galfit 160 201601 -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band100_WithAddSources.txt -sedpredict SED_predictions_160_WithAddSources.txt -fitsname pgh_goodsn_red_Map_v1.0_sci_subfaintDL.fits -postparallel
+
+
+
+######################################################################
+# Run a second time but allow bright sources to vary their positions #
+######################################################################
+
+source ../../../../Softwares/SETUP
+
+do_Galfit 160 201601 -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band100_WithAddSources.txt -sedpredict SED_predictions_160_WithAddSources.txt -fitsname pgh_goodsn_red_Map_v1.0_sci_subfaintDL.fits -vary
+
+cd boxgalfit_vary; do_GalfitRunqsub; cd ..
+
+do_Galfit 160 201601 -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band100_WithAddSources.txt -sedpredict SED_predictions_160_WithAddSources.txt -fitsname pgh_goodsn_red_Map_v1.0_sci_subfaintDL.fits -vary -postparallel
+
+
+
+#############################
+# OK, the output files are: #
+#############################
+
+ls FIT_*.fits results_*
+
+sm <<< "macro read goFine.sm R_MIPS160"
+
+
+
+###############################################
+# Next, check the residual image, extract     #
+# additional sources from residual if needed, #
+# then re-run galfit with parameter like      #
+# "-catalog-add Residual_priors_160.txt".     #
+###############################################
+
+
+

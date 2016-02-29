@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+if [[ $(uname) == *"Darwin"* ]]; then
+    function readlinkdarwin() {
+        if [[ $# -gt 1 ]]; then if [[ "$1" == "-f" ]]; then shift; fi; fi
+        DIR=$(echo "${1%/*}"); (cd "$DIR" && echo "$(pwd -P)/$(basename ${1})")
+    }
+    readlinkdarwin $*
+else
+    /usr/bin/readlink $*
+fi
+

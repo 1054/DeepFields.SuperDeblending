@@ -1,0 +1,7 @@
+echo yes
+QUIT
+macro read do_Detections.sm calc_detections
+load crabPlotHistogram.sm
+crabPlotHistogram
+macro read do_Detections.sm calc_detections
+quit

@@ -1,0 +1,47 @@
+#!/bin/bash
+# 
+# Usage: ./do_Type_Parameters
+# 
+
+GALFITBAND=100
+
+if [[ -d "do_Type_AGN" ]]; then
+cd "do_Type_AGN"
+sm << EOF
+macro read do_Type_AGN.sm do_Type_AGN
+quit
+EOF
+#cp coo_AGN.* ../
+cd ".."
+fi
+
+if [[ -d "do_Type_SED" ]]; then
+cd "do_Type_SED"
+sm << EOF
+macro read do_Type_SED.sm do_Type_SED
+quit
+EOF
+#cp coo_SED.* ../
+cd ".."
+fi
+
+if [[ -d "do_Type_FIR" ]]; then
+cd "do_Type_FIR"
+sm << EOF
+macro read do_Type_FIR.sm go $GALFITBAND
+quit
+EOF
+#cp coo_FIR.* ../
+cd ".."
+fi
+
+if [[ -d "do_Type_FIT" && $GALFITBAND -gt 100 ]]; then
+cd "do_Type_FIT"
+sm << EOF
+macro read do_Type_FIT.sm go $GALFITBAND
+quit
+EOF
+#cp coo_FIT.* ../
+cd ".."
+fi
+

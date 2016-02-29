@@ -1,0 +1,115 @@
+plot_histogram_of_uncertainty
+    # 
+    # aim:
+    #      plot the histogram of flux uncertainty
+    # 
+    # usage: 
+    #        macro read dzliu_plot_histogram_of_uncertainty.sm plot_histogram_of_uncertainty
+    # 
+    # 
+    
+    data "../doing20cm_Merged/GOODSN_VLA_merged_dzliu.dat"
+    read {id 1 f 2 df 3}
+    ctype blue 
+    plot_histo_unc df
+    
+    data "../doing20cm_Merged/Result_Daddi/GOODS_N_IRAC_priors_all.txt"
+    read {id 9 f 26 df 27}
+    ctype red
+    plot_histo_unc df
+    
+    plot_histo_unc
+
+
+
+plot_histo_unc 01
+    
+    load vecStats.sm
+    load crabPlotHistogram.sm
+    
+    if($?1) {
+        set plot_df = $1
+    } else {
+        if(is_vector(_histo_unc_file)) {
+            crabPlotResetAll
+            device nodevice
+            !pdfcrop --margins 15 $(_histo_unc_file).pdf $(_histo_unc_file).pdf >/dev/null
+            echo "Plotted to "$(_histo_unc_file)".pdf!"
+            unset _histo_unc_file
+        } else {
+            print 'Usage: plot_histo_unc df\n' {}
+            print '       plot_histo_unc df2 \# plot a second histo\n' {}
+            print '       plot_histo_unc \# close the plot\n' {}
+        }
+        return
+    }
+    
+    # first compute flux uncertainty range
+    vecStats plot_df
+    define plot_df_MIN $(plot_df_MIN_3SIGMA)
+    define plot_df_MAX $(plot_df_MAX_3SIGMA)
+    define plot_df_ITV $(plot_df_SIGMA_3SIGMA*0.1)
+    define plot_df_SIG $(plot_df_SIGMA_3SIGMA)
+    define plot_df_MED $(plot_df_MEDIAN_3SIGMA)
+    set plot_df_corr = plot_df # if(f>0)
+    
+    #set plot_df_corr = df if(f>0 && df<1e7)
+    #stats plot_df_corr plot_df_MEAN plot_df_SIGMA plot_df_KURT 
+    #stats_med plot_df_corr plot_df_MED plot_df_SIQR            # first compute flux uncertainty range
+    #define plot_df_MIN $($plot_df_MED-2.0*$plot_df_SIGMA)      # first compute flux uncertainty range
+    #define plot_df_MAX $($plot_df_MED+2.0*$plot_df_SIGMA)      # first compute flux uncertainty range
+    #define plot_df_ITV $(0.05*$plot_df_SIGMA)                  # first compute flux uncertainty range
+    
+    # plot flux uncertainty histogram
+    if(!is_vector(_histo_unc_file)) {
+        set _histo_unc_file = {"histogram_of_uncertainty_"}
+        set _histo_unc_fmin = $plot_df_MIN
+        set _histo_unc_fmax = $plot_df_MAX
+        set _histo_unc_step = $plot_df_ITV
+        set _histo_unc_line = 0
+        crabPlotSavePen
+        location 6000 31500 16000 31500
+        lweight 5.0
+        crabPlotHistogramPlot plot_df_corr _histo_unc_fmin _histo_unc_fmax _histo_unc_step $(_histo_unc_file).pdf keep
+        echo "Plotting to "$(_histo_unc_file).pdf
+        crabPlotRestorePen
+    } else {
+        # overplot flux uncertainty histogram
+        crabPlotSavePen
+        crabPlotHistogramOverPlot plot_df_corr _histo_unc_fmin _histo_unc_fmax _histo_unc_step
+        crabPlotRestorePen
+    }
+    
+    # plot legend text starting line
+    set _histo_unc_line = _histo_unc_line + 2
+    
+    # plot a dashed line indicating median value
+    rel $plot_df_MED $fy1 ltype 1 draw $plot_df_MED $fy2 ltype 0 lweight 3.5 expand 1.2
+    #ctype blue 
+    do _histo_unc_li=1,_histo_unc_line {puts ""}
+    puts ""
+    puts "Median="$(sprintf('%.4g',$plot_df_MED))"\,mJy (<\pm3\sigma)"
+    #puts "Sigma="$(sprintf('%.4g',$plot_df_SIG))" mJy (within 3\sigma)"
+    
+    # plot legend text
+    relocate $($fx2-0.25*($fx2-$fx1)) $fy2 lweight 3.5 expand 1.2
+    #ctype blue 
+    do _histo_unc_li=1,_histo_unc_line {puts ""}
+    puts "N_{total}="$(dimen(df))
+    puts "N_{<\pm3\sigma}="$(_df_N3SIGMA)
+    
+    # plot axis title
+    ctype default lweight 5.0 expand 2.0 xlabel "\sigma\,flux [mJy]"
+    
+    # done
+
+
+
+
+
+
+
+
+
+
+

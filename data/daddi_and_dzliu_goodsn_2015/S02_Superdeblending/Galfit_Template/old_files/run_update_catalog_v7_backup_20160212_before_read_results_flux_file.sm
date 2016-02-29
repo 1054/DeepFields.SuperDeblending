@@ -1,0 +1,530 @@
+run_update_catalog_v7_Corr_201601
+    # 
+    #     sm | tee log_update_catalog_v7_201601.txt
+    #     macro read run_update_catalog_v7.sm 
+    #     run_update_catalog_v7_Corr_201601
+    # 
+    if(1) {
+        define imax 100
+        define xdate_galsed 201601
+        define xdate_galfit 201601
+        define xdate_galsim 201601
+        define xpath_galsed "Galsed_BeforeBand"$imax"_Pass2"
+        define xpath_galfit "Galfit_Band"$imax"_Pass1"
+        define xpath_galsim "Galsim_Band"$imax"_Pass1"
+        set old_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand100.txt"}
+        set new_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand160.txt"}
+        set sed_predict = <"SED_predictions_"$imax"_"$xdate_galsed".txt">
+        run_update_catalog_main_code
+        
+        define imax 160
+        define xdate_galsed 201601
+        define xdate_galfit 201601
+        define xdate_galsim 201601
+        define xpath_galsed "Galsed_BeforeBand"$imax"_Pass2"
+        define xpath_galfit "Galfit_Band"$imax"_Pass2"             # 160 galfit Pass2 -- incl. Adds. 160
+        define xpath_galsim "Galsim_Band"$imax"_Pass1"
+        set old_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand160.txt"}
+        set new_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand250.txt"}
+        set add_catalog = {"Residual_priors_v7_Band160.txt"}
+        set sed_predict = <"SED_predictions_"$imax"_"$xdate_galsed".txt">
+        run_update_catalog_main_code
+        
+        define imax 250
+        define xdate_galsed 201601
+        define xdate_galfit 201601
+        define xdate_galsim 201601
+        define xpath_galsed "Galsed_BeforeBand"$imax"_Pass2"
+        define xpath_galfit "Galfit_Band"$imax"_Pass2"             # 250 galfit Pass2 -- incl. Adds. 250
+        define xpath_galsim "Galsim_Band"$imax"_Pass1"
+        set old_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand250.txt"}
+        set new_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand350.txt"}
+        set add_catalog = {"Residual_priors_v7_Band250.txt"}
+        set sed_predict = <"SED_predictions_"$imax"_"$xdate_galsed".txt">
+        run_update_catalog_main_code
+        
+        define imax 350
+        define xdate_galsed 201601
+        define xdate_galfit 201601
+        define xdate_galsim 201601
+        define xpath_galsed "Galsed_BeforeBand"$imax"_Pass2"
+        define xpath_galfit "Galfit_Band"$imax"_Pass2"             # 350 galfit Pass2 -- incl. Adds. 350
+        define xpath_galsim "Galsim_Band"$imax"_Pass1"
+        set old_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand350.txt"}
+        set new_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand500.txt"}
+        set add_catalog = {"Residual_priors_v7_Band350.txt"}
+        set sed_predict = <"SED_predictions_"$imax"_"$xdate_galsed".txt">
+        run_update_catalog_main_code
+        
+        define imax 500
+        define xdate_galsed 201601
+        define xdate_galfit 201601
+        define xdate_galsim 201601
+        define xpath_galsed "Galsed_BeforeBand"$imax"_Pass2"
+        define xpath_galfit "Galfit_Band"$imax"_Pass2"             # 500 galfit Pass2 -- incl. Adds. 500
+        define xpath_galsim "Galsim_Band"$imax"_Pass1"
+        set old_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand500.txt"}
+        set new_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand1160.txt"}
+        set add_catalog = {"Residual_priors_v7_Band500.txt"}
+        set sed_predict = <"SED_predictions_"$imax"_"$xdate_galsed".txt">
+        run_update_catalog_main_code
+        
+        define imax 1160
+        define xdate_galsed 201601
+        define xdate_galfit 201601
+        define xdate_galsim 201601
+        define xpath_galsed "Galsed_BeforeBand"$imax"_Pass2"
+        define xpath_galfit "Galfit_Band"$imax"_Pass2"             # 1160 galfit Pass2 -- incl. Adds. 1160
+        define xpath_galsim "Galsim_Band"$imax"_Pass1"
+        set old_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand1160.txt"}
+        set new_catalog = {"RadioOwenMIPS24_priors_v7_201601_Final.txt"}
+        set add_catalog = {"Residual_priors_v7_Band1160.txt"}
+        set sed_predict = <"SED_predictions_"$imax"_"$xdate_galsed".txt">
+        run_update_catalog_main_code
+    }
+    
+
+
+
+run_update_catalog_v7 02
+    # 
+    #     sm | tee log_update_catalog_v7_20160129.txt
+    #     macro read run_update_catalog_v7.sm run_update_catalog_v7 1160
+    #     macro read run_update_catalog_v7.sm run_update_catalog_v7 250 3
+    # 
+    # 
+    # 
+    ############define imax 24
+    ###########define imax 100
+    ##########define imax 160
+    #########define imax 250
+    ########define imax 350
+    #######define imax 500
+    ######define imax 1160
+    #####define imax 16
+    ####define imax 100
+    ###define imax 160
+    ##define imax 250
+    # 
+    # 
+    if('$1'=='100') {
+        define imax 100
+        define xdate_galsed 201601
+        define xdate_galfit 201601
+        define xdate_galsim 201601
+        define xpath_galsed "Galsed_BeforeBand"$imax"_Pass2"
+        define xpath_galfit "Galfit_Band"$imax"_Pass1"
+        define xpath_galsim "Galsim_Band"$imax"_Pass1"
+        set old_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand100.txt"}
+        set new_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand160.txt"} # found fres -- simu.fits[2] error in previous data, now corrected to [3]. redone Galsim statistics. 
+        #unset add_catalog
+    }
+    # 
+    if('$1'=='160') {
+        define imax 160
+        define xdate_galsed 201601
+        define xdate_galfit 201601
+        define xdate_galsim 201601
+        define xpath_galsed "Galsed_BeforeBand"$imax"_Pass1"
+        define xpath_galfit "Galfit_Band"$imax"_Pass2"
+        define xpath_galsim "Galsim_Band"$imax"_Pass1"
+        set old_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand160.txt"}
+        set new_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand250.txt"} # found fres -- simu.fits[2] error in previous data, now corrected to [3]. redone Galsim statistics. 
+        set add_catalog = {"Residual_priors_v7_Band160.txt"}
+    }
+    # 
+    if('$1'=='250') {
+        define imax 250
+        define xdate_galsed 201601
+        define xdate_galfit 201601
+        define xdate_galsim 201601
+        define xpath_galsed "Galsed_BeforeBand"$imax"_Pass2"
+        define xpath_galfit "Galfit_Band"$imax"_Pass2"
+        define xpath_galsim "Galsim_Band"$imax"_Pass1"
+        set old_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand250.txt"}
+        set new_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand350.txt"} # found fres -- simu.fits[2] error in previous data, now corrected to [3]. redone Galsim statistics. 
+        set add_catalog = {"Residual_priors_v7_Band250.txt"}
+    }
+    # 
+    if('$1'=='250' && '$2'=='3') {
+        define imax 250
+        define xdate_galsed 201601
+        define xdate_galfit 201601
+        define xdate_galsim 201601
+        define xpath_galsed "Galsed_BeforeBand"$imax"_Pass2"
+        define xpath_galfit "Galfit_Band"$imax"_Pass3" #<TODO># Pass3 -- Manually tuned 
+        define xpath_galsim "Galsim_Band"$imax"_Pass1"
+        set old_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand250.txt"}
+        set new_catalog = {"RadioOwenMIPS24_priors_v7_201601_FinishBand250_Pass3.txt"}
+        set add_catalog = {"Residual_priors_v7_Band250_Plus_Band350.txt"}
+        set sed_predict = <"SED_predictions_"$imax"_"$xdate_galsed"_Tuned.txt">
+    }
+    # 
+    if('$1'=='350') {
+        define imax 350
+        define xdate_galsed 201601
+        define xdate_galfit 201601
+        define xdate_galsim 201601
+        define xpath_galsed "Galsed_BeforeBand"$imax"_Pass2"
+        define xpath_galfit "Galfit_Band"$imax"_Pass2"
+        define xpath_galsim "Galsim_Band"$imax"_Pass1"
+        set old_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand350.txt"}
+        set new_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand500.txt"}
+        set add_catalog = {"Residual_priors_v7_Band350.txt"}
+        set sed_predict = <"SED_predictions_"$imax"_"$xdate_galsed".txt">
+    }
+    # 
+    if('$1'=='500') {
+        define imax 500
+        define xdate_galsed 201601
+        define xdate_galfit 201601
+        define xdate_galsim 201601
+        define xpath_galsed "Galsed_BeforeBand"$imax"_Pass2"
+        define xpath_galfit "Galfit_Band"$imax"_Pass2"
+        define xpath_galsim "Galsim_Band"$imax"_Pass1"
+        set old_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand500.txt"}
+        set new_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand1160.txt"}
+        set add_catalog = {"Residual_priors_v7_Band500.txt"}
+        set sed_predict = <"SED_predictions_"$imax"_"$xdate_galsed".txt">
+    }
+    # 
+    if('$1'=='1160') {
+        define imax 1160
+        define xdate_galsed 201601
+        define xdate_galfit 201601
+        define xdate_galsim 201601
+        define xpath_galsed "Galsed_BeforeBand"$imax"_Pass2"
+        define xpath_galfit "Galfit_Band"$imax"_Pass2"
+        define xpath_galsim "Galsim_Band"$imax"_Pass1"
+        set old_catalog = {"RadioOwenMIPS24_priors_v7_201601_BeforeBand1160.txt"}
+        set new_catalog = {"RadioOwenMIPS24_priors_v7_20160129_Final.txt"}
+        set add_catalog = {"Residual_priors_v7_Band1160.txt"}
+        set sed_predict = <"SED_predictions_"$imax"_"$xdate_galsed".txt">
+    }
+    # 
+    run_update_catalog_main_code
+    
+    
+    
+    
+    
+    
+    
+    
+    
+run_update_catalog_main_code
+    # 
+    # 
+    macro read goSimu.sm
+    macro read run_simu_stats_v7.sm    # functions: go_correct_df
+    #load run_image_util.sm
+    load rfile.sm
+    load fresidual.sm
+    load crowdiness.sm
+    load astroPhot.sm
+    # 
+    # 
+    #set big_catalog = {"irac_mips_fluxes_hdfn.dat"}
+    #set old_catalog = {"RadioOwenMIPS24_priors_201500_v1.txt"} # this is 24+radio catalog / wrong this is 24+radio+new(wrong) catalog...
+    #set new_catalog = {"RadioOwenMIPS24_priors_201500_v2.txt"} # this is 24+radio+new catalog, but I forgot to use the full new catalog...
+    #set old_catalog = {"RadioOwenMIPS24_priors_April18_2014.txt"} # this is 24+radio catalog
+    #set old_catalog = {"RadioOwenMIPS24_priors_v5_201601.txt"} # remake 24+radio+new catalog, including full new catalog
+    if(!is_vector(old_catalog) || !is_vector(new_catalog)) {
+        print 'Error! Unknown Band $imax!\n' {}
+        return
+    }
+    # 
+    # read old catalog
+    rfile $(old_catalog)
+    set cat_id = _id # _id is in $(old_catalog)
+    set headers = rfile_vectors # headers contains all the column headers in $(old_catalog)
+    foreach vec headers {set old_$vec = $vec} # backup all old vectors
+    
+    # 
+    # read SED do_Type_FIT <Obsolete> now read SED predictions in Galfit dir.
+    # chdir $xpath_galsed
+    # verbose 0
+    # !test -d "do_Type_FIT"
+    # if($exit_status==0) {
+    #     if(is_file("do_Type_FIT/SED_predictions_"$imax"_"$xdate_galsed".txt")) {
+    #         rfile "do_Type_FIT/SED_predictions_"$imax"_"$xdate_galsed".txt"
+    #         set cat_fit$imax = fit$imax
+    #     } else {
+    #         print 'Error! Could not find galsed Type_FIT file \""SED_predictions_"$imax"_"$xdate_galsed".txt"\"!\n' {}
+    #         return
+    #     }
+    # } else {
+    #     print 'Error! Could not find galsed Type_FIT dir \"do_Type_FIT\"!\n' {}
+    #     return
+    # }
+    # verbose 1
+    # chdir ..
+    
+    # 
+    # read SED predictions
+    chdir $xpath_galfit
+    verbose 0
+    if(is_file($(sed_predict))) {
+        rfile $(sed_predict)
+        set cat_fit$imax = fit$imax
+            print 'We are reading SED predictions from $(sed_predict)!\n' {}
+    } else {
+        print 'Error! Could not find \"$(sed_predict)\"!\n' {}
+        return
+    }
+    verbose 1
+    chdir ..
+    
+    # 
+    # read additional catalog
+    chdir $xpath_galfit
+    verbose 0
+    if(is_vector(add_catalog)) {
+        print 'We are reading additional sources from $(add_catalog)!\n' {}
+        rfile $(add_catalog)
+        set add_id = _id
+        set add_ra = _ra
+        set add_de = _de
+        set add_fit$imax = _id*0+1
+        foreach var rfile_vectors {
+            # note that "Radec_of_new_priors.txt" already contained initialized columns.
+            set add_$var = $var
+            set $var = $var""_rfile_backup
+            set $var = $var concat add_$var
+        }
+        # append to full_id
+        set full_id = cat_id concat add_id
+        set full_fit$imax = cat_fit$imax concat add_fit$imax # this is the array Type_FIT
+    } else {
+        set full_id = cat_id
+        set full_fit$imax = cat_fit$imax # this is the array Type_FIT
+    }
+    verbose 1
+    chdir ..
+    
+    # 
+    # read photometry measurements
+    chdir $xpath_galfit
+    verbose 0
+    if(is_file("results_"$imax"_"$xdate_galfit"_vary")) {
+        data "results_"$imax"_"$xdate_galfit"_vary"
+    } else {
+        if(is_file("results_"$imax"_"$xdate_galfit)) {
+            data "results_"$imax"_"$xdate_galfit
+        } else {
+            print 'Error! Could not find galfit output file \"results_$imax"_"$xdate_galfit\"!\n' {}
+            return
+        }
+    }
+    read <fit_x$imax 1 fit_y$imax 2 fit_noise$imax 3 fit_m$imax 4 fit_e$imax 5>
+    read <fit_ra$imax 6 fit_de$imax 7 fit_id$imax 8>
+    verbose 1
+    chdir ..
+    
+    # 
+    # check fit source number
+    if(dimen(fit_x$imax)!=sum(full_fit$imax)) {
+        print 'Error! The number of sources in galfit \"results_\" is different from that in galsed \"predictions_\"!\n' {}
+        return
+    }
+    
+    # 
+    # convert mag2flux
+    set_goodsn_photometry_constants_$imax
+    define fBias_$imax 0.0
+    convert_mag2flux goodsn $imax fit_m$imax fit_e$imax
+    set fit_f$imax = f$imax
+    set fit_df$imax = df$imax
+    
+    # 
+    # check PSF FWHM constant
+    if(!$?rBeam_$imax) {
+        print 'Error! The photometry constant \"rBeam_$imax\" has not been defined! Please run: \n' {}
+        print '       load astroPhot.sm set_goodsn_photometry_constants_$imax\n' {}
+        return
+    }
+    
+    # 
+    # measure flux on residual image
+    chdir $xpath_galfit
+    if(is_file("aaa_fresidual.txt") && 1) {
+        data "aaa_fresidual.txt" read fit_fres$imax 1
+    } else {
+        if(is_file("FIT_goodsn_"$imax"_Map_"$xdate_galfit"_vary.fits")) {
+            #<old># getResPixStats "FIT_goodsn_"$imax"_Map_"$xdate_galfit"_vary.fits" fit_x$imax fit_y$imax $PsfPhoto_$imax".fits"
+            set fit_fres$imax = fresidual("FIT_goodsn_"$imax"_Map_"$xdate_galfit"_vary.fits[2]", fit_ra$imax, fit_de$imax, $rBeam_$imax/2.0)
+        } else {
+            if(is_file("FIT_goodsn_"$imax"_Map_"$xdate_galfit".fits")) {
+                #<old># getResPixStats "FIT_goodsn_"$imax"_Map_"$xdate_galfit".fits" fit_x$imax fit_y$imax $PsfPhoto_$imax".fits"
+                set fit_fres$imax = fresidual("FIT_goodsn_"$imax"_Map_"$xdate_galfit".fits[2]", fit_ra$imax, fit_de$imax, $rBeam_$imax/2.0)
+            } else {
+                print 'Error! Could not find galfit output fits \""FIT_goodsn_"$imax"_"$xdate_galfit".fits"\"!\n' {}
+                return
+            }
+        }
+        print "aaa_fresidual.txt" '%15g%15.0f\n' <fit_fres$imax fit_id$imax>
+    }
+    #<old># set fit_fres$imax = ResPixStats_ABS
+    chdir ..
+    
+    # 
+    # measure crowdiness for fitted sources
+    chdir $xpath_galfit
+    if(is_file("aaa_crowdiness.txt") && 0) {
+        data "aaa_crowdiness.txt" read fit_crow$imax 1
+    } else {
+        set fit_crow$imax = crowdiness(fit_ra$imax,fit_de$imax,$rBeam_$imax,1.5) #<TODO># make sure same as "do_Type_FIT/do_Type_FIT.sm"
+        print "aaa_crowdiness.txt" '%15g%15.0f\n' <fit_crow$imax fit_id$imax>
+    }
+    chdir ..
+    
+    # 
+    # read simulation based correction functions
+    chdir $xpath_galsim
+    verbose 0
+    define xpath_outsim "sim_diagram_output_v7"  #<TODO># sim_diagram_output_v7
+    !test -d $xpath_outsim
+    if($exit_status==0) {
+        data $xpath_outsim"/FUN_fbias_1.txt"  read FUN_fbias_1  1
+        data $xpath_outsim"/FUN_fbias_2.txt"  read FUN_fbias_2  1
+        data $xpath_outsim"/FUN_fbias_3.txt"  read FUN_fbias_3  1
+        data $xpath_outsim"/FUN_dfcorr_1.txt" read FUN_dfcorr_1 1
+        data $xpath_outsim"/FUN_dfcorr_2.txt" read FUN_dfcorr_2 1
+        data $xpath_outsim"/FUN_dfcorr_3.txt" read FUN_dfcorr_3 1
+        data $xpath_outsim"/FUN_dfcorr_1.txt" read FUN_dfcorr_1 1
+        data $xpath_outsim"/FUN_dfcorr_2.txt" read FUN_dfcorr_2 1
+        data $xpath_outsim"/FUN_dfcorr_3.txt" read FUN_dfcorr_3 1
+        # data $xpath_outsim"/NOM_fbias_0.txt"  read NOM_fbias_0  1
+        data $xpath_outsim"/NOM_fbias_1.txt"  read NOM_fbias_1  1
+        data $xpath_outsim"/NOM_fbias_2.txt"  read NOM_fbias_2  1
+        data $xpath_outsim"/NOM_fbias_3.txt"  read NOM_fbias_3  1
+        # data $xpath_outsim"/NOM_dfcorr_0.txt" read NOM_dfcorr_0 1
+        data $xpath_outsim"/NOM_dfcorr_1.txt" read NOM_dfcorr_1 1
+        data $xpath_outsim"/NOM_dfcorr_2.txt" read NOM_dfcorr_2 1
+        data $xpath_outsim"/NOM_dfcorr_3.txt" read NOM_dfcorr_3 1
+    } else {
+        print 'Error! Could not find galsed analyse output dir \"sim_diagram_output_v4\"!\n' {}
+        return
+    }
+    verbose 1
+    chdir ..
+    
+    # 
+    # apply simulation based correction functions --> output are f$imax and df$imax
+    chdir $xpath_galfit
+    set f$imax""_uncorr = fit_f$imax
+    set df$imax""_uncorr = fit_df$imax
+    # go_correct_fbias 0
+    # go_correct_df    0
+    go_correct_fbias 1   (lg(fit_df$imax/fit_noise$imax))      "\sigma_{flux}/\sigma_{rms\,noise}"
+    go_correct_df    1   (lg(fit_df$imax/fit_noise$imax))      "\sigma_{flux}/\sigma_{rms\,noise}"
+    go_correct_fbias 2   (lg(fit_fres$imax/fit_noise$imax))    "f_{residual}/\sigma_{rms\,noise}"
+    go_correct_df    2   (lg(fit_fres$imax/fit_noise$imax))    "f_{residual}/\sigma_{rms\,noise}"
+    go_correct_fbias 3   (lg(fit_crow$imax))                   "crowdiness"
+    go_correct_df    3   (lg(fit_crow$imax))                   "crowdiness"
+    if(is_vector(f$imax""_corr_0) && is_vector(df$imax""_corr_0)) {
+        print "aaa_sim_recipe_output_fbias.txt" '%13.0f%16g%16g%16g%16g%16g\n' \
+        <fit_id$imax f$imax""_uncorr f$imax""_corr_0 f$imax""_corr_1 f$imax""_corr_2 f$imax""_corr_3>
+        print "aaa_sim_recipe_output_dfcorr.txt" '%13.0f%16g%16g%16g%16g%16g\n' \
+        <fit_id$imax df$imax""_uncorr df$imax""_corr_0 df$imax""_corr_1 df$imax""_corr_2 df$imax""_corr_3>
+    } else {
+        print "aaa_sim_recipe_output_fbias.txt" '%13.0f%16g%16g%16g%16g\n' \
+        <fit_id$imax f$imax""_uncorr f$imax""_corr_1 f$imax""_corr_2 f$imax""_corr_3>
+        print "aaa_sim_recipe_output_dfcorr.txt" '%13.0f%16g%16g%16g%16g\n' \
+        <fit_id$imax df$imax""_uncorr df$imax""_corr_1 df$imax""_corr_2 df$imax""_corr_3>
+    }
+    chdir ..
+    
+    # 
+    # 
+    # return
+    
+    # 
+    # fill fit data into full data array (fit=cat_fit+add) (full=cat_fit+cat_exc+add)
+    set sel_id = 0,dimen(full_id)-1
+    set sel_id = sel_id if(full_fit$imax>0)
+    set full_f$imax             = full_fit$imax * 0.0 - 99
+    set full_df$imax            = full_fit$imax * 0.0 + 1e10
+    set full_noise$imax         = full_fit$imax * 0.0 + 1.0
+    set full_f$imax[sel_id]     = f$imax
+    set full_df$imax[sel_id]    = df$imax
+    set full_noise$imax[sel_id] = fit_noise$imax
+    
+    # return
+    
+    set f$imax = full_f$imax
+    set df$imax = full_df$imax
+    set noise$imax = full_noise$imax
+    
+    # 
+    # <TODO> append add data to cat data array -- which makes our full data array
+    # <TODO> 
+    
+    # 
+    # 
+    # " update the catalogs changing  qz to -999 when qz = -99 AND zp_X also <0 
+    #   This way we recognise right away from plot that a source has no zp "
+    set coo = (-99==zq && zp_X<0)
+    set zq = coo ? -999 : zq
+    # Note:
+    #   there are two phot-z: zp_3D and zp_X in "priors_all_April18_2014.txt"
+    #   there are two zpec-z: spez3D and spezX  in "priors_all_April18_2014.txt"
+    #   we have a spez = spez3D or spezX
+    #         and zp_p = spez3D or spezX or zp_3D or zp_X
+    #   if no spec-z nor the phot-z => zq = -999
+    #   if no spec-z but has phot-z => zq = -99
+    #   if has spec-z and has phot-z(3D) => zq = -1 (??? seems -1 has consistent spec-z and phot-z ???)
+    #   if has spec-z and has phot-z(3D) => zq = 1 ???
+    #   if has spec-z and has phot-z(3D) => zq = 2 ???
+    # 
+    # 
+    # 
+    define ReadyToGo "y"
+    define ReadyToGo ? <"We are about to write the new catalog into "$(new_catalog)", ready? [y/n]">
+    if('$ReadyToGo'=='y') {
+        if('$imax'=='100') {
+        print $(new_catalog) '%-9.0f %12.7f %12.7f %9g\n' \
+        {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 radio eradio \
+            _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 _fch4 _dfch4 KtotX MassX distX spezX zq source distz idz goodArea}
+        }
+        if('$imax'=='160') {
+        print $(new_catalog) '%-9.0f %12.7f %12.7f %9g\n' \
+        {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 f160 df160 radio eradio \
+            _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 _fch4 _dfch4 KtotX MassX distX spezX zq source distz idz goodArea}
+        }
+        if('$imax'=='250') {
+        print $(new_catalog) '%-9.0f %12.7f %12.7f %9g\n' \
+        {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 f160 df160 f250 df250 \
+            radio eradio _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 _fch4 _dfch4 \
+            KtotX MassX distX spezX zq source distz idz goodArea}
+        }
+        if('$imax'=='350') {
+        print $(new_catalog) '%-9.0f %12.7f %12.7f %9g\n' \
+        {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 f160 df160 f250 df250 f350 \
+            df350 radio eradio _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 _fch4 _dfch4 \
+            KtotX MassX distX spezX zq source distz idz goodArea}
+        }
+        if('$imax'=='500') {
+        print $(new_catalog) '%-9.0f %12.7f %12.7f %9g\n' \
+        {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 f160 df160 f250 df250 f350 df350 \
+            f500 df500 radio eradio _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 _fch4 _dfch4 \
+            KtotX MassX distX spezX zq source distz idz goodArea}
+        }
+        if('$imax'=='1160') {
+        print $(new_catalog) '%-9.0f %12.7f %12.7f %9g\n' \
+        {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 f160 df160 f250 df250 f350 df350 \
+            f500 df500 f1160 df1160 radio eradio _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 \
+            _fch4 _dfch4 KtotX MassX distX spezX zq source distz idz goodArea}
+        }
+        echo 
+        echo Successfully updated $(new_catalog)!
+        echo 
+    } else {
+        echo 
+        echo Abort! No modification has been done to $(new_catalog)!
+        echo 
+    }
+    # 
+    # 
+
+
