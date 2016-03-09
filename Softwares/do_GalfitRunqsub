@@ -8,6 +8,18 @@
 # Last update:
 #      2015-06-23 dzliu
 #      2016-01-26 dzliu
+#      2016-03-04 dzliu irfucoast
+# 
+# 
+# 
+# Check Superdeblending Softwares
+if [[ x"$SUPERDEBLENDDIR" == x"" ]]; then
+    echo "Error! Supderdeblending Softwares were not prepared well!"
+    echo "Please make sure you have Supderdeblending/Softwares/SETUP"
+    echo "and have ran \"source /path/to/Supderdeblending/Softwares/SETUP\""
+fi
+# 
+# 
 # 
 echo Current directory $(pwd)
 echo Starting time $(date +"%Y-%m-%d %H:%M:%S")
@@ -102,10 +114,10 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
                 echo 
                 sleep 1
             fi
-            if [[ $(hostname) == *planer* ]]; then
+            if [[ $(hostname) == *planer* || $(hostname) == irfucoast* ]]; then
                 echo Checking hostname $(hostname)
                 cp  "${GalfitRunList[i]}"                                                                     "${GalfitRunList[i]}.$(hostname).sh"
-                sed --in-place -e "2 i export PATH=/dsm/upgal/data/dliu/Superdeblending/Softwares:\$PATH"     "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> prepend the $PATH where one can find galfit
+                sed --in-place -e "2 i export PATH=$SUPERDEBLENDDIR:\$PATH"                                   "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> prepend the $PATH where one can find galfit
                 sed --in-place -e "s%cd .*/boxgalfit_vary/%cd $(pwd)/%g"                                      "${GalfitRunList[i]}.$(hostname).sh"
                 sed --in-place -e "s%cd .*/boxgalfit/%cd $(pwd)/%g"                                           "${GalfitRunList[i]}.$(hostname).sh"
                 sed --in-place -e "s%cd box%cd $(pwd)/box%g"                                                  "${GalfitRunList[i]}.$(hostname).sh"

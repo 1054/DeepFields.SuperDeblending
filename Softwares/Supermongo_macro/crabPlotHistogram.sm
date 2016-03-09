@@ -320,8 +320,10 @@ crabPlotHistogram_xy 03
         vecminmax _crabpl_vnumb _crabpl_vnumb_min _crabpl_vnumb_max
         define _crabpl_vnumb_max $($_crabpl_vnumb_max*1.5) #<TODO># Plot limits YRange
     }
-    if(index('$1','.pdf')>0) {
-        device pdf $1
+    if(index('$1','.pdf')>0 || index('$1','.eps')>0) {
+        if(index('$1','.pdf')>0) {device pdf $1}
+        if(index('$1','.eps')>0) {device postencap $1}
+        if(index('$1','.eps')>0) {set __crabPlot__PSFILE = {"}+'$1'+{"}}
         define TeX_strings 1
         xtcolours
         if($gx1==3500 && $gx2==31000 && $gy1==3500 && $gy2==31000) {

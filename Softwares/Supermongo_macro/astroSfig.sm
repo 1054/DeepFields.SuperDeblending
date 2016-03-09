@@ -6,6 +6,9 @@ astroSfig
     print 'set lg_SFR_MS = calc_Bethermin2014_SFR(z,lg_M_star) --> lg_SFR_MS\n' {}
     print 'set lg_SFR_MS = calc_Schreiber2014_SFR(z,lg_M_star) --> lg_SFR_MS\n' {}
     print 'set lg_SFR_MS = calc_Sargent2014_SFR(z,lg_M_star) --> lg_SFR_MS\n' {}
+    print 'set L_CO_J_up = calc_Liu2015_CO(LTIR,J_up[,z]) --> L_CO_J_up_K_km_s_pc2\n' {} 
+    pirnt 'set Freq_CO_J = calc_line_freq(co,J[,z]) --> Freq_CO_at_J_at_z_GHz\n' {}
+    pirnt 'set time_onsoure = calc_noema_time(LineFreq,LineFlux,LineWidth,SNRatio) --> hours on source\n' {}
 
 
 
@@ -267,7 +270,7 @@ calc_Liu2015_CO 03
     # calculate the multiple CO line luminosities for a given total IR luminosity 
     # calc_Liu2015_CO LTIR CO_J_up z
     # 
-    if($?1==0||$?2==0){print 'Usage: calc_Liu2015_CO LTIR J_up [z] --> LCO_J_up\n' {} return}
+    if($?1==0||$?2==0){print 'Usage: set L_CO_J_up = calc_Liu2015_CO(LTIR,J_up[,z]) --> LCO_J_up\n' {} return}
     if($2<1||$2>12){print 'calc_Liu2015_CO: Error! we only support CO(4-3) to CO(12-11), sorry!\n' {} return}
     set _Liu2015_LumTIR = $1
     set _Liu2015_LumFIR = _Liu2015_LumTIR/1.3 # convert TIR to FIR
@@ -302,21 +305,103 @@ calc_Liu2015_CO 03
     set _Liu2015_FluxCO = _Liu2015_LumFIR*0+0.0
     set _Liu2015_LPrmCO = _Liu2015_LumFIR*0+0.0
     set _Liu2015_LPrmCO[_Liu2015_PosID] = 10**((lg(_Liu2015_LumFIR[_Liu2015_PosID])-_Liu2015_A)/_Liu2015_N)
+    set _Liu2015_ObsFreq = _Liu2015_LumFIR*0+0.0
     if($?3) { if($3>0) { 
         define _Liu2015_Verbose $verbose verbose 0
         set _Liu2015_FreqCO = _Liu2015_LumFIR*0 + calc_line_freq(co,$2,0) # FreqCO is restframe
+        set _Liu2015_ObsFreq = _Liu2015_LumFIR*0 + calc_line_freq(co,$2,$3) # ObsFreq is obsframe
         set _Liu2015_LumDist = calc_lumdist($3) 
         set _Liu2015_FluxCO[_Liu2015_PosID] = convert_lprm2flux($3,_Liu2015_LPrmCO[_Liu2015_PosID],_Liu2015_FreqCO,_Liu2015_LumDist)
         verbose $_Liu2015_Verbose undef _Liu2015_Verbose
     }}
     if($verbose) { 
-        #define print_noheader 1
-        #print '\ncalc_Liu2015_CO:\n' {}
-        #print '\nL_TIR = %15.7e  L_sun\nL_FIR = %15.7e  L_sun\nJ_CO  = %15d\nL_CO  = %15.7e  K km s-1 pc2\nS_CO  = %15f  Jy km s-1\n\n' \
-        #       {_Liu2015_LumTIR _Liu2015_LumFIR _Liu2015_Jupper _Liu2015_LPrmCO _Liu2015_FluxCO}
-        #define print_noheader 0
+        define print_noheader 1 set _Liu2015_Jupper = int(_Liu2015_Jupper)
+        print '\ncalc_Liu2015_CO:\n' {}
+        print '\nL_TIR = %15.7e  L_sun\nL_FIR = %15.7e  L_sun\nJ_CO  = %15d\nv_CO  = %15.3f  GHz\nL_CO  = %15.7e  K km s-1 pc2\nS_CO  = %15f  Jy km s-1\n\n' \
+               {_Liu2015_LumTIR _Liu2015_LumFIR _Liu2015_Jupper _Liu2015_ObsFreq _Liu2015_LPrmCO _Liu2015_FluxCO}
+        define print_noheader 0
     }
     set $0 = _Liu2015_LPrmCO
+
+calc_dzliu_NII 04
+    # 
+    # calculate the NII 205um line luminosities for a given total IR luminosity 
+    # calc_dzliu_NII LTIR NII_J_up z R60100 # all input are in linear form
+    # 
+    if($?1==0||$?2==0){print 'Usage: set L_NII_205um = calc_dzliu_NII(LTIR,J_up[,z[,R60100]]) --> L_NII_205um\n' {} return}
+    if($2<1||$2>1){print 'calc_dzliu_NII: Error! we only support NII 205um 3P1-3P0, sorry!\n' {} return}
+    set _dzliu_LumTIR = $1
+    set _dzliu_LumFIR = _dzliu_LumTIR/1.3 # convert TIR to FIR
+    set _dzliu_PosID = 0,dimen(_dzliu_LumFIR)-1 set _dzliu_PosID = _dzliu_PosID if(_dzliu_LumFIR>0)
+    if($?2){set _dzliu_Jupper = $2} else {set _dzliu_Jupper = _dzliu_LumFIR*0+1.0} # default NII transition = 3P1-3P0 205um
+    if($?4){set _dzliu_R60100 = $4} else {set _dzliu_R60100 = _dzliu_LumFIR*0+0.8} # default R_f70/f100 = 0.8
+    if(dimen(_dzliu_Jupper)!=dimen(_dzliu_LumFIR)) {set _dzliu_Jupper = _dzliu_LumFIR*0+_dzliu_Jupper}
+    if(dimen(_dzliu_R60100)!=dimen(_dzliu_LumFIR)) {set _dzliu_R60100 = _dzliu_LumFIR*0+_dzliu_R60100}
+    if(dimen(_dzliu_PosID)==0){print 'calc_dzliu_NII: Error! Input data array has no positive value!' {} return}
+    set _dzliu_N = 0.0 set _dzliu_A = 0.0 
+    set _dzliu_I = 0,dimen(_dzliu_LumFIR)-1 set _dzliu_I = _dzliu_I if(_dzliu_R60100>0)
+    set _dzliu_X = float(_dzliu_I)*0+0.8 set _dzliu_X[_dzliu_I] = lg(_dzliu_R60100[_dzliu_I]) # TODO: default R_f70/f100 = 0.8
+    if($2==1) {set _dzliu_N = 1.00 set _dzliu_A = 3.48914*_dzliu_X**0 +1.68786*_dzliu_X**1 -8.76484*_dzliu_X**2 -18.47071*_dzliu_X**3} # dzliu MPFIT 2016-03-09
+    set _dzliu_FluxNII = _dzliu_LumFIR*0+0.0
+    set _dzliu_LPrmNII = _dzliu_LumFIR*0+0.0
+    set _dzliu_LPrmNII[_dzliu_PosID] = 10**((lg(_dzliu_LumFIR[_dzliu_PosID])-_dzliu_A)/_dzliu_N)
+    set _dzliu_ObsFreq = _dzliu_LumFIR*0+0.0
+    if($?3) { if($3>0) { 
+        define _dzliu_Verbose $verbose verbose 0
+        set _dzliu_FreqNII = _dzliu_LumFIR*0 + calc_line_freq(NII,$2,0) # FreqNII is restframe
+        set _dzliu_ObsFreq = _dzliu_LumFIR*0 + calc_line_freq(NII,$2,$3) # ObsFreq is obsframe
+        set _dzliu_LumDist = calc_lumdist($3) 
+        set _dzliu_FluxNII[_dzliu_PosID] = convert_lprm2flux($3,_dzliu_LPrmNII[_dzliu_PosID],_dzliu_FreqNII,_dzliu_LumDist)
+        verbose $_dzliu_Verbose undef _dzliu_Verbose
+    }}
+    if($verbose) { 
+        define print_noheader 1 set _dzliu_Jupper = int(_dzliu_Jupper)
+        print '\ncalc_dzliu_NII:\n' {}
+        print '\nL_TIR  = %15.7e  L_sun\nL_FIR  = %15.7e  L_sun\nJ_NII  = %15d\nv_NII  = %15.3f  GHz\nL_NII  = %15.7e  K km s-1 pc2\nS_NII  = %15f  Jy km s-1\n\n' \
+               {_dzliu_LumTIR _dzliu_LumFIR _dzliu_Jupper _dzliu_ObsFreq _dzliu_LPrmNII _dzliu_FluxNII}
+        define print_noheader 0
+    }
+    set $0 = _dzliu_LPrmNII
+
+calc_Zhao2016_NII 04
+    # 
+    # calculate the NII 205um line luminosities for a given total IR luminosity 
+    # calc_Zhao2016_NII LTIR NII_J_up z R70100 # all input are in linear form
+    # 
+    if($?1==0||$?2==0){print 'Usage: set L_NII_205um = calc_Zhao2016_NII(LTIR,J_up[,z[,R70100]]) --> L_NII_205um\n' {} return}
+    if($2<1||$2>1){print 'calc_Zhao2016_NII: Error! we only support NII 205um 3P1-3P0, sorry!\n' {} return}
+    set _Zhao2016_LumTIR = $1
+    set _Zhao2016_PosID = 0,dimen(_Zhao2016_LumTIR)-1 set _Zhao2016_PosID = _Zhao2016_PosID if(_Zhao2016_LumTIR>0)
+    if($?2){set _Zhao2016_Jupper = $2} else {set _Zhao2016_Jupper = _Zhao2016_LumTIR*0+1} # default NII transition = 3P1-3P0 205um
+    if($?4){set _Zhao2016_R70100 = $4} else {set _Zhao2016_R70100 = _Zhao2016_LumTIR*0+0.9} # default R_f70/f100 = 0.9
+    if(dimen(_Zhao2016_Jupper)!=dimen(_Zhao2016_LumTIR)) {set _Zhao2016_Jupper = _Zhao2016_LumTIR*0+_Zhao2016_Jupper}
+    if(dimen(_Zhao2016_R70100)!=dimen(_Zhao2016_LumTIR)) {set _Zhao2016_R70100 = _Zhao2016_LumTIR*0+_Zhao2016_R70100}
+    if(dimen(_Zhao2016_PosID)==0){print 'calc_Zhao2016_NII: Error! Input data array has no positive value!' {} return}
+    set _Zhao2016_N = 0.0 set _Zhao2016_A = 0.0 
+    set _Zhao2016_I = 0,dimen(_Zhao2016_LumTIR)-1 set _Zhao2016_I = _Zhao2016_I if(_Zhao2016_R70100)
+    set _Zhao2016_X = float(_Zhao2016_I)*0+0.9 set _Zhao2016_X[_Zhao2016_I] = lg(_Zhao2016_R70100[_Zhao2016_I]) # TODO: default R_f70/f100 = 0.9
+    if($2==1) {set _Zhao2016_N = 1.00 set _Zhao2016_A = 3.83+1.26*_Zhao2016_X+1.86*_Zhao2016_X**2+0.90*_Zhao2016_X**3} # see Zhao Yinghe, Lu Nanyao et al. 2016 Eq(1)
+    set _Zhao2016_FluxNII = _Zhao2016_LumTIR*0+0.0
+    set _Zhao2016_LumiNII = _Zhao2016_LumTIR*0+0.0
+    set _Zhao2016_LumiNII[_Zhao2016_PosID] = 10**((lg(_Zhao2016_LumTIR[_Zhao2016_PosID])-_Zhao2016_A)/_Zhao2016_N)
+    set _Zhao2016_LPrmNII = _Zhao2016_LumTIR*0+0.0
+    set _Zhao2016_LPrmNII[_Zhao2016_PosID] = _Zhao2016_LumiNII[_Zhao2016_PosID]
+    if($?3) { if($3>0) { 
+        define _Zhao2016_Verbose $verbose verbose 0
+        set _Zhao2016_FreqNII = _Zhao2016_LumTIR*0 + calc_line_freq(NII,$2,0) # FreqNII is restframe
+        set _Zhao2016_ObsFreq = _Zhao2016_LumTIR*0 + calc_line_freq(NII,$2,$3) # ObsFreq is obsframe
+        set _Zhao2016_LumDist = calc_lumdist($3) 
+        set _Zhao2016_FluxNII[_Zhao2016_PosID] = convert_lprm2flux($3,_Zhao2016_LPrmNII[_Zhao2016_PosID],_Zhao2016_FreqNII,_Zhao2016_LumDist)
+        verbose $_Zhao2016_Verbose undef _Zhao2016_Verbose
+    }}
+    if($verbose) { 
+        define print_noheader 1
+        print '\ncalc_Zhao2016_NII:\n' {}
+        print '\nL_TIR  = %15.7e  L_sun\nJ_NII  = %15.0f\nL_NII  = %15.7e  K km s-1 pc2\nS_NII  = %15f  Jy km s-1\n\n' \
+               {_Zhao2016_LumTIR _Zhao2016_Jupper _Zhao2016_LPrmNII _Zhao2016_FluxNII}
+        define print_noheader 0
+    }
+    set $0 = _Zhao2016_LPrmNII
 
 convert_flux2lprm 04
     # convert flux [Jy km/s] to lumin prime [K km s-1 pc2]
@@ -356,7 +441,7 @@ convert_flux2lprm 04
 
 convert_lprm2flux 04
     # convert lumin prime [K km s-1 pc2] to flux [Jy km/s]
-    if($?1==0||$?2==0||$?3==0){print 'Usage: set flux = convert_lprm2flux(z,LineLPrm,restfreq[,lumdist])' {}
+    if($?1==0||$?2==0||$?3==0){print 'Usage: set flux = convert_lprm2flux(z,LineLPrm_Kkmspc2,restfreq_GHz[,lumdist_Mpc])' {}
                                print ' => output: fCO [require command lumdist]\n' {} return}
     set _lprm2flux_z = $1
     set _lprm2flux_L = $2
@@ -543,6 +628,14 @@ calc_line_freq 03
     if('$1'=='CII'||'$1'=='cii'){
         if('$2'=='2'||'$2'=='158')  {set _line_freq = 1900.53690}
     }
+    if('$1'=='CI'||'$1'=='ci'){
+        if('$2'=='2'||'$2'=='2-1'||'$2'=='370'||'$2'=='3P2-3P1'||'$2'=='3p2-3p1')  {set _line_freq = 809.34197}
+        if('$2'=='1'||'$2'=='1-0'||'$2'=='609'||'$2'=='3P1-3P0'||'$2'=='3p1-3p0')  {set _line_freq = 492.16065}
+    }
+    if('$1'=='NII'||'$1'=='nii'){
+        if('$2'=='2'||'$2'=='2-1'||'$2'=='122'||'$2'=='3P2-3P1'||'$2'=='3p2-3p1')  {set _line_freq = 2459.38010}
+        if('$2'=='1'||'$2'=='1-0'||'$2'=='205'||'$2'=='3P1-3P0'||'$2'=='3p1-3p0')  {set _line_freq = 1461.13141}
+    }
     if($?3) { set _line_freq_z = $3
         set _line_freq = _line_freq / (1.0+_line_freq_z)
     }
@@ -674,6 +767,8 @@ calc_noema_time 04
     set LineFreq = $1 # obs freq GHz
     set LineFlux = $2 # Jy km/s
     set LineWidth = $3 # km/s
+    if(dimen(LineWidth)==1&&dimen(LineFreq)>1) {set LineWidth = LineFreq*0.0+$3}
+    
     set LineBand = (LineFreq*0-99) # 'band3'
     set LineBand = (LineFreq>80  && LineFreq<116) ? 1 : LineBand
     set LineBand = (LineFreq>129 && LineFreq<177) ? 2 : LineBand
@@ -681,17 +776,32 @@ calc_noema_time 04
     set JyK  = (LineFreq*0)
     set eta  = (LineFreq*0-99)
     set Tsys = (LineFreq*0)
+    
     set JyK  = (LineBand==1) ? 22.0  : JyK   # 2015-08: band 1 80-116 GHz (3mm)
     set eta  = (LineBand==1) ? 0.9   : eta   # 2015-08: band 1 80-116 GHz (3mm)
     set Tsys = (LineBand==1) ? 110.0 : Tsys  # 2015-08: band 1 80-116 GHz (3mm) <TODO> varies from 100K to 170K within band
+    set JyK  = (LineBand==1) ? 22.0  : JyK   # 2016-03: band 1 80-116 GHz (3mm)
+    set eta  = (LineBand==1) ? 0.9   : eta   # 2016-03: band 1 80-116 GHz (3mm)
+    set Tsys = (LineBand==1) ? 110.0 : Tsys  # 2016-03: band 1 80-116 GHz (3mm) <TODO> varies from 100K to 170K within band
+    set Tsys = (LineBand==1 && LineFreq>110) ? Tsys+(170-110)/(116-110)*(LineFreq-110) : Tsys
+    
     set JyK  = (LineBand==2) ? 29.0  : JyK   # 2015-08: band 2 129-177 GHz (2mm)
     set eta  = (LineBand==2) ? 0.85  : eta   # 2015-08: band 2 129-177 GHz (2mm)
     set Tsys = (LineBand==2) ? 140.0 : Tsys  # 2015-08: band 2 129-177 GHz (2mm) <TODO> varies from 130K to 160K within band
+    set JyK  = (LineBand==2) ? 29.0  : JyK   # 2016-03: band 2 129-177 GHz (2mm)
+    set eta  = (LineBand==2) ? 0.8   : eta   # 2016-03: band 2 129-177 GHz (2mm)
+    set Tsys = (LineBand==2) ? 140.0 : Tsys  # 2016-03: band 2 129-177 GHz (2mm) <TODO> varies from 130K to 160K within band
+    set Tsys = (LineBand==1 && LineFreq>150) ? Tsys+(200-140)/(177-150)*(LineFreq-150) : Tsys
+    
     set JyK  = (LineBand==3) ? 35.0  : JyK   # 2015-08: band 3 201-267 GHz (1.3mm)
     set eta  = (LineBand==3) ? 0.8   : eta   # 2015-08: band 3 201-267 GHz (1.3mm)
     set Tsys = (LineBand==3) ? 200.0 : Tsys  # 2015-08: band 3 201-267 GHz (1.3mm) <TODO> seems steady within band
+    set JyK  = (LineBand==3) ? 35.0  : JyK   # 2016-03: band 3 201-267 GHz (1.3mm)
+    set eta  = (LineBand==3) ? 0.6   : eta   # 2016-03: band 3 201-267 GHz (1.3mm)
+    set Tsys = (LineBand==3) ? 250.0 : Tsys  # 2016-03: band 3 201-267 GHz (1.3mm) <TODO> seems steady within band
     ### 
     set N_antennas = 7 # 2015-08: NOEMA has 7 antenaae
+    set N_antennas = 7 # 2016-03: NOEMA has 7 antenaae if unlucky or 8 if lucky
     set N_an = N_antennas*(N_antennas-1)  # N*(N-1)
     set N_configs = 1     # single config
     set N_cn = N_configs  # single config

@@ -5,6 +5,9 @@ crabPlot
     echo Usage:
     echo     crabPlotQuickPlot vectorX vectorY [output.eps] [keepopen]
     echo     crabPlotOpenPS "aaa.eps"
+    echo     crabPlotDefaultPenForBox
+    echo     crabPlotDefaultPenForPoints
+    echo     crabPlotDefaultPenForConnect
     echo     crabPlotClosePS
 
 
@@ -96,6 +99,12 @@ crabPlotRestorePen 00
 
 crabPlotDefaultPenForBox 00
     expand 1.5 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype default
+
+crabPlotDefaultPenForPoints 00
+    expand 1.2 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 0 ctype blue
+
+crabPlotDefaultPenForConnect 00
+    expand 1.2 lweight 3.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype blue
 
 crabPlotDefaultPenForCrossPoints 00
     expand 1.2 lweight 2.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype blue

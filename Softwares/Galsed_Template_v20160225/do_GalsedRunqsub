@@ -1,8 +1,23 @@
 #!/bin/bash
 # 
-# See the Usage in README
+# Usage:
+#      ./do_GalsedRunqsub -catalog Catalog.txt 
 # 
 # 
+# 
+# Last update:
+#      2016-03-04 dzliu irfucoast
+# 
+# 
+# 
+# 
+# 
+# Check Superdeblending Softwares
+if [[ x"$SUPERDEBLENDDIR" == x"" ]]; then
+    echo "Error! Supderdeblending Softwares were not prepared well!"
+    echo "Please make sure you have Supderdeblending/Softwares/SETUP"
+    echo "and have ran \"source /path/to/Supderdeblending/Softwares/SETUP\""
+fi
 # 
 CURRENTBAND=""
 CATALOGFILE="RadioOwenMIPS24_priors_v5_20151201_BeforeBand100.txt"
@@ -168,12 +183,13 @@ for i in $runsedid; do
             #fi
             echo "echo CATALOGFILE=$CATALOGFILE" >> "fit_parallel_HDFN/run_$i.sh"
             echo "echo EXCLUDEFILE=$EXCLUDEFILE" >> "fit_parallel_HDFN/run_$i.sh"
-            if [[ $(hostname) == *planer* ]]; then
-	            echo "export PATH=/dsm/upgal/data/dliu/supermongo/bin:\$PATH" >> "fit_parallel_HDFN/run_$i.sh"
-                echo "echo macro read AGN_N.sm AGN_Parallel $CATALOGFILE $i | sm -f /dsm/upgal/data/dliu/supermongo/lib/sm/.sm | tee fit_parallel_HDFN/log_$i.txt" >> "fit_parallel_HDFN/run_$i.sh"
-            else
-                echo "echo macro read AGN_N.sm AGN_Parallel $CATALOGFILE $i | sm | tee fit_parallel_HDFN/log_$i.txt" >> "fit_parallel_HDFN/run_$i.sh"
-            fi
+            #<20160304>#if [[ $(hostname) == *planer* || $(hostname) == irfucoast* ]]; then
+	        #<20160304>#    echo "export PATH=$SUPERDEBLENDDIR:\$PATH" >> "fit_parallel_HDFN/run_$i.sh"
+            #<20160304>#    echo "echo macro read AGN_N.sm AGN_Parallel $CATALOGFILE $i | sm -f /dsm/upgal/data/dliu/supermongo/lib/sm/.sm | tee fit_parallel_HDFN/log_$i.txt" >> "fit_parallel_HDFN/run_$i.sh"
+            #<20160304>#else
+            #<20160304>#    echo "echo macro read AGN_N.sm AGN_Parallel $CATALOGFILE $i | sm | tee fit_parallel_HDFN/log_$i.txt" >> "fit_parallel_HDFN/run_$i.sh"
+            #<20160304>#fi
+            echo "echo macro read AGN_N.sm AGN_Parallel $CATALOGFILE $i | sm | tee fit_parallel_HDFN/log_$i.txt" >> "fit_parallel_HDFN/run_$i.sh"
             chmod a+x "fit_parallel_HDFN/run_$i.sh"
             cat "fit_parallel_HDFN/run_$i.sh"
             echo "-------------------------------------------------------------------------------------"
@@ -183,8 +199,9 @@ for i in $runsedid; do
                     ./"fit_parallel_HDFN/run_$i.sh"
                     sleep 1.5
                 fi
-                if [[ $(hostname) == *planer* ]]; then 
+                if [[ $(hostname) == planer* || $(hostname) == irfucoast* ]]; then 
                     echo $(hostname)
+                    sed --in-place -e "2 i export PATH=$SUPERDEBLENDDIR:\$PATH" "fit_parallel_HDFN/run_$i.sh"   # <TODO> prepend the $PATH where one can find sm
                     echo Counting qsub task "$(showq | grep $USER | wc -l)"
                     echo Counting qsub task "$(showq | grep $USER | wc -l)"
                     while      [[   30  -le "$(showq | grep $USER | wc -l)" ]]; do

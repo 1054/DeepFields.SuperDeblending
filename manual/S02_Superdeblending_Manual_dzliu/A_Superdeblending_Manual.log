@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015) (preloaded format=xelatex 2015.10.29)  29 JAN 2016 23:05
+This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015) (preloaded format=xelatex 2015.10.29)  10 MAR 2016 02:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -977,11 +977,11 @@ File: se-ascii-print.def 2011/12/02 v1.10 stringenc: Printable ASCII characters
 )
 [1
 
-])
+] [2])
 \tf@toc=\write4
 \openout4 = `A_Superdeblending_Manual.toc'.
 
- [2] [3
+ [3] [4
 
 ]
 File: FlowChartDiagram.pdf Graphic file (type QTm)
@@ -990,47 +990,49 @@ Overfull \hbox (21.34087pt too wide) in paragraph at lines 91--92
  [][] 
  []
 
-[4
-
-]
-
-LaTeX Warning: Reference `Band100_final' on page 5 undefined on input line 111.
-
-
-
-LaTeX Warning: Reference `Band160_final' on page 5 undefined on input line 113.
-
-
-
-LaTeX Warning: Reference `Band250_final' on page 5 undefined on input line 115.
-
-
-
-LaTeX Warning: Reference `Band350_final' on page 5 undefined on input line 117.
-
-
-
-LaTeX Warning: Reference `Band500_final' on page 5 undefined on input line 119.
-
-
-
-LaTeX Warning: Reference `Band1160_final' on page 5 undefined on input line 121
-.
-
-
-Overfull \hbox (28.06862pt too wide) in paragraph at lines 105--125
- [][] 
- []
-
 [5
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 146--154
+
+LaTeX Warning: Reference `Band100_final' on page 6 undefined on input line 111.
+
+
+
+LaTeX Warning: Reference `Band160_final' on page 6 undefined on input line 113.
+
+
+
+LaTeX Warning: Reference `Band250_final' on page 6 undefined on input line 115.
+
+
+
+LaTeX Warning: Reference `Band350_final' on page 6 undefined on input line 117.
+
+
+
+LaTeX Warning: Reference `Band500_final' on page 6 undefined on input line 119.
+
+
+
+LaTeX Warning: Reference `Band1160_final' on page 6 undefined on input line 121
+.
+
+[6
+
+]
+Overfull \hbox (23.4789pt too wide) in paragraph at lines 137--155
+ [][] 
+ []
+
+[7
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 177--185
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 157--175
+Underfull \hbox (badness 10000) in paragraph at lines 188--206
 
  []
 
@@ -1039,27 +1041,27 @@ File: lstlang1.sty 2014/09/06 1.5e listings language file
 )
 (/usr/local/texlive/2015/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2014/09/06 1.5e listings language file
-) [6
+) [8
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 208--217
+Underfull \hbox (badness 10000) in paragraph at lines 239--248
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 245--257
+Underfull \hbox (badness 10000) in paragraph at lines 276--288
 
  []
 
-[7]
-Underfull \hbox (badness 10000) in paragraph at lines 270--292
+[9]
+Underfull \hbox (badness 10000) in paragraph at lines 301--323
 
  []
 
-[8]
-File: plot_cutting_flux_100_with_crow.pdf Graphic file (type QTm)
- <use  "plot_cutting_flux_100_with_crow.pdf" >
-Overfull \hbox (28.46877pt too wide) in paragraph at lines 305--328
+[10]
+File: plot_cutting_flux_100.pdf Graphic file (type QTm)
+ <use  "plot_cutting_flux_100.pdf" >
+Overfull \hbox (28.46877pt too wide) in paragraph at lines 359--373
 [] $\OMS/cmsy/m/n/10.95 ^^N$ []\EU1/RomanSerif(0)/bx/n/10.95 NOTE: 2015-12: dzl
 iu: If crowdiness is used for the flagging $\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/1
 0.95 f[] \OT1/cmr/m/n/10.95 + 2\OML/cmm/m/it/10.95 ^^[[]\OT1/cmr/m/n/10.95 )/\O
@@ -1067,244 +1069,398 @@ ML/cmm/m/it/10.95 crowdiness \OMS/cmsy/m/n/10.95 ^^U
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 305--328
+Underfull \hbox (badness 10000) in paragraph at lines 359--373
 
  []
 
-[9]
-File: galfit_100_FIT_goodsn_100_Map_201512_Galsub.pdf Graphic file (type QTm)
- <use  "galfit_100_FIT_goodsn_100_Map_201512_Galsub.pdf" >
-Underfull \hbox (badness 10000) in paragraph at lines 359--362
+[11]
+Underfull \hbox (badness 10000) in paragraph at lines 405--408
 
  []
 
-[10]
-Underfull \hbox (badness 10000) in paragraph at lines 411--426
+[12]
+Underfull \hbox (badness 10000) in paragraph at lines 457--472
 
  []
 
-[11] [12]
+[13] [14]
 File: galsim_100_fbias_1.pdf Graphic file (type QTm)
  <use  "galsim_100_fbias_1.pdf" >
 File: galsim_100_fbias_2.pdf Graphic file (type QTm)
  <use  "galsim_100_fbias_2.pdf" >
 File: galsim_100_fbias_3.pdf Graphic file (type QTm)
 
-<use  "galsim_100_fbias_3.pdf" > [13]
-Underfull \hbox (badness 10000) in paragraph at lines 498--504
+<use  "galsim_100_fbias_3.pdf" > [15]
+Underfull \hbox (badness 10000) in paragraph at lines 544--550
 
  []
 
+File: galsim_100_hist_flux_1.pdf Graphic file (type QTm)
+<use  "galsim_100_hist_flux_1.pdf" >
+File: galsim_100_hist_flux_2.pdf Graphic file (type QTm)
+ <use  "galsim_100_hist_flux_2.pdf" >
+File: galsim_100_hist_flux_3.pdf Graphic file (type QTm)
+
+<use  "galsim_100_hist_flux_3.pdf" > [16]
 File: galsim_100_dfcorr_1.pdf Graphic file (type QTm)
-<use  "galsim_100_dfcorr_1.pdf" >
+ <use  "galsim_100_dfcorr_1.pdf" >
 File: galsim_100_dfcorr_2.pdf Graphic file (type QTm)
- <use  "galsim_100_dfcorr_2.pdf" >
+
+<use  "galsim_100_dfcorr_2.pdf" >
 File: galsim_100_dfcorr_3.pdf Graphic file (type QTm)
-
-<use  "galsim_100_dfcorr_3.pdf" > [14]
-Underfull \hbox (badness 10000) in paragraph at lines 514--520
-
- []
-
-[15] [16]
-Underfull \hbox (badness 10000) in paragraph at lines 539--549
+ <use  "galsim_100_dfcorr_3.pdf" > [17]
+Underfull \hbox (badness 10000) in paragraph at lines 569--575
 
  []
 
+File: galsim_100_hist_uncertainty_1.pdf Graphic file (type QTm)
+<use  "galsim_100_hist_uncertainty_1.pdf" >
+File: galsim_100_hist_uncertainty_2.pdf Graphic file (type QTm)
 
-LaTeX Warning: Reference `Band100_SED' on page 17 undefined on input line 550.
+<use  "galsim_100_hist_uncertainty_2.pdf" >
+File: galsim_100_hist_uncertainty_3.pdf Graphic file (type QTm)
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 552--558
+<use  "galsim_100_hist_uncertainty_3.pdf" > [18] [19]
+Underfull \hbox (badness 10000) in paragraph at lines 608--618
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 561--570
+LaTeX Warning: Reference `Band100_SED' on page 20 undefined on input line 619.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 621--627
 
  []
 
-File: galsed_160_Plot_SED_407.pdf Graphic file (type QTm)
-<use  "galsed_160_Plot_SED_407.pdf" > [17
+
+Underfull \hbox (badness 10000) in paragraph at lines 630--639
+
+ []
+
+File: galsed_160_Plot_SED_407_v20160106.pdf Graphic file (type QTm)
+<use  "galsed_160_Plot_SED_407_v20160106.pdf" >
+File: galsed_160_Plot_SED_407_v20160309.pdf Graphic file (type QTm)
+
+<use  "galsed_160_Plot_SED_407_v20160309.pdf" > [20
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 577--586
+Underfull \hbox (badness 10000) in paragraph at lines 648--657
 
  []
 
-File: plot_cutting_flux_160_with_crow.pdf Graphic file (type QTm)
-<use  "plot_cutting_flux_160_with_crow.pdf" > [18]
-Underfull \hbox (badness 10000) in paragraph at lines 597--600
+File: plot_cutting_flux_160.pdf Graphic file (type QTm)
+<use  "plot_cutting_flux_160.pdf" > [21]
+Underfull \hbox (badness 10000) in paragraph at lines 680--683
 
  []
 
-File: galfit_160_FIT_goodsn_160_Map_201512_Galsub.pdf Graphic file (type QTm)
-<use  "galfit_160_FIT_goodsn_160_Map_201512_Galsub.pdf" > [19]
-Underfull \hbox (badness 10000) in paragraph at lines 620--623
+
+Underfull \hbox (badness 10000) in paragraph at lines 703--706
 
  []
 
-[20]
+[22] [23]
 File: galsim_160_fbias_1.pdf Graphic file (type QTm)
  <use  "galsim_160_fbias_1.pdf" >
 File: galsim_160_fbias_2.pdf Graphic file (type QTm)
  <use  "galsim_160_fbias_2.pdf" >
 File: galsim_160_fbias_3.pdf Graphic file (type QTm)
 
-<use  "galsim_160_fbias_3.pdf" > [21]
+<use  "galsim_160_fbias_3.pdf" > [24]
+File: galsim_160_hist_flux_1.pdf Graphic file (type QTm)
+ <use  "galsim_160_hist_flux_1.pdf" >
+File: galsim_160_hist_flux_2.pdf Graphic file (type QTm)
+
+<use  "galsim_160_hist_flux_2.pdf" >
+File: galsim_160_hist_flux_3.pdf Graphic file (type QTm)
+ <use  "galsim_160_hist_flux_3.pdf" >
+[25]
 File: galsim_160_dfcorr_1.pdf Graphic file (type QTm)
  <use  "galsim_160_dfcorr_1.pdf" >
 File: galsim_160_dfcorr_2.pdf Graphic file (type QTm)
-
-<use  "galsim_160_dfcorr_2.pdf" >
+ <use  "galsim_160_dfcorr_2.pdf" >
 File: galsim_160_dfcorr_3.pdf Graphic file (type QTm)
- <use  "galsim_160_dfcorr_3.pdf" > [22]
-[23] [24]
-Underfull \hbox (badness 10000) in paragraph at lines 785--791
+
+<use  "galsim_160_dfcorr_3.pdf" > [26]
+File: galsim_160_hist_uncertainty_1.pdf Graphic file (type QTm)
+
+<use  "galsim_160_hist_uncertainty_1.pdf" >
+File: galsim_160_hist_uncertainty_2.pdf Graphic file (type QTm)
+
+<use  "galsim_160_hist_uncertainty_2.pdf" >
+File: galsim_160_hist_uncertainty_3.pdf Graphic file (type QTm)
+
+<use  "galsim_160_hist_uncertainty_3.pdf" > [27] [28] [29]
+Underfull \hbox (badness 10000) in paragraph at lines 890--896
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 794--797
+Underfull \hbox (badness 10000) in paragraph at lines 899--902
 
  []
 
-File: plot_cutting_flux_250_with_crow.pdf Graphic file (type QTm)
-<use  "plot_cutting_flux_250_with_crow.pdf" > [25
+File: plot_cutting_flux_250.pdf Graphic file (type QTm)
+<use  "plot_cutting_flux_250.pdf" > [30
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 842--845
+Underfull \hbox (badness 10000) in paragraph at lines 947--950
 
  []
 
-[26] [27]
+[31]
 File: galsim_250_fbias_1.pdf Graphic file (type QTm)
  <use  "galsim_250_fbias_1.pdf" >
 File: galsim_250_fbias_2.pdf Graphic file (type QTm)
  <use  "galsim_250_fbias_2.pdf" >
 File: galsim_250_fbias_3.pdf Graphic file (type QTm)
 
-<use  "galsim_250_fbias_3.pdf" > [28]
+<use  "galsim_250_fbias_3.pdf" > [32]
+File: galsim_250_hist_flux_1.pdf Graphic file (type QTm)
+ <use  "galsim_250_hist_flux_1.pdf" >
+File: galsim_250_hist_flux_2.pdf Graphic file (type QTm)
+
+<use  "galsim_250_hist_flux_2.pdf" >
+File: galsim_250_hist_flux_3.pdf Graphic file (type QTm)
+ <use  "galsim_250_hist_flux_3.pdf" >
+[33]
 File: galsim_250_dfcorr_1.pdf Graphic file (type QTm)
  <use  "galsim_250_dfcorr_1.pdf" >
 File: galsim_250_dfcorr_2.pdf Graphic file (type QTm)
-
-<use  "galsim_250_dfcorr_2.pdf" >
+ <use  "galsim_250_dfcorr_2.pdf" >
 File: galsim_250_dfcorr_3.pdf Graphic file (type QTm)
- <use  "galsim_250_dfcorr_3.pdf" > [29]
-[30] [31]
-Underfull \hbox (badness 10000) in paragraph at lines 993--1002
+
+<use  "galsim_250_dfcorr_3.pdf" > [34]
+File: galsim_250_hist_uncertainty_1.pdf Graphic file (type QTm)
+
+<use  "galsim_250_hist_uncertainty_1.pdf" >
+File: galsim_250_hist_uncertainty_2.pdf Graphic file (type QTm)
+
+<use  "galsim_250_hist_uncertainty_2.pdf" >
+File: galsim_250_hist_uncertainty_3.pdf Graphic file (type QTm)
+
+<use  "galsim_250_hist_uncertainty_3.pdf" > [35] [36] [37]
+Underfull \hbox (badness 10000) in paragraph at lines 1122--1131
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1005--1008
+Underfull \hbox (badness 10000) in paragraph at lines 1134--1137
 
  []
 
-File: plot_cutting_flux_350_with_crow.pdf Graphic file (type QTm)
-<use  "plot_cutting_flux_350_with_crow.pdf" > [32
+File: plot_cutting_flux_350.pdf Graphic file (type QTm)
+<use  "plot_cutting_flux_350.pdf" > [38
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 1060--1063
+Underfull \hbox (badness 10000) in paragraph at lines 1189--1192
 
  []
 
-[33] [34]
+[39]
 File: galsim_350_fbias_1.pdf Graphic file (type QTm)
  <use  "galsim_350_fbias_1.pdf" >
 File: galsim_350_fbias_2.pdf Graphic file (type QTm)
  <use  "galsim_350_fbias_2.pdf" >
 File: galsim_350_fbias_3.pdf Graphic file (type QTm)
 
-<use  "galsim_350_fbias_3.pdf" >
+<use  "galsim_350_fbias_3.pdf" > [40]
+File: galsim_350_hist_flux_1.pdf Graphic file (type QTm)
+ <use  "galsim_350_hist_flux_1.pdf" >
+File: galsim_350_hist_flux_2.pdf Graphic file (type QTm)
+
+<use  "galsim_350_hist_flux_2.pdf" >
+File: galsim_350_hist_flux_3.pdf Graphic file (type QTm)
+ <use  "galsim_350_hist_flux_3.pdf" >
+[41]
 File: galsim_350_dfcorr_1.pdf Graphic file (type QTm)
  <use  "galsim_350_dfcorr_1.pdf" >
 File: galsim_350_dfcorr_2.pdf Graphic file (type QTm)
-
-<use  "galsim_350_dfcorr_2.pdf" >
+ <use  "galsim_350_dfcorr_2.pdf" >
 File: galsim_350_dfcorr_3.pdf Graphic file (type QTm)
- <use  "galsim_350_dfcorr_3.pdf" > [35]
-[36]
-Underfull \hbox (badness 10000) in paragraph at lines 1174--1183
+
+<use  "galsim_350_dfcorr_3.pdf" > [42]
+File: galsim_350_hist_uncertainty_1.pdf Graphic file (type QTm)
+
+<use  "galsim_350_hist_uncertainty_1.pdf" >
+File: galsim_350_hist_uncertainty_2.pdf Graphic file (type QTm)
+
+<use  "galsim_350_hist_uncertainty_2.pdf" >
+File: galsim_350_hist_uncertainty_3.pdf Graphic file (type QTm)
+
+<use  "galsim_350_hist_uncertainty_3.pdf" > [43] [44]
+Underfull \hbox (badness 10000) in paragraph at lines 1326--1335
 
  []
 
 
-Overfull \hbox (5.34752pt too wide) in paragraph at lines 1186--1189
+Overfull \hbox (5.34752pt too wide) in paragraph at lines 1338--1341
 [] $\OMS/cmsy/m/n/10.95 ^^O$ \EU1/RomanSerif(0)/bx/n/10.95 Type_FIR: $[] \OMS/c
 msy/m/n/10.95 ^^U \OT1/cmr/m/n/10.95 5$\EU1/RomanSerif(0)/bx/n/10.95 : 1092 out
  of 3361 sources
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1186--1189
+Underfull \hbox (badness 10000) in paragraph at lines 1338--1341
 
  []
 
-File: plot_cutting_flux_500_with_crow.pdf Graphic file (type QTm)
-<use  "plot_cutting_flux_500_with_crow.pdf" > [37
+File: plot_cutting_flux_500.pdf Graphic file (type QTm)
+<use  "plot_cutting_flux_500.pdf" > [45
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 1232--1235
+Underfull \hbox (badness 10000) in paragraph at lines 1384--1387
 
  []
 
-[38]
+[46]
 File: galsim_500_fbias_1.pdf Graphic file (type QTm)
  <use  "galsim_500_fbias_1.pdf" >
 File: galsim_500_fbias_2.pdf Graphic file (type QTm)
  <use  "galsim_500_fbias_2.pdf" >
 File: galsim_500_fbias_3.pdf Graphic file (type QTm)
 
-<use  "galsim_500_fbias_3.pdf" > [39]
+<use  "galsim_500_fbias_3.pdf" > [47]
+File: galsim_500_hist_flux_1.pdf Graphic file (type QTm)
+ <use  "galsim_500_hist_flux_1.pdf" >
+File: galsim_500_hist_flux_2.pdf Graphic file (type QTm)
+
+<use  "galsim_500_hist_flux_2.pdf" >
+File: galsim_500_hist_flux_3.pdf Graphic file (type QTm)
+ <use  "galsim_500_hist_flux_3.pdf" >
+[48]
 File: galsim_500_dfcorr_1.pdf Graphic file (type QTm)
  <use  "galsim_500_dfcorr_1.pdf" >
 File: galsim_500_dfcorr_2.pdf Graphic file (type QTm)
-
-<use  "galsim_500_dfcorr_2.pdf" >
+ <use  "galsim_500_dfcorr_2.pdf" >
 File: galsim_500_dfcorr_3.pdf Graphic file (type QTm)
- <use  "galsim_500_dfcorr_3.pdf" > [40]
-[41]
-Underfull \hbox (badness 10000) in paragraph at lines 1347--1356
+
+<use  "galsim_500_dfcorr_3.pdf" > [49]
+File: galsim_500_hist_dfcorr_1.pdf Graphic file (type QTm)
+ <use  "galsim_500_hist_dfcorr_1.pdf" >
+File: galsim_500_hist_dfcorr_2.pdf Graphic file (type QTm)
+
+<use  "galsim_500_hist_dfcorr_2.pdf" >
+File: galsim_500_hist_dfcorr_3.pdf Graphic file (type QTm)
+ <use  "galsim_500_hist_dfcorr_3.pdf" >
+[50] [51]
+Underfull \hbox (badness 10000) in paragraph at lines 1522--1531
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1359--1362
+Underfull \hbox (badness 10000) in paragraph at lines 1534--1537
 
  []
 
-File: plot_cutting_flux_1160_with_crow.pdf Graphic file (type QTm)
-<use  "plot_cutting_flux_1160_with_crow.pdf" > [42
+File: plot_cutting_flux_1160.pdf Graphic file (type QTm)
+<use  "plot_cutting_flux_1160.pdf" > [52
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 1405--1408
+Underfull \hbox (badness 10000) in paragraph at lines 1582--1585
 
  []
 
-[43] [44] [45
+[53]
+File: galsim_1160_fbias_1.pdf Graphic file (type QTm)
+ <use  "galsim_1160_fbias_1.pdf" >
+File: galsim_1160_fbias_2.pdf Graphic file (type QTm)
+ <use  "galsim_1160_fbias_2.pdf" >
+File: galsim_1160_fbias_3.pdf Graphic file (type QTm)
 
-] [46
+<use  "galsim_1160_fbias_3.pdf" > [54]
+File: galsim_1160_dfcorr_1.pdf Graphic file (type QTm)
+ <use  "galsim_1160_dfcorr_1.pdf" >
+File: galsim_1160_dfcorr_2.pdf Graphic file (type QTm)
 
-] [47
+<use  "galsim_1160_dfcorr_2.pdf" >
+File: galsim_1160_dfcorr_3.pdf Graphic file (type QTm)
+ <use  "galsim_1160_dfcorr_3.pdf" > [55]
+File: galsim_1160_hist_flux_1.pdf Graphic file (type QTm)
 
-]
+<use  "galsim_1160_hist_flux_1.pdf" >
+File: galsim_1160_hist_flux_2.pdf Graphic file (type QTm)
+ <use  "galsim_1160_hist_flux_2.pdf" >
+File: galsim_1160_hist_flux_3.pdf Graphic file (type QTm)
 
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 1649.
+<use  "galsim_1160_hist_flux_3.pdf" > [56]
+File: galsim_1160_hist_dfcorr_1.pdf Graphic file (type QTm)
+
+<use  "galsim_1160_hist_dfcorr_1.pdf" >
+File: galsim_1160_hist_dfcorr_2.pdf Graphic file (type QTm)
+
+<use  "galsim_1160_hist_dfcorr_2.pdf" >
+File: galsim_1160_hist_dfcorr_3.pdf Graphic file (type QTm)
+
+<use  "galsim_1160_hist_dfcorr_3.pdf" > [57] [58] [59
+
+] [60
+
+] [61
+
+] [62
+
+] [63]
+File: galsed_plot_cutting_flux_201412.pdf Graphic file (type QTm)
+
+<use  "galsed_plot_cutting_flux_201412.pdf" >
+Overfull \hbox (17.0pt too wide) in paragraph at lines 1914--1921
+[][] 
+ []
+
+[64]
+File: galsed_plot_cutting_flux_100_with_crow_201512.pdf Graphic file (type QTm)
+
+ <use  "galsed_plot_cutting_flux_100_with_crow_201512.pdf" > [65]
+File: galsed_plot_cutting_flux_160_with_crow_201512.pdf Graphic file (type QTm)
 
 
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 1649.
+<use  "galsed_plot_cutting_flux_160_with_crow_201512.pdf" >
+File: galsed_plot_cutting_flux_250_with_crow_201512.pdf Graphic file (type QTm)
 
-[48]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1693.
- [49]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1693.
+
+<use  "galsed_plot_cutting_flux_250_with_crow_201512.pdf" >
+File: galsed_plot_cutting_flux_350_with_crow_201512.pdf Graphic file (type QTm)
+
+
+<use  "galsed_plot_cutting_flux_350_with_crow_201512.pdf" > [66]
+File: galsed_plot_cutting_flux_500_with_crow_201512.pdf Graphic file (type QTm)
+
+
+<use  "galsed_plot_cutting_flux_500_with_crow_201512.pdf" >
+File: galsed_plot_cutting_flux_1160_with_crow_201512.pdf Graphic file (type QTm
+)
+
+<use  "galsed_plot_cutting_flux_1160_with_crow_201512.pdf" >
+Overfull \hbox (5.49742pt too wide) in paragraph at lines 1934--1936
+\EU1/RomanSerif(0)/bx/n/10.95 ror correction recipes, and with newer SED fittin
+g algorithms (with Type_FIR, i.e. $\OML/cmm/m/it/10.95 S\OT1/cmr/m/n/10.95 /\OM
+L/cmm/m/it/10.95 N[] >
+ []
+
+[67]
+File: plot_cutting_flux_100.pdf Graphic file (type QTm)
+ <use  "plot_cutting_flux_100.pdf" >
+File: plot_cutting_flux_160.pdf Graphic file (type QTm)
+ <use  "plot_cutting_flux_160.pdf" >
+File: plot_cutting_flux_250.pdf Graphic file (type QTm)
+
+<use  "plot_cutting_flux_250.pdf" >
+File: plot_cutting_flux_350.pdf Graphic file (type QTm)
+ <use  "plot_cutting_flux_350.pdf" >
+[68]
+File: plot_cutting_flux_500.pdf Graphic file (type QTm)
+ <use  "plot_cutting_flux_500.pdf" >
+File: plot_cutting_flux_1160.pdf Graphic file (type QTm)
+ <use  "plot_cutting_flux_1160.pdf" >
+[69]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 2004.
+ [70]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 2004.
  (./A_Superdeblending_Manual.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 1693.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 1693.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 2004.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 2004.
 
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
@@ -1312,15 +1468,15 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 LaTeX Warning: There were undefined references.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1693.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 2004.
  ) 
 Here is how much of TeX's memory you used:
- 24777 strings out of 495487
- 447978 string characters out of 6181014
- 544416 words of memory out of 5000000
- 27781 multiletter control sequences out of 15000+600000
+ 24907 strings out of 495487
+ 451184 string characters out of 6181014
+ 550391 words of memory out of 5000000
+ 27863 multiletter control sequences out of 15000+600000
  11030 words of font info for 66 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 37i,9n,58p,10399b,1731s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 37i,10n,58p,10399b,1731s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on A_Superdeblending_Manual.pdf (49 pages).
+Output written on A_Superdeblending_Manual.pdf (70 pages).

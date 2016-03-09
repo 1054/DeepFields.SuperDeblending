@@ -1,0 +1,10 @@
+macro read plot_SFR_versus_z.sm plot_SFR_versus_z
+quit
+macro read plot_SFR_versus_z.sm plot_SFR_versus_z
+quit
+load rfile.sm
+rfile results_1160_201601__fluxes.txt
+set f = f1160 if(id1160>99999)
+set df = df1160 if(id1160>99999)
+echo $(sum(f>3.*df))
+quit

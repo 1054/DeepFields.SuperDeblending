@@ -97,7 +97,7 @@ fi
 ct2latex_head=()
 ct2latex_head_written=0
 ct2latex_strlens=()
-ct2latex_ncolumn=()
+ct2latex_ncolumn=0
 while read -r line; do
     if [[ x"$line" != x ]]; then
         # write header

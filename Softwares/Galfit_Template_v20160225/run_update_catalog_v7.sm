@@ -1,9 +1,17 @@
 run_update_catalog_v7 02
     # 
-    #     sm | tee log_update_catalog_v7.txt
-    #     macro read run_update_catalog_v7.sm run_update_catalog_v7 100
-    #     macro read run_update_catalog_v7.sm run_update_catalog_v7 160
-    #     macro read run_update_catalog_v7.sm run_update_catalog_v7 250
+    # Usage: 
+    #    # Under Galfit_XXX directory
+    #    # Make sure we have results_$imax_$xdate[_vary]__fluxes.txt
+    #    define imax 250
+    #    define xdate 201601
+    #    set old_catalog = {"RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt"}
+    #    set new_catalog = {"RadioOwenMIPS24_priors_dzliu_20160128_Band250.txt"}
+    #    set sed_predict = <"SED_predictions_"$imax".txt">
+    #    set result_mags = <"results_"$imax"_"$xdate"">
+    #    set result_flux = <"results_"$imax"_"$xdate"__fluxes.txt">
+    #    macro read run_update_catalog_v7.sm run_update_catalog_main_code
+    # 
     # 
     load rfile.sm
     # 
@@ -91,6 +99,17 @@ run_update_catalog_v7 02
 
 run_update_catalog_main_code
     # 
+    # Usage: 
+    #    # Under Galfit_XXX directory
+    #    # Make sure we have results_$imax_$xdate[_vary]__fluxes.txt
+    #    define imax 250
+    #    define xdate 201601
+    #    set old_catalog = {"RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt"}
+    #    set new_catalog = {"RadioOwenMIPS24_priors_dzliu_20160128_Band250.txt"}
+    #    set sed_predict = <"SED_predictions_"$imax".txt">
+    #    set result_mags = <"results_"$imax"_"$xdate"">
+    #    set result_flux = <"results_"$imax"_"$xdate"__fluxes.txt">
+    #    macro read run_update_catalog_v7.sm run_update_catalog_main_code
     # 
     # macro read goSimu.sm
     # load astroPhot.sm

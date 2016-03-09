@@ -28,7 +28,7 @@ whereIntersec 02
             # -1 if not match
             if($?1==0 || $?2==0) {
                 print 'whereIntersec: use input vector2 as the reference array, cross-match input vector1, \n' {}
-                print '               then output a boolean array the same dimen as input vector1, if item \n' {}
+                print '               then output an index array the same dimen as input vector1, if item \n' {}
                 print '               vector1[i] is found in vector2, then vector2[output[i]]==vector1[i]. \n' {}
                 return
             }

@@ -1,9 +1,0 @@
-
-cp ../Galsed_BeforeBand100/do_Type_AGN/coo_AGN.* .
-
-cp ../Galsed_BeforeBand100/do_Type_SED/coo_SED.* .
-
-cd "do_Type_FIR"; sm <<< "macro read do_Type_FIR.sm go 100"; cd ../
-
-# TODO We will derive do_Type_FIT after this SED fitting. 
-

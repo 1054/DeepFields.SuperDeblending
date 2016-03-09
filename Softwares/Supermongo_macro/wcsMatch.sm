@@ -107,6 +107,12 @@ matchCatalogRADec 03
                 data $(_matchCatalog_1) read {_match_id_1 1 _match_ra_1 2 _match_de_1 3}
                 data $(_matchCatalog_2) read {_match_id_2 1 _match_ra_2 2 _match_de_2 3}
                 }
+                if(is_vector(id_1)) {set backup_id_1 = id_1} else {if(is_vector(backup_id_1)) {unset backup_id_1}}
+                if(is_vector(ra_1)) {set backup_ra_1 = ra_1} else {if(is_vector(backup_ra_1)) {unset backup_ra_1}}
+                if(is_vector(de_1)) {set backup_de_1 = de_1} else {if(is_vector(backup_de_1)) {unset backup_de_1}}
+                if(is_vector(id_2)) {set backup_id_2 = id_2} else {if(is_vector(backup_id_2)) {unset backup_id_2}}
+                if(is_vector(ra_2)) {set backup_ra_2 = ra_2} else {if(is_vector(backup_ra_2)) {unset backup_ra_2}}
+                if(is_vector(de_2)) {set backup_de_2 = de_2} else {if(is_vector(backup_de_2)) {unset backup_de_2}}
                 if(is_vector(_matchCatalog_oMc)) {
                 set id_1 = _match_id_1[_match_sid_oM1]
                 set ra_1 = _match_ra_1[_match_sid_oM1]
@@ -147,6 +153,12 @@ matchCatalogRADec 03
                 if(1==1){echo Write data 1 to $(dimen(id_1)) to $(_matchCatalog_o12)}
                 print $(_matchCatalog_o12) '%10.0f %10.0f %15.7f %15.7f %15g\n' {id_1 id_2 ra_2 de_2 diff12}
                 }
+                if(is_vector(backup_id_1)) {set id_1 = backup_id_1}
+                if(is_vector(backup_ra_1)) {set ra_1 = backup_ra_1}
+                if(is_vector(backup_de_1)) {set de_1 = backup_de_1}
+                if(is_vector(backup_id_2)) {set id_2 = backup_id_2}
+                if(is_vector(backup_ra_2)) {set ra_2 = backup_ra_2}
+                if(is_vector(backup_de_2)) {set de_2 = backup_de_2}
 
 
 intersecCatalogRADec 00
@@ -179,6 +191,12 @@ intersecCatalogRADec 00
                     if(!is_vector(_match_sid_oM2)) {set _match_sid_oM2 = _match_sid_2} else {set _match_sid_oM2 = _match_sid_oM2 concat _match_sid_2}
                     if(!is_vector(_match_sid_oDf)) {set _match_sid_oDf = _match_sdiff} else {set _match_sid_oDf = _match_sid_oDf concat _match_sdiff}
                 }
+                if(is_vector(id_1)) {set backup_id_1 = id_1} else {if(is_vector(backup_id_1)) {unset backup_id_1}}
+                if(is_vector(ra_1)) {set backup_ra_1 = ra_1} else {if(is_vector(backup_ra_1)) {unset backup_ra_1}}
+                if(is_vector(de_1)) {set backup_de_1 = de_1} else {if(is_vector(backup_de_1)) {unset backup_de_1}}
+                if(is_vector(id_2)) {set backup_id_2 = id_2} else {if(is_vector(backup_id_2)) {unset backup_id_2}}
+                if(is_vector(ra_2)) {set backup_ra_2 = ra_2} else {if(is_vector(backup_ra_2)) {unset backup_ra_2}}
+                if(is_vector(de_2)) {set backup_de_2 = de_2} else {if(is_vector(backup_de_2)) {unset backup_de_2}}
                 set id_1 = _match_id_1[_match_sid_oM1]
                 set ra_1 = _match_ra_1[_match_sid_oM1]
                 set de_1 = _match_de_1[_match_sid_oM1]
@@ -188,5 +206,12 @@ intersecCatalogRADec 00
                 set diff = _match_sid_oDf[_match_sid_oM1]
                 echo Write data 1 to $(dimen(_match_sid_oM1)) to $(_matchCatalog_o)
                 print $(_matchCatalog_o) '%10.0f %15.7f %15.7f %10.0f %15.7f %15.7f %15g\n' {id_1 ra_1 de_1 id_2 ra_2 de_2 diff}
+                # 
+                if(is_vector(backup_id_1)) {set id_1 = backup_id_1}
+                if(is_vector(backup_ra_1)) {set ra_1 = backup_ra_1}
+                if(is_vector(backup_de_1)) {set de_1 = backup_de_1}
+                if(is_vector(backup_id_2)) {set id_2 = backup_id_2}
+                if(is_vector(backup_ra_2)) {set ra_2 = backup_ra_2}
+                if(is_vector(backup_de_2)) {set de_2 = backup_de_2}
 
 

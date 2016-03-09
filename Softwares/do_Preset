@@ -1,5 +1,25 @@
 #!/bin/bash
 # 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# Check Superdeblending Softwares
+if [[ x"$SUPERDEBLENDDIR" == x"" ]]; then
+    echo "Error! Supderdeblending Softwares were not prepared well!"
+    echo "Please make sure you have Supderdeblending/Softwares/SETUP"
+    echo "and have ran \"source /path/to/Supderdeblending/Softwares/SETUP\""
+fi
+# 
+# 
 if [ $# -lt 3 ]; then 
     echo "Usage: $1 16 201407"
     echo "       $1 100 201412 -vary -catalog RadioOwenMIPS24_priors_April18_2014.txt"
@@ -32,24 +52,27 @@ echo ""
 date +"%F %T %Z"
 #
 # Now check software dependencies on planer
-if [[ $(hostname) == planer* || $(hostname) == sapherschel* ]]; then
-    if [[ -d "/dsm/upgal/data/dliu/Superdeblending/Softwares/" ]]; then 
-        echo ""
-        echo We are running on planer! Loading "/dsm/upgal/data/dliu/Superdeblending/Softwares/SETUP"
-        echo ""
-        source "/dsm/upgal/data/dliu/Superdeblending/Softwares/SETUP"
-    else
-        echo ""
-        echo Warning! "/dsm/upgal/data/dliu/Superdeblending/Softwares/" was not found! "Please make sure you have prepared your own galfit, iraf, sm, wcstools, etc.!"
-        echo ""
-        type galfit
-        type cl
-        type sm
-        type sky2xy
-        type xy2sky
-        type CrabPhotAperPhot
-    fi
-fi
+#if [[ $(hostname) == planer* || $(hostname) == sapherschel* ]]; then
+#    if [[ -d "/dsm/upgal/data/dliu/Superdeblending/Softwares/" ]]; then 
+#        echo ""
+#        echo We are running on planer! Loading "/dsm/upgal/data/dliu/Superdeblending/Softwares/SETUP"
+#        echo ""
+#        source "/dsm/upgal/data/dliu/Superdeblending/Softwares/SETUP"
+#    else
+#        echo ""
+#        echo Warning! "/dsm/upgal/data/dliu/Superdeblending/Softwares/" was not found! "Please make sure you have prepared your own galfit, iraf, sm, wcstools, etc.!"
+#        echo ""
+#    fi
+#fi
+echo ""
+echo "Checking softwares:"
+type galfit
+type cl
+type sm
+type sky2xy
+type xy2sky
+type CrabPhotAperPhot
+echo ""
 #
 if [[ $* == *-vary* ]]; then
 DG_VARY=1
