@@ -60,15 +60,6 @@ if [[ ${#GalfitBoxList[@]} != ${#GalfitRunList[@]} || "$*" == *"-h"* ]]; then
     echo ""
     exit
 fi
-if [[ "$*" == *"-cleanlog"* ]]; then
-    read -e -p "We are about to clean all fit.log and galfit.*, ready? [y/n] " -i "yes" GalfitReadyGo
-    echo $GalfitReadyGo
-    if [[ $GalfitReadyGo == "y" || $GalfitReadyGo == "yes"* || $GalfitReadyGo == "Yes"* || $GalfitReadyGo == "Y" || $GalfitReadyGo == "YES"* ]]; then
-        find . -maxdepth 2 -name "fit.log" -type f -not -path "*/backup*/*" -exec bash -c 'rm $(dirname {})/fit.log $(dirname {})/galfit.* 2>/dev/null' ';'
-        echo "Done!"
-    fi
-    exit
-fi
 # 
 # start from and finish up to some sources
 STARTSOURCE=0 # <Added> start from id
@@ -114,6 +105,8 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
                 cp  "${GalfitRunList[i]}"                          "${GalfitRunList[i]}.$(hostname).sh"
                 sed --in-place -e "s%^cd .*/boxgalsim_vary/%cd %g" "${GalfitRunList[i]}.$(hostname).sh"
                 sed --in-place -e "s%^cd .*/boxgalsim/%cd %g"      "${GalfitRunList[i]}.$(hostname).sh"
+                sed --in-place -e "s%^cd boxgalsim_vary/%cd %g"    "${GalfitRunList[i]}.$(hostname).sh"
+                sed --in-place -e "s%^cd boxgalsim/%cd %g"         "${GalfitRunList[i]}.$(hostname).sh"
                 sed --in-place -e "s%^.*/galfit %galfit %g"        "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> assume the galfit is already in your $PATH
                 chmod a+x "${GalfitRunList[i]}.$(hostname).sh"
                 echo "$PWD/${GalfitRunList[i]}.$(hostname).sh"

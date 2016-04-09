@@ -1,0 +1,15 @@
+# RegionFile                                                                        AssignFrame
+ds9_regions_v7_201601_update_20160309/ds9.mips.fk5.reg                              1,2,3,4,5,6,7,8,9
+ds9_regions_v7_201601_update_20160309/cat_100_detected.ds9.reg                      10
+ds9_regions_v7_201601_update_20160309/cat_100_undetected.ds9.reg                    10
+ds9_regions_v7_201601_update_20160309/cat_160_detected.ds9.reg                      11
+ds9_regions_v7_201601_update_20160309/cat_160_undetected.ds9.reg                    11
+ds9_regions_v7_201601_update_20160309/cat_250_detected.ds9.reg                      12
+ds9_regions_v7_201601_update_20160309/cat_250_undetected.ds9.reg                    12
+ds9_regions_v7_201601_update_20160309/cat_350_detected.ds9.reg                      13
+ds9_regions_v7_201601_update_20160309/cat_350_undetected.ds9.reg                    13
+ds9_regions_v7_201601_update_20160309/cat_500_detected.ds9.reg                      14
+ds9_regions_v7_201601_update_20160309/cat_500_undetected.ds9.reg                    14
+ds9_regions_v7_201601_update_20160309/cat_1160_detected.ds9.reg                     15
+ds9_regions_v7_201601_update_20160309/cat_1160_undetected.ds9.reg                   15
+

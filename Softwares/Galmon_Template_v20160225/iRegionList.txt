@@ -1,0 +1,5 @@
+# RegionFile                                                                        AssignFrame
+#ds9_regions_v7_201601_update_20160309/ds9.mips.fk5.reg                             1,2,3,4,5,6,7,8,9
+ds9_regions_v7_201601_update_20160309/cat_FIR_SMM_detected.ds9.reg                  1,2,3
+ds9_regions_v7_201601_update_20160309/cat_FIR_SMM_undetected.ds9.reg                1,2,3
+

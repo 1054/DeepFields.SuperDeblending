@@ -10,7 +10,7 @@ set -e
 DG_FAKE=0
 DG_MAG0=0
 DG_MAG1=0
-DG_NSIM=3000
+DG_NSIM=1000
 # 
 if [[ $* == *-mag0* ]]; then
 DG_MAG0=`expr "$*" : '.*-mag0[\ \t]*\([0-9eE\.\+\-]*\)'`
@@ -37,30 +37,65 @@ echo
 # 
 sm << EOF | tee $DG_FLOG".smlog"
     
-    if(   $DG_PARA==0   &&   $DG_FAKE==0   ){
-    #!./do_Cleans
-    }
     
     ########################
     # (SAME AS do_Galfit)  #
     ########################
     
     #####  EDIT goFine.sm xSet_$DG_IMAX
-    macro read goFine.sm xSet_$DG_IMAX
-    
-    echo 
+    macro  read goFine.sm xSet_$DG_IMAX
     
     ###### EDIT goSimu.sm FixAstrometry for SciFits
-    if(    is_file($DG_NAME.fits)   ) {
-    define imax_name $DG_NAME
-    !echo "We are using "$DG_NAME".fits as the source image."
-    !echo " "
-    }else {
-    !echo "We are using "\$imax_name".fits as the source image. '(The default setting in goFine.sm)'"
-    !echo " "
+    echo " "
+    
+    if(is_file($DG_FSCI.fits)) {
+        define imax_name $DG_FSCI
+        echo "We are using "\$imax_name".fits as the source image."
+        echo " "
+    } else {
+        echo "We are using "\$imax_name".fits as the source image. (The default setting in goFine.sm)"
+        echo " "
     }
     
-    ###### EDIT xdate
+    if(!is_file(\$imax_name.fits)) {
+        echo "********************************************"
+        echo "Error! "\$imax_name".fits was not found!"
+        echo " "
+        define doFit -1
+    }
+    
+    if(is_file($DG_FRMS.fits)) {
+        define imax_name_rms $DG_FRMS
+        echo "We are using "\$imax_name_rms".fits as the rms image."
+        echo " "
+    } else {
+        echo "We are using "\$imax_name_rms".fits as the rms image. (The default setting in goFine.sm)"
+        echo " "
+    }
+    
+    if(!is_file(\$imax_name_rms.fits)) {
+        echo "********************************************"
+        echo "Error! "\$imax_name_rms".fits was not found!"
+        echo " "
+        define doFit -1
+    }
+    
+    if(is_file($DG_FPSF.fits)) {
+        define imax_name_psf $DG_FPSF
+        echo "We are using "\$imax_name_psf".fits as the psf image."
+        echo " "
+    } else {
+        echo "We are using "\$imax_name_psf".fits as the psf image. (The default setting in goFine.sm)"
+        echo " "
+    }
+    
+    if(!is_file(\$imax_name_psf.fits)) {
+        echo "********************************************"
+        echo "Error! "\$imax_name_psf".fits was not found!"
+        echo " "
+        define doFit -1
+    }
+    
     define xdate <"$DG_DATE">
     
     
@@ -68,63 +103,70 @@ sm << EOF | tee $DG_FLOG".smlog"
     ########################
     # (SAME AS do_Galfit)  #
     ########################
-    ####   CATALOG ORIGINAL
-    if('$DG_CATA'=='irac_mips_fluxes_hdfn.dat') {
-        echo 
-        data "$DG_CATA" read {idF 3 raF 1 deF 2} set idCata = idF set raCata = raF set deCata = deF
-    } else {
-        echo 
-        data "$DG_CATA" read {idF 1 raF 2 deF 3} set idCata = idF set raCata = raF set deCata = deF
-    }
-    ####   INCLUDE/EXCLUDE
-    if($DG_PFIT==0) {
-        echo 
-        echo "We do not exclude faint sources here!"
-    } else {
-        echo 
-        data "$DG_FSED.txt" read {idS 1 raS 2 deS 3 flagExclude 4} # sedMag 9 # <Modified><20140825><DzLIU> #
-        set idIncl = idS if(flagExclude==0)   set idExcl = idS if(flagExclude==1)
-        set raIncl = raS if(flagExclude==0)   set raExcl = raS if(flagExclude==1)
-        set deIncl = deS if(flagExclude==0)   set deExcl = deS if(flagExclude==1)
-        if($DG_PFIT==1) {
-            set idF = idIncl
-            set raF = raIncl
-            set deF = deIncl
-            echo 
-            print 'We exclude \$(sum(flagExclude)) faint sources during the fitting, ' {}
-            print 'and only fit \$(dimen(flagExclude)-sum(flagExclude)) sources!\n' {}
-        }
-        if($DG_PFIT==2) {
-            set idF = idExcl
-            set raF = raExcl
-            set deF = deExcl
-            echo 
-            print 'We select \$(sum(flagExclude)) faint sources by SED predictions, ' {}
-            print 'and only fit these \$(sum(flagExclude)) faint sources!\n' {}
-            print '<TODO>\n' {}
-        }
-    }
-    ####   ADDITIONAL
-    if(strlen('$DG_CATB')>0) {
-        if(is_file("$DG_CATB")) {
-            echo 
-            data "$DG_CATB" read {idAdds 1 raAdds 2 deAdds 3}
-            set idF = idF concat idAdds
-            set raF = raF concat raAdds
-            set deF = deF concat deAdds
-            echo 
-            print 'We include \$(dimen(idAdds)) additional sources selected from the residual maps. ' {}
-            print 'Now we are fitting \$(dimen(idF)) sources!\n' {}
+    
+    ####   CATALOG
+    define catalog_file \"$DG_CATA\"
+    if(is_file(\$catalog_file)) {
+        data \$catalog_file
+        if(index('\$catalog_file','irac_mips_fluxes')>=0) {
+            read  {idF 3 raF 1 deF 2}
         } else {
-            echo 
-            echo "We do not include additional sources here!"
+            read  {idF 1 raF 2 deF 3}
         }
+        echo "We are using "\$catalog_file" as the source catalog."
+        echo " "
+    } else {
+        echo "********************************************"
+        echo "Error! "\$catalog_file" was not found!"
+        echo " "
+        define doFit -1
+    }
+    
+    ####   EXCLUDE
+    define exclude_file "${DG_FSED}.txt"
+    if(is_file(\$exclude_file)) {
+        data \$exclude_file
+        read {idS 1 raS 2 deS 3 flagExclude 4}
+        set  idF = idF if(flagExclude==0) set idIncl = idF set idExcl = idS if(flagExclude==1)
+        set  raF = raF if(flagExclude==0) set raIncl = raF set raExcl = raS if(flagExclude==1)
+        set  deF = deF if(flagExclude==0) set deIncl = deF set deExcl = deS if(flagExclude==1)
+        echo "We exclude "\$(sum(flagExclude))" faint sources during the fitting, and only fit "\$(dimen(flagExclude)-sum(flagExclude))" sources."
+        echo " "
+    } else {
+        echo "We do not exclude faint sources here."
+        echo " "
+    }
+    
+    ####   INCLUDE
+    define include_file "${DG_CATB}"
+    if(is_file(\$include_file)) {
+        data \$include_file
+        read  {idN 1 raN 2 deN 3}
+        set    idF = idF concat idN   set  idAdds = idN
+        set    raF = raF concat raN   set  raAdds = raN
+        set    deF = deF concat deN   set  deAdds = deN
+        echo "We include "\$(dimen(idN))" additional sources selected from the residual maps. "
+        echo "Coordinates are stored in ${DG_CATB}"
+        echo "Now we are fitting "\$(dimen(idF))" sources."
+        echo " "
+    } else {
+        echo "We do not include additional sources here."
+        echo " "
+    }
+    
+    ####   TODO: FIT EXCLUDE SOURCES INSTEAD OF INCLUDE SOURCES <Added><20141030><DzLIU>
+    if(2==$DG_PFIT) {
+        set idF = idExcl
+        set raF = raExcl
+        set deF = deExcl
+        echo "TODO: Now we do not fit included sources on faint-source-subtracted map, instead we fit excluded sources on fitted-sources-subtracted map!"
+        echo " "
     }
     
     ####   WE NOW HAVE NNNN SOURCES TO FIT
     if(dimen(idF)>0) {
-        echo 
-        echo "We now have "\$(dimen(idF))" sources to fit!"
+        echo "We now have "\$(dimen(idF))" sources to be fit."
+        echo " "
         
         
         #####################
@@ -156,8 +198,8 @@ sm << EOF | tee $DG_FLOG".smlog"
         ########################
         
         ###### 
-        define use_prior_mags 0
-        define vary_positions 0
+        define use_prior_mags $DG_PRIM #<Modified><20160327><DZLIU>#
+        define vary_positions $DG_VARY #<Modified><20160327><DZLIU>#
         define fix_astrometry 1
         define make_residuals 0
         ######

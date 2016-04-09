@@ -319,12 +319,14 @@ set_cosmos_photometry_constants_24 00
     # define h_24       20.13       # photometry fudge factor = PSF Peak * PSF Area = 0.0232623 * pi/(4*ln(2))*(6.0**2)*2.350443e1 sr [uJy]
     # define m_24       0.829753    # photometry fudge factor for the use of finite PSF = 0.0232623 | 0.829753
     # define h_24       32.5        # <TODO> photometry fudge factor -- see Rodighiero et al. 2005 Sec.3.3 http://arxiv.org/pdf/astro-ph/0511563v1.pdf
-    define h_24         23.9635     # PSF max=0.023262 sum=0.55744 PSF-total-to-peak-ratio=23.9635457
-    define m_24         2.67764     # PSF npix=79.12653 pixscale=1.2 bunit=2.35e-5*79.12653*1.2**2*1e3=2.677641775[[mJy/beam]/[MJy/sr]]
+    #define h_24         23.9635    # PSF max=0.023262 sum=0.55744 PSF-total-to-peak-ratio=23.9635457
+    #define m_24         2.67764    # PSF npix=79.12653 pixscale=1.2 bunit=2.35e-5*79.12653*1.2**2*1e3=2.677641775[[mJy/beam]/[MJy/sr]]
+    define h_24         6.691       # same as GOODSN 24
+    define m_24         1.0         # same as GOODSN 24
     define mJy_24       1e-3        # converting pixel flux from uJy to mJy
     define mBias_24     0.0         # <TODO> 
     define fBias_24     0.0         # <TODO> need to determine flux bias mJy
-    define rBeam_24     6.0         # FWHM of PSF in arcsec -- from Le Floch et al. 2009
+    define rBeam_24     5.7         # 5.7 same as GOODSN 24 -- 6.0 from Le Floch et al. 2009
     set_default_astrometry_constants 24
     define xStep_24     80          # <TODO> box x length, from Dr. Daddi's goFine.sm
     define yStep_24     80          # <TODO> box x length, from Dr. Daddi's goFine.sm
@@ -340,7 +342,7 @@ set_cosmos_photometry_constants_24 00
     define SciPhoto_24 "mips_24_GO3_sci_10" # S-COSMOS BUNIT='MJy/sr'
     define RmsPhoto_24 "mips_24_GO3_unc_10" # S-COSMOS
     define PsfPhoto_24 "hdfn_dao_mipspsf" # <TODO> use HDFN MIPS PSF for now
-    define DirPhoto_24 "~/Data/DeepFields/COSMOS_Photo/MIPS_Photo"
+    define DirPhoto_24 "."
 
 set_GOODSN_photometry_constants_20cm 00
     set_goodsn_photometry_constants_20cm
@@ -462,7 +464,7 @@ set_COSMOS_photometry_constants_20cm 00
 
 set_cosmos_photometry_constants_20cm 00
     # set VLA 20cm photometry constants
-    define h_20cm $(1/37.5055) # <TODO> photometry fudge factor from Jy/beam definition
+    define h_20cm 0.00710      # <TODO> photometry fudge factor from Jy/beam definition
     define m_20cm   1          # <TODO> photometry fudge factor for the use of finite PSF
     define mJy_20cm 1e6        # converting pixel flux 
     define mBias_20cm 0.0      # 
@@ -479,9 +481,9 @@ set_cosmos_photometry_constants_20cm 00
     define Telescop_20cm "VLA"
     define BandName_20cm "1.4GHz"
     define BandWave_20cm  1e5
-    define SciPhoto_20cm "COSMOS_11ERG_cluster_VLA_20cm.SCI"
-    define RmsPhoto_20cm "COSMOS_11ERG_cluster_VLA_20cm.RMS"
-    define PsfPhoto_20cm "VLA_Owen_Maurilio_beam2" # <TODO> use HDFN VLA PSF for now
+    define SciPhoto_20cm "vla_20cm_dp_sin_10"
+    define RmsPhoto_20cm "vla_20cm_dp_rms"
+    define PsfPhoto_20cm "vla_20cm_dp_psf" # <TODO>
 
 set_GOODSN_photometry_constants_16 00
     set_goodsn_photometry_constants_16

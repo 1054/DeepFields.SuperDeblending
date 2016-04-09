@@ -1,0 +1,13 @@
+# RegionFile                                             AssignFrame
+#ds9_regions_v6_201512/ds9.irac.fk5.reg                  1,2,3,4,5,6
+ds9_regions_v6_201512/ds9.mips.fk5.reg                   1,2,3,4,5,6,7,8,9
+#ds9_regions_v6_201512/ds9.3dhst.fk5.reg                 1,2,3,4,5,6,7,8,9
+ds9_regions_v6_201512/cat_100.ds9.reg                    10
+ds9_regions_v6_201512/cat_160.ds9.reg                    11
+ds9_regions_v6_201512/cat_250.ds9.reg                    12
+ds9_regions_v6_201512/cat_350.ds9.reg                    13
+ds9_regions_v6_201512/cat_500.ds9.reg                    14
+ds9_regions_v6_201512/cat_1160.ds9.reg                   15
+ds9_regions_v6_201512/ds9.daddi.exlossfr.pdbi.2015.reg   1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+ds9_regions_v6_201512/ds9.daddi.exlossfr.noema.2016.reg  1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+

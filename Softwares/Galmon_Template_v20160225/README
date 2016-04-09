@@ -1,0 +1,29 @@
+*********************************************
+* Make image montage for one source
+*********************************************
+
+source /dsm/upgal/data/dliu/Superdeblending/Softwares/SETUP
+
+idl
+
+;GalMon, "RadioOwenMIPS24_priors_v6_20151230_Tuned.txt", 350018, ForceOneRadius=4.5, WithTextCharSize=1.5
+GalMon, "RadioOwenMIPS24_priors_v6_20151230_Tuned.txt", 12610
+
+
+
+*********************************************
+* Make image montage for a list of sources
+*********************************************
+
+source /dsm/upgal/data/dliu/Superdeblending/Softwares/SETUP
+
+idl 
+
+readcol, 'List_of_IDs.txt', format='L', IDs
+PowerLawScale = HASH('/home/dzliu/Data/DeepFields/GOODSN_Photo/HST/gn_all_candels_wfc3_f160w_060mas_v0.8_drz.fits', [-0.4,0.9],$
+                     '/home/dzliu/Data/DeepFields/GOODSN_Photo/HST/gn_acs_old_f850l_060mas_v2_drz.fits',[-0.2,0.5],$
+                     '/home/dzliu/Data/DeepFields/GOODSN_Photo/HST/gn_acs_old_f435w_060mas_v2_drz.fits',[-0.3,0.7])
+foreach ID, IDs do GalMon, "RadioOwenMIPS24_priors_dzliu_201601.txt", ID, PowerLawScale=PowerLawScale
+
+
+

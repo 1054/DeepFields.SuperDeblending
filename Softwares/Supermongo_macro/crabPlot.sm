@@ -98,6 +98,9 @@ crabPlotRestorePen 00
     ctype   $crabPlot_ctype  
 
 crabPlotDefaultPenForBox 00
+    expand 1.4 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype default
+
+crabPlotDefaultPenForTitle 00
     expand 1.5 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype default
 
 crabPlotDefaultPenForPoints 00
