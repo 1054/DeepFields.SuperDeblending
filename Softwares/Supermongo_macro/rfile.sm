@@ -8,6 +8,7 @@ rfile 03
         ##if(!$?1){print 'Usage: rfile filename.txt 0 100\n' {}}
         # 2015-06-26 now we allow 0 input argument -- assuming 
         # the user has already called data some file
+        # 2016-06-24 now if header name contains STR, we will read as string
         ##define rfhf $1
         define pref_verbose $verbose verbose 0
         define rfhi 0
@@ -29,11 +30,11 @@ rfile 03
                 if('$rfhc'=='Type'||'$rfhc'=='Note'){
                   read $rfhc $rfhi.s}else{if(index('$rfhc','Source')>=0||index('$rfhc','Name')>=0||index('$rfhc','Alias')>=0){
                   read $rfhc $rfhi.s}else{if(index('$rfhc','source')>=0||index('$rfhc','name')>=0||index('$rfhc','alias')>=0){
+                  read $rfhc $rfhi.s}else{if(index('$rfhc','_STR')>=0){
                   read $rfhc $rfhi.s}else{
-                  read $rfhc $rfhi}}
-                }
-                if(is_vector(rfile_vectors)){set rfile_vectors = rfile_vectors concat <$rfhc>}\
-                else{set rfile_vectors = <$rfhc>}
+                  read $rfhc $rfhi}}}}
+                if(is_vector(rfile_vectors)){set rfile_vectors = rfile_vectors concat <$rfhc>
+                  }else{set rfile_vectors = <$rfhc>}
                 #if(is_vector(rfvectors)) {
                 #set rfvectors=rfvectors concat $rfhc
                 #} else { set rfvectors=$rfhc }

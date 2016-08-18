@@ -48,7 +48,7 @@ crabPlotOpenPS 01
         location 5500 31500 5000 31500
     }
     define TeX_strings 1
-    echo "crabPlotOpenPS: Opening "\"$(__crabPlot__PSFILE)\"
+    echo "crabPlotOpenPS: Opening "\"$(__crabPlot__PSFILE)\" # "
     # crabPlotResetPen
     # THEN : 
     #     limits 
@@ -78,6 +78,25 @@ crabPlotClosePS 00
     }
     crabPlotResetAll
 
+crabPlotSaveBox 00
+    define crabPlot_fx1  $fx1
+    define crabPlot_fx2  $fx2
+    define crabPlot_fy1  $fy1
+    define crabPlot_fy2  $fy2
+    define crabPlot_gx1  $gx1
+    define crabPlot_gx2  $gx2
+    define crabPlot_gy1  $gy1
+    define crabPlot_gy2  $gy2
+    # echo crabPlotClosePS: expand  $expand
+    # echo crabPlotClosePS: lweight $lweight
+    # echo crabPlotClosePS: ltype   $ltype
+    # echo crabPlotClosePS: ptype   $ptype
+    # echo crabPlotClosePS: ctype   $ctype
+
+crabPlotRestoreBox 00
+    location $crabPlot_gx1 $crabPlot_gx2 $crabPlot_gy1 $crabPlot_gy2
+    limits $crabPlot_fx1 $crabPlot_fx2 $crabPlot_fy1 $crabPlot_fy2
+
 crabPlotSavePen 00
     define crabPlot_expand  $expand
     define crabPlot_lweight $lweight
@@ -97,11 +116,26 @@ crabPlotRestorePen 00
     ptype   $crabPlot_ptype  
     ctype   $crabPlot_ctype  
 
+crabPlotRelocate 02
+    if($?1 && $?2) {
+        relocate $($fx1+($1)*($fx2-$fx1)) $($fy1+($2)*($fy2-$fy1))
+    }
+
+crabPlotDefaultLocations 00
+    crabPlotDefaultLocation
+    
+crabPlotDefaultLocation 00
+    location 6500 30000 6500 30000
+
 crabPlotDefaultPenForBox 00
     expand 1.4 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype default
 
 crabPlotDefaultPenForTitle 00
     expand 1.5 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype default
+
+crabPlotDefaultPenForLegend 00
+    expand 1.3 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype blue
+    crabPlotRelocate 0.725 0.875
 
 crabPlotDefaultPenForPoints 00
     expand 1.2 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 0 ctype blue
@@ -122,6 +156,7 @@ crabPlotResetAll 00
     limits 0 1 0 1
     ticksize 0 0 0 0
     location 3500 31000 3500 31000
+    notation 0 0 0 0
     limits 0 1 0 1
     #define fx1 0 # one must not directly define these variables!
     #define fx2 1

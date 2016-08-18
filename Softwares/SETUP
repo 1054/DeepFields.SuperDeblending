@@ -4,7 +4,7 @@
 #
 #BASH_VERBOSE=0
 #
-# readlink
+# readlink for Mac (because Mac readlink does not accept "-f" option)
 if [[ $(uname) == *"Darwin"* ]]; then
     function readlink() {
         if [[ $# -gt 1 ]]; then if [[ "$1" == "-f" ]]; then shift; fi; fi
@@ -92,6 +92,16 @@ if [[ $(type idl 2>/dev/null | wc -l) -eq 0 ]]; then
         echo "Warning! IDL was not found! idl command not found! This will cause unknown problem!"
         echo "***********************************************************************************"
         echo 
+    fi
+else
+    if [[ x"$IDL_DIR" == x ]]; then
+        export IDL_DIR=$(idl -quiet -e 'print, getenv("IDL_DIR")')
+    fi
+    if [[ x"$IDL_PATH" != x*"$SUPERDEBLENDDIR/idl_lib_dzliu"* ]]; then
+        export IDL_PATH="$IDL_PATH:+$SUPERDEBLENDDIR/idl_lib_dzliu"
+    fi
+    if [[ x"$IDL_DIR" != x && x"$IDL_PATH" != x*":+$IDL_DIR/lib"* ]]; then
+        export IDL_PATH="$IDL_PATH:+$IDL_DIR/lib"
     fi
 fi
 # 

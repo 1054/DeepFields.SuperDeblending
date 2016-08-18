@@ -3,12 +3,25 @@ astroSfig
     # here we provide some useful tools for the star formation things
     # 
     print 'load astroSfig.sm\n' {}
+    print '\# \n' {}
+    print '\# Functions for stellar mass - star formation rate calculation: \n' {}
+    print '\# \n' {}
     print 'set lg_SFR_MS = calc_Bethermin2014_SFR(z,lg_M_star) --> lg_SFR_MS\n' {}
     print 'set lg_SFR_MS = calc_Schreiber2014_SFR(z,lg_M_star) --> lg_SFR_MS\n' {}
     print 'set lg_SFR_MS = calc_Sargent2014_SFR(z,lg_M_star) --> lg_SFR_MS\n' {}
-    print 'set L_CO_J_up = calc_Liu2015_CO(LTIR,J_up[,z]) --> L_CO_J_up_K_km_s_pc2\n' {} 
+    print '\# \n' {}
+    print '\# Functions for molecular gas - infrared luminosity calculation: \n' {}
+    print '\# \n' {}
+    print 'set L_CO = calc_Daddi2010_CO(LTIR,J_up[,z]) --> L_CO_J_up_K_km_s_pc2\n' {} 
+    print 'set L_CO = calc_Liu2015_CO(LTIR,J_up[,z]) --> L_CO_J_up_K_km_s_pc2\n' {} 
+    print '\# \n' {}
+    print '\# Functions for infrared to submillimeter molecular and atomic lines: \n' {}
+    print '\# \n' {}
     print 'set Freq_CO_J = calc_line_freq(co,J[,z]) --> Freq_CO_at_J_at_z_GHz\n' {}
     print 'set time_onsoure = calc_noema_time(LineFreq,LineFlux,LineWidth,SNRatio) --> hours on source\n' {}
+    print 'calc_FIR_lines 3.083 \# --> input redshift, output far-infrared line frequencies\n' {}
+    print 'calc_nebular_lines 3.083 \# --> input redshift, output nebular line frequencies\n' {}
+    print '\n' {}
 
 
 
@@ -114,7 +127,19 @@ calc_Daddi2010_CO 05
     #                  starburst seq: lg_LTIR = 1.31 * lg_MH2 - 2.09 + 1.1  (1.1 dex see caption of figure 1)
     #                  and they are using alpha_CO = 3.6 for BzK, 4.6 for local spirals, 0.8 for local LRG/SMG
     # 
-    if($?1==0){print 'Usage: calc_Daddi2010_CO LTIR [CO_J_up z SB exc] --> LCO10\n' {} return}
+    if($?1==0){
+        print 'Usage: \n' {} 
+        print '    set LPrmCO10 = calc_Daddi2010_CO(LTIR)\n' {} 
+        print '    set LPrmCO10 = calc_Daddi2010_CO(LTIR,CO_J_up,z,SBrst,COexc)\n' {} 
+        print 'Notes: \n' {} 
+        print '    LTIR is the total infrared luminosity 8-1000um in linear space not in log.\n' {} 
+        print '    CO_J_up is the upper transition, default is 1. When given a J_up>1, we will convert J_up=1 line luminosity to that J_up, with COexc.\n' {} 
+        print '    z is the redshift. When given a z, we will compute _Daddi2010_FluxCO in unit of Jy km/s.\n' {} 
+        print '    SBrst is the starburstiness, 0 means main-sequence galaxy, 0-1 means starburst galaxy.\n' {} 
+        print '    COexc is the CO excitation level, 0-1, not yet implemented.\n' {} 
+        print '\n' {} 
+        return
+    }
     if($?4){set _Daddi2010_starbursty = float($4)} else {set _Daddi2010_starbursty = ($1)*0.0+0.0}
     if($?5){set _Daddi2010_excitation = float($5)} else {set _Daddi2010_excitation = ($1)*0.0+1.0}
     ##if($?2){set _Daddi2010_Jupper = float($2)} else {set _Daddi2010_Jupper = 1.0}
@@ -359,7 +384,7 @@ calc_Liu2015_CO 03
     # calc_Liu2015_CO LTIR CO_J_up z
     # 
     if($?1==0||$?2==0){print 'Usage: set L_CO_J_up = calc_Liu2015_CO(LTIR,J_up[,z]) --> LCO_J_up\n' {} return}
-    if($2<1||$2>12){print 'calc_Liu2015_CO: Error! we only support CO(4-3) to CO(12-11), sorry!\n' {} return}
+    if($2<1||$2>15){print 'calc_Liu2015_CO: Error! we only support CO(4-3) to CO(15-14), sorry!\n' {} return}
     set _Liu2015_LumTIR = $1
     set _Liu2015_LumFIR = _Liu2015_LumTIR/1.3 # convert TIR to FIR
     set _Liu2015_PosID = 0,dimen(_Liu2015_LumFIR)-1 set _Liu2015_PosID = _Liu2015_PosID if(_Liu2015_LumFIR>0)
@@ -390,6 +415,9 @@ calc_Liu2015_CO 03
     if($2==10) {set _Liu2015_N = 1.00 set _Liu2015_A = 3.38}
     if($2==11) {set _Liu2015_N = 1.00 set _Liu2015_A = 3.56}
     if($2==12) {set _Liu2015_N = 1.00 set _Liu2015_A = 3.77}
+    if($2==13) {set _Liu2015_N = 1.00 set _Liu2015_A = 3.98} #<TODO># STILL NEEDS TEST
+    if($2==14) {set _Liu2015_N = 1.00 set _Liu2015_A = 4.19} #<TODO># STILL NEEDS TEST
+    if($2==15) {set _Liu2015_N = 1.00 set _Liu2015_A = 4.40} #<TODO># STILL NEEDS TEST
     set _Liu2015_FluxCO = _Liu2015_LumFIR*0+0.0
     set _Liu2015_LPrmCO = _Liu2015_LumFIR*0+0.0
     set _Liu2015_LPrmCO[_Liu2015_PosID] = 10**((lg(_Liu2015_LumFIR[_Liu2015_PosID])-_Liu2015_A)/_Liu2015_N)
@@ -582,6 +610,44 @@ calc_Zhao2016_NII 04
     }
     set $0 = _Zhao2016_LPrmNII
 
+calc_Gao2007_HCN 04
+    # 
+    # calculate the HCN 1-0 line luminosities for a given total IR luminosity 
+    # calc_Gao2007_HCN LTIR HCN_J_up z R70100 # all input are in linear form
+    # 
+    if($?1==0||$?2==0){print 'Usage: set L_HCN = calc_Gao2007_HCN(LTIR,J_up[,z[,TODO]]) --> L_HCN [K km s-1 pc2]\n' {} return}
+    if($2<1||$2>1){print 'calc_Gao2007_HCN: Error! we only support HCN 1-0, sorry!\n' {} return}
+    set _Gao2007_LumTIR = $1
+    set _Gao2007_LumFIR = _Gao2007_LumTIR/1.3
+    set _Gao2007_PosID = 0,dimen(_Gao2007_LumFIR)-1 set _Gao2007_PosID = _Gao2007_PosID if(_Gao2007_LumFIR>0)
+    if($?2){set _Gao2007_Jupper = float($2)} else {set _Gao2007_Jupper = _Gao2007_LumFIR*0+1.0} # default HCN transition J=1-0
+    if(dimen(_Gao2007_Jupper)!=dimen(_Gao2007_LumFIR)) {set _Gao2007_Jupper = _Gao2007_LumFIR*0+_Gao2007_Jupper}
+    if(dimen(_Gao2007_PosID)==0){print 'calc_Gao2007_HCN: Error! Input data array has no positive value!' {} return}
+    set _Gao2007_N = 0.0 set _Gao2007_A = 0.0 
+    set _Gao2007_I = 0,dimen(_Gao2007_LumFIR)-1
+    if($2==1) {set _Gao2007_N = 1.00 set _Gao2007_A = lg(750.0)} # 
+    set _Gao2007_FluxHCN = _Gao2007_LumFIR*0+0.0
+    set _Gao2007_LPrmHCN = _Gao2007_LumFIR*0+0.0
+    set _Gao2007_LPrmHCN[_Gao2007_PosID] = 10**((lg(_Gao2007_LumFIR[_Gao2007_PosID])-_Gao2007_A)/_Gao2007_N) # correlation between LineLumi and LuminTIR
+    set _Gao2007_LumiHCN = _Gao2007_LumFIR*0+0.0
+    set _Gao2007_LumiHCN[_Gao2007_PosID] = _Gao2007_LPrmHCN[_Gao2007_PosID] * (3.1814084e-11 * $(calc_line_freq(HCN,$2,0))**3)
+    if($?3) { if($3>0) { 
+        define _Gao2007_Verbose $verbose verbose 0
+        set _Gao2007_FreqHCN = _Gao2007_LumFIR*0 + calc_line_freq(HCN,$2,0) # FreqHCN is restframe
+        set _Gao2007_ObsFreq = _Gao2007_LumFIR*0 + calc_line_freq(HCN,$2,$3) # ObsFreq is obsframe
+        set _Gao2007_LumDist = calc_lumdist($3) 
+        set _Gao2007_FluxHCN[_Gao2007_PosID] = convert_lprm2flux($3,_Gao2007_LPrmHCN[_Gao2007_PosID],_Gao2007_FreqHCN,_Gao2007_LumDist)
+        verbose $_Gao2007_Verbose undef _Gao2007_Verbose
+    }}
+    if($verbose) { 
+        define print_noheader 1
+        print '\ncalc_Gao2007_HCN:\n' {}
+        print '\nL_TIR  = %15.7e  L_sun\nL_FIR  = %15.7e  L_sun\nJ_HCN  = %15.0f\nv_HCN  = %15.3f  GHz\nL_HCN  = %15.7e  K km s-1 pc2\nS_HCN  = %15f  Jy km s-1\n\n' \
+               {_Gao2007_LumTIR _Gao2007_LumFIR _Gao2007_Jupper _Gao2007_ObsFreq _Gao2007_LPrmHCN _Gao2007_FluxHCN}
+        define print_noheader 0
+    }
+    set $0 = _Gao2007_LPrmHCN
+
 convert_flux2lprm 04
     # convert flux [Jy km/s] to lumin prime [K km s-1 pc2]
     if($?1==0||$?2==0||$?3==0){print 'Usage: set lprm = convert_flux2lprm(z,LineFPrm,restfreq[,lumdist])' {}
@@ -667,11 +733,13 @@ calc_Gladders2013_CSFRD 03
     # input z
     # input arg2 T0 -- an age parameter in unit of Gyr
     # input arg3 tau -- an age width parameter in unit of Gyr
-    # output cosmic SFR Density
+    # output cosmic SFR Density, in Salpeter IMF
     # paper: http://adsabs.harvard.edu/abs/2013ApJ...770...64G  Eq(1) Sec2.1
+    # example: set CSFRD = calc_Gladders2013_CSFRD(z,1.64,0.66)
     set _cosmic_z = float($1)
     !rm .cosmic.comoving.distance.tmp 2>/dev/null
     do _cosmic_j=0,dimen(_cosmic_z)-1 {
+        if($verbose) {echo Computing lumdist $(_cosmic_z[$_cosmic_j]) -verbose}
         !lumdist $(_cosmic_z[$_cosmic_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
     }
     if(is_file(.cosmic.comoving.distance.tmp)) {
@@ -689,8 +757,9 @@ calc_Gladders2013_CSFRD 03
 
 calc_MadauDickinson2014_CSFRD 01
     # input z
-    # output cosmic SFR Density
+    # output cosmic SFR Density, in Salpeter IMF
     # ref: https://ned.ipac.caltech.edu/level5/March14/Madau/Madau5.html#Table%201 Eq(15)
+    if($?1==0){print 'Usage: set CSFRD = calc_MadauDickinson2014_CSFRD(z)\n' {} return}
     set _cosmic_z = float($1)
     set _cosmic_SFR = 0.015 * (1+_cosmic_z)**2.7 / (1.0 + ((1+_cosmic_z)/2.9)**5.6 )
     set $0 = _cosmic_SFR
@@ -717,41 +786,47 @@ calc_comoving_volume 03
     # 
     # Method 1 -- rough assume
     # 
-    set _cosmic_Sz = _cosmic_z
-    set _cosmic_Ez = sqrt(_cosmic_OmeM*(1+_cosmic_Sz)**3+_cosmic_Omek*(1+_cosmic_Sz)**2+_cosmic_OmeL)
-    do _cosmic_j=0,dimen(_cosmic_Sz)-1 {
-        !lumdist $(_cosmic_Sz[$_cosmic_j]) -h0 $(_cosmic_H0) -verbose | grep 'lumdist d_L=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
+    ### set _cosmic_Sz = _cosmic_z
+    ### set _cosmic_Ez = sqrt(_cosmic_OmeM*(1+_cosmic_Sz)**3+_cosmic_Omek*(1+_cosmic_Sz)**2+_cosmic_OmeL)
+    ### do _cosmic_j=0,dimen(_cosmic_Sz)-1 {
+    ###     !lumdist $(_cosmic_Sz[$_cosmic_j]) -h0 $(_cosmic_H0) -verbose | grep 'lumdist d_L=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
+    ### }
+    ### if(is_file(.cosmic.comoving.distance.tmp)) {
+    ###     data .cosmic.comoving.distance.tmp read {_cosmic_DL 3 _cosmic_DC 6 _cosmic_DA 9}
+    ### } else { print 'Error! Failed to run lumdist!\n' {} return }
+    ### set _cosmic_DH = 2.997902458e5/_cosmic_H0
+    ### set _cosmic_Az = _cosmic_DA**2*(1+_cosmic_Sz)**2*(_cosmic_area)*3600/4.25451703e10 # Mpc^2 #<TODO># GOODS-North (165) (11*17)
+    ### set _cosmic_Vz = _cosmic_DH/_cosmic_Ez * _cosmic_Az
+    ### set _cosmic_Vc = _cosmic_Vz * _cosmic_dz # Mpc^3
+    ### if($verbose) {print {_cosmic_z _cosmic_dz _cosmic_Az _cosmic_Vc}} # _cosmic_DA _cosmic_DC _cosmic_DL _cosmic_Ez
+    # 
+    # Method 2 -- fine grid
+    # 
+    set dimen(_cosmic_Vc) = dimen(_cosmic_z)
+    do _cosmic_i=0,dimen(_cosmic_z)-1 {
+        set _cosmic_Sz = _cosmic_z[$_cosmic_i]-0.5*_cosmic_dz[$_cosmic_i],_cosmic_z[$_cosmic_i]+0.5*_cosmic_dz[$_cosmic_i],$(_cosmic_dz[$_cosmic_i]/10.)
+        set _cosmic_Ez = sqrt(_cosmic_OmeM*(1+_cosmic_Sz)**3+_cosmic_Omek*(1+_cosmic_Sz)**2+_cosmic_OmeL)
+        do _cosmic_j=0,dimen(_cosmic_Sz)-1 {
+            !lumdist -verbose $(_cosmic_Sz[$_cosmic_j]) | grep 'lumdist d_L=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
+        }
+        if(is_file(.cosmic.comoving.distance.tmp)) {
+            data .cosmic.comoving.distance.tmp read {_cosmic_DL 3 _cosmic_DC 6 _cosmic_DA 9}
+            !rm .cosmic.comoving.distance.tmp
+        } else {
+            print 'Error! Failed to run lumdist!\n' {}
+            return
+        }
+        ##define aaa ?
+        set _cosmic_DH = 2.997902458e5/_cosmic_H0
+        set _cosmic_Az = _cosmic_DA**2*(1+_cosmic_Sz)**2*(_cosmic_area)*3600/4.25451703e10 # Mpc^2 #<TODO># GOODS-North (165) (11*17)
+        set _cosmic_Vz = _cosmic_DH/_cosmic_Ez * _cosmic_Az * $(_cosmic_dz[$_cosmic_i]/10.)
+        set _cosmic_Vc[$_cosmic_i] = sum(_cosmic_Vz) # Mpc^3
+        if(_cosmic_z[$_cosmic_i]==2.5) {
+            print {_cosmic_Sz _cosmic_Az _cosmic_Vz} # _cosmic_DA _cosmic_DC _cosmic_DL _cosmic_Ez
+            define aaa ?
+        }
     }
-    if(is_file(.cosmic.comoving.distance.tmp)) {
-        data .cosmic.comoving.distance.tmp read {_cosmic_DL 3 _cosmic_DC 6 _cosmic_DA 9}
-    } else { print 'Error! Failed to run lumdist!\n' {} return }
-    set _cosmic_DH = 2.997902458e5/_cosmic_H0
-    set _cosmic_Az = _cosmic_DA**2*(1+_cosmic_Sz)**2*(_cosmic_area)*3600/4.25451703e10 # Mpc^2 #<TODO># GOODS-North (165) (11*17)
-    set _cosmic_Vz = _cosmic_DH/_cosmic_Ez * _cosmic_Az
-    set _cosmic_Vc = _cosmic_Vz * _cosmic_dz # Mpc^3
-    if($verbose) {print {_cosmic_z _cosmic_dz _cosmic_Az _cosmic_Vc}} # _cosmic_DA _cosmic_DC _cosmic_DL _cosmic_Ez
-    ## 
-    ## Method 2 -- fine grid
-    ## 
-    #set dimen(_cosmic_Vc) = dimen(_cosmic_z)
-    #do _cosmic_i=0,dimen(_cosmic_z)-1 {
-    #    set _cosmic_Sz = _cosmic_z[$_cosmic_i]-0.5*_cosmic_dz[$_cosmic_i],_cosmic_z[$_cosmic_i]+0.5*_cosmic_dz[$_cosmic_i],_cosmic_dz[$_cosmic_i]
-    #    set _cosmic_Ez = sqrt(_cosmic_OmeM*(1+_cosmic_Sz)**3+_cosmic_Omek*(1+_cosmic_Sz)**2+_cosmic_OmeL)
-    #    do _cosmic_j=0,dimen(_cosmic_Sz)-1 {
-    #        !lumdist -verbose $(_cosmic_Sz[$_cosmic_j]) | grep 'lumdist d_L=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
-    #    }
-    #    if(is_file(.cosmic.comoving.distance.tmp)) {
-    #        data .cosmic.comoving.distance.tmp read {_cosmic_DL 3 _cosmic_DC 6 _cosmic_DA 9}
-    #    } else {
-    #        print 'Error! Failed to run lumdist!\n' {}
-    #        return
-    #    }
-    #    set _cosmic_DH = 2.997902458e5/_cosmic_H0
-    #    set _cosmic_Az = _cosmic_DA**2*(1+_cosmic_Sz)**2*(_cosmic_area)*3600/4.25451703e10 # Mpc^2 #<TODO># GOODS-North (165) (11*17)
-    #    set _cosmic_Vz = _cosmic_DH * _cosmic_Az # set _cosmic_Vz = _cosmic_DH/_cosmic_Ez * _cosmic_Az
-    #    set _cosmic_Vc[$_cosmic_i] = (_cosmic_Vz[1]-_cosmic_Vz[0]) # Mpc^3
-    #}
-    #print {_cosmic_z _cosmic_dz _cosmic_Vc _cosmic_Vz _cosmic_Az _cosmic_DH} # _cosmic_DA _cosmic_DH _cosmic_DL
+    #if($verbose) {print {_cosmic_z _cosmic_dz _cosmic_Vc _cosmic_Vz _cosmic_Az _cosmic_DH}} # _cosmic_DA _cosmic_DH _cosmic_DL _cosmic_Ez
     # 
     # Examples
     # 
@@ -768,7 +843,9 @@ calc_cosmic_age 01
     !rm .cosmic.comoving.distance.tmp 2>/dev/null
     define _calc_cosmic_age_j 0
     do _calc_cosmic_age_j=0,dimen(_calc_cosmic_age_z)-1 {
-        #echo lumdist $(_calc_cosmic_age_z[$_calc_cosmic_age_j])
+        if($verbose) {
+            echo lumdist $(_calc_cosmic_age_z[$_calc_cosmic_age_j])
+        }
         !lumdist $(_calc_cosmic_age_z[$_calc_cosmic_age_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
     }
     if(is_file(.cosmic.comoving.distance.tmp)) {
@@ -928,13 +1005,22 @@ calc_line_freq 03
         if('$2'=='11') {set _line_freq = 1267.0144860}
         if('$2'=='12') {set _line_freq = 1381.9951050}
         if('$2'=='13') {set _line_freq = 1496.9229090}
+        if('$2'=='14') {set _line_freq = 1611.7935180}
+        if('$2'=='15') {set _line_freq = 1726.6025057}
+    }
+    if('$1'=='HCN'||'$1'=='hcn'){
+        if('$2'=='1')  {set _line_freq = 88.6316023}
     }
     if('$1'=='OIII'||'$1'=='oiii'){
-        if('$2'=='1'||'$2'=='88')  {set _line_freq = 3393.00624}
-        if('$2'=='2'||'$2'=='51')  {set _line_freq = 5785.87959}
+        if('$2'=='1'||'$2'=='88') {set _line_freq = 3393.00624}
+        if('$2'=='2'||'$2'=='51') {set _line_freq = 5785.87959}
+    }
+    if('$1'=='OI'||'$1'=='oi'){
+        if('$2'=='1'||'$2'=='146') {set _line_freq = 2.99792458e5/145.5} #<TODO>#
+        if('$2'=='2'||'$2'=='63') {set _line_freq = 2.99792458e5/63.18} #<TODO>#
     }
     if('$1'=='CII'||'$1'=='cii'){
-        if('$2'=='1'||'$2'=='158')  {set _line_freq = 1900.53690}
+        if('$2'=='1'||'$2'=='158') {set _line_freq = 1900.53690}
     }
     if('$1'=='CI'||'$1'=='ci'){
         if('$2'=='2'||'$2'=='2-1'||'$2'=='370'||'$2'=='3P2-3P1'||'$2'=='3p2-3p1')  {set _line_freq = 809.34197}
@@ -1157,6 +1243,68 @@ calc_iram_30m_time
 
 
 
+
+
+
+
+
+
+calc_FIR_lines 01
+    # input redshift, output FIR line frequencies
+    do _calc_i=1,10 {
+        set _calc_v = calc_line_freq(co,$_calc_i,$1)
+        echo CO($_calc_i-$($_calc_i-1)) @ $(_calc_v) GHz
+    }
+    do _calc_i=1,2 {
+        set _calc_v = calc_line_freq(ci,$_calc_i,$1)
+        echo [CI]($_calc_i-$($_calc_i-1)) @ $(_calc_v) GHz
+    }
+    do _calc_i=1,2 {
+        set _calc_v = calc_line_freq(nii,$_calc_i,$1)
+        echo [NII]($_calc_i-$($_calc_i-1)) @ $(_calc_v) GHz
+    }
+    do _calc_i=1,1 {
+        set _calc_v = calc_line_freq(cii,$_calc_i,$1)
+        echo [CII]($_calc_i-$($_calc_i-1)) @ $(_calc_v) GHz
+    }
+    do _calc_i=1,1 {
+        set _calc_v = calc_line_freq(oi,$_calc_i,$1)
+        echo [OI]($_calc_i-$($_calc_i-1)) @ $(_calc_v) GHz
+    }
+    do _calc_i=1,1 {
+        #set _calc_v = 448.00108  / (1.0+($1))      echo o-H2O(423-330) @ $(_calc_v) GHz
+        set _calc_v = 556.93599  / (1.0+($1))      echo o-H2O(110-101) @ $(_calc_v) GHz
+        set _calc_v = 752.03314  / (1.0+($1))      echo p-H2O(211-202) @ $(_calc_v) GHz
+        set _calc_v = 916.17158  / (1.0+($1))      echo p-H2O(422-331) @ $(_calc_v) GHz
+        set _calc_v = 970.31505  / (1.0+($1))      echo o-H2O(524-431) @ $(_calc_v) GHz
+        set _calc_v = 987.92676  / (1.0+($1))      echo p-H2O(202-111) @ $(_calc_v) GHz
+        set _calc_v = 1097.36479 / (1.0+($1))      echo o-H2O(312-303) @ $(_calc_v) GHz
+        set _calc_v = 1113.34301 / (1.0+($1))      echo p-H2O(111-000) @ $(_calc_v) GHz
+        set _calc_v = 1153.12682 / (1.0+($1))      echo o-H2O(312-221) @ $(_calc_v) GHz
+        set _calc_v = 1162.91160 / (1.0+($1))      echo o-H2O(321-312) @ $(_calc_v) GHz
+        set _calc_v = 1207.63873 / (1.0+($1))      echo p-H2O(422-413) @ $(_calc_v) GHz
+        set _calc_v = 1228.78872 / (1.0+($1))      echo p-H2O(220-211) @ $(_calc_v) GHz
+        set _calc_v = 1410.61807 / (1.0+($1))      echo o-H2O(523-514) @ $(_calc_v) GHz
+        #set _calc_v = 1602.21937 / (1.0+($1))      echo o-H2O(413-404) @ $(_calc_v) GHz
+        #set _calc_v = 1661.00764 / (1.0+($1))      echo o-H2O(221-212) @ $(_calc_v) GHz
+        #set _calc_v = 1669.90477 / (1.0+($1))      echo o-H2O(212-101) @ $(_calc_v) GHz
+        #set _calc_v = 1713.88297 / (1.0+($1))      echo o-H2O(432-505) @ $(_calc_v) GHz
+        #set _calc_v = 1716.76963 / (1.0+($1))      echo o-H2O(302-212) @ $(_calc_v) GHz
+        #set _calc_v = 1893.68651 / (1.0+($1))      echo o-H2O(331-404) @ $(_calc_v) GHz
+        #set _calc_v = 1918.48535 / (1.0+($1))      echo o-H2O(523-432) @ $(_calc_v) GHz
+        #set _calc_v = 1919.35953 / (1.0+($1))      echo p-H2O(322-313) @ $(_calc_v) GHz
+    }
+    do _calc_i=1,1 {
+        set _calc_v = 1232.47622 / (1.0+($1))      echo HF(1-0) @ $(_calc_v) GHz
+        set _calc_v = 835.07895 / (1.0+($1))       echo CH+(1-0) @ $(_calc_v) GHz
+    }
+    do _calc_i=1,1 {
+        set _calc_v = 88.6316023 / (1.0+($1))      echo HCN(1-0) @ $(_calc_v) GHz
+        set _calc_v = 177.2611115 / (1.0+($1))     echo HCN(2-1) @ $(_calc_v) GHz
+        set _calc_v = 265.8864343 / (1.0+($1))     echo HCN(3-2) @ $(_calc_v) GHz
+        set _calc_v = 354.5054779 / (1.0+($1))     echo HCN(4-3) @ $(_calc_v) GHz
+        set _calc_v = 443.1161493 / (1.0+($1))     echo HCN(5-4) @ $(_calc_v) GHz
+    }
 
 
 

@@ -58,17 +58,27 @@
 \contentsline {subsection}{\numberline {10.6}Monte-Carlo simulation at band 1160}{54}{subsection.10.6}
 \contentsline {subsection}{\numberline {10.7}Flux bias and flux error analyses}{55}{subsection.10.7}
 \contentsline {subsection}{\numberline {10.8}Flux bias and flux uncertainty correction}{58}{subsection.10.8}
-\contentsline {section}{\numberline {A}Appendix}{59}{appendix.A}
-\contentsline {section}{\numberline {B}Setup softwares in planer}{60}{appendix.B}
-\contentsline {section}{\numberline {C}Setup supermongo in planer}{61}{appendix.C}
-\contentsline {section}{\numberline {D}Discussed Issues}{62}{appendix.D}
-\contentsline {subsection}{\numberline {D.1}SED prediction versus galfit measurement issue}{62}{subsection.D.1}
-\contentsline {subsection}{\numberline {D.2}Spec-z from various literature issue}{62}{subsection.D.2}
-\contentsline {subsection}{\numberline {D.3}Stellar mass from various literature issue}{62}{subsection.D.3}
-\contentsline {subsection}{\numberline {D.4}Radio galfit output error got zero value issue}{63}{subsection.D.4}
-\contentsline {subsection}{\numberline {D.5}Selecting prior sources for fitting issue}{63}{subsection.D.5}
-\contentsline {subsubsection}{\numberline {D.5.1}The ''SED-Prediction'' criterion}{63}{subsubsection.D.5.1}
-\contentsline {subsubsection}{\numberline {D.5.2}The ''Previous-Detection'' criterion}{64}{subsubsection.D.5.2}
-\contentsline {subsubsection}{\numberline {D.5.3}Historical figures of selecting prior sources for fitting}{64}{subsubsection.D.5.3}
-\contentsline {subsection}{\numberline {D.6}GN20, GN20.2a and GN20.2b source position issue}{69}{subsection.D.6}
-\contentsline {subsection}{\numberline {D.7}Residual source issue}{70}{subsection.D.7}
+\contentsline {section}{\numberline {11}Band 850}{59}{section.11}
+\contentsline {subsection}{\numberline {11.1}SED fitting before band 850}{59}{subsection.11.1}
+\contentsline {subsection}{\numberline {11.2}SED prediction for band 850}{59}{subsection.11.2}
+\contentsline {subsection}{\numberline {11.3}Faint flux subtraction at band 850}{60}{subsection.11.3}
+\contentsline {subsection}{\numberline {11.4}Galfit photometry at band 850}{61}{subsection.11.4}
+\contentsline {subsection}{\numberline {11.5}Residual image at band 850}{61}{subsection.11.5}
+\contentsline {subsection}{\numberline {11.6}Monte-Carlo simulation at band 850}{64}{subsection.11.6}
+\contentsline {subsection}{\numberline {11.7}Flux bias and flux error analyses}{64}{subsection.11.7}
+\contentsline {subsection}{\numberline {11.8}Flux bias and flux uncertainty correction}{68}{subsection.11.8}
+\contentsline {subsection}{\numberline {11.9}Update catalog}{68}{subsection.11.9}
+\contentsline {section}{\numberline {A}Appendix}{69}{appendix.A}
+\contentsline {section}{\numberline {B}Setup softwares in planer}{70}{appendix.B}
+\contentsline {section}{\numberline {C}Setup supermongo in planer}{71}{appendix.C}
+\contentsline {section}{\numberline {D}Discussed Issues}{72}{appendix.D}
+\contentsline {subsection}{\numberline {D.1}SED prediction versus galfit measurement issue}{72}{subsection.D.1}
+\contentsline {subsection}{\numberline {D.2}Spec-z from various literature issue}{72}{subsection.D.2}
+\contentsline {subsection}{\numberline {D.3}Stellar mass from various literature issue}{72}{subsection.D.3}
+\contentsline {subsection}{\numberline {D.4}Radio galfit output error got zero value issue}{73}{subsection.D.4}
+\contentsline {subsection}{\numberline {D.5}Selecting prior sources for fitting issue}{73}{subsection.D.5}
+\contentsline {subsubsection}{\numberline {D.5.1}The ''SED-Prediction'' criterion}{73}{subsubsection.D.5.1}
+\contentsline {subsubsection}{\numberline {D.5.2}The ''Previous-Detection'' criterion}{74}{subsubsection.D.5.2}
+\contentsline {subsubsection}{\numberline {D.5.3}Historical figures of selecting prior sources for fitting}{74}{subsubsection.D.5.3}
+\contentsline {subsection}{\numberline {D.6}GN20, GN20.2a and GN20.2b source position issue}{80}{subsection.D.6}
+\contentsline {subsection}{\numberline {D.7}Residual source issue}{81}{subsection.D.7}

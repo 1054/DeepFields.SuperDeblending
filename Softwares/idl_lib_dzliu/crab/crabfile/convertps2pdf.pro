@@ -27,18 +27,26 @@ PRO ConvertPs2Pdf, InputFile, OutputFile
     ENDIF
     
     IF STRMATCH(!VERSION.OS_FAMILY,'*Windows*',/FOLD_CASE) THEN BEGIN
-        ExecStr = ''
-        ExecStr = ExecStr + 'D: & cd D:\GreenSoftware\GhostScript\9.06\bin & '
-;       ExecStr = ExecStr + 'set PATH=D:\GreenSoftware\GhostScript\9.06\bin;C:\Windows\Fonts;%PATH% & '
-        ExecStr = ExecStr + 'set PATH=D:\GreenSoftware\GhostScript\9.06\bin;%PATH% & '
-;       ExecStr = ExecStr + 'ps2pdf.bat -dNOPLATFONTS -sFONTPATH="C:\Windows\Fonts" -dEPSCrop "'+OutputFile+'" '
-;       ExecStr = ExecStr + 'ps2pdf.bat -dEPSCrop "'+OutputFile+'" '
-        ExecStr = ExecStr + 'gswin32c.exe -sDEVICE=pdfwrite -dSAFER -dPDFSETTINGS=/prepress -dCompatibilityLevel=1.4 ' ; -q or -dQUIET ; /prepress or /screen
-        ExecStr = ExecStr +              '-dNOPAUSE -dBATCH -dEmbedAllFonts=true -dSubsetFonts=true -dNeverEmbed[] '
-        ExecStr = ExecStr +              '-dNOPLATFONTS -sFONTPATH="C:\Windows\Fonts" '
-        ExecStr = ExecStr +              '-dEPSCrop -sOutputFile="'+OutputFile+'" -c save pop -f "'+InputFile+'"'
-;       ExecStr = ExecStr + ' & pause()'
-        SPAWN, ExecStr
+;        ExecStr = ''
+;        ExecStr = ExecStr + 'D: & cd D:\GreenSoftware\GhostScript\9.06\bin & '
+;;       ExecStr = ExecStr + 'set PATH=D:\GreenSoftware\GhostScript\9.06\bin;C:\Windows\Fonts;%PATH% & '
+;        ExecStr = ExecStr + 'set PATH=D:\GreenSoftware\GhostScript\9.06\bin;%PATH% & '
+;;       ExecStr = ExecStr + 'ps2pdf.bat -dNOPLATFONTS -sFONTPATH="C:\Windows\Fonts" -dEPSCrop "'+OutputFile+'" '
+;;       ExecStr = ExecStr + 'ps2pdf.bat -dEPSCrop "'+OutputFile+'" '
+;        ExecStr = ExecStr + 'gswin32c.exe -sDEVICE=pdfwrite -dSAFER -dPDFSETTINGS=/prepress -dCompatibilityLevel=1.4 ' ; -q or -dQUIET ; /prepress or /screen
+;        ExecStr = ExecStr +              '-dNOPAUSE -dBATCH -dEmbedAllFonts=true -dSubsetFonts=true -dNeverEmbed[] '
+;        ExecStr = ExecStr +              '-dNOPLATFONTS -sFONTPATH="C:\Windows\Fonts" '
+;        ExecStr = ExecStr +              '-dEPSCrop -sOutputFile="'+OutputFile+'" -c save pop -f "'+InputFile+'"'
+;;       ExecStr = ExecStr + ' & pause()'
+;        SPAWN, ExecStr
+        ExecBin = (FILE_SEARCH('C:\Program Files\gs\gs*\bin\gswin64c.exe'))[0]
+        IF ExecBin EQ '' THEN ExecBin = 'gswin32c.exe'
+        ExecFile = FILE_DIRNAME(OutputFile,/MARK_DIR)+FILE_BASENAME(OutputFile,'.pdf')+'.bat'
+        OPENW, LUN, ExecFile, /GET_LUN
+        PRINTF, LUN, '"' + ExecBin + '" -sDEVICE=pdfwrite -dSAFER -dPDFSETTINGS=/prepress -dCompatibilityLevel=1.4 -dNOPAUSE -dBATCH -dEmbedAllFonts=true -dSubsetFonts=true -dNeverEmbed[] -dNOPLATFONTS -sFONTPATH="C:\Windows\Fonts" -dEPSCrop -sOutputFile="'+OutputFile+'" -c save pop -f "'+InputFile+'"'
+        CLOSE, LUN
+        FREE_LUN, LUN
+        SPAWN, ExecFile
     ENDIF
     IF STRMATCH(!VERSION.OS_FAMILY,'*unix*',/FOLD_CASE) THEN BEGIN
 ;       SPAWN, 'cd "'+FILE_DIRNAME(OutputFile)+'" & ps2pdf -dEPSCrop "'+FILE_DIRNAME(OutputFile,/MARK_DIR)+FILE_BASENAME(OutputFile,'.pdf')+'.ps" '

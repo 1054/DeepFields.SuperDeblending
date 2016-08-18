@@ -4,7 +4,8 @@ crabTablePrintf 02
     # 
     #  Usage: load crabTablePrintf.sm crabTablePrintf rfile_headers bbb
     # 
-    if(!$?1) {print 'Usage: crabTablePrintf vector_list output_file\n' {} return}
+    if(!$?1) {print 'Usage: crabTablePrintf header_list_vector output_file\n' {} return}
+    if(!$?2) {print 'Usage: crabTablePrintf header_list_vector output_file\n' {} return}
     if(!is_vector($1)) {print 'Error! Input $1 is not a vector!\n' {} return}
     if(!dimen($1)>0) {print 'Error! Input $1 dimension is 0!\n' {} return}
     #set crabtbp_vec = '$($1[0])'
@@ -115,6 +116,39 @@ crabTablePrintf 02
         echo Output $(dimen($1)) vectors to $2
         print $2 '$(f[0]) $(f[1]) $(f[2]) $(f[3]) $(f[4]) $(f[5]) $(f[6]) $(f[7]) $(f[8]) $(f[9]) $(f[10]) $(f[11]) $(f[12]) $(f[13]) $(f[14]) $(f[15])\n' \
                  <$(c[0]) $(c[1]) $(c[2]) $(c[3]) $(c[4]) $(c[5]) $(c[6]) $(c[7]) $(c[8]) $(c[9]) $(c[10]) $(c[11]) $(c[12]) $(c[13]) $(c[14]) $(c[15])>
+    }
+    if(dimen($1)==17) {
+        echo Output $(dimen($1)) vectors to $2
+        print $2 '$(f[0]) $(f[1]) $(f[2]) $(f[3]) $(f[4]) $(f[5]) $(f[6]) $(f[7]) $(f[8]) $(f[9]) $(f[10]) $(f[11]) $(f[12]) $(f[13]) $(f[14]) $(f[15]) $(f[16])\n' \
+                 <$(c[0]) $(c[1]) $(c[2]) $(c[3]) $(c[4]) $(c[5]) $(c[6]) $(c[7]) $(c[8]) $(c[9]) $(c[10]) $(c[11]) $(c[12]) $(c[13]) $(c[14]) $(c[15]) $(c[16])>
+    }
+    if(dimen($1)==18) {
+        echo Output $(dimen($1)) vectors to $2
+        print $2 '$(f[0]) $(f[1]) $(f[2]) $(f[3]) $(f[4]) $(f[5]) $(f[6]) $(f[7]) $(f[8]) $(f[9]) $(f[10]) $(f[11]) $(f[12]) $(f[13]) $(f[14]) $(f[15]) $(f[16]) $(f[17])\n' \
+                 <$(c[0]) $(c[1]) $(c[2]) $(c[3]) $(c[4]) $(c[5]) $(c[6]) $(c[7]) $(c[8]) $(c[9]) $(c[10]) $(c[11]) $(c[12]) $(c[13]) $(c[14]) $(c[15]) $(c[16]) $(c[17])>
+    }
+    if(dimen($1)==19) {
+        echo Output $(dimen($1)) vectors to $2
+        print $2 '$(f[0]) $(f[1]) $(f[2]) $(f[3]) $(f[4]) $(f[5]) $(f[6]) $(f[7]) $(f[8]) $(f[9]) $(f[10]) $(f[11]) $(f[12]) $(f[13]) $(f[14]) $(f[15]) $(f[16]) $(f[17]) $(f[18])\n' \
+                 <$(c[0]) $(c[1]) $(c[2]) $(c[3]) $(c[4]) $(c[5]) $(c[6]) $(c[7]) $(c[8]) $(c[9]) $(c[10]) $(c[11]) $(c[12]) $(c[13]) $(c[14]) $(c[15]) $(c[16]) $(c[17]) $(c[18])>
+    }
+    if(dimen($1)==20) {
+        echo Output $(dimen($1)) vectors to $2
+        print $2 '$(f[0]) $(f[1]) $(f[2]) $(f[3]) $(f[4]) $(f[5]) $(f[6]) $(f[7]) $(f[8]) $(f[9]) $(f[10]) $(f[11]) $(f[12]) $(f[13]) $(f[14]) $(f[15]) $(f[16]) $(f[17]) $(f[18]) $(f[19])\n' \
+                 <$(c[0]) $(c[1]) $(c[2]) $(c[3]) $(c[4]) $(c[5]) $(c[6]) $(c[7]) $(c[8]) $(c[9]) $(c[10]) $(c[11]) $(c[12]) $(c[13]) $(c[14]) $(c[15]) $(c[16]) $(c[17]) $(c[18]) $(c[19])>
+    }
+    if(dimen($1)==27) {
+        echo Output $(dimen($1)) vectors to $2
+        print $2 '$(f[0]) $(f[1]) $(f[2]) $(f[3]) $(f[4]) $(f[5]) $(f[6]) $(f[7]) $(f[8]) $(f[9]) $(f[10]) $(f[11]) $(f[12]) $(f[13]) $(f[14]) $(f[15]) $(f[16]) $(f[17]) $(f[18]) $(f[19]) $(f[20]) $(f[21]) $(f[22]) $(f[23]) $(f[24]) $(f[25]) $(f[26])\n' \
+                 <$(c[0]) $(c[1]) $(c[2]) $(c[3]) $(c[4]) $(c[5]) $(c[6]) $(c[7]) $(c[8]) $(c[9]) $(c[10]) $(c[11]) $(c[12]) $(c[13]) $(c[14]) $(c[15]) $(c[16]) $(c[17]) $(c[18]) $(c[19]) $(c[20]) $(c[21]) $(c[22]) $(c[23]) $(c[24]) $(c[25]) $(c[26])>
+    }
+    if(dimen($1)==31) {
+        echo Output $(dimen($1)) vectors to $2
+        print $2 '$(f[0]) $(f[1]) $(f[2]) $(f[3]) $(f[4]) $(f[5]) $(f[6]) $(f[7]) $(f[8]) $(f[9]) $(f[10]) $(f[11]) $(f[12]) $(f[13]) $(f[14]) $(f[15]) $(f[16]) $(f[17]) $(f[18]) $(f[19]) $(f[20]) $(f[21]) $(f[22]) $(f[23]) $(f[24]) $(f[25]) $(f[26]) $(f[27]) $(f[28]) $(f[29]) $(f[30])\n' \
+                 <$(c[0]) $(c[1]) $(c[2]) $(c[3]) $(c[4]) $(c[5]) $(c[6]) $(c[7]) $(c[8]) $(c[9]) $(c[10]) $(c[11]) $(c[12]) $(c[13]) $(c[14]) $(c[15]) $(c[16]) $(c[17]) $(c[18]) $(c[19]) $(c[20]) $(c[21]) $(c[22]) $(c[23]) $(c[24]) $(c[25]) $(c[26]) $(c[27]) $(c[28]) $(c[29]) $(c[30])>
+    }
+    if(dimen($1)>20 && dimen($1)!=27 && dimen($1)!=31) {
+        echo Sorry! dimen($1)=$(dimen($1)) is out of capability!
     }
     if(dimen($1)>8) {
         if(is_vector(crabtbp_fmt_backup)) {set f = crabtbp_fmt_backup unset crabtbp_fmt_backup} else {unset f}

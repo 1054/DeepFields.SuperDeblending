@@ -341,13 +341,24 @@ PRO CrabImageMosaic, InputConfigFile, InputFits=InputFits, InputExts=InputExts, 
                 
                 ; Convert float data to Byte
                 IF N_ELEMENTS(PowerLawScale) EQ 0 THEN BEGIN
-                    ByteImage = CrabImageByteScaleMagic(Cut2Image,/Verbose) ; <TODO>
+                    ByteImage = CrabImageByteScaleMagic(Cut2Image,/Verbose) ; <TODO> default automatic way
                 ENDIF ELSE BEGIN
-                    IF N_ELEMENTS(PowerLawScale) GT 2*i THEN BEGIN
+                    IF N_ELEMENTS(PowerLawScale) EQ 2*NumbFits THEN BEGIN
                         ByteImage = CrabImageByteScaleMagic(Cut2Image,SigmaRange=[PowerLawScale[2*i],PowerLawScale[2*i+1]],/Verbose) ; <TODO>
+                    ENDIF ELSE IF SIZE(PowerLawScale,/TNAME) EQ 'OBJREF' THEN BEGIN
+                        IF PowerLawScale.hasKey(EachFits) THEN BEGIN
+                        ByteImage = CrabImageByteScaleMagic(Cut2Image,SigmaRange=PowerLawScale[EachFits],/Verbose)
+                        ENDIF ELSE BEGIN
+                        ByteImage = CrabImageByteScaleMagic(Cut2Image,/Verbose) ; <TODO> default automatic way
+                        ENDELSE
+                        ; <Updated><20160317> Now we can input like dictionary structure!
+                        ; for example, if we input InputFits=['aaa.fits','bbb.fits'], and PowerLawScale=[-1,3,-2,6], then we will scale 'aaa.fits' to -1sigma -> 3sigma, and 'bbb.fits' to -2sigma -> 6sigma. 
+                        ; or if we input InputFits=['aaa.fits','bbb.fits'], and PowerLawScale=HASH('bbb.fits',[-2,6]), then we will scale only 'bbb.fits' to -2sigma -> 6sigma, but 'aaa.fits' in automatic way. 
                     ENDIF ELSE BEGIN
-                        ByteImage = CrabImageByteScaleMagic(Cut2Image,PowerLawScale,/Verbose) ; <TODO>
+                       ;ByteImage = CrabImageByteScaleMagic(Cut2Image,PowerLawScale,/Verbose) ; <TODO> default automatic way
                        ;ByteImage = CrabImagePowerLawScale(Cut2Image,PowerLawScale,MIN=0.0,/ByteScale)
+                       ;MESSAGE, 'Warning! PowerLawScale has wrong dimenstion and will not be applied.', /CONTINUE
+                        ByteImage = CrabImageByteScaleMagic(Cut2Image,/Verbose) ; <TODO> default automatic way
                     ENDELSE
                 ENDELSE
                 TrueImage = MAKE_ARRAY(3,Cut2Sizes[0],Cut2Sizes[1],/BYTE,VALUE=0)

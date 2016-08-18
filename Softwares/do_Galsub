@@ -9,9 +9,62 @@ sm << EOF | tee "$DG_FLOG.smlog"
     
     ##### EDIT goFine.sm xSet_$DG_IMAX
     macro read goFine.sm xSet_$DG_IMAX
+    
     ##### EDIT goSimu.sm FixAstrometry
+    
+    echo " "
+    
+    if(is_file($DG_FSCI.fits)) {
+        define imax_name $DG_FSCI
+        echo "We are using "\$imax_name".fits as the source image."
+        echo " "
+    } else {
+        echo "We are using "\$imax_name".fits as the source image. (The default setting in goFine.sm)"
+        echo " "
+    }
+    
+    if(!is_file(\$imax_name.fits)) {
+        echo "********************************************"
+        echo "Error! "\$imax_name".fits was not found!"
+        echo " "
+        define doFit -1
+    }
+    
+    if(is_file($DG_FRMS.fits)) {
+        define imax_name_rms $DG_FRMS
+        echo "We are using "\$imax_name_rms".fits as the rms image."
+        echo " "
+    } else {
+        echo "We are using "\$imax_name_rms".fits as the rms image. (The default setting in goFine.sm)"
+        echo " "
+    }
+    
+    if(!is_file(\$imax_name_rms.fits)) {
+        echo "********************************************"
+        echo "Error! "\$imax_name_rms".fits was not found!"
+        echo " "
+        define doFit -1
+    }
+    
+    if(is_file($DG_FPSF.fits)) {
+        define imax_name_psf $DG_FPSF
+        echo "We are using "\$imax_name_psf".fits as the psf image."
+        echo " "
+    } else {
+        echo "We are using "\$imax_name_psf".fits as the psf image. (The default setting in goFine.sm)"
+        echo " "
+    }
+    
+    if(!is_file(\$imax_name_psf.fits)) {
+        echo "********************************************"
+        echo "Error! "\$imax_name_psf".fits was not found!"
+        echo " "
+        define doFit -1
+    }
     define xdate <"$DG_DATE">
+    
     ###### R_MIPS$DG_IMAX
+    
     load "astroPhot.sm" set_goodsn_photometry_constants_$DG_IMAX
     
     ####  EXCLUDING SOURCES

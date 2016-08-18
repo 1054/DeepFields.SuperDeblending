@@ -1,7 +1,7 @@
 ; CrabImagePowerLawScale
 
 
-FUNCTION CrabImagePowerLawScale, InputImage, PowerIndex, MAX=ZMAX, MIN=ZMIN, PERCENT=PERCENT, NORMAL=NORMAL, ByteScale=ByteScale
+FUNCTION CrabImagePowerLawScale, InputImage, PowerIndex, MAX=ZMAX, MIN=ZMIN, PERCENT=PERCENT, NORMAL=NORMAL, ByteScale=ByteScale, VERBOSE=VERBOSE
     ImageSize = Size(InputImage,/DIMENSIONS)
     IF N_ELEMENTS(ImageSize) NE 2 THEN RETURN,[]
     
@@ -99,7 +99,9 @@ FUNCTION CrabImagePowerLawScale, InputImage, PowerIndex, MAX=ZMAX, MIN=ZMIN, PER
     
     
     ; <TODO><debug>
+    IF KEYWORD_SET(VERBOSE) THEN BEGIN
     PRINT, 'CrabImagePowerLawScale: ScaledImage: MIN MAX MEAN ', MIN(ScaledImage,/NAN), MAX(ScaledImage,/NAN), MEAN(ScaledImage,/NAN)
+    ENDIF
     
     RETURN, ScaledImage
     

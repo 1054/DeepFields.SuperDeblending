@@ -26,9 +26,12 @@ crabPlotHistogram 05
             }
         }
     }
+    echo "crabPlotHistogram_xy begin"
     crabPlotHistogram_xy $1 _crabpl_vbase _crabpl_vnumb
+    echo "crabPlotHistogram_xy done"
     unset _crabpl_vbase
     unset _crabpl_vnumb
+    return
 
 
 
@@ -314,6 +317,7 @@ crabPlotHistogram_xy 03
         print '          set crabPlotHistogram_ticksize = \'-1 10 0 0\'\n' {}
         return
     } else {
+        echo "load"
         load crabPlot.sm
         set _crabpl_vbase = $2
         set _crabpl_vnumb = $3
@@ -374,15 +378,49 @@ crabPlotHistogram_xy 03
     histogram _crabpl_vbase _crabpl_vnumb
     crabPlotResetPen
     # 
-    if('$1'=='close') {
+    echo index
+    if(index('$1','close')==0) {
         define crabPlotHistogram_KeepDevice 0
     }
     if(0==$?crabPlotHistogram_KeepDevice) {
-      if(!is_vector(crabPlotHistogram_KeepDevice)) {device nodevice} else {
-        if(crabPlotHistogram_KeepDevice<=0) {device nodevice} }
+        if(!is_vector(crabPlotHistogram_KeepDevice)) {
+            device nodevice
+            echo "close"
+        } else {
+            if(crabPlotHistogram_KeepDevice<=0) {
+                device nodevice
+                echo "close"
+            }
+        }
     } else {
-      if(0>=$crabPlotHistogram_KeepDevice) {device nodevice} 
+        if(0>=$crabPlotHistogram_KeepDevice) {
+            device nodevice
+            echo "close"
+        }
     }
+    echo "return"
+    return
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

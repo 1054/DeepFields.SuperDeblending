@@ -18,22 +18,24 @@ FUNCTION CrabFigureDataStructure::INIT
     SELF.Polylines   = PTR_NEW(/ALLOCATE)
     SELF.XTicksTextArray = PTR_NEW(/ALLOCATE)
     SELF.YTicksTextArray = PTR_NEW(/ALLOCATE)
+    SELF.XTicksValueArray = PTR_NEW(/ALLOCATE)
+    SELF.YTicksValueArray = PTR_NEW(/ALLOCATE)
     SELF.RTicksTextArray = PTR_NEW(/ALLOCATE)
     ;; 
-    SELF.TitleCharThick = 1.8
-    SELF.TitleCharSizeF = 1.8
+    SELF.TitleCharThick = 1.0
+    SELF.TitleCharSizeF = 1.0
     SELF.TitlePositionR = [0.5,0.9]
     ;;
-    SELF.XTitleCharThick = 1.5
-    SELF.XTitleCharSizeF = 1.3 ; default TitleCharSize <TODO>
+    SELF.XTitleCharThick = 1.0
+    SELF.XTitleCharSizeF = 1.0 ; default TitleCharSize <TODO>
     SELF.XTitleAlignment = 0.5
     ;;
-    SELF.YTitleCharThick = 1.5
-    SELF.YTitleCharSizeF = 1.3
+    SELF.YTitleCharThick = 1.0
+    SELF.YTitleCharSizeF = 1.0
     SELF.YTitleAlignment = 0.5
     ;;
-    SELF.RTitleCharThick = 1.5
-    SELF.RTitleCharSizeF = 1.3
+    SELF.RTitleCharThick = 1.0
+    SELF.RTitleCharSizeF = 1.0
     SELF.RTitleAlignment = 0.5
     ;;
     SELF.CTitleCharThick = 1.0
@@ -45,20 +47,24 @@ FUNCTION CrabFigureDataStructure::INIT
                         MAX([SELF.ColorBarPosRect[1],SELF.ColorBarPosRect[3]])+0.03]
     SELF.ColBarFormatSTR = '(F0.2)'
     ;;
-    SELF.XTicksCharThick = 2.0
-    SELF.XTicksCharSizeF = 1.6 ; default TicksCharSize <TODO>
+    SELF.LegendCharThick = 1.0
+    SELF.LegendCharSizeF = 1.0
+    SELF.LegendPositionR = [0.225,0.775]
+    ;;
+    SELF.XTicksCharThick = 1.0
+    SELF.XTicksCharSizeF = 1.0 ; default TicksCharSize <TODO>
     SELF.XTicksAlignment = 0.5
     SELF.XTicksRotationF = 0.0
     SELF.XTicksFormatSTR = ''
     ;;
-    SELF.YTicksCharThick = 2.0
-    SELF.YTicksCharSizeF = 1.6 ; default TicksCharSize <TODO>
+    SELF.YTicksCharThick = 1.0
+    SELF.YTicksCharSizeF = 1.0 ; default TicksCharSize <TODO>
     SELF.YTicksAlignment = 0.5
     SELF.YTicksRotationF = 0.0
     SELF.YTicksFormatSTR = ''
     ;;
-    SELF.RTicksCharThick = 2.0
-    SELF.RTicksCharSizeF = 1.6
+    SELF.RTicksCharThick = 1.0
+    SELF.RTicksCharSizeF = 1.0
     SELF.RTicksAlignment = 0.5
     SELF.RTicksRotationF = 0.0
     SELF.RTicksFormatSTR = ''
@@ -100,19 +106,26 @@ PRO CrabFigureDataStructure::setParameters,     Verbose =  Verbose,        $
                                         CTitlePositionR = CTitlePositionR, $ ; Colorbar Title position
                                         ColorBarPosRect = ColorBarPosRect, $ ; Colorbar Position
                                         ColBarFormatSTR = ColBarFormatSTR, $ ; Colorbar text format
+                                        LegendCharThick = LegendCharThick, $ ; Legend char thick
+                                        LegendCharSizeF = LegendCharSizeF, $ ; Legend char size
+                                        LegendPositionR = LegendPositionR, $ ; Legend starting position
                                              RTitleText = RTitleText,      $ ; Right Y2 Title
                                                  XUnits = XUnits,          $
                                                  YUnits = YUnits,          $
                                                  XStyle = XStyle,          $
                                                  YStyle = YStyle,          $
                                                  RStyle = RStyle,          $
+                                            XTickFormat = XTickFormat,     $
+                                            YTickFormat = YTickFormat,     $
                                         XTicksTextArray = XTicksTextArray, $ ; text array for tick label
+                                       XTicksValueArray = XTicksValueArray,$ ; value array for tick label
                                         XTicksCharThick = XTicksCharThick, $
                                         XTicksCharSizeF = XTicksCharSizeF, $
                                         XTicksAlignment = XTicksAlignment, $
                                         XTicksRotationF = XTicksRotationF, $
                                         XTicksFormatSTR = XTicksFormatSTR, $
                                         YTicksTextArray = YTicksTextArray, $ ; text array for tick label
+                                       YTicksValueArray = YTicksValueArray,$ ; value array for tick label
                                         YTicksCharThick = YTicksCharThick, $
                                         YTicksCharSizeF = YTicksCharSizeF, $
                                         YTicksAlignment = YTicksAlignment, $
@@ -126,6 +139,8 @@ PRO CrabFigureDataStructure::setParameters,     Verbose =  Verbose,        $
                                         RTicksFormatSTR = RTicksFormatSTR, $
                                                  XMinor = XMinor,    $ ; number of minor tick
                                                  YMinor = YMinor,    $ ; number of minor tick
+                                                 XMajor = XMajor,    $ ; number of Major tick INTEVALS
+                                                 YMajor = YMajor,    $ ; number of Major tick INTEVALS
                                                  XIntev = XIntev,    $
                                                  YIntev = YIntev,    $
                                                  XTkLen = XTkLen,    $ ; x axis small tick line length
@@ -164,19 +179,26 @@ PRO CrabFigureDataStructure::setParameters,     Verbose =  Verbose,        $
                                         CTitlePositionR = CTitlePositionR, $ ; Colorbar Title position
                                         ColorBarPosRect = ColorBarPosRect, $ ; Colorbar Position
                                         ColBarFormatSTR = ColBarFormatSTR, $ ; Colorbar text format
+                                        LegendCharThick = LegendCharThick, $ ; Legend char thick
+                                        LegendCharSizeF = LegendCharSizeF, $ ; Legend char size
+                                        LegendPositionR = LegendPositionR, $ ; Legend starting position
                                              RTitleText = RTitleText,      $ ; Right Y2 Title
                                                  XUnits = XUnits,          $
                                                  YUnits = YUnits,          $
                                                  XStyle = XStyle,          $
                                                  YStyle = YStyle,          $
                                                  RStyle = RStyle,          $
+                                            XTickFormat = XTickFormat,     $
+                                            YTickFormat = YTickFormat,     $
                                         XTicksTextArray = XTicksTextArray, $ ; text array for tick label
+                                       XTicksValueArray = XTicksValueArray,$ ; value array for tick label
                                         XTicksCharThick = XTicksCharThick, $
                                         XTicksCharSizeF = XTicksCharSizeF, $
                                         XTicksAlignment = XTicksAlignment, $
                                         XTicksRotationF = XTicksRotationF, $
                                         XTicksFormatSTR = XTicksFormatSTR, $
                                         YTicksTextArray = YTicksTextArray, $ ; text array for tick label
+                                       YTicksValueArray = YTicksValueArray,$ ; value array for tick label
                                         YTicksCharThick = YTicksCharThick, $
                                         YTicksCharSizeF = YTicksCharSizeF, $
                                         YTicksAlignment = YTicksAlignment, $
@@ -190,6 +212,8 @@ PRO CrabFigureDataStructure::setParameters,     Verbose =  Verbose,        $
                                         RTicksFormatSTR = RTicksFormatSTR, $
                                                  XMinor = XMinor,    $ ; number of minor tick
                                                  YMinor = YMinor,    $ ; number of minor tick
+                                                 XMajor = XMajor,    $ ; number of Major tick INTEVALS
+                                                 YMajor = YMajor,    $ ; number of Major tick INTEVALS
                                                  XIntev = XIntev,    $
                                                  YIntev = YIntev,    $
                                                  XTkLen = XTkLen,    $ ; x axis small tick line length
@@ -232,6 +256,9 @@ PRO CrabFigureDataStructure::setParameter,      Verbose =  Verbose,        $
                                         CTitlePositionR = CTitlePositionR, $ ; Colorbar Title position
                                         ColorBarPosRect = ColorBarPosRect, $ ; Colorbar Position
                                         ColBarFormatSTR = ColBarFormatSTR, $ ; Colorbar text format
+                                        LegendCharThick = LegendCharThick, $ ; Legend char thick
+                                        LegendCharSizeF = LegendCharSizeF, $ ; Legend char size
+                                        LegendPositionR = LegendPositionR, $ ; Legend starting position
                                              RTitleText = RTitleText,      $ ; Right Y2 Title
                                                  XUnits = XUnits,          $
                                                  YUnits = YUnits,          $
@@ -239,14 +266,18 @@ PRO CrabFigureDataStructure::setParameter,      Verbose =  Verbose,        $
                                                  YStyle = YStyle,          $
                                                  RStyle = RStyle,          $
                                                NoXTicks = NoXTicks,        $
-                                               NoYTicks = NoYTicks,        $ 
+                                               NoYTicks = NoYTicks,        $
+                                            XTickFormat = XTickFormat,     $
+                                            YTickFormat = YTickFormat,     $
                                         XTicksTextArray = XTicksTextArray, $ ; text array for tick label
+                                       XTicksValueArray = XTicksValueArray,$ ; value array for tick label
                                         XTicksCharThick = XTicksCharThick, $
                                         XTicksCharSizeF = XTicksCharSizeF, $
                                         XTicksAlignment = XTicksAlignment, $
                                         XTicksRotationF = XTicksRotationF, $
                                         XTicksFormatSTR = XTicksFormatSTR, $
                                         YTicksTextArray = YTicksTextArray, $ ; text array for tick label
+                                       YTicksValueArray = YTicksValueArray,$ ; value array for tick label
                                         YTicksCharThick = YTicksCharThick, $
                                         YTicksCharSizeF = YTicksCharSizeF, $
                                         YTicksAlignment = YTicksAlignment, $
@@ -260,6 +291,8 @@ PRO CrabFigureDataStructure::setParameter,      Verbose =  Verbose,        $
                                         RTicksFormatSTR = RTicksFormatSTR, $
                                                  XMinor = XMinor,    $ ; number of minor tick
                                                  YMinor = YMinor,    $ ; number of minor tick
+                                                 XMajor = XMajor,    $ ; number of Major tick INTEVALS
+                                                 YMajor = YMajor,    $ ; number of Major tick INTEVALS
                                                  XIntev = XIntev,    $
                                                  YIntev = YIntev,    $
                                                  XTkLen = XTkLen,    $ ; x axis small tick line length
@@ -307,6 +340,11 @@ PRO CrabFigureDataStructure::setParameter,      Verbose =  Verbose,        $
     IF N_ELEMENTS(CTitlePositionR) GE 2    THEN SELF.CTitlePositionR = DOUBLE(CTitlePositionR[0:1])
                                                                      ; colorbar title position is caculated according to colorbar position
     IF N_ELEMENTS(ColBarFormatSTR) EQ 1    THEN SELF.ColBarFormatSTR = STRTRIM(ColBarFormatSTR,2)
+    
+    IF N_ELEMENTS(LegendCharThick) EQ 1    THEN SELF.LegendCharThick = DOUBLE(LegendCharThick)
+    IF N_ELEMENTS(LegendCharSizeF) EQ 1    THEN SELF.LegendCharSizeF = DOUBLE(LegendCharSizeF)
+    IF N_ELEMENTS(LegendPositionR) GE 2    THEN SELF.LegendPositionR = DOUBLE(LegendPositionR[0:1])
+    
     ;;
     IF SIZE(XUnits,/TNAME) EQ 'STRING'  THEN SELF.XUnits = STRTRIM(XUnits,2)
     IF SIZE(YUnits,/TNAME) EQ 'STRING'  THEN SELF.YUnits = STRTRIM(YUnits,2)
@@ -317,12 +355,17 @@ PRO CrabFigureDataStructure::setParameter,      Verbose =  Verbose,        $
     IF KEYWORD_SET(NoXTicks) THEN XTicksTextArray = REPLICATE(' ',50)
     IF KEYWORD_SET(NoYTicks) THEN YTicksTextArray = REPLICATE(' ',50)
     ;;
+    IF N_ELEMENTS(XTickFormat) EQ 1 THEN SELF.XTicksFormatSTR = STRTRIM(XTickFormat,2)
+    IF N_ELEMENTS(YTickFormat) EQ 1 THEN SELF.YTicksFormatSTR = STRTRIM(YTickFormat,2)
+    ;;
     IF N_ELEMENTS(XTicksTextArray) GE 1 THEN *(SELF.XTicksTextArray) = XTicksTextArray
+    IF N_ELEMENTS(XTicksValueArray) GE 1 THEN *(SELF.XTicksValueArray) = XTicksValueArray
     IF N_ELEMENTS(XTicksCharThick) EQ 1 THEN SELF.XTicksCharThick = DOUBLE(XTicksCharThick)
     IF N_ELEMENTS(XTicksCharSizeF) EQ 1 THEN SELF.XTicksCharSizeF = DOUBLE(XTicksCharSizeF)
     IF N_ELEMENTS(XTicksFormatSTR) EQ 1 THEN SELF.XTicksFormatSTR = STRTRIM(XTicksFormatSTR,2)
     ;;
     IF N_ELEMENTS(YTicksTextArray) GE 1 THEN *(SELF.YTicksTextArray) = YTicksTextArray
+    IF N_ELEMENTS(YTicksValueArray) GE 1 THEN *(SELF.YTicksValueArray) = YTicksValueArray
     IF N_ELEMENTS(YTicksCharThick) EQ 1 THEN SELF.YTicksCharThick = DOUBLE(YTicksCharThick)
     IF N_ELEMENTS(YTicksCharSizeF) EQ 1 THEN SELF.YTicksCharSizeF = DOUBLE(YTicksCharSizeF)
     IF N_ELEMENTS(YTicksFormatSTR) EQ 1 THEN SELF.YTicksFormatSTR = STRTRIM(YTicksFormatSTR,2)
@@ -334,8 +377,10 @@ PRO CrabFigureDataStructure::setParameter,      Verbose =  Verbose,        $
     ;;
     IF N_ELEMENTS(XMinor)  EQ 1         THEN SELF.XMinor = FIX(XMinor)
     IF N_ELEMENTS(YMinor)  EQ 1         THEN SELF.YMinor = FIX(YMinor)
-    IF N_ELEMENTS(XIntev)  EQ 1         THEN SELF.XIntev = XIntev
-    IF N_ELEMENTS(YIntev)  EQ 1         THEN SELF.YIntev = YIntev
+    IF N_ELEMENTS(XMajor)  EQ 1         THEN SELF.XMajor = FIX(XMajor)
+    IF N_ELEMENTS(YMajor)  EQ 1         THEN SELF.YMajor = FIX(YMajor)
+    IF N_ELEMENTS(XIntev)  EQ 1         THEN SELF.XIntev = DOUBLE(XIntev)
+    IF N_ELEMENTS(YIntev)  EQ 1         THEN SELF.YIntev = DOUBLE(YIntev)
     IF N_ELEMENTS(XTkLen)  EQ 1         THEN SELF.XTkLen = XTkLen
     IF N_ELEMENTS(YTkLen)  EQ 1         THEN SELF.YTkLen = YTkLen
     IF N_ELEMENTS(XThick)  EQ 1         THEN SELF.XThick = XThick
@@ -482,7 +527,7 @@ PRO CrabFigureDataStructure::addDataPoint,      Verbose = Verbose,     $
         IF N_ELEMENTS(PtThick) GT 1 AND N_ELEMENTS(PtThick) NE DataPointCount THEN m_PtThick = REPLICATE(PtThick[0],DataPointCount)
         IF N_ELEMENTS(PtThick) GT 1 AND N_ELEMENTS(PtThick) EQ DataPointCount THEN m_PtThick = PtThick
         
-        IF N_ELEMENTS(PtColor) EQ 0 THEN m_PtColor = REPLICATE(LONG(0),DataPointCount) ; 'BLUE'
+        IF N_ELEMENTS(PtColor) EQ 0 THEN m_PtColor = REPLICATE(0.0,DataPointCount) ; 'BLUE'
         IF N_ELEMENTS(PtColor) EQ 1 THEN m_PtColor = REPLICATE(PtColor,DataPointCount)
         IF N_ELEMENTS(PtColor) GT 1 AND N_ELEMENTS(PtColor) NE DataPointCount THEN m_PtColor = REPLICATE(PtColor[0],DataPointCount)
         IF N_ELEMENTS(PtColor) GT 1 AND N_ELEMENTS(PtColor) EQ DataPointCount THEN m_PtColor = PtColor
@@ -695,17 +740,17 @@ PRO CrabFigureDataStructure::addAnnotation,      Verbose = Verbose,    $
         IF N_ELEMENTS(Color)     LE 0 THEN Color     = 0.0
         IF N_ELEMENTS(Color)     GE 1 THEN Color     = Color[0]
         ;
-        IF N_ELEMENTS(CharSize)  LE 0 THEN CharSize  = 2.0 ; default 
-        IF N_ELEMENTS(CharSize)  GE 1 THEN CharSize  = CharSize[0]
+        IF N_ELEMENTS(CharSize)  LE 0 THEN CharSize  = 1.0
+        IF N_ELEMENTS(CharSize)  GE 1 THEN CharSize  = FLOAT(CharSize[0])
         ;
         IF N_ELEMENTS(CharThick) LE 0 THEN CharThick = 1.0
-        IF N_ELEMENTS(CharThick) GE 1 THEN CharThick = CharThick[0]
+        IF N_ELEMENTS(CharThick) GE 1 THEN CharThick = FLOAT(CharThick[0])
         ;
         IF N_ELEMENTS(Alignment) LE 0 THEN Alignment = 0.5
-        IF N_ELEMENTS(Alignment) GE 1 THEN Alignment = Alignment[0]
+        IF N_ELEMENTS(Alignment) GE 1 THEN Alignment = FLOAT(Alignment[0])
         ;
         IF N_ELEMENTS(Rotation)  LE 0 THEN Rotation  = 0.0
-        IF N_ELEMENTS(Rotation)  GE 1 THEN Rotation  = Rotation[0]
+        IF N_ELEMENTS(Rotation)  GE 1 THEN Rotation  = FLOAT(Rotation[0])
         ;; 
         NewAnnotation = { CrabFigureDataStructureAnnotation, Position : Position,  $
                                                                Normal : Normal,    $ ; XYOUTS, /NORMAL
@@ -951,7 +996,7 @@ END
 
 
 
-PRO CrabFigureDataStructure::beginPS, PSFilePath, PSDimensions=PSDimensions, OverPlot=OverPlot
+PRO CrabFigureDataStructure::beginPS, PSFilePath, PSDimensions=PSDimensions, PSFont=PSFont, OverPlot=OverPlot
     IF N_ELEMENTS(PSDimensions) LT 2 THEN BEGIN
         PSDimensions = [20,16.5] ; <TODO> default dimensions
     ENDIF ELSE BEGIN
@@ -964,31 +1009,37 @@ PRO CrabFigureDataStructure::beginPS, PSFilePath, PSDimensions=PSDimensions, Ove
                 SET_PLOT, 'PS'
                 DEVICE, FILENAME=PSFilePath, /COLOR, /ENCAPSULATED, BITS=8, $
                         XSIZE=PSDimensions[0], YSIZE=PSDimensions[1] ;, FONT_SIZE=9, BITS=8, 
-                DEVICE, SET_FONT='NGC', /TT_FONT
+                ;DEVICE, SET_FONT='DejaVuSans', /TT_FONT
+                ;DEVICE, SET_FONT='NGC', /TT_FONT
+                IF N_ELEMENTS(PSFont) GT 0 THEN BEGIN 
+                    DEVICE, SET_FONT=PSFont, /TT_FONT
+                ENDIF
             ENDIF
             SetDecomposedState, 1, CurrentState=currentState, DEPTH=24 ; <TODO> otherwise cgDefaultColor gets error
             NULL = GetDecomposedState() ; <TODO> otherwise cgDefaultColor gets error
             ; enhance char size and char thick
             SELF.TitleCharThick  = SELF.TitleCharThick  * 4.0
-            SELF.TitleCharSizeF  = SELF.TitleCharSizeF  * 2.25 ; default title char size
+            SELF.TitleCharSizeF  = SELF.TitleCharSizeF  * 3.00 ; default title char size
             SELF.XTitleCharThick = SELF.XTitleCharThick * 4.0
-            SELF.XTitleCharSizeF = SELF.XTitleCharSizeF * 3.25 ; default xtitle char size
+            SELF.XTitleCharSizeF = SELF.XTitleCharSizeF * 3.00 ; default xtitle char size
             SELF.YTitleCharThick = SELF.YTitleCharThick * 4.0
-            SELF.YTitleCharSizeF = SELF.YTitleCharSizeF * 3.25 ; default ytitle char size
+            SELF.YTitleCharSizeF = SELF.YTitleCharSizeF * 3.00 ; default ytitle char size
             SELF.RTitleCharThick = SELF.RTitleCharThick * 4.0
-            SELF.RTitleCharSizeF = SELF.RTitleCharSizeF * 2.25 ; default rtitle char size
+            SELF.RTitleCharSizeF = SELF.RTitleCharSizeF * 3.00 ; default rtitle char size
             SELF.CTitleCharThick = SELF.CTitleCharThick * 4.0
-            SELF.CTitleCharSizeF = SELF.CTitleCharSizeF * 2.25 ; default ctitle char size
+            SELF.CTitleCharSizeF = SELF.CTitleCharSizeF * 2.50 ; default ctitle char size
             SELF.ColBarCharThick = SELF.ColBarCharThick * 3.0
             SELF.ColBarCharSizeF = SELF.ColBarCharSizeF * 1.25
+            SELF.LegendCharThick = SELF.LegendCharThick * 5.0
+            SELF.LegendCharSizeF = SELF.LegendCharSizeF * 2.50 ; default legend char size
             SELF.XTicksCharThick = SELF.XTicksCharThick * 3.5
-            SELF.XTicksCharSizeF = SELF.XTicksCharSizeF * 2.30 ; default XTicksCharSizeF
+            SELF.XTicksCharSizeF = SELF.XTicksCharSizeF * 2.50 ; default XTicksCharSizeF
             SELF.YTicksCharThick = SELF.YTicksCharThick * 3.5
-            SELF.YTicksCharSizeF = SELF.YTicksCharSizeF * 2.30 ; default YTicksCharSizeF
+            SELF.YTicksCharSizeF = SELF.YTicksCharSizeF * 2.50 ; default YTicksCharSizeF
             SELF.RTicksCharThick = SELF.RTicksCharThick * 3.5
             SELF.RTicksCharSizeF = SELF.RTicksCharSizeF * 2.30
-            SELF.XThick = SELF.XThick * 3.5
-            SELF.YThick = SELF.YThick * 3.5
+            SELF.XThick = SELF.XThick * 7.5
+            SELF.YThick = SELF.YThick * 7.5
 ;            ; repair xminor <TODO>
 ;            SELF.XMinor = SELF.XMinor-1
 ;            PRINT, SELF.XMinor
@@ -1010,8 +1061,8 @@ PRO CrabFigureDataStructure::finishPS, PSFilePath
         IF STRTRIM(PSFilePath,2) NE '' THEN BEGIN
             ; convert ps to pdf
             ConvertPS2PDF, PSFilePath
-            ; de-enhance char size and char thick
-            SELF.TitleCharThick  = SELF.TitleCharThick  / 2.0
+            ; de-enhance char size and char thick ; <TODO>
+            SELF.TitleCharThick  = SELF.TitleCharThick  / 4.0
             SELF.TitleCharSizeF  = SELF.TitleCharSizeF  / 1.25
             SELF.XTitleCharThick = SELF.XTitleCharThick / 2.0
             SELF.XTitleCharSizeF = SELF.XTitleCharSizeF / 1.25
@@ -1023,6 +1074,8 @@ PRO CrabFigureDataStructure::finishPS, PSFilePath
             SELF.CTitleCharSizeF = SELF.CTitleCharSizeF / 1.25
             SELF.ColBarCharThick = SELF.ColBarCharThick / 2.0
             SELF.ColBarCharSizeF = SELF.ColBarCharSizeF / 1.25
+            SELF.LegendCharThick = SELF.LegendCharThick / 2.0
+            SELF.LegendCharSizeF = SELF.LegendCharSizeF / 1.25
             SELF.XTicksCharThick = SELF.XTicksCharThick / 2.5
             SELF.XTicksCharSizeF = SELF.XTicksCharSizeF / 1.50
             SELF.YTicksCharThick = SELF.YTicksCharThick / 2.5
@@ -1059,9 +1112,10 @@ END
 
 
 PRO CrabFigureDataStructure::doPlot, Position=Position, Dimensions=Dimensions, Margins=Margins, OverPlot=OverPlot, $
-                                     WindowId=WindowId, WindowTitle=WindowTitle, YNoErrorBar=YNoErrorBar, $
+                                     WindowId=WindowId, WindowTitle=WindowTitle, XNoErrorBar=XNoErrorBar, YNoErrorBar=YNoErrorBar, $
                                      ShowPtLabel=ShowPtLabel, ShowPtNote=ShowPtNote, ShowErrorBar=ShowErrorBar, $
                                      ShowXTicks=ShowXTicks, ShowYTicks=ShowYTicks, $
+                                     ShowLegend=ShowLegend, $
                                      Silent=Silent, SetColorReverse=SetColorReverse
     
     ; Check DataPoints
@@ -1119,6 +1173,26 @@ PRO CrabFigureDataStructure::doPlot, Position=Position, Dimensions=Dimensions, M
     ; Check CRange
     ; CRange = SELF->checkCRange()
     
+    ; Check ShowXTicks
+    XTICKFORMAT = SELF->xTickFormat()
+    XTICKNAME = SELF->xTicksTextArray()
+    IF N_ELEMENTS(ShowXTicks) EQ 1 THEN BEGIN
+        IF ShowXTicks LE 0 THEN BEGIN
+            XTICKFORMAT = '(A1)'
+            XTICKNAME = ' '
+        ENDIF
+    ENDIF
+    
+    ; Check ShowYTicks
+    YTICKFORMAT = SELF->yTickFormat()
+    YTICKNAME = SELF->yTicksTextArray()
+    IF N_ELEMENTS(ShowYTicks) EQ 1 THEN BEGIN
+        IF ShowYTicks LE 0 THEN BEGIN
+            YTICKFORMAT = '(A1)'
+            YTICKNAME = ' '
+        ENDIF
+    ENDIF
+    
     
     
     ; Plot Window
@@ -1135,11 +1209,17 @@ PRO CrabFigureDataStructure::doPlot, Position=Position, Dimensions=Dimensions, M
                          YTHICK    = SELF->yThick(),   $
                          XCHARSIZE = SELF->xTicksCharSize(), $
                          YCHARSIZE = SELF->yTicksCharSize(), $
-                         CHARTHICK = SELF->xTicksCharThick(),$ ; <TODO>
-                         XTICKNAME = SELF->xTicks(),   $
-                         YTICKNAME = SELF->yTicks(),   $
+                         CHARTHICK = SELF->xTicksCharThick(),$
+                            XTICKS = SELF->xMajor(),   $
+                            YTICKS = SELF->yMajor(),   $
+                            XTICKV = SELF->xTicksValueArray(),   $
+                            YTICKV = SELF->yTicksValueArray(),   $
+                         XTICKNAME = XTICKNAME,   $
+                         YTICKNAME = YTICKNAME,   $
                          XTICKLEN  = SELF->xTickLen(), $
                          YTICKLEN  = SELF->yTickLen(), $
+                       XTICKFORMAT = XTICKFORMAT, $
+                       YTICKFORMAT = YTICKFORMAT, $
                          XStyle    = SELF->xStyle(),   $
                          YStyle    = SELF->yStyle(),   $
                          XMinor    = SELF->xMinor(),   $
@@ -1150,7 +1230,16 @@ PRO CrabFigureDataStructure::doPlot, Position=Position, Dimensions=Dimensions, M
                          YRange    = SELF->yRange(),   $
                          XLog      = SELF->xLog(),     $
                          YLog      = SELF->yLog(),     $
+                         XTICK_GET = XTICK_GET, $ ; <20160517><dzliu>
+                         YTICK_GET = YTICK_GET, $ ; <20160517><dzliu>
                          FONT      = 1
+    
+    ;; Fix Log Axis Major label problem
+;    IF SELF->xLog() EQ 1 AND N_ELEMENTS(SELF->xTicksValueArray()) GT 0 THEN BEGIN
+;        PRINT, SELF->xTicksValueArray()
+;        PRINT, SELF->xMajor()
+;    ENDIF
+    
     ;; Plot main title
     IF STRTRIM(SELF->title(),2) NE '' THEN BEGIN
         XYOUTS, !X.Window[0] + SELF->titlePosition(0) * (!X.Window[1]-!X.Window[0]), $
@@ -1158,18 +1247,22 @@ PRO CrabFigureDataStructure::doPlot, Position=Position, Dimensions=Dimensions, M
                 SELF->title(), /NORMAL, ALIGNMENT=0.5, CHARSIZE=SELF->titleCharSize(), CHARTHICK=SELF->titleCharThick(), FONT=1
     ENDIF
     ;; Plot X title
-    IF STRTRIM(SELF->xTitle(),2) NE '' THEN BEGIN
+    IF N_ELEMENTS(ShowXTicks) EQ 0 OR KEYWORD_SET(ShowXTicks) EQ 1 THEN BEGIN
+      IF STRTRIM(SELF->xTitle(),2) NE '' THEN BEGIN
         XTitlePosX = !X.Window[0] + SELF->xTitleAlignment() * (!X.Window[1]-!X.Window[0])
         XTitlePosY = 0.025
         XYOUTS, XTitlePosX, XTitlePosY, $
                 SELF->xTitle(), /NORMAL, ALIGNMENT=0.5, CHARSIZE=SELF->xTitleCharSize(), CHARTHICK=SELF->xTitleCharThick(), FONT=1
+      ENDIF
     ENDIF
     ;; Plot Y title
-    IF STRTRIM(SELF->yTitle(),2) NE '' THEN BEGIN
+    IF N_ELEMENTS(ShowYTicks) EQ 0 OR KEYWORD_SET(ShowYTicks) EQ 1 THEN BEGIN
+      IF STRTRIM(SELF->yTitle(),2) NE '' THEN BEGIN
         YTitlePosX = 0.035
         YTitlePosY = !Y.Window[0] + SELF->yTitleAlignment() * (!Y.Window[1]-!Y.Window[0])
         XYOUTS, YTitlePosX, YTitlePosY, ORIENTATION=90, $
                 SELF->yTitle(), /NORMAL, ALIGNMENT=0.5, CHARSIZE=SELF->yTitleCharSize(), CHARTHICK=SELF->yTitleCharThick(), FONT=1
+      ENDIF
     ENDIF
     ;; Plot Y2 axis
     IF N_ELEMENTS(SELF->rRange()) EQ 2 THEN BEGIN
@@ -1187,6 +1280,17 @@ PRO CrabFigureDataStructure::doPlot, Position=Position, Dimensions=Dimensions, M
     
     
     
+    ; Prepare arrays for legend
+    LegendUniqueIndex = [] ; UNIQ((SELF->symType()))
+    LegendSymTypes = []
+    LegendSymSizes = []
+    LegendSymFills = []
+    LegendPtColors = []
+    LegendPtThicks = []
+    LegendPtUppers = []
+    
+    
+    
     ; Plot data points
     DataPointCount = SELF->count()
     ValidPointCount = 0
@@ -1200,12 +1304,12 @@ PRO CrabFigureDataStructure::doPlot, Position=Position, Dimensions=Dimensions, M
         YValue  = (SELF->yValue())[DPId:DPId]
         XError  = (SELF->xError())[DPId:DPId]
         YError  = (SELF->yError())[DPId:DPId]
-        SymSize = (SELF->symSize())[DPId:DPId]
+        SymSize = (SELF->symSize(DPId))
         SymType = (SELF->symType(DPId))
-        SymFill = (SELF->symFill())[DPId:DPId]
-        PtThick = (SELF->ptThick())[DPId:DPId]
-        PtColor = (SELF->ptColor())[DPId:DPId]
-        PtLabel = (SELF->ptLabel())[DPId:DPId]
+        SymFill = (SELF->symFill(DPId))
+        PtThick = (SELF->ptThick(DPId))
+        PtColor = (SELF->ptColor(DPId))
+        PtLabel = (SELF->ptLabel(DPId))
         PtLSize = (SELF->PtLabelSize())[DPId:DPId]
         PtLThic = (SELF->ptLabelThick())[DPId:DPId]
         PtLRota = (SELF->ptLabelRotation())[DPId:DPId]
@@ -1220,7 +1324,8 @@ PRO CrabFigureDataStructure::doPlot, Position=Position, Dimensions=Dimensions, M
         ; silent
         IF NOT KEYWORD_SET(Silent) THEN BEGIN
             StrPrint = STRING(FORMAT='(A-0," ",A-20,"X ",E-10.3,"(+-)",E-12.3,"Y ",E-10.3,"(+-)",E-12.3,"C ",F0.3)',SELF->title(),PtLabel,XValue,XError,YValue,YError,PtColor)
-            IF KEYWORD_SET(ShowPtNote) THEN StrPrint = StrPrint + " " + PtNote + " "
+            IF PtLabel NE "" THEN StrPrint = StrPrint+" S "+PtLabel
+            IF KEYWORD_SET(ShowPtNote) THEN StrPrint = StrPrint + " " + " " + PtNote + " "
             PRINT, 'CrabFigureDataStructure::doPlot: ' + StrPrint
         ENDIF
         
@@ -1241,11 +1346,35 @@ PRO CrabFigureDataStructure::doPlot, Position=Position, Dimensions=Dimensions, M
             ;PtColor = cgColor(PtColorBYT) ; PtColor 0~255 (?)
         ENDELSE
         
+        
+        ; get uniqueness for legend symbols plot
+        LegendUniqueCheck = 0
+        IF N_ELEMENTS(LegendUniqueIndex) EQ 0 THEN BEGIN
+            LegendUniqueCheck = 1
+        ENDIF ELSE BEGIN
+            IF N_ELEMENTS(WHERE(LegendSymTypes EQ SymType, /NULL)) EQ 0 OR $
+               N_ELEMENTS(WHERE(LegendSymFills EQ SymFill, /NULL)) EQ 0 OR $
+               N_ELEMENTS(WHERE(LegendPtColors EQ PtColor, /NULL)) EQ 0 THEN BEGIN
+                LegendUniqueCheck = 1
+            ENDIF
+        ENDELSE
+        IF LegendUniqueCheck EQ 1 THEN BEGIN
+            LegendUniqueIndex = [LegendUniqueIndex, DPId]
+            LegendSymTypes = [LegendSymTypes, SymType]
+            LegendSymSizes = [LegendSymSizes, SymSize]
+            LegendSymFills = [LegendSymFills, SymFill]
+            LegendPtColors = [LegendPtColors, PtColor]
+            LegendPtThicks = [LegendPtThicks, PtThick]
+            LegendPtUppers = [LegendPtUppers, 0]
+        ENDIF
+        
+        
         ; convert STRING SymType for PLOT or PLOT_Procedure <TODO>
         ; IF STRMATCH(SymType,'*DOWN*TRIANGLE',/F) THEN BEGIN
         ;     PRINT, 'DEBUG!SymType@!'
         ; ENDIF
         SymType = CrabSymbol(SymType,FILLED=SymFill,COLOR=PtColor,THICK=PtThick) ;<Corrected><20140327:00><DZLIU> PtThick!
+        
         
         ; plot each data point
 ;       IF XValue GT 0.0 AND YValue GT 0.0 THEN BEGIN ; <TODO> ; <20140319> ;
@@ -1276,7 +1405,7 @@ PRO CrabFigureDataStructure::doPlot, Position=Position, Dimensions=Dimensions, M
             ; ShowUpLimit
             DoShowUpLimit = 0 ; initilize the parameter DoShowUpLimit <TODO>
             IF (TOTAL(SELF->xError())+TOTAL(SELF->yError())) EQ 0.0 THEN BEGIN
-                DoShowUpLimit = 0 ; if input data do not contain error info, then do not show uplimits
+                DoShowUpLimit = 0 ; if input data do not contain error info, then do not show uplimits (upper limits)
             ENDIF ELSE BEGIN
                 IF XError LE 0.0 THEN BEGIN ; <TODO>    LE 0.0    LT 0.0
                     IF YError LE 0.0 AND NOT KEYWORD_SET(YNoErrorBar) THEN BEGIN
@@ -1297,9 +1426,15 @@ PRO CrabFigureDataStructure::doPlot, Position=Position, Dimensions=Dimensions, M
 ;                DetectedPointCount++
                  
                  IF DoShowErrorBar EQ 1 THEN BEGIN
-                     OPLOTERROR, XValue, YValue, XError, YError, $
-                                 PSYM=SymType,COLOR=PtColor,SYMSIZE=SymSize,$ ; 
-                                 THICK=PtThick,ERRTHICK=PtThick,HATLENGTH=!D.X_VSIZE/360 ;,ERRCOLOR=PtColor,_EXTRA={COLOR:PtColor}
+                     IF KEYWORD_SET(XNoErrorBar) THEN BEGIN
+                         OPLOTERROR, XValue, YValue, YError, $
+                                     PSYM=SymType,COLOR=PtColor,SYMSIZE=SymSize,$ ; 
+                                     THICK=PtThick,ERRTHICK=PtThick,HATLENGTH=!D.X_VSIZE/360 ;,ERRCOLOR=PtColor,_EXTRA={COLOR:PtColor}
+                     ENDIF ELSE BEGIN
+                         OPLOTERROR, XValue, YValue, XError, YError, $
+                                     PSYM=SymType,COLOR=PtColor,SYMSIZE=SymSize,$ ; 
+                                     THICK=PtThick,ERRTHICK=PtThick,HATLENGTH=!D.X_VSIZE/360 ;,ERRCOLOR=PtColor,_EXTRA={COLOR:PtColor}
+                     ENDELSE
                  ENDIF ELSE BEGIN
                      OPLOT,      XValue, YValue, $
                                  PSYM=SymType,COLOR=PtColor,SYMSIZE=SymSize,$
@@ -1385,11 +1520,17 @@ PRO CrabFigureDataStructure::doPlot, Position=Position, Dimensions=Dimensions, M
             ; ShowPtLabel & PlotPtLabel
             IF KEYWORD_SET(ShowPtLabel) AND N_ELEMENTS(PtLabel) GE 1 THEN BEGIN                                         ; PtLabel=GalaxyName
                 IF SIZE(ShowPtLabel,/TNAME) EQ 'STRING' THEN BEGIN ; ShowPtLabel can be ['NGC6240','M82',...]
-                    IF NOT CrabStringMatch(PtLabel,ShowPtLabel,/FOLD_CASE,/YES_OR_NO) THEN PtLabel = ''
+                    IF NOT CrabStringMatch(STRTRIM(PtLabel,2),ShowPtLabel,/FOLD_CASE,/YES_OR_NO) THEN PtLabel = ''
                 ENDIF
                 IF STRLEN(STRTRIM(PtLabel,2)) GT 0 THEN BEGIN
                     XYOUTS,XValue,YValue,PtLabel,/DATA,COLOR=PtColor,CHARSIZE=PtLSize,CHARTHICK=PtLThic,ORIEN=PtLRota,ALIGN=0.0
                 ENDIF
+            ENDIF
+            
+            
+            ; get uniqueness for legend symbols plot
+            IF LegendUniqueCheck EQ 1 THEN BEGIN
+                LegendPtUppers[N_ELEMENTS(LegendPtUppers)-1] = DoShowUpLimit
             ENDIF
             
             
@@ -1470,6 +1611,56 @@ PRO CrabFigureDataStructure::doPlot, Position=Position, Dimensions=Dimensions, M
                LINESTYLE=PolylineData.Style, THICK=PolylineData.Thick
     ENDFOR
     
+    
+    
+    ; Plot Legend Symbols <20160430>
+    LegendUniqueCount = N_ELEMENTS(LegendUniqueIndex)
+    LegendUniqueSort = SORT(LegendPtUppers)
+    LegendSymTypes = LegendSymTypes[LegendUniqueSort]
+    LegendSymSizes = LegendSymSizes[LegendUniqueSort]
+    LegendSymFills = LegendSymFills[LegendUniqueSort]
+    LegendPtColors = LegendPtColors[LegendUniqueSort]
+    LegendPtThicks = LegendPtThicks[LegendUniqueSort]
+    LegendPtUppers = LegendPtUppers[LegendUniqueSort]
+    LegendLineSpacing = 0.025 * (SELF->legendCharSize())^0.8
+    FOR PLId = 0, LegendUniqueCount-1 DO BEGIN
+        XValue = [SELF.LegendPositionR[0]] ; [0.225] ; <TODO> Legend Area Position
+        YValue = [SELF.LegendPositionR[1]-LegendLineSpacing*PLId] ; [0.775-0.025*PLId] ; <TODO> Legend Area Position
+        PtColor = LegendPtColors[PLId]
+        PtThick = LegendPtThicks[PLId]
+        SymSize = LegendSymSizes[PLId]
+        IF SIZE(ShowLegend,/TNAME) EQ 'STRING' AND N_ELEMENTS(ShowLegend) GT PLId THEN BEGIN
+          XYOUTS, XValue+0.02, YValue-LegendLineSpacing/5.0, ShowLegend[PLId], /NORMAL, $
+                  COLOR=PtColor, CHARSIZE=SELF->legendCharSize(), CHARTHICK=SELF->legendCharThick(), ALIGN=0.0, FONT=1
+          ;
+          IF LegendPtUppers[PLId] EQ 0 THEN BEGIN
+            SymType = CrabSymbol(LegendSymTypes[PLId],FILLED=LegendSymFills[PLId],COLOR=PtColor,THICK=PtThick) ;<Corrected><20140327:00><DZLIU> PtThick!
+            PLOTS, XValue, YValue, /NORMAL, PSYM=SymType, SYMSIZE=SymSize, COLOR=PtColor, THICK=PtThick
+          ENDIF ELSE BEGIN
+            mArL = 3.0  ;; arrow root-to-top height/length
+            mArS = 2.8  ;; arrow root-to-hat height/length
+            mArH = 1.5  ;; arrow root-to-shouder height/length
+            mArW = 0.6  ;; arrow shouder width
+            mArT = 0.02 ;; arrow root thick
+            IF LegendPtUppers[PLId] EQ 3 THEN BEGIN                                                                                        ; Left-Down Arrow Symbol
+                USERSYM,[-0.06,-3.26,-2.8,-3.5,-1.0,-3.14,+0.04],[+0.06,-3.14,-1.0,-3.5,-2.8,-3.26,-0.06],COLOR=PtColor,THICK=PtThick*0.11 ; Left-Down Arrow Symbol /FILL
+                PLOTS,XValue,YValue,/NORMAL,PSYM=8,COLOR=PtColor,SYMSIZE=SymSize*0.7,THICK=PtThick*0.11                                    ; Show XYUpLimit
+            ENDIF ELSE IF LegendPtUppers[PLId] EQ 2 THEN BEGIN                                                                             ; Down Arrow Symbol
+                USERSYM,[-1.3,-1.3,1.3,1.3],[-0.07,0.07,0.07,-0.07],COLOR=PtColor,THICK=PtThick*0.11,/FILL                                 ; Down Arrow Symbol
+                PLOTS,XValue,YValue,/NORMAL,PSYM=8,COLOR=PtColor,SYMSIZE=SymSize*0.7,THICK=PtThick*0.11                                    ; Down Arrow Symbol
+                USERSYM,[-mArT,-mArT,-mArW,+0,+mArW,+mArT,+mArT],[+0,-mArS,-mArH,-mArL,-mArH,-mArS,+0],COLOR=PtColor,THICK=PtThick*0.11    ; Down Arrow Symbol /FILL
+                PLOTS,XValue,YValue,/NORMAL,PSYM=8,COLOR=PtColor,SYMSIZE=SymSize*0.7,THICK=PtThick*0.11                                    ; Show YUpLimit
+            ENDIF ELSE IF LegendPtUppers[PLId] EQ 1 THEN BEGIN                                                                             ; Left Arrow Symbol
+                USERSYM,[0,0],[+mArW,-mArW],COLOR=PtColor,THICK=PtThick*0.11                                                               ; Show XUpLimit
+                PLOTS,XValue,YValue,/NORMAL,PSYM=8,COLOR=PtColor,SYMSIZE=SymSize*0.7,THICK=PtThick*0.11                                    ; Show XUpLimit
+                USERSYM,[+0,-mArS],[0,0],COLOR=PtColor,THICK=PtThick*0.11                                                                  ; Show XUpLimit
+                PLOTS,XValue,YValue,/NORMAL,PSYM=8,COLOR=PtColor,SYMSIZE=SymSize*0.7,THICK=PtThick*0.11                                    ; Show XUpLimit
+                USERSYM,[-mArH,-mArS,-mArH],[+mArW,0,-mArW],COLOR=PtColor,THICK=PtThick*0.11                                               ; Show XUpLimit
+                PLOTS,XValue,YValue,/NORMAL,PSYM=8,COLOR=PtColor,SYMSIZE=SymSize*0.7,THICK=PtThick*0.11                                    ; Show XUpLimit
+            ENDIF
+          ENDELSE
+        ENDIF
+    ENDFOR
     
     
 END
@@ -1801,9 +1992,15 @@ FUNCTION CrabFigureDataStructure::rStyle
 END
 
 
-FUNCTION CrabFigureDataStructure::xTicks
+FUNCTION CrabFigureDataStructure::xTicksTextArray
     IF N_ELEMENTS(*(SELF.XTicksTextArray)) EQ 0 THEN RETURN, !NULL
     RETURN, (*(SELF.XTicksTextArray))
+END 
+
+
+FUNCTION CrabFigureDataStructure::xTicksValueArray
+    IF N_ELEMENTS(*(SELF.XTicksValueArray)) EQ 0 THEN RETURN, !NULL
+    RETURN, (*(SELF.XTicksValueArray))
 END
 
 
@@ -1822,12 +2019,24 @@ END
 FUNCTION CrabFigureDataStructure::xTicksFormat
     IF STRTRIM(SELF.XTicksFormatSTR,2) EQ '' THEN RETURN, !NULL
     RETURN, STRTRIM(SELF.XTicksFormatSTR)
+END 
+    
+    
+FUNCTION CrabFigureDataStructure::xTickFormat
+    IF STRTRIM(SELF.XTicksFormatSTR,2) EQ '' THEN RETURN, !NULL
+    RETURN, STRTRIM(SELF.XTicksFormatSTR)
 END
 
 
-FUNCTION CrabFigureDataStructure::yTicks
+FUNCTION CrabFigureDataStructure::yTicksTextArray
     IF N_ELEMENTS(*(SELF.YTicksTextArray)) EQ 0 THEN RETURN, !NULL
     RETURN, (*(SELF.YTicksTextArray))
+END 
+
+
+FUNCTION CrabFigureDataStructure::yTicksValueArray
+    IF N_ELEMENTS(*(SELF.YTicksValueArray)) EQ 0 THEN RETURN, !NULL
+    RETURN, (*(SELF.YTicksValueArray))
 END
 
 
@@ -1846,10 +2055,16 @@ END
 FUNCTION CrabFigureDataStructure::yTicksFormat
     IF STRTRIM(SELF.YTicksFormatSTR,2) EQ '' THEN RETURN, !NULL
     RETURN, STRTRIM(SELF.YTicksFormatSTR)
+END 
+
+
+FUNCTION CrabFigureDataStructure::yTickFormat
+    IF STRTRIM(SELF.YTicksFormatSTR,2) EQ '' THEN RETURN, !NULL
+    RETURN, STRTRIM(SELF.YTicksFormatSTR)
 END
 
 
-FUNCTION CrabFigureDataStructure::rTicks
+FUNCTION CrabFigureDataStructure::rTicksTextArray
     IF N_ELEMENTS(*(SELF.RTicksTextArray)) EQ 0 THEN RETURN, !NULL
     RETURN, (*(SELF.RTicksTextArray))
 END
@@ -1870,6 +2085,18 @@ END
 FUNCTION CrabFigureDataStructure::rTicksFormat
     IF STRTRIM(SELF.RTicksFormatSTR,2) EQ '' THEN RETURN, !NULL
     RETURN, STRTRIM(SELF.RTicksFormatSTR)
+END 
+    
+    
+FUNCTION CrabFigureDataStructure::xMajor
+    IF SELF.XMajor LE 0 THEN RETURN, !NULL
+    RETURN, SELF.XMajor
+END
+
+
+FUNCTION CrabFigureDataStructure::yMajor
+    IF SELF.YMajor LE 0 THEN RETURN, !NULL
+    RETURN, SELF.YMajor
 END
 
 
@@ -2034,9 +2261,9 @@ END
 FUNCTION CrabFigureDataStructure::cTitleCharSize
     IF SELF.CTitleCharSizeF LE 0 THEN RETURN, !NULL
     RETURN, SELF.CTitleCharSizeF
-END
-
-
+END 
+    
+    
 FUNCTION CrabFigureDataStructure::colorBarCharThick
     IF SELF.ColBarCharThick LE 0 THEN RETURN, !NULL
     RETURN, SELF.ColBarCharThick
@@ -2046,6 +2273,28 @@ END
 FUNCTION CrabFigureDataStructure::colorBarCharSize
     IF SELF.ColBarCharSizeF LE 0 THEN RETURN, !NULL
     RETURN, SELF.ColBarCharSizeF
+END
+
+
+FUNCTION CrabFigureDataStructure::legendCharThick
+    IF SELF.LegendCharThick LE 0 THEN RETURN, !NULL
+    RETURN, SELF.LegendCharThick
+END
+
+
+FUNCTION CrabFigureDataStructure::legendCharSize
+    IF SELF.LegendCharSizeF LE 0 THEN RETURN, !NULL
+    RETURN, SELF.LegendCharSizeF
+END 
+    
+    
+FUNCTION CrabFigureDataStructure::legendPosition, xory
+    IF N_ELEMENTS(xory) EQ 1 THEN BEGIN
+        IF xory EQ 0 THEN RETURN, SELF.LegendPositionR[xory]
+        IF xory EQ 1 THEN RETURN, SELF.LegendPositionR[xory]
+        IF xory NE 0 AND xory NE 1 THEN RETURN, !NULL
+    ENDIF
+    RETURN, SELF.LegendPositionR
 END
 
 
@@ -2131,6 +2380,8 @@ PRO CrabFigureDataStructure::CLEANUP
     PTR_FREE, SELF.Polylines
     PTR_FREE, SELF.XTicksTextArray
     PTR_FREE, SELF.YTicksTextArray
+    PTR_FREE, SELF.XTicksValueArray
+    PTR_FREE, SELF.YTicksValueArray
     PTR_FREE, SELF.RTicksTextArray
 ;   IF STRMATCH(!D.NAME,'*PS*',/F) THEN SELF->finishPS
     RETURN
@@ -2141,13 +2392,14 @@ PRO CrabFigureDataStructure__DEFINE
     VOID = { CrabFigureDataStructure, DataPoints:PTR_NEW(),  $
                                       Annotations:PTR_NEW(), $
                                       Polylines:PTR_NEW(),   $
-                                      TitleText:'',      TitleCharThick:3.0,  TitleCharSizeF:2.0,  TitlePositionR:[0.5,0.85], $
-                                      XTitleText:'',    XTitleCharThick:2.5, XTitleCharSizeF:2.2, XTitleAlignment:0.5, $ ; title char size charsize char thick charthick 
-                                      YTitleText:'',    YTitleCharThick:2.5, YTitleCharSizeF:2.2, YTitleAlignment:0.5, $
-                                      RTitleText:'',    RTitleCharThick:2.5, RTitleCharSizeF:2.2, RTitleAlignment:0.5, $
-                                      CTitleText:'',    CTitleCharThick:1.2, CTitleCharSizeF:0.8, CTitlePositionR:[0.891,0.680], $
-                                                        ColBarCharThick:1.2, ColBarCharSizeF:0.8, ColorBarPosRect:[0.872,0.305,0.91,0.65], $
+                                      TitleText:'',      TitleCharThick:3.0,  TitleCharSizeF:1.0D,  TitlePositionR:[0.5,0.85], $
+                                      XTitleText:'',    XTitleCharThick:2.5, XTitleCharSizeF:1.0D, XTitleAlignment:0.5, $ ; title char size charsize char thick charthick 
+                                      YTitleText:'',    YTitleCharThick:2.5, YTitleCharSizeF:1.0D, YTitleAlignment:0.5, $
+                                      RTitleText:'',    RTitleCharThick:2.5, RTitleCharSizeF:1.0D, RTitleAlignment:0.5, $
+                                      CTitleText:'',    CTitleCharThick:1.0, CTitleCharSizeF:1.0D, CTitlePositionR:[0.891,0.680], $
+                                                        ColBarCharThick:1.0, ColBarCharSizeF:1.0D, ColorBarPosRect:[0.872,0.305,0.91,0.65], $
                                                         ColBarFormatSTR:'',  $
+                                                        LegendCharThick:1.0, LegendCharSizeF:1.0D, LegendPositionR:[0.225,0.775], $
                                       XUnits:'',        $
                                       YUnits:'',        $
                                       XRange:[0.D,0.D], $
@@ -2157,15 +2409,17 @@ PRO CrabFigureDataStructure__DEFINE
                                       XStyle:0,         $
                                       YStyle:0,         $
                                       RStyle:9,         $
-                                      XTicksTextArray:PTR_NEW(), XTicksCharThick:1.0, XTicksCharSizeF:2.0, $
-                                                                 XTicksAlignment:0.5, XTicksRotationF:0.0, $
-                                                                 XTicksFormatSTR:'',                       $
-                                      YTicksTextArray:PTR_NEW(), YTicksCharThick:1.0, YTicksCharSizeF:2.0, $
-                                                                 YTicksAlignment:0.5, YTicksRotationF:0.0, $
-                                                                 YTicksFormatSTR:'',                       $
-                                      RTicksTextArray:PTR_NEW(), RTicksCharThick:1.0, RTicksCharSizeF:2.0, $
-                                                                 RTicksAlignment:0.5, RTicksRotationF:0.0, $
-                                                                 RTicksFormatSTR:'',                       $
+                                      XTicksTextArray :PTR_NEW(), XTicksCharThick:1.0, XTicksCharSizeF:1.5, $
+                                      XTicksValueArray:PTR_NEW(), XTicksAlignment:0.5, XTicksRotationF:0.0, $
+                                                                  XTicksFormatSTR:'',                       $
+                                      YTicksTextArray :PTR_NEW(), YTicksCharThick:1.0, YTicksCharSizeF:1.5, $
+                                      YTicksValueArray:PTR_NEW(), YTicksAlignment:0.5, YTicksRotationF:0.0, $
+                                                                  YTicksFormatSTR:'',                       $
+                                      RTicksTextArray :PTR_NEW(), RTicksCharThick:1.0, RTicksCharSizeF:1.5, $
+                                                                  RTicksAlignment:0.5, RTicksRotationF:0.0, $
+                                                                  RTicksFormatSTR:'',                       $
+                                      XMajor:0,         $
+                                      YMajor:0,         $
                                       XMinor:9,         $
                                       YMinor:9,         $
                                       XIntev:0.0D,      $

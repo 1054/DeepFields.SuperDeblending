@@ -2,7 +2,7 @@
 ; CrabStringCurrentTime --- 
 ;                 PRINT, CrabStringCurrentTime()
 ; ------------------------------------------------------------------------------------------------------
-FUNCTION CrabStringCurrentTime, UTC=UTC, Location=Location, Precision=Precision
+FUNCTION CrabStringCurrentTime, UTC=UTC, Location=Location, Precision=Precision, Compress=Compress
     IF N_ELEMENTS(Precision) EQ 0 THEN PrecOffset = 0 ELSE PrecOffset = Precision+1
     CurrentDateTime = TIMESTAMP(/UTC)
     CurrentDate = STRMID(CurrentDateTime,0,STRPOS(CurrentDateTime,'T'))
@@ -21,6 +21,8 @@ FUNCTION CrabStringCurrentTime, UTC=UTC, Location=Location, Precision=Precision
         CurrentTime = STRING(FORMAT='(I0)',FIX(CurrentHour)+FIX(UTC)) + CurrentTime
     ENDELSE
     OutputDateTime = CurrentDate + ' ' + CurrentTime + ' ' + STRING(FORMAT='("UTC",I+0)',UTC)
+    ; Compress the string
+    IF KEYWORD_SET(Compress) THEN OutputDateTime = CrabStringClean(CurrentDate,TextsToRemove=['-']) + '.' + CrabStringClean(CurrentTime,TextsToRemove=[':']) + '.' + STRING(FORMAT='("UTC",I+0)',UTC)
     RETURN, OutputDateTime
     ; TODO
     ; Another method

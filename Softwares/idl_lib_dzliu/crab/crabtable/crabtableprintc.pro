@@ -10,7 +10,7 @@
 ; 
 ; 
 PRO CrabTablePrintC, FilePathOrFileUnit, Column1, Column2, Column3, Column4, Column5, Column6, Column7, Column8, $
-                                                           Format=Format, APPEND=APPEND, Header=Header
+                                                           Format=Format, Separator=Separator, APPEND=APPEND, Header=Header
     
     ; check input arguments (keywords are not included in N_PARAMS())
     IF N_PARAMS() LE 1 THEN BEGIN
@@ -186,6 +186,10 @@ PRO CrabTablePrintC, FilePathOrFileUnit, Column1, Column2, Column3, Column4, Col
         ENDIF ELSE BEGIN
             THeader = THeader + STRING(FORMAT='(A'+CCFsign[i-1]+CCFwide[i-1]+')',CCFhead[i-1])
         ENDELSE
+        ; add Separator
+        IF N_ELEMENTS(Separator) GT 0 AND i NE N_PARAMS()-1 THEN BEGIN
+            THeader = THeader + Separator
+        ENDIF
     ENDFOR
     
     IF FilePathOrFileUnit NE '' THEN BEGIN
@@ -217,6 +221,13 @@ PRO CrabTablePrintC, FilePathOrFileUnit, Column1, Column2, Column3, Column4, Col
         CColumn = STRING(FORMAT='('+CCFcode[i-1]+CCFsign[i-1]+CCFwide[i-1]+CCFprec[i-1]+')',CColumn)
         IF N_ELEMENTS(CColumn) LT MaxRowCount THEN BEGIN
             CColumn = [CColumn,MAKE_ARRAY(MaxRowCount-N_ELEMENTS(CColumn),/STRING,VALUE=STRING(FORMAT='('+'A'+CCFwide[i-1]+')',' '))]
+        ENDIF
+        ; 
+        ; Add Separator
+        IF N_ELEMENTS(Separator) GT 0 AND i NE N_PARAMS()-1 THEN BEGIN
+            FOR k=0,N_ELEMENTS(CColumn)-1 DO BEGIN
+                CColumn[k] = CColumn[k] + Separator
+            ENDFOR
         ENDIF
         ;
         ; Save column context

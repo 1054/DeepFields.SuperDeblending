@@ -75,8 +75,15 @@ go
     set Mstar_Salpeter = MassX # log
     set Mstar_Chabrier = MassX>0? MassX-lg(1.73) : -99 # converting to Chabrier IMF for SFR 
                                        #lg(1.4) # http://www.eso.org/~hkuntsch/papers/MNRAS_432_492.pdf
-    set Mstar = MassX>0? 10**Mstar_Chabrier : -99
     echo prepared data array: Mstar, Mstar_Chabrier (log10), Mstar_Salpeter (log10)
+    # 
+    # PATCH Mstar
+    # -- use the Mstar from dzliu SED best fit
+    set Mstar_Chabrier = (id==9710)  ? 10.359 : Mstar_Chabrier # /home/dzliu/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016/S03_Subsample_Highz/list_z_gt_3_source_seds/z_5.251_id_9710/bestfit_Mstar_range_log10.txt
+    set Mstar_Chabrier = (id==1168)  ? 9.998  : Mstar_Chabrier # /home/dzliu/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016/S03_Subsample_Highz/list_z_gt_3_source_seds/z_3.201_id_1168/bestfit_Mstar_range_log10.txt
+    set Mstar_Chabrier = (id==12851) ? 9.037  : Mstar_Chabrier # /home/dzliu/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016/S03_Subsample_Highz/list_z_gt_3_source_seds/z_3.601_id_12851/bestfit_Mstar_range_log10.txt
+    set Mstar_Chabrier = (id==16332) ? 10.243 : Mstar_Chabrier # /home/dzliu/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016/S03_Subsample_Highz/list_z_gt_3_source_seds/z_3.351_id_16332/bestfit_Mstar_range_log10.txt
+    set Mstar = Mstar_Chabrier>0? 10**Mstar_Chabrier : -99
     # 
     # calc sSFR
     set SFR = xfSFR
@@ -87,7 +94,8 @@ go
     set eSFR = (eSFR<=0 || snrIRMM<=0) ? xfSFR : eSFR #<FIXED><20160306><dzliu># i.e. ID13974 specz=5.6 but eSFR=0
     set SFR = (SFR<=1e-5) ? 0.0 : SFR  #<FIXED><20160306><dzliu># i.e. ID7205 24um S/N=20 but snrIR=0
     set snrSFR = vecSNR(SFR,eSFR)
-    set sSFR = MassX>0? xfSFR / Mstar * 1e9 : -99
+    #set sSFR = MassX>0? xfSFR / Mstar * 1e9 : -99 #<20160515># Mstar -- use the Mstar from dzliu SED best fit
+    set sSFR = Mstar>0? xfSFR / Mstar * 1e9 : -99
     echo prepared data array: SFR, eSFR, sSFR
     # 
     # calc starburstiness

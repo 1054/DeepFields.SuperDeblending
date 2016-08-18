@@ -42,9 +42,22 @@ FUNCTION CrabImageCrop, InputFitsOrImage, NewSize, Extension=Extension, CornerXY
         IF N_ELEMENTS(CornerIJ) NE 4 THEN BEGIN
             MESSAGE, "The input CornerXY should contain 4 items: x1,x2,y1,y2, in physical coordinate, with number starting from 1."
         ENDIF ELSE BEGIN
-            CornerIJ = ROUND(CornerIJ)
-            FractiXY = [0.0,0.0]
+            ; swap if input range is inversed ; -- modified since 20160723
+            IF CornerIJ[0] GT CornerIJ[1] THEN BEGIN
+                TempI = CornerIJ[0]
+                CornerIJ[0] = CornerIJ[1]
+                CornerIJ[1] = TempI
+            ENDIF
+            IF CornerIJ[2] GT CornerIJ[3] THEN BEGIN
+                TempJ = CornerIJ[2]
+                CornerIJ[2] = CornerIJ[3]
+                CornerIJ[3] = TempJ
+            ENDIF
+            ; 
+            FractiIJ = DOUBLE(CornerIJ)-ROUND(CornerIJ) ; -- modified since 20160723
+            FractiXY = [FractiIJ[0],FractiIJ[2]] ; x1, y1 -- [0.0,0.0] -- modified since 20160723
             CentreXY = [(DOUBLE(CornerIJ[0])+DOUBLE(CornerIJ[1]))/2.0,(DOUBLE(CornerIJ[2])+DOUBLE(CornerIJ[3]))/2.0]
+            CornerIJ = ROUND(CornerIJ)
             ; Width_IJ = CornerIJ[1] - CornerIJ[0]
             ; Hight_IJ = CornerIJ[3] - CornerIJ[2]
         ENDELSE
@@ -167,6 +180,7 @@ FUNCTION CrabImageCrop, InputFitsOrImage, NewSize, Extension=Extension, CornerXY
             IF LY LT  0 THEN LEY = -LY     ELSE LEY = 0 ; Lower Excess Y
             IF UX GE NX THEN UEX = UX-NX+1 ELSE UEX = 0 ; Upper Excess X
             IF UY GE NY THEN UEY = UY-NY+1 ELSE UEY = 0 ; Upper Excess Y
+            ;<DEBUG>;PRINT, STRING(FORMAT='(I0)',(LX+LEX)),":",STRING(FORMAT='(I0)',(UX-UEX)),",",STRING(FORMAT='(I0)',(LY+LEY)),":",STRING(FORMAT='(I0)',(UY-UEY))," NX=",STRING(FORMAT='(I0)',NX)," NY=",STRING(FORMAT='(I0)',NY)
             InUseImage = InputImage[(LX+LEX):(UX-UEX), (LY+LEY):(UY-UEY)]
         ENDIF ELSE BEGIN
             MESSAGE, 'CrabImageCrop: Read fits error! Please check this!'

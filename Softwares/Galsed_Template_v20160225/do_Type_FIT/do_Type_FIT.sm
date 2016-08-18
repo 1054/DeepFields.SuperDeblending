@@ -33,6 +33,12 @@ go 02
         define fsig$band 2.48 # 1-sigma flux from 500um simulation 2.48 mJy
         define fmax$band 15.00
       }
+      if('$1'=='850') {
+        define band 850
+        define fcut$band $2 #  # cutting f+2*df
+        define fsig$band 2.00 # 1-sigma flux from S2CLS 850um paper http://arxiv.org/pdf/1607.03904v1.pdf Figure 5
+        define fmax$band 20.00
+      }
       if('$1'=='1160') {
         define band 1160
         define fcut$band $2 # 0.7?  # cutting f+2*df
@@ -40,7 +46,7 @@ go 02
         define fmax$band 3.00
       }
       if(!$?band) {
-        print 'Error! Input \"$1\" must be one of 100 160 250 350 500 1160\n' {}
+        print 'Error! Input \"$1\" must be one of 100 160 250 350 500 850 1160\n' {}
         define aaa 0
         define aaa ?
         echo ""

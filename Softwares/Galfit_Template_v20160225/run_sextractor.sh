@@ -182,8 +182,8 @@ fi
 # 
 # Run do_sextract_mask.pro
 # 
-echo "cd into $(dirname ${BASH_SOURCE})/run_sextractor/"; echo "idl -e 'do_SExtract_Mask, FITPhoto = \"$GALFIT_RESULTS_MAP\", RMSPhoto = \"$GALFIT_FITTING_RMS\"'"; echo "-----------------------------------------------------------------------------"
-bash -c "cd $(dirname ${BASH_SOURCE})/run_sextractor/; idl -e 'do_SExtract_Mask, FITPhoto = \"$GALFIT_RESULTS_MAP\", RMSPhoto = \"$GALFIT_FITTING_RMS\"'"; echo "-----------------------------------------------------------------------------"
+echo "cd into $(dirname ${BASH_SOURCE})/run_sextractor/"; echo "idlsg -e 'do_SExtract_Mask, FITPhoto = \"$GALFIT_RESULTS_MAP\", RMSPhoto = \"$GALFIT_FITTING_RMS\"'"; echo "-----------------------------------------------------------------------------"
+bash -c "cd $(dirname ${BASH_SOURCE})/run_sextractor/; idlsg -e 'do_SExtract_Mask, FITPhoto = \"$GALFIT_RESULTS_MAP\", RMSPhoto = \"$GALFIT_FITTING_RMS\"'"; echo "-----------------------------------------------------------------------------"
 
 # 
 # Show ds9

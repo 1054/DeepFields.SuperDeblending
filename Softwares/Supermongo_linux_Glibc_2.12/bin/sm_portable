@@ -22,7 +22,9 @@ echo "macro		/tmp/sm.$SMDATE/macro/"        >> "/tmp/sm.$SMDATE/.sm"
 #echo "macro		$SMPATH/lib/sm/macro/"     >> "/tmp/sm.$SMDATE/.sm"
 chmod 777                                        "/tmp/sm.$SMDATE/.sm"
 
-ln -fs "$SMPATH/lib/sm/macro" "/tmp/sm.$SMDATE/macro" 2>/dev/null
+#ln -fs "$SMPATH/lib/sm/macro" "/tmp/sm.$SMDATE/macro" 2>/dev/null
+cp -rL "$SMPATH/lib/sm/macro" "/tmp/sm.$SMDATE/" 2>/dev/null
+cp "$SMPATH/../Supermongo_macro/"*.sm "/tmp/sm.$SMDATE/macro/" 2>/dev/null
 ln -fs "$SMPATH/lib/sm/help" "/tmp/sm.$SMDATE/help" 2>/dev/null
 if [[ -f $SMPATH/bin/sm ]]; then
 $SMPATH/bin/sm -f "/tmp/sm.$SMDATE/.sm" $*

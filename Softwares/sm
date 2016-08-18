@@ -1,6 +1,15 @@
 #!/bin/bash
 #
 
+#
+# readlink for Mac (because Mac readlink does not accept "-f" option)
+if [[ $(uname) == *"Darwin"* ]]; then
+    function readlink() {
+        if [[ $# -gt 1 ]]; then if [[ "$1" == "-f" ]]; then shift; fi; fi
+        DIR=$(echo "${1%/*}"); (cd "$DIR" && echo "$(pwd -P)/$(basename ${1})")
+    }
+fi
+
 type readlink > /dev/null
 type dirname > /dev/null
 

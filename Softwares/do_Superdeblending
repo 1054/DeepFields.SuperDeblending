@@ -2,6 +2,8 @@
 #
 
 
+echo "#!/bin/bash"
+echo "# "
 echo ""
 echo "# This is the Superdeblending Toolkit for deep field far-infrared photometry."
 echo "# We present the bash code below for the data processing at the given band. "
@@ -249,68 +251,71 @@ echo "#" GALFIT_FITTING_PSF="$GALFIT_FITTING_PSF"
 # 
 if [[ x"$Superdeblending_Field" == x"" || x"$Superdeblending_Band" == x"" || x"$Superdeblending_Step" == x"" || x"$Superdeblending_Date" == x"" || x"$GALFIT_CATALOG_INP" == x"" ]]; then
     echo ""
+    echo "Aim: "
+    echo "  This code will generate the code for Superdeblending Galsub, Galfit or Galsed running steps. "
+    echo ""
     echo "Usage: "
-    echo " do_Superdeblending -field goodsn \\"
-    echo "                    -band 250 \\"
-    echo "                    -date 201601 \\"
-    echo "                    -step Galfit \\"
-    echo "                    -catalog-input RadioOwenMIPS24_priors_XXX.txt \\"
-    echo "                    -catalog-output RadioOwenMIPS24_priors_XXX_w250.txt \\"
-    echo "                    -catalog-additional Residual_priors_Band250_Revised.txt \\"
-    echo "                    -fitresults-flux results_250_201601_WithAddSources_Pass1__fluxes.txt \\"
-    echo "                    -sedpredict SED_predictions_250.txt -detect-thresh 3.0"
+    echo "  do_Superdeblending -field goodsn \\"
+    echo "                     -band 250 \\"
+    echo "                     -date 201601 \\"
+    echo "                     -step Galfit \\"
+    echo "                     -catalog-input RadioOwenMIPS24_priors_XXX.txt \\"
+    echo "                     -catalog-output RadioOwenMIPS24_priors_XXX_w250.txt \\"
+    echo "                     -catalog-additional Residual_priors_Band250_Revised.txt \\"
+    echo "                     -fitresults-flux results_250_201601_WithAddSources_Pass1__fluxes.txt \\"
+    echo "                     -sedpredict SED_predictions_250.txt -detect-thresh 3.0"
     echo ""
-    echo "Example 1 galfit fitting without additional sources: "
-    echo " do_Superdeblending -field goodsn \\"
-    echo "                    -band 160 \\"
-    echo "                    -date 201601 \\"
-    echo "                    -step Galfit_Band160 \\"
-    echo "                    -catalog-input Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band100.txt \\"
-    echo "                    -catalog-out Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt \\"
-    echo "                    -sedpredict Galsed_BeforeBand160/do_Type_FIT/SED_predictions_160.txt"
+    echo "* Example 1 Run galsub and then galfit fitting without additional sources: "
+    echo "  do_Superdeblending -field goodsn \\"
+    echo "                     -band 160 \\"
+    echo "                     -date 201601 \\"
+    echo "                     -step Galfit_Band160 \\"
+    echo "                     -catalog-input Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band100.txt \\"
+    echo "                     -catalog-out Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt \\"
+    echo "                     -sedpredict Galsed_BeforeBand160/do_Type_FIT/SED_predictions_160.txt"
     echo ""
-    echo "Example 2 galfit fitting with additional sources: "
-    echo " do_Superdeblending -field goodsn \\"
-    echo "                    -band 160 \\"
-    echo "                    -date 201601 \\"
-    echo "                    -step Galfit_Band160_WithAddSources_Pass1 \\"
-    echo "                    -catalog-input Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band100.txt \\"
-    echo "                    -catalog-out Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt \\"
-    echo "                    -catalog-add Galfit_Band160/run_sextractor/Residual_priors_160_Trial.txt \\"
-    echo "                    -sedpredict Galsed_BeforeBand160/do_Type_FIT/SED_predictions_160.txt"
+    echo "* Example 2 Run galsub and then galfit fitting with additional sources: "
+    echo "  do_Superdeblending -field goodsn \\"
+    echo "                     -band 160 \\"
+    echo "                     -date 201601 \\"
+    echo "                     -step Galfit_Band160_WithAddSources_Pass1 \\"
+    echo "                     -catalog-input Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band100.txt \\"
+    echo "                     -catalog-out Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt \\"
+    echo "                     -catalog-add Galfit_Band160/run_sextractor/Residual_priors_160_Trial.txt \\"
+    echo "                     -sedpredict Galsed_BeforeBand160/do_Type_FIT/SED_predictions_160.txt"
     echo ""
-    echo " do_Superdeblending -field goodsn \\"
-    echo "                    -band 160 \\"
-    echo "                    -date 201601 \\"
-    echo "                    -step Galfit_Band160_WithAddSources_Pass2 \\"
-    echo "                    -catalog-input Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band100.txt \\"
-    echo "                    -catalog-out Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt \\"
-    echo "                    -catalog-add Galfit_Band160_WithAddSources_Pass1/run_sextractor_postanalysis/Residual_priors_160_Revised.txt \\"
-    echo "                    -sedpredict Galsed_BeforeBand160/do_Type_FIT/SED_predictions_160.txt"
+    echo "  do_Superdeblending -field goodsn \\"
+    echo "                     -band 160 \\"
+    echo "                     -date 201601 \\"
+    echo "                     -step Galfit_Band160_WithAddSources_Pass2 \\"
+    echo "                     -catalog-input Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band100.txt \\"
+    echo "                     -catalog-out Galsed_BeforeBand160/RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt \\"
+    echo "                     -catalog-add Galfit_Band160_WithAddSources_Pass1/run_sextractor_postanalysis/Residual_priors_160_Revised.txt \\"
+    echo "                     -sedpredict Galsed_BeforeBand160/do_Type_FIT/SED_predictions_160.txt"
     echo ""
-    echo "Example 3 SED fitting and prediction: "
-    echo " do_Superdeblending -field goodsn \\"
-    echo "                    -band 250 \\"
-    echo "                    -date 201601 \\"
-    echo "                    -step Galsed_BeforeBand250 \\"
-    echo "                    -catalog-input Galfit_Band160_WithAddSources_Pass2/RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt \\"
-    echo "                    -sedpredict Galfit_Band160_WithAddSources_Pass2/SED_predictions_160.txt \\"
-    echo "                    -previous-sed-fitting Galsed_BeforeBand160 \\"
-    echo "                    -previous-sed-results Galsed_BeforeBand160/ResLMT*Band100.txt"
+    echo "* Example 3 Run SED fitting and then prediction: "
+    echo "  do_Superdeblending -field goodsn \\"
+    echo "                     -band 250 \\"
+    echo "                     -date 201601 \\"
+    echo "                     -step Galsed_BeforeBand250 \\"
+    echo "                     -catalog-input Galfit_Band160_WithAddSources_Pass2/RadioOwenMIPS24_priors_dzliu_20160128_Band160.txt \\"
+    echo "                     -sedpredict Galfit_Band160_WithAddSources_Pass2/SED_predictions_160.txt \\"
+    echo "                     -previous-sed-fitting Galsed_BeforeBand160 \\"
+    echo "                     -previous-sed-results Galsed_BeforeBand160/ResLMT*Band100.txt"
     echo ""
-    echo "Example 4 SED fitting: "
-    echo " do_Superdeblending -field goodsn \\"
-    echo "                    -band 1160 \\"
-    echo "                    -date 201601 \\"
-    echo "                    -step galsed_after_galfit \\"
-    echo "                    -catalog-input Galfit_Band1160_WithAddSources_Pass2/RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt \\"
-    echo "                    -sedpredict Galfit_Band1160_WithAddSources_Pass2/SED_predictions_1160.txt \\"
-    echo "                    -previous-sed-fitting Galsed_BeforeBand1160 \\"
-    echo "                    -previous-sed-results Galsed_BeforeBand1160/ResLMT*Band500.txt"
+    echo "* Example 4 Run SED fitting and then prediction: "
+    echo "  do_Superdeblending -field goodsn \\"
+    echo "                     -band 1160 \\"
+    echo "                     -date 201601 \\"
+    echo "                     -step galsed_after_galfit \\"
+    echo "                     -catalog-input Galfit_Band1160_WithAddSources_Pass2/RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt \\"
+    echo "                     -sedpredict Galfit_Band1160_WithAddSources_Pass2/SED_predictions_1160.txt \\"
+    echo "                     -previous-sed-fitting Galsed_BeforeBand1160 \\"
+    echo "                     -previous-sed-results Galsed_BeforeBand1160/ResLMT*Band500.txt"
     echo ""
     echo "Note: "
     echo " do_Superdeblending can only deal with the GOODSN field for now."
-    echo " do_Superdeblending can only deal with band 100 160 250 350 500 1160 24 16 20cm for the deep field goodsn."
+    echo " do_Superdeblending can only deal with band 100 160 250 350 500 850 1160 24 16 20cm for the deep field goodsn."
     echo ""
     exit
 fi
@@ -337,6 +342,7 @@ if [[ x"$Superdeblending_Field" == x"GOODSN" || \
           "$Superdeblending_Band" == "250" || \
           "$Superdeblending_Band" == "350" || \
           "$Superdeblending_Band" == "500" || \
+          "$Superdeblending_Band" == "850" || \
           "$Superdeblending_Band" == "1160" || \
           "$Superdeblending_Band" == "16" || \
           "$Superdeblending_Band" == "24" || \
@@ -344,7 +350,7 @@ if [[ x"$Superdeblending_Field" == x"GOODSN" || \
         echo ""
     else
         echo " Error..."
-        echo " do_Superdeblending can only deal with band 100 160 250 350 500 1160 24 16 20cm for the deep field goodsn."
+        echo " do_Superdeblending can only deal with band 100 160 250 350 500 850 1160 24 16 20cm for the deep field goodsn."
         echo ""
         exit
     fi
@@ -524,18 +530,45 @@ if [[ "${Superdeblending_Step^^}" == "GALFIT"* || \
     #echo "#define SciPhoto_$Superdeblending_Band"
     #echo "#define RmsPhoto_$Superdeblending_Band"
     #echo "#define PsfPhoto_$Superdeblending_Band"
+    if [[ x"$GALFIT_FITTING_SCI" == x ]]; then
 sm << EOF
     load astroPhot.sm
     set_${Superdeblending_Field}_photometry_constants_$Superdeblending_Band
     echo ln -fs ../\$SciPhoto_${Superdeblending_Band}.fits
-    echo ln -fs ../\$RmsPhoto_${Superdeblending_Band}.fits
-    echo ln -fs ../\$PsfPhoto_${Superdeblending_Band}.fits
     !echo \$SciPhoto_${Superdeblending_Band}.fits > aaa_input_photo_sci
-    !echo \$RmsPhoto_${Superdeblending_Band}.fits > aaa_input_photo_rms
-    !echo \$PsfPhoto_${Superdeblending_Band}.fits > aaa_input_photo_psf
     !echo \$SciPhoto_${Superdeblending_Band}\"\"_subfaintDL.fits > aaa_input_photo_sub
+EOF
+    else
+      echo "ln -fs $(echo ../$GALFIT_FITTING_SCI | sed -e 's/\.fits$//g').fits"
+      echo "$(basename $GALFIT_FITTING_SCI | sed -e 's/\.fits$//g').fits" > aaa_input_photo_sci
+      echo "$(basename $GALFIT_FITTING_SCI | sed -e 's/\.fits$//g')_subfaintDL.fits" > aaa_input_photo_sub
+    fi
+    # 
+    if [[ x"$GALFIT_FITTING_RMS" == x ]]; then
+sm << EOF
+    load astroPhot.sm
+    set_${Superdeblending_Field}_photometry_constants_$Superdeblending_Band
+    echo ln -fs ../\$RmsPhoto_${Superdeblending_Band}.fits
+    !echo \$RmsPhoto_${Superdeblending_Band}.fits > aaa_input_photo_rms
+EOF
+    else
+      echo "ln -fs $(echo ../$GALFIT_FITTING_RMS | sed -e 's/\.fits$//g').fits"
+      echo "$(basename $GALFIT_FITTING_RMS | sed -e 's/\.fits$//g').fits" > aaa_input_photo_rms
+    fi
+    # 
+    if [[ x"$GALFIT_FITTING_PSF" == x ]]; then
+sm << EOF
+    load astroPhot.sm
+    set_${Superdeblending_Field}_photometry_constants_$Superdeblending_Band
+    echo ln -fs ../\$PsfPhoto_${Superdeblending_Band}.fits
+    !echo \$PsfPhoto_${Superdeblending_Band}.fits > aaa_input_photo_psf
     quit
 EOF
+    else
+      echo "ln -fs $(echo ../$GALFIT_FITTING_PSF | sed -e 's/\.fits$//g').fits"
+      echo "$(basename $GALFIT_FITTING_PSF | sed -e 's/\.fits$//g').fits" > aaa_input_photo_psf
+    fi
+    # 
     GALFIT_IMPHOTO_SCI=$(cat aaa_input_photo_sci)
     GALFIT_IMPHOTO_RMS=$(cat aaa_input_photo_rms)
     GALFIT_IMPHOTO_PSF=$(cat aaa_input_photo_psf)
@@ -557,6 +590,23 @@ EOF
         exit
     fi
 fi
+
+
+# 
+# 
+# 
+if [[ "${Superdeblending_Step^^}" == "GALSIM"* ]]; then
+    if [[ ! -f "n_mips_1_s1_v0_37_rms_ED.fits" ]]; then 
+        echo "***************************************************************************************************************************"
+        echo "pwd: $(pwd)/"
+        ls "n_mips_1_s1_v0_37_rms_ED.fits"
+        echo "Error! The \"n_mips_1_s1_v0_37_rms_ED.fits\" file could not be found under $(readlink -f .)/!"
+        echo "***************************************************************************************************************************"
+    else
+        echo "ln -fs ../n_mips_1_s1_v0_37_rms_ED.fits"
+    fi
+fi
+
 
 
 # 
@@ -584,12 +634,16 @@ if [[ "${Superdeblending_Step^^}" == "GALFIT"* ]]; then
     if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then 
         echo "do_Galsub $Superdeblending_Band $Superdeblending_Date \\"
         if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then echo "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
+        if [[ "$GALFIT_IMPHOTO_SUB"x != ""x ]]; then echo "          -fitsname $(basename $GALFIT_IMPHOTO_SUB) \\"; fi
+        if [[ "$GALFIT_FITTING_SCI"x != ""x ]]; then echo "          -fitsname-sci $(basename $GALFIT_FITTING_SCI) \\"; fi
+        if [[ "$GALFIT_FITTING_RMS"x != ""x ]]; then echo "          -fitsname-rms $(basename $GALFIT_FITTING_RMS) \\"; fi
+        if [[ "$GALFIT_FITTING_PSF"x != ""x ]]; then echo "          -fitsname-psf $(basename $GALFIT_FITTING_PSF) \\"; fi
         if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then echo "          -sedpredict $(basename $GALSED_PREDICT_SED)"; fi
     else 
         echo ""; echo "# *******"; echo "# Warning! No SED prediction file given! No need to do_Galsub?!"; GALFIT_IMPHOTO_SUB=""; echo "# *******"
     fi
     echo ""
-    echo "do_Galfit $Superdeblending_Band $Superdeblending_Date \\"
+    echo "do_Galfit $Superdeblending_Band $Superdeblending_Date \\"echo
     if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then echo "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
     if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then echo "          -sedpredict $(basename $GALSED_PREDICT_SED) \\"; fi
     if [[ "$GALFIT_IMPHOTO_SUB"x != ""x ]]; then echo "          -fitsname $(basename $GALFIT_IMPHOTO_SUB) \\"; fi
@@ -708,6 +762,7 @@ fi
 # 
 if [[ "$Superdeblending_Band" == "100" || \
       "$Superdeblending_Band" == "160" || \
+      "$Superdeblending_Band" == "850" || \
       "$Superdeblending_Band" == "16" || \
       "$Superdeblending_Band" == "24" || \
       "$Superdeblending_Band" == "20cm" ]]; then

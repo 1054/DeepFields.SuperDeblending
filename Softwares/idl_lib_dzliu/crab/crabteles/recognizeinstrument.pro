@@ -6,7 +6,11 @@
 
 FUNCTION RecognizeInstrument, InputText
     S_Instrument = ""
-    SearchText = InputText
+    IF STRPOS(InputText,'/') GE 0 THEN BEGIN
+        SearchText = STRMID(InputText,STRPOS(InputText,'/',/REVERSE_SEARCH))
+    ENDIF ELSE BEGIN
+        SearchText = InputText
+    ENDELSE
     ; SearchText = CrabStringClean(InputText,TextsToRemove=['_',' '])
     ; IF S_Instrument EQ "" THEN IF STRMATCH(SearchText,'*ACS*F435W*',/FOLD_CASE) THEN S_Instrument = 'ACS'
     ; IF S_Instrument EQ "" THEN IF STRMATCH(SearchText,'*ACS*F606W*',/FOLD_CASE) THEN S_Instrument = 'ACS'

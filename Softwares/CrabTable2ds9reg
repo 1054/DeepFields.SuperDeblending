@@ -1,6 +1,6 @@
 #!/bin/bash
 if [[ $# -lt 1 ]]; then
-    echo "Usage: CrabTable2ds9reg scosmos_mips_24_GO3_200810.tbl ds9.scosmos_mips_24_GO3_200810.fk5.reg -id 1 -ra 2 -de 3 -note 5 -radius 1.3 -color green"
+    echo "Usage: CrabTable2ds9reg scosmos_mips_24_GO3_200810.tbl ds9.scosmos_mips_24_GO3_200810.fk5.reg -id 1 -ra 2 -de 3 -note 5 -radius 1.3 -color green [-image]"
     echo "       For example, if -note refers to spec-z column, then we will append the spec-z text to the id text, like \"GN20,4.055\"."
     exit
 else 

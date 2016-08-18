@@ -37,6 +37,11 @@ FUNCTION PrintValueWithError, ValueWithError, LOG=LOG, EXP=EXP, ShowAsExp=ShowAs
                        STRING(FORMAT=Format,       ValueWithError_Err)+'!N'
     ENDIF
     
+    ; <TODO> what if very big data?
+    IF Error GT Value*1E6 THEN BEGIN
+        Error = !VALUES.D_NAN
+    ENDIF
+    
     FormCode1 = 'F0.2'
     FormCode2 = 'F0.2'
     

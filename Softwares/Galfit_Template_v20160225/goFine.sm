@@ -626,6 +626,7 @@ Fit_XXX
 			}
 		} else {                                ###<Modified><DZLIU>### doParallel
 		}
+		echo Doing Fit_XXX
 		###<DZLIU><Modified>### !\rm galfit.*
 		###<DZLIU><Modified>### !\rm tmp*fits
 		###<DZLIU><Modified>### !\rm HSO_$imax".CONSTRAINTS"
@@ -637,7 +638,7 @@ Fit_XXX
 
 		xdo_sizes
 		macro read goSimu.sm gPriors
-		if('$imax' != '20cm' ) {noise_XXX} else {echo 20cm don't do noise}
+		if('$imax' != '20cm' ) {noise_XXX} else {echo 20cm does not do noise}
 		#define aaa ?
 		if($fit_gaussian) {
 		set nxA = x$imax set nxB=y$imax
@@ -676,15 +677,16 @@ Fit_XXX
 		set Lx2 = x_pos+$f_buff+$g_buff set Lx2 = Lx2>=1 ? Lx2 : 1 set Lx2 = Lx2<=$imax_xsize ? Lx2 : $imax_xsize
 		set Ly1 = y_pos-$f_buff-$g_buff set Ly1 = Ly1>=1 ? Ly1 : 1 set Ly1 = Ly1<=$imax_ysize ? Ly1 : $imax_ysize
 		set Ly2 = y_pos+$f_buff+$g_buff set Ly2 = Ly2>=1 ? Ly2 : 1 set Ly2 = Ly2<=$imax_ysize ? Ly2 : $imax_ysize
-
-
+		
+		
 		define runid 0
 		echo RUNS $(dimen(y_pos)*dimen(x_pos))
 		#define aaa ?
-
+		
+		
 		foreach xar yy {
 		foreach var ii {
-		set coo = y$imax <y_pos[$var] && y$imax >y_pos[$var-1] && x$imax <x_pos[$xar] && x$imax >x_pos[$xar-1] && noi$imax <$max_noise 
+		set coo = y$imax <y_pos[$var] && y$imax >y_pos[$var-1] && x$imax <x_pos[$xar] && x$imax >x_pos[$xar-1] && noi$imax <$max_noise
 		if(sum(coo)) {
 		set coo = y$imax <y_pos[$var]+$g_buff && y$imax >y_pos[$var-1]-$g_buff && x$imax <x_pos[$xar]+$g_buff && x$imax >x_pos[$xar-1]-$g_buff && noi$imax <$max_noise # allow for ext objects
 		define runid $($runid+1)
@@ -709,8 +711,8 @@ Fit_XXX
 		###<DZLIU><Modified>### 
 		echo $runid [$(x_pos[$xar-1]):$(x_pos[$xar]),$(y_pos[$var-1]):$(y_pos[$var])] [$(Lx1[$xar-1]):$(Lx2[$xar]),$(Ly1[$var-1]):$(Ly2[$var])] ($xar*$var=$($xar*$var)~/~$(dimen(y_pos)*dimen(x_pos)))
 		###<DZLIU><Modified>### 
-
-
+		
+		
 		define aa_file "HSO_$imax"".INPUT"
 		#print $aa_file 'A) $imax_name".fits" \n B) tmp.fits \n C) $imax_name_rms".fits" \n D) $imax_name_psf".fits" \n E) $psf_resampl \n F) none \n G) HSO_$imax"".CONSTRAINTS \n J) 0 \n K) 0.06   0.06 \n O) both \n P) 0 \n S) 0 \n' {}   # original always used version for galfit 2.0
 		print $aa_file 'A) $imax_name".fits" \n' {} 
@@ -723,7 +725,9 @@ Fit_XXX
 		print +$aa_file 'J) 0 \n K) 0.06   0.06 \n O) regular \n P) 0 \n \n' {}
 		print +$aa_file 'H) $(Lx1[$xar-1]) $(Lx2[$xar]) $(Ly1[$var-1]) $(Ly2[$var]) \n' {}
 		print +$aa_file 'I) $(5*($g_buff+$f_buff)) $(5*($g_buff+$f_buff)) \n' {} # convolution box size 
-
+		
+		!cat $aa_file
+		
 		# entering the objects to fit (and bckgrnd
 		set p1 = xx$imax set p2 = yy$imax set p3 =  mm$imax
 		set Xresi = Xfix1*0+1
@@ -1505,6 +1509,30 @@ xFit_500  00
 		
 		Fit_XXX
 		Rebuild_XXX
+
+xSet_850	define imax 850
+		define imax_name "S2CLS_GOODS-N_MF_FLUX_DR1"
+		define imax_name_rms "S2CLS_GOODS-N_MF_RMS_DR1"
+		define imax_name_psf "S2CLS_SCUBA2_850um_dzliu_DoubleGaussian_PSF"
+		define psf_resampl   1
+		if(!$?xdate) {define xdate "Undefined"}
+		
+		define mag_toofaint 20
+		define max_noise 1.5   # DZLIU 20160719
+		define mag_start 5
+		define Xback 0.0    # TODO: background value
+		
+		define ystep 75
+		define xstep 75
+		define g_buff 10
+		define f_buff 1
+		define use_prior_mags 0      # if 1, define xm$imax to a meaningful guess start for the mag
+		define vary_positions 0      # if 1, allow positions of bright objects to vary
+		define fix_astrometry 0      # if 1, account for astrometry variation
+		define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+		define fit_gaussian   0      # to switch only for resolved sources
+		define fit_sky 	      0      # test
+		if($make_residuals) {define Xback 0}
 
 xSet_1100	define imax 1100
 		define imax_name "aztec_1.1mm_goodsn_filt_ED"
@@ -3045,6 +3073,23 @@ R_MIPS500_E 00
 			
 			######<20140831><DzLIU>###### #data all_priors_RAD_500.txt read {ra 1 de 2}  ###<Commented><DZLIU>###
 			######<20140831><DzLIU>###### #print Handy_500.txt '%.7f %.7f %f %f\n' {ra de f500 df500} ###<Commented><DZLIU>###
+
+R_MIPS850_E 00
+			define imax 850
+			define xdate 20160719
+			define vary_positions 1
+			define rrrr_name "results_"$imax"_"$xdate"_vary" ###<Modified><DZLIU>### NO vary FOR 850!!!
+			data $rrrr_name read {x850 1 y850 2 m850 4 e850 5 noi850 3 ra850 6 de850 7 id850 8}
+    		define h_850        $(1/2.8954625)  # photometry fudge factor from Jy/beam definition, data unit mJy/beam, PSF SUM/MAX = 2.39744/0.827999 = 2.8954625
+			define m_850 1          # photometry fudge factor, from use of finite PSF  (divise)
+			set f850 = 10**(-0.4*m850)*$h_850/$m_850
+			set df850 = f850*e850/1.08   #  
+			
+		    define rBeam_850 14.8
+			macro read run_simu_stats_v7.sm
+			go_correct_three_step_recipes
+			
+			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
 
 R_MIPS1160_E	00
 			#data results_1160_18Feb13_sub read {x1160 1 y1160 2 m1160 4 e1160 5 noi1160 3} ###<Commented><DZLIU>###

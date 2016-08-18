@@ -100,7 +100,7 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
             echo "${GalfitBoxList[i]}"
             # 
             # check hostname
-            if [[ $(hostname) == *localhost* || $(hostname) == *bogon* || $(hostname) == *mars* || $(hostname) == *sapmcm116* || $(hostname) == *sapherschel* || $(hostname) == *sappcb34* ]]; then
+            if [[ $(hostname) == *localhost* || $(hostname) == *SN* || $(hostname) == *bogon* || $(hostname) == *mars* || $(hostname) == *sapmcm116* || $(hostname) == *sapherschel* || $(hostname) == *sappcb34* ]]; then
                 echo Checking hostname $(hostname)
                 cp  "${GalfitRunList[i]}"                          "${GalfitRunList[i]}.$(hostname).sh"
                 sed --in-place -e "s%^cd .*/boxgalsim_vary/%cd %g" "${GalfitRunList[i]}.$(hostname).sh"

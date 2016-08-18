@@ -3,7 +3,8 @@
 ;                 CrabStringPrintArray( [1.34343, 2.3434, 4.5454], PREC=2)
 ;                      -->             "[1.34, 2.34, 4.55]"
 ; --------------------------------------------------------------------------------------------------------------
-FUNCTION CrabStringPrintArray, Array, NELEMENTS=NElements, FORMAT=Format, PRECISION=Precision, SPLITTER=Splitter
+FUNCTION CrabStringPrintArray, Array, NELEMENTS=NElements, FORMAT=Format, PRECISION=Precision, SPLITTER=Splitter, $
+                                      NoBracket=NoBracket
     
     Dim = SIZE(Array, /DIM)
     
@@ -64,7 +65,7 @@ FUNCTION CrabStringPrintArray, Array, NELEMENTS=NElements, FORMAT=Format, PRECIS
     ; prepare output text
     PrintText = ""
     IF N_ELEMENTS(Dim) EQ 1 THEN BEGIN
-        PrintText = PrintText + "["
+        IF NOT KEYWORD_SET(NoBracket) THEN PrintText = PrintText + "["
         IF N_ELEMENTS(NELEMENTS) EQ 0 THEN NELEMENTS=Dim[0]
         IF NELEMENTS GT Dim[0] THEN NELEMENTS=Dim[0]
         FOR I=0,NELEMENTS-1 DO BEGIN
@@ -73,7 +74,7 @@ FUNCTION CrabStringPrintArray, Array, NELEMENTS=NElements, FORMAT=Format, PRECIS
            ;PrintText = PrintText + STRTRIM(STRING(Array[I],FORMAT=Formats[I]),2)
             PrintText = PrintText + STRING(Array[I],FORMAT=Formats[I])
         ENDFOR
-        PrintText = PrintText + "]"
+        IF NOT KEYWORD_SET(NoBracket) THEN PrintText = PrintText + "]"
     ENDIF
     
     

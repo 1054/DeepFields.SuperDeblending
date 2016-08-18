@@ -208,6 +208,7 @@ done
 if [[ x"$DG_CATA" != x"NONE" ]]; then
     if [ -f $DG_CATA ]; then
         echo ; echo "We are using catalog $DG_CATA"
+        if echo $DG_CATA | grep -q -E '[^a-zA-Z0-9_.]'; then echo ; echo "Sorry! The filename contains non a-zA-Z0-9_ characters! Supermongo could not deal with this!" ; echo ; exit 1; fi
     else
         echo ; echo "Error! Catalog file $DG_CATA does not exist! Abort!"; exit 1
     fi
@@ -218,6 +219,7 @@ fi
 if [[ x"$DG_FSCI" != x"NONE" ]]; then
     if [ -f $DG_FSCI.fits ]; then
         echo ; echo "We are using map $DG_FSCI.fits instead of the map in goFine.sm"
+        if echo $DG_FSCI | grep -q -E '[^a-zA-Z0-9_.]'; then echo ; echo "Sorry! The filename contains non a-zA-Z0-9_ characters! Supermongo could not deal with this!" ; echo ; exit 1; fi
     else
         echo ; echo "Error! Fits file $DG_FSCI.fits does not exist! Abort!"; exit 1
     fi
@@ -228,6 +230,7 @@ fi
 if [[ x"$DG_FRMS" != x"NONE" ]]; then
     if [ -f $DG_FRMS.fits ]; then
         echo ; echo "We are using map $DG_FRMS.fits instead of the map in goFine.sm"
+        if echo $DG_FRMS | grep -q -E '[^a-zA-Z0-9_.]'; then echo ; echo "Sorry! The filename contains non a-zA-Z0-9_ characters! Supermongo could not deal with this!" ; echo ; exit 1; fi
     else
         echo ; echo "Error! Fits file $DG_FRMS.fits does not exist! Abort!"; exit 1
     fi
@@ -238,6 +241,7 @@ fi
 if [[ x"$DG_FPSF" != x"NONE" ]]; then
     if [ -f $DG_FPSF.fits ]; then
         echo ; echo "We are using map $DG_FPSF.fits instead of the map in goFine.sm"
+        if echo $DG_FPSF | grep -q -E '[^a-zA-Z0-9_.]'; then echo ; echo "Sorry! The filename contains non a-zA-Z0-9_ characters! Supermongo could not deal with this!" ; echo ; exit 1; fi
     else
         echo ; echo "Error! Fits file $DG_FPSF.fits does not exist! Abort!"; exit 1
     fi
@@ -248,6 +252,7 @@ fi
 if [[ x"$DG_CATB" != x"NONE" ]]; then
     if [[ -f $DG_CATB ]]; then
         echo ; echo "We will fit additional objects in $DG_CATB!"
+        if echo $DG_CATB | grep -q -E '[^a-zA-Z0-9_.]'; then echo ; echo "Sorry! The filename contains non a-zA-Z0-9_ characters! Supermongo could not deal with this!" ; echo ; exit 1; fi
     else
         echo ; echo "Error! Additonal catalog $DG_CATB does not exist! Abort!"; exit 1
     fi

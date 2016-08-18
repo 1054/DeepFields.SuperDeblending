@@ -254,9 +254,17 @@ loadGalfitInput 01
 writeGalfitInput 06
         # Input: FileName.input [SciPhoto.fits OutPhoto.fits RmsPhoto.fits PsfPhoto.fits fit.limit]
         # Require: NAXIS0 NAXIS1 NAXIS2 SciDir SciMap RmsMap PsfMap PixScale PsfWidth PosX PosY Mags
-        # Optional: Type ParamVaryX ParamVaryY
+        # Optional: Type ParamVaryX ParamVaryY ParamFitSkyValue
         # changeDirInBox
-        if(!$?1) {print 'astroGalfit::writeGalfitInput fit.input [sci.fits out.fits rms.fits psf.fits fit.limit]\n' {} return}
+        if(!$?1) {
+            print 'astroGalfit::writeGalfitInput usages: \n' {} 
+            print '  load astroGalfit.sm writeGalfitInput fit.input \n' {}
+            print '  load astroGalfit.sm writeGalfitInput fit.input sci.fits out.fits \n' {}
+            print '  load astroGalfit.sm writeGalfitInput fit.input sci.fits out.fits rms.fits psf.fits fit.limit \n' {}
+            print '  set ParamFitSkyValue = 1 \n' {}
+            print '  writeGalfitInput fit.input \n' {}
+            return
+        }
         if(!is_vector(PosX)) {print 'astroGalfit::writeGalfitInput: Warning! PosX is empty! Will do nothing!\n' {} return}
         if(!is_vector(PosY)) {print 'astroGalfit::writeGalfitInput: Warning! PosY is empty! Will do nothing!\n' {} return}
         set wginput_tmp = {"._.AstroGalfit._.WriteGalfitInput._."} # temporary file
@@ -674,23 +682,66 @@ readGalfitResult 01
             astroGalfitOnMute
             data "fit.result" read ResultType 1.s
             data "fit.result" read {ResultPosX 2 ResultPosXErr 3 ResultPosY 4 ResultPosYErr 5 ResultMags 6 ResultMagsErr 7}
-            ## data "fit.result" read {ResultRads 8 ResultRadsErr 9}
+            declare ResultRads    0
+            declare ResultRadsErr 0
+            declare ResultSers    0
+            declare ResultSersErr 0
+            declare ResultElli    0
+            declare ResultElliErr 0
+            declare ResultRoti    0
+            declare ResultRotiErr 0
+            do readgresi = 0,dimen(ResultType)-1 {
+                set TempResultRads    = 0.0
+                set TempResultRadsErr = 0.0
+                set TempResultSers    = 1.0
+                set TempResultSersErr = 0.0
+                set TempResultElli    = 1.0
+                set TempResultElliErr = 0.0
+                set TempResultRoti    = 0.0
+                set TempResultRotiErr = 0.0
+                if(ResultType[$readgresi]!='psf' && ResultType[$readgresi]!='sky') {
+                    # Read non-psf type fitting models, which has more columns
+                    # Note that skip 2 header lines, add 1 because line number starts from 1. 
+                    #!cat "fit.result" | head -n $($readgresi+2+1) | tail -n 1 #<TODO><DEBUG><20160714><dzliu>#
+                    data "fit.result" lines $($readgresi+2+1) $($readgresi+2+1) 
+                    read {TempResultRads 8  TempResultRadsErr 9 }
+                    read {TempResultSers 10 TempResultSersErr 11}
+                    read {TempResultElli 12 TempResultElliErr 13}
+                    read {TempResultRoti 14 TempResultRotiErr 15}
+                }
+                set ResultRads    = ResultRads    concat TempResultRads   
+                set ResultRadsErr = ResultRadsErr concat TempResultRadsErr
+                set ResultSers    = ResultSers    concat TempResultSers   
+                set ResultSersErr = ResultSersErr concat TempResultSersErr
+                set ResultElli    = ResultElli    concat TempResultElli   
+                set ResultElliErr = ResultElliErr concat TempResultElliErr
+                set ResultRoti    = ResultRoti    concat TempResultRoti   
+                set ResultRotiErr = ResultRotiErr concat TempResultRotiErr
+                # 
+                if(ResultType[$readgresi]=='sky') {
+                    set SkyValue = ResultMags[$readgresi]
+                    set SkyValueErr = ResultMagsErr[$readgresi]
+                }
+            }
+            ## data "fit.result" read {ResultRads 8  ResultRadsErr 9 }
             ## data "fit.result" read {ResultSers 10 ResultSersErr 11}
             ## data "fit.result" read {ResultElli 12 ResultElliErr 13}
             ## data "fit.result" read {ResultRoti 14 ResultRotiErr 15}
             # <TODO><20150222><DzLIU> supermongo complains about "No lines read from fit.result" when the column does not exist.
+            # <DONE><20160620><dzliu> now loop each source and read columns according to types
+            # 
             declare ResultResPix 0 #<TODO># 
             declare ResultRmsPix 0 #<TODO># 
             astroGalfitUnMute
             # now print what have been read
             if($verbose){ print '\n' {}
                 print 'Read these vectors: ResultType ResultPosX ResultPosXErr ResultPosY ResultPosYErr ResultMags ResultMagsErr ' {}
-                if(is_vector(ResultRads)){if(dimen(ResultRads)>0){print 'ResultRads ResultRadsErr '}}
-                if(is_vector(ResultSers)){if(dimen(ResultSers)>0){print 'ResultSers ResultSersErr '}}
-                if(is_vector(ResultElli)){if(dimen(ResultElli)>0){print 'ResultElli ResultElliErr '}}
-                if(is_vector(ResultRoti)){if(dimen(ResultRoti)>0){print 'ResultRoti ResultRotiErr '}}
-                if(is_vector(ResultResPix)){if(dimen(ResultResPix)>0){print 'ResultResPix '}}
-                if(is_vector(ResultRmsPix)){if(dimen(ResultRmsPix)>0){print 'ResultRmsPix '}}
+                if(is_vector(ResultRads)){if(dimen(ResultRads)>0){print 'ResultRads ResultRadsErr ' {}}}
+                if(is_vector(ResultSers)){if(dimen(ResultSers)>0){print 'ResultSers ResultSersErr ' {}}}
+                if(is_vector(ResultElli)){if(dimen(ResultElli)>0){print 'ResultElli ResultElliErr ' {}}}
+                if(is_vector(ResultRoti)){if(dimen(ResultRoti)>0){print 'ResultRoti ResultRotiErr ' {}}}
+                if(is_vector(ResultResPix)){if(dimen(ResultResPix)>0){print 'ResultResPix ' {}}}
+                if(is_vector(ResultRmsPix)){if(dimen(ResultRmsPix)>0){print 'ResultRmsPix ' {}}}
                 print '\n\n' {}
             }
             # clean 

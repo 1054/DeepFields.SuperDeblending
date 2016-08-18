@@ -10,10 +10,16 @@ FUNCTION CrabStatisticLogFitFunction, p, x=x, y=y, sigma_x=sigma_x, sigma_y=sigm
     a = p[0] ; slope
     b = p[1] ; intercept
     f = 10^(a*alog10(x)) * b ; model 
+    ; 
+    IF TOTAL([sigma_x,sigma_y],/NAN) GT 0.0 THEN BEGIN
+                             ; <Corrected><20160624><DzLiu> without sigma
                              ; <Corrected><20131028><DzLiu> old "10^(a*alog10(x)+b)"
 ;   resid = (y - f) / sqrt(sigma_y^2 + ((a*b*x^(a-1))*sigma_x)^2) ; from chentao
 ;   resid = (y - f) / sqrt(sigma_y^2 + (y*a*sigma_x/x)^2) ; mine y = 10 ^ (a*lg(x)+lg(b))
     resid = (alog10(y) - alog10(f)) / sqrt(sigma_y^2/y^2 + (a*sigma_x)^2/x^2)     ; mine lg(y) = a * lg(x) + lg(b)
+    ENDIF ELSE BEGIN
+    resid = (alog10(y) - alog10(f))
+    ENDELSE
     ;;; residual = (y - model) / error
     ;;; the error comes from two parts: 1 is from y itself, 2 is from the relation with (x): y = 10 ^ (a*lg(x)+lg(b))
     ;;; accd. y = 10^(a*lg(x)) * b
@@ -34,8 +40,9 @@ FUNCTION CrabStatisticLogFitFunction, p, x=x, y=y, sigma_x=sigma_x, sigma_y=sigm
         ENDIF
         ;;; note that some outlier would influence the result quite a lot!
     ENDIF
-;    PRINT, 'LOGXYFunction - '+'('+STRTRIM(a,2)+','+STRTRIM(b,2)+')'+$
-;           ' Chi-Square '+'('+STRTRIM(TOTAL(resid^2),2)+')'+' '+ExtraInfo
+    ;MESSAGE, '('+STRTRIM(a,2)+','+STRTRIM(b,2)+')'+$
+    ;         ' Chi-Square '+'('+STRTRIM(TOTAL(resid^2),2)+')'+' '+ExtraInfo, $
+    ;         /CONTINUE
     RETURN, resid
 END
 
@@ -49,10 +56,16 @@ FUNCTION CrabStatisticLinFitFunction, p, x=x, y=y, sigma_x=sigma_x, sigma_y=sigm
     a = p[0] ; slope
     b = p[1] ; intercept
     f = a*x + b ; model 
+    ; 
+    IF TOTAL([sigma_x,sigma_y],/NAN) GT 0.0 THEN BEGIN
+                             ; <Corrected><20160624><DzLiu> without sigma
                              ; <Corrected><20131028><DzLiu> old "10^(a*alog10(x)+b)"
 ;   resid = (y - f) / sqrt(sigma_y^2 + ((a*b*x^(a-1))*sigma_x)^2) ; from chentao
 ;   resid = (y - f) / sqrt(sigma_y^2 + (y*a*sigma_x/x)^2) ; mine y = 10 ^ (a*lg(x)+lg(b))
     resid = (y - f) / sqrt(sigma_y^2 + (a*sigma_x)^2)     ; mine y = a * x + b
+    ENDIF ELSE BEGIN
+    resid = (y - f)
+    ENDELSE
     ;;; residual = (y - model) / error
     ;;; the error comes from two parts: 1 is from y itself, 2 is from the relation with (x): y = 10 ^ (a*lg(x)+lg(b))
     ;;; accd. y = 10^(a*lg(x)) * b
@@ -73,8 +86,9 @@ FUNCTION CrabStatisticLinFitFunction, p, x=x, y=y, sigma_x=sigma_x, sigma_y=sigm
         ENDIF
         ;;; note that some outlier would influence the result quite a lot!
     ENDIF
-;    PRINT, 'LOGXYFunction - '+'('+STRTRIM(a,2)+','+STRTRIM(b,2)+')'+$
-;           ' Chi-Square '+'('+STRTRIM(TOTAL(resid^2),2)+')'+' '+ExtraInfo
+    ;MESSAGE, '('+STRTRIM(a,2)+','+STRTRIM(b,2)+')'+$
+    ;         ' Chi-Square '+'('+STRTRIM(TOTAL(resid^2),2)+')'+' '+ExtraInfo, $
+    ;         /CONTINUE
     RETURN, resid
 END
 
@@ -93,10 +107,12 @@ PRO CrabStatisticLinearRegression,            XArray, YArray,           $
                                                XLog = XLog,             $
                                                YLog = YLog,             $
                                     FixSlopeToUnity = FixSlopeToUnity,  $
+                                     FixSlopeToZero = FixSlopeToZero,   $
                                     FixSlopeToValue = FixSlopeToValue,  $
                                      InitSlopeValue = InitSlopeValue,   $
                                    SaveResultToFile = SaveResultToFile, $
                                    SaveResultToData = SaveResultToData, $ 
+                                     SetLinearSpace = SetLinearSpace,   $
                                          SetVerbose = SetVerbose,       $
                                                Note = Note
     
@@ -131,6 +147,9 @@ PRO CrabStatisticLinearRegression,            XArray, YArray,           $
     
     
     ; estimate initial parameters
+    IF NOT KEYWORD_SET(FixSlopeToUnity) AND KEYWORD_SET(FixSlopeToZero) THEN BEGIN
+        FixSlopeToValue = 0.D ; FixSlopeToUnity has higher priority
+    ENDIF
     IF NOT KEYWORD_SET(FixSlopeToUnity) AND N_ELEMENTS(FixSlopeToValue) EQ 0 AND N_ELEMENTS(InitSlopeValue) EQ 0 THEN BEGIN
         ; method 1 - fit by FITEXY
         FITEXY, FITX, FITY, PreInter, PreSlope, PreParamErr, X_SIGMA=FITXERR, Y_SIGMA=FITYERR
@@ -140,10 +159,10 @@ PRO CrabStatisticLinearRegression,            XArray, YArray,           $
         LinFitbySIXLIN = { Slope:[PreSlope[2],PreSlopeErr[2]], Intercept:[PreInter[2],PreInterErr[2]] }
         ; set initial parameters
         ParInit = [ LinFitbySIXLIN.Slope[0], 10^(LinFitbySIXLIN.Intercept[0]) ]
-    ENDIF ELSE IF N_ELEMENTS(FixSlopeToValue) EQ 1 AND N_ELEMENTS(InitSlopeValue) EQ 0 THEN BEGIN
+    ENDIF ELSE IF N_ELEMENTS(FixSlopeToValue) EQ 1 THEN BEGIN ; AND N_ELEMENTS(InitSlopeValue) EQ 0 
         ; fix slope to unity or not?
         ParInfo[0].VALUE = DOUBLE(FixSlopeToValue) & ParInfo[0].FIXED = 1
-        ParInit[0] = DOUBLE(FixSlopeToValue) & ParInit[1] = ( MEAN( FITY - (FITX*DOUBLE(FixSlopeToValue)), /DOUBLE) )
+        ParInit[0] = DOUBLE(FixSlopeToValue) & ParInit[1] = 10^( MEAN( FITY - (FITX*DOUBLE(FixSlopeToValue)), /DOUBLE) )
     ENDIF ELSE IF KEYWORD_SET(FixSlopeToUnity) AND N_ELEMENTS(InitSlopeValue) EQ 0 THEN BEGIN
         ; fix slope to unity or not?
         ParInfo[0].VALUE = 1.0 & ParInfo[0].FIXED = 1
@@ -165,10 +184,15 @@ PRO CrabStatisticLinearRegression,            XArray, YArray,           $
     
     
     ; set iteration function <TODO>  fit lg(x) lg(y) 
-    ParValue = MPFIT('CrabStatisticLogFitFunction', ParInit, PARINFO=ParInfo, $ ; [PreSlope,PreInter]
-                      FUNCTARGS={X:FITX, Y:FITY, SIGMA_X:FITXERR, SIGMA_Y:FITYERR}, $
-                      PERROR=ParError, STATUS=FitStatus, QUIET=(~KEYWORD_SET(SetVerbose)))
-    
+    IF KEYWORD_SET(SetLinearSpace) THEN BEGIN
+        ParValue = MPFIT('CrabStatisticLinFitFunction', ParInit, PARINFO=ParInfo, $ ; [PreSlope,PreInter]
+                          FUNCTARGS={X:FITX, Y:FITY, SIGMA_X:FITXERR, SIGMA_Y:FITYERR}, $
+                          PERROR=ParError, STATUS=FitStatus, QUIET=(~KEYWORD_SET(SetVerbose)))
+    ENDIF ELSE BEGIN
+        ParValue = MPFIT('CrabStatisticLogFitFunction', ParInit, PARINFO=ParInfo, $ ; [PreSlope,PreInter]
+                          FUNCTARGS={X:FITX, Y:FITY, SIGMA_X:FITXERR, SIGMA_Y:FITYERR}, $
+                          PERROR=ParError, STATUS=FitStatus, QUIET=(~KEYWORD_SET(SetVerbose)))
+    ENDELSE
     
     
     

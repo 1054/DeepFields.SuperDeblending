@@ -6,7 +6,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                   this is the LINMIX_ERR Bayesian Method function                                 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PRO CrabStatisticLinMixRegression,        XArray, YArray,           $
+PRO CrabStatisticLinMixRegression,            XArray, YArray,           $
                                               XError, YError,           $
                                              XRange = XRange,           $
                                              YRange = YRange,           $
@@ -44,8 +44,8 @@ PRO CrabStatisticLinMixRegression,        XArray, YArray,           $
     
     
     ; Check data array n_elements
-    IF N_ELEMENTS(FITX) LE 5 THEN BEGIN
-        PRINT, 'CrabStatisticLinMixRegression: Valid data is not enough! less than 5 data points!'
+    IF N_ELEMENTS(FITX) LE 10 THEN BEGIN
+        PRINT, 'CrabStatisticLinMixRegression: Valid data is not enough! less than 10 data points!'
         RETURN
     ENDIF
     
@@ -83,8 +83,8 @@ PRO CrabStatisticLinMixRegression,        XArray, YArray,           $
     ; save linmix_err output
     LinMixAlpha = POST.ALPHA ; intercept distribution
     LinMixBeta  = POST.BETA  ; slope distribution 
-                             ; HisCnt = HISTOGRAM(LinMixBeta, LOCATIONS=HisLoc, BINSIZE=0.01)
-                             ; P = BARPLOT(HisLoc,HisCnt)
+    ;;; HisCnt = HISTOGRAM(LinMixBeta, LOCATIONS=HisLoc, BINSIZE=0.01)
+    ;;; P = BARPLOT(HisLoc,HisCnt)
     
     
     ; calc correlation and dispersion
@@ -114,6 +114,11 @@ PRO CrabStatisticLinMixRegression,        XArray, YArray,           $
                                                    XArray = FITX, XRange = XRange, XLog = XLog, YLog = YLog, $
                                                    Correlation = Correlation, Dispersion = Dispersion, Note = Note )
     
+    
+    PRINT, 'CrabStatisticLinMixRegression: Fitted Slope ' + STRING(FORMAT='(F0.6)', LinFitbyLINMIX.Slope[0])
+    PRINT, 'CrabStatisticLinMixRegression: Fitted Intercept ' + STRING(FORMAT='(F0.6)', LinFitbyLINMIX.Intercept[0])
+    PRINT, 'CrabStatisticLinMixRegression: Fitted Correlation ' + STRING(FORMAT='(F0.6)', LinFitbyLINMIX.Correlation)
+    PRINT, 'CrabStatisticLinMixRegression: Fitted Dispersion ' + STRING(FORMAT='(F0.6)', LinFitbyLINMIX.Dispersion)
     
     ; save result to file
     IF N_ELEMENTS(SaveResultToFile) EQ 1 AND SIZE(SaveResultToFile,/TYPE) EQ 7 THEN BEGIN

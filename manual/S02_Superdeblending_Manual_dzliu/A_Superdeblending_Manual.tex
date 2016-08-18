@@ -1730,6 +1730,332 @@ macro read run_simu_stats_v7.sm run_simu_stats_v7 1160
 \clearpage
 
 %*************************************************************************************
+\section{Band 850}
+
+\textcolor{green}{!new 20160719}
+
+\subsection{SED fitting before band 850}
+\label{Band850_Galsed}
+
+We directly use \textit{Galsed\_AfterBand1160}. 
+
+Then we determine Type\_FIR, Type\_SED, Type\_AGN. 
+
+\begin{lstlisting}[language=bash]
+cd Galsed_AfterBand1160
+./do_Type_AGN.sh \
+-catalog RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt -sedresults ResLMT*.txt
+# below are outputs
+2016-07-20 02:44:04
+Writting to coo_AGN.txt!
+We have 266 out of 3306 sources classified as radio loud AGN.
+Successfully output to coo_AGN.txt!
+Please use the output file coo_AGN.txt in the next time SED fitting!
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash]
+cd Galsed_AfterBand1160
+./do_Type_SED.sh \
+-catalog RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt -sedresults ResLMT*.txt
+# below are outputs
+2016-07-20 02:45:09
+Writting to coo_SED.txt!
+We have 215 out of 3306 sources classified as pure starburst.
+We have 1273 out of 3306 sources classified as pure mainsequence.
+We have 1818 out of 3306 sources unable to be classified.
+Successfully output to coo_SED.txt!
+Please use the output file coo_SED.txt in the next time SED fitting!
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash]
+cd Galsed_AfterBand1160
+./do_Type_FIR.sh \
+-catalog RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt
+# below are outputs
+2016-07-20 02:45:47
+Writting to coo_FIR.txt!
+We have 1172 out of 3306 sources to fit with FIR data points only.
+Successfully output to coo_FIR.txt!
+Please use the output file coo_FIR.txt for the following SED fitting!
+\end{lstlisting}
+
+\subsection{SED prediction for band 850}
+\label{Band850_Galpre}
+
+\begin{lstlisting}[language=bash]
+cd Galsed_AfterBand1160
+./do_Type_FIT.sh -band 850 -fcut 2.0 \
+-catalog RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt -sedresults ResLMT*.txt
+# 2016-07-20 03:07:53 CST
+band: 850
+fcut: 2   # mJy # the cutting value of f+2df
+fsig: 2   # mJy # the 1-sigma detection limit
+Total source number: 3306
+Fitting source number: 372
+Fitting source number (SED prediction selection): 372
+Fitting source number (previous band S/N selection): 0
+Subtract source number: 2934
+\end{lstlisting}
+
+\begin{figure}[H]
+	\caption{Number of sources kept for fitting per PSF beam area ($\rho_{fit}$) as a function of different $f_{cut}$ at band 850.}
+	\includegraphics[width=0.85\textwidth]{plot_cutting_flux_850}
+\end{figure}
+
+\subsection{Faint flux subtraction at band 850}
+\label{Band850_Galsub}
+
+We use the SED flux of the flagged faint sources to construct a PSF-modeled image, then subtract it from the original observed image. 
+
+\begin{lstlisting}[language=bash]
+do_Superdeblending -field goodsn -band 850 -date 201607 -step Galfit_Band850 -catalog-input Galsed_AfterBand1160/RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt -sedpredict Galsed_AfterBand1160/do_Type_FIT/SED_predictions_850.txt -fitsname S2CLS_GOODS-N_MF_FLUX_DR1 -fitsname-rms S2CLS_GOODS-N_MF_RMS_DR1 -fitsname-psf S2CLS_SCUBA2_850um_dzliu_DoubleGaussian_PSF
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash]
+do_Galsub 850 20160719 \
+          -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt \
+          -fitsname S2CLS_GOODSN_MF_FLUX_DR1_subfaintDL.fits \
+          -fitsname-sci S2CLS_GOODSN_MF_FLUX_DR1 \
+          -fitsname-rms S2CLS_GOODSN_MF_RMS_DR1 \
+          -fitsname-psf S2CLS_SCUBA2_850um_dzliu_DoubleGaussian_PSF \
+          -sedpredict SED_predictions_850.txt
+\end{lstlisting}
+
+\begin{figure}[H]
+	\caption{Faint-source subtraction step at band 850. From left to right: original image, faint-source model image, and faint-source-subtracted image.}
+	\includegraphics[width=0.9\textwidth]{galfit_850_FIT_goodsn_850_Map_20160719_Galsub}
+\end{figure}
+
+Using the faint-sources-subtracted image, we perform prior source fitting photometry in the next step. 
+
+\indent\hspace{15pt}$\circ$ 
+\textcolor{blue}{Note: Remember to set Xback=0 and fbias=0 while doing the faint-source subtraction.}
+\\
+
+\subsection{Galfit photometry at band 850}
+\label{Band850_Galfit}
+
+\begin{lstlisting}[language=bash]
+do_Galfit 850 20160719 \
+          -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt \
+          -sedpredict SED_predictions_850.txt \
+          -fitsname S2CLS_GOODSN_MF_FLUX_DR1_subfaintDL.fits \
+          -fitsname-sci S2CLS_GOODSN_MF_FLUX_DR1 \
+          -fitsname-rms S2CLS_GOODSN_MF_RMS_DR1 \
+          -fitsname-psf S2CLS_SCUBA2_850um_dzliu_DoubleGaussian_PSF \
+          -parallel
+
+cd boxgalfit;
+do_GalfitRunqsub;
+cd ..
+
+do_Galfit 850 20160719 \
+          -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt \
+          -sedpredict SED_predictions_850.txt \
+          -fitsname S2CLS_GOODSN_MF_FLUX_DR1_subfaintDL.fits \
+          -fitsname-sci S2CLS_GOODSN_MF_FLUX_DR1 \
+          -fitsname-rms S2CLS_GOODSN_MF_RMS_DR1 \
+          -fitsname-psf S2CLS_SCUBA2_850um_dzliu_DoubleGaussian_PSF \
+          -postparallel
+\end{lstlisting}
+
+\subsection{Residual image at band 850}
+\label{Band850_Galres}
+
+\begin{lstlisting}[language=bash]
+cp -r /home/dzliu/Cloud/Github/DeepFields.SuperDeblending/Softwares/Galfit_Template_v20160225/run_sextractor .
+cp -r /home/dzliu/Cloud/Github/DeepFields.SuperDeblending/Softwares/Galfit_Template_v20160225/run_sextractor.sh .
+./run_sextractor.sh -band 850 \
+                    -catalog-output Residual_priors_850.txt \
+                    -fitresults-map FIT_goodsn_850_Map_20160719_vary.fits \
+                    -rms-map S2CLS_GOODSN_MF_RMS_DR1.fits \
+                    -detect-thresh 3.5 \
+                    -detect-minarea 2
+\end{lstlisting}
+
+\textcolor{green}{(DONE: Put Residual Images Here!)}
+
+\begin{figure}[H]
+	\caption{First-pass residual image at band 850. From left to right: original image, fitted model image, and the residual image.}
+	\includegraphics[width=0.9\textwidth]{galfit_850_FIT_goodsn_850_Map_20160719_vary_without_additional_sources}
+\end{figure}
+
+Then run a second pass \ref{Band850_Galfit} to re-fit the additional sources: 
+
+\begin{lstlisting}[language=bash]
+########################################################################
+# Run galsub to subtract faint sources which are excluded from fitting #
+########################################################################
+do_Galsub 850 20160719 \
+          -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt \
+          -fitsname S2CLS_GOODSN_MF_FLUX_DR1_subfaintDL.fits \
+          -fitsname-sci S2CLS_GOODSN_MF_FLUX_DR1 \
+          -fitsname-rms S2CLS_GOODSN_MF_RMS_DR1 \
+          -fitsname-psf S2CLS_SCUBA2_850um_dzliu_DoubleGaussian_PSF \
+          -sedpredict SED_predictions_850.txt
+
+###########################################################
+# Run galfit with input catalog and source position fixed #
+###########################################################
+do_Galfit 850 20160719 \
+          -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt \
+          -sedpredict SED_predictions_850.txt \
+          -fitsname S2CLS_GOODSN_MF_FLUX_DR1_subfaintDL.fits \
+          -fitsname-sci S2CLS_GOODSN_MF_FLUX_DR1 \
+          -fitsname-rms S2CLS_GOODSN_MF_RMS_DR1 \
+          -fitsname-psf S2CLS_SCUBA2_850um_dzliu_DoubleGaussian_PSF \
+          -catalog-add Residual_priors_850.txt \
+          -parallel
+
+cd boxgalfit;
+do_GalfitRunqsub;
+cd ..
+
+do_Galfit 850 20160719 \
+          -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt \
+          -sedpredict SED_predictions_850.txt \
+          -fitsname S2CLS_GOODSN_MF_FLUX_DR1_subfaintDL.fits \
+          -fitsname-sci S2CLS_GOODSN_MF_FLUX_DR1 \
+          -fitsname-rms S2CLS_GOODSN_MF_RMS_DR1 \
+          -fitsname-psf S2CLS_SCUBA2_850um_dzliu_DoubleGaussian_PSF \
+          -catalog-add Residual_priors_850.txt \
+          -postparallel
+
+############################################################
+# Run galfit again allowing bright source position to vary #
+############################################################
+do_Galfit 850 20160719 \
+          -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt \
+          -sedpredict SED_predictions_850.txt \
+          -fitsname S2CLS_GOODSN_MF_FLUX_DR1_subfaintDL.fits \
+          -fitsname-sci S2CLS_GOODSN_MF_FLUX_DR1 \
+          -fitsname-rms S2CLS_GOODSN_MF_RMS_DR1 \
+          -fitsname-psf S2CLS_SCUBA2_850um_dzliu_DoubleGaussian_PSF \
+          -catalog-add Residual_priors_850.txt \
+          -vary -parallel
+
+cd boxgalfit_vary;
+do_GalfitRunqsub;
+cd ..
+
+do_Galfit 850 20160719 \
+          -catalog RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt \
+          -sedpredict SED_predictions_850.txt \
+          -fitsname S2CLS_GOODSN_MF_FLUX_DR1_subfaintDL.fits \
+          -fitsname-sci S2CLS_GOODSN_MF_FLUX_DR1 \
+          -fitsname-rms S2CLS_GOODSN_MF_RMS_DR1 \
+          -fitsname-psf S2CLS_SCUBA2_850um_dzliu_DoubleGaussian_PSF \
+          -catalog-add Residual_priors_850.txt \
+          -vary -postparallel
+\end{lstlisting}
+
+Now we check the new residual image.
+
+\begin{figure}[H]
+	\caption{The second-pass residual image at band 850, with additional sources re-fitted. From left to right: original image, fitted model image, and the residual image.}
+	\includegraphics[width=0.9\textwidth]{galfit_850_FIT_goodsn_850_Map_20160719_vary_with_additional_sources}
+\end{figure}
+
+\subsection{Monte-Carlo simulation at band 850}
+\label{Band850_Galsim}
+
+\begin{lstlisting}[language=bash]
+do_Galsim 850 20160812 \
+-catalog RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt \
+-sedpredict SED_predictions_850.txt \
+-fitsname S2CLS_GOODSN_MF_FLUX_DR1_subfaintDL.fits \
+-fitsname-sci S2CLS_GOODSN_MF_FLUX_DR1 \
+-fitsname-rms S2CLS_GOODSN_MF_RMS_DR1 \
+-fitsname-psf S2CLS_SCUBA2_850um_dzliu_DoubleGaussian_PSF \
+-catalog-add Residual_priors_850.txt \
+-mag0 -4.0 -mag1 0.0 \
+-parallel
+
+cd boxgalsim;
+do_GalsimRunqsub;
+cd ..
+
+do_Galsim 850 20160812 \
+-catalog RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt \
+-sedpredict SED_predictions_850.txt \
+-fitsname S2CLS_GOODSN_MF_FLUX_DR1_subfaintDL.fits \
+-fitsname-sci S2CLS_GOODSN_MF_FLUX_DR1 \
+-fitsname-rms S2CLS_GOODSN_MF_RMS_DR1 \
+-fitsname-psf S2CLS_SCUBA2_850um_dzliu_DoubleGaussian_PSF \
+-catalog-add Residual_priors_850.txt \
+-mag0 -4.0 -mag1 0.0 \
+-postparallel
+\end{lstlisting}
+
+\textcolor{red}{TODO: vary}
+
+\subsection{Flux bias and flux error analyses}
+\label{Band850_simanalyses}
+
+\begin{lstlisting}[language=bash]
+gedit run_simu_stats_v7.sm
+echo "macro read run_simu_stats_v7.sm run_simu_stats_v7 850 20160812" | sm
+\end{lstlisting}
+
+\begin{figure}[H]
+	\caption{
+		Band 850 flux bias correction plots:
+	}
+	\includegraphics[width=0.65\textwidth]{galsim_850_fbias_1}
+	\includegraphics[width=0.65\textwidth]{galsim_850_fbias_2}
+%	\includegraphics[width=0.65\textwidth]{galsim_850_fbias_3}
+\end{figure}
+
+\begin{figure}[H]
+	\caption{
+		Band 850 histogram of simulated source flux before and after each step correction. 
+	}
+	\includegraphics[width=0.65\textwidth]{galsim_850_hist_flux_1}
+	\includegraphics[width=0.65\textwidth]{galsim_850_hist_flux_2}
+%	\includegraphics[width=0.65\textwidth]{galsim_850_hist_flux_3}
+\end{figure}
+
+\begin{figure}[H]
+	\caption{
+	    Band 850 flux uncertainty correction plots:
+	}
+	\includegraphics[width=0.65\textwidth]{galsim_850_dfcorr_1}
+	\includegraphics[width=0.65\textwidth]{galsim_850_dfcorr_2}
+%	\includegraphics[width=0.65\textwidth]{galsim_850_dfcorr_3}
+\end{figure}
+
+\begin{figure}[H]
+	\caption{
+		Band 850 flux uncertainty histograms:
+	}
+	\includegraphics[width=0.65\textwidth]{galsim_850_hist_dfcorr_1}
+	\includegraphics[width=0.65\textwidth]{galsim_850_hist_dfcorr_2}
+%	\includegraphics[width=0.65\textwidth]{galsim_850_hist_dfcorr_3}
+\end{figure}
+
+
+\subsection{Flux bias and flux uncertainty correction}
+\label{Band850_dfcorr}
+
+\begin{lstlisting}[language=bash]
+gedit run_simu_stats_v7.sm
+gedit goFine.sm
+echo "macro read goFine.sm R_MIPS850_E" | sm
+\end{lstlisting}
+
+
+\subsection{Update catalog}
+
+\begin{lstlisting}[language=bash]
+echo "macro read run_update_catalog_v7.sm run_update_catalog_v7 850" | sm
+\end{lstlisting}
+
+
+%*************************************************************************************
+
+\clearpage
+
+%*************************************************************************************
 \appendix
 \section{Appendix}
 \label{Appendix}
@@ -1934,14 +2260,18 @@ Then the second version is the Dec. 2015 version, with the new 3-step simulation
 \indent\hspace{15pt}$\bullet$ 
 Then the third version is the Jan. 2016 version, with new simulation-based flux \& flux error correction recipes, and with newer SED fitting algorithms (with Type\_FIR, i.e. $S/N_{FIR\,bands}>3$, and with stellar \& AGN component). Due to the complexity of implementing ''crowdiness''-dependent fitting sources selection, we will not use the simple method of dividing ''crowdiness'' parameter for now. Instead, we applied another discussed criterion, i.e. if a source is detected at previous FIR band (e.g. 160${\mu}m$), we always select it for fitting at current FIR band (i.e. 250${\mu}m$). With the application of this so-called ''Previous-Detection'' criterion, on the other hand, we must reduce the sources selected by the ''SED-Prediction'' criterion, so that the mean number density of sources in fitting does not largely exceed 1 per beam, which ensures a non-blending fitting. The third version of figures are presented below. 
 
-\begin{center}
-	\includegraphics[width=0.85\textwidth]{plot_cutting_flux_100} \\
-	\includegraphics[width=0.85\textwidth]{plot_cutting_flux_160} \\
-	\includegraphics[width=0.85\textwidth]{plot_cutting_flux_250} \\
-	\includegraphics[width=0.85\textwidth]{plot_cutting_flux_350} \\
-	\includegraphics[width=0.85\textwidth]{plot_cutting_flux_500} \\
-	\includegraphics[width=0.85\textwidth]{plot_cutting_flux_1160} \\
-\end{center}
+\begin{figure}[H]
+	\includegraphics[width=0.85\textwidth]{plot_cutting_flux_100} 
+	\includegraphics[width=0.85\textwidth]{plot_cutting_flux_160} 
+	\includegraphics[width=0.85\textwidth]{plot_cutting_flux_250} 
+	\includegraphics[width=0.85\textwidth]{plot_cutting_flux_350} 
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width=0.85\textwidth]{plot_cutting_flux_500} 
+	\includegraphics[width=0.85\textwidth]{plot_cutting_flux_850} 
+	\includegraphics[width=0.85\textwidth]{plot_cutting_flux_1160} 
+\end{figure}
 
 
 

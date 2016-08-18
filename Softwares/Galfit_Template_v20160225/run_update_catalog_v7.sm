@@ -1,6 +1,11 @@
 run_update_catalog_v7 02
     # 
     # Usage: 
+    #    cd /home/dzliu/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016C_850um/20160719/Galfit_Band850_WithAddSources
+    #    sm
+    #    macro read run_update_catalog_v7.sm run_update_catalog_v7 850
+    # 
+    # Usage: 
     #    # Under Galfit_XXX directory
     #    # Make sure we have results_$imax_$xdate[_vary]__fluxes.txt
     #    define imax 250
@@ -82,8 +87,19 @@ run_update_catalog_v7 02
         set result_flux = <"results_"$imax"_201601__fluxes.txt">
     }
     # 
+    if('$1'=='850') {
+        define imax 850
+        define xdate 20160719
+        # chdir "Galfit_Band1160_WithAddSources_Pass2"
+        set old_catalog = {"RadioOwenMIPS24_priors_dzliu_20160128_Band1160.txt"}
+        set new_catalog = {"RadioOwenMIPS24_priors_dzliu_20160128_Band1160_20160719_Band850.txt"}
+        set sed_predict = <"SED_predictions_"$imax".txt">
+        set result_mags = <"results_"$imax"_"$xdate>
+        set result_flux = <"results_"$imax"_20160719_vary__fluxes.txt">
+    }
+    # 
     if(!$?imax) {
-      print 'Error! Input \"$1\" must be one of 100 160 250 350 500 1160\n' {}
+      print 'Error! Input \"$1\" must be one of 100 160 250 350 500 1160 and 850\n' {}
       define aaa 0
       define aaa ?
       echo ""
@@ -187,7 +203,8 @@ run_update_catalog_main_code
     # 
     # check fit source number
     if(dimen(fit_x$imax)!=sum(full_fit$imax>0)) {
-        print 'Error! The number of sources in galfit \"results_\" is different from that in galsed \"predictions_\"!\n' {}
+        #<before20160623># print 'Error! The number of sources in galfit \"results_\" is different from that in galsed \"predictions_\"!\n' {}
+        print 'Error! The number of sources in galfit \"results_\" is different from the number of sources with fit=1 or excl=0 in galsed \"predictions_\"!\n' {}
         return
     }
     
@@ -237,16 +254,17 @@ run_update_catalog_main_code
     # 
     # backup if duplicated
     if(is_file(backup.$(new_catalog))) {
-        echo "Backuping backup.$(new_catalog) as backup.backup.$(new_catalog).
+        echo Backuping backup.$(new_catalog) as backup.backup.$(new_catalog).
         !mv backup.$(new_catalog) backup.backup.$(new_catalog)
     }
     if(is_file($(new_catalog))) {
-        echo "Backuping $(new_catalog) as backup.$(new_catalog).
+        echo Backuping $(new_catalog) as backup.$(new_catalog).
         !mv $(new_catalog) backup.$(new_catalog)
     }
     define ReadyToGo "y"
     #define ReadyToGo ? <"We are about to write the new catalog into "$(new_catalog)", ready? [y/n]">
     if('$ReadyToGo'=='y') {
+        echo "Ready? Go!"
         if('$imax'=='100') {
         print $(new_catalog) '%-9.0f %12.7f %12.7f %9g\n' \
         {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 radio eradio \
@@ -279,6 +297,12 @@ run_update_catalog_main_code
         print $(new_catalog) '%-9.0f %12.7f %12.7f %9g\n' \
         {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 f160 df160 f250 df250 f350 df350 \
             f500 df500 f1160 df1160 radio eradio _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 \
+            _fch4 _dfch4 KtotX MassX distX spezX zq source distz idz goodArea}
+        }
+        if('$imax'=='850') {
+        print $(new_catalog) '%-9.0f %12.7f %12.7f %9g\n' \
+        {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 f160 df160 f250 df250 f350 df350 \
+            f500 df500 f850 df850 f1160 df1160 radio eradio _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 \
             _fch4 _dfch4 KtotX MassX distX spezX zq source distz idz goodArea}
         }
         echo 

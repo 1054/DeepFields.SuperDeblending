@@ -25,8 +25,8 @@ echo Current directory $(pwd)
 echo Starting time $(date +"%Y-%m-%d %H:%M:%S")
 #GalfitTmpList=$(find . -maxdepth 1 -type d -name "box[0-9]*"       | sort -t 'x' -k 2 -n); GalfitBoxList=($(echo $GalfitTmpList))
 #GalfitTmpList=$(find . -maxdepth 1 -type f -name "runbox[0-9]*.sh" | sort -t 'x' -k 2 -n); GalfitRunList=($(echo $GalfitTmpList))
-GalfitBoxList=( $(find . -maxdepth 1 -type d -name "box*[0-9]"       | sort -t 'x' -k 2 -n) )
-GalfitRunList=( $(find . -maxdepth 1 -type f -name "runbox*[0-9].sh" | sort -t 'x' -k 2 -n) )
+GalfitBoxList=( $(find . -maxdepth 1 -type d -regex "./box[0-9]+"       | sort -t 'x' -k 2 -n) )
+GalfitRunList=( $(find . -maxdepth 1 -type f -regex "./runbox[0-9]+.sh" | sort -t 'x' -k 2 -n) )
 #echo $GalfitBoxList
 #echo $GalfitRunList
 #echo ${#GalfitBoxList}
@@ -40,6 +40,9 @@ if [[ ${#GalfitBoxList[@]} != ${#GalfitRunList[@]} ]]; then
     echo "please prepare the data like this:"
 fi
 if [[ ${#GalfitBoxList[@]} != ${#GalfitRunList[@]} || "$*" == *"-h"* ]]; then
+    echo " "
+    echo " Please prepare data directory like follows:"
+    echo " "
     echo "    boxgalfit"
     echo "       |- box1"
     echo "       |    |- fit.param"
@@ -58,18 +61,23 @@ if [[ ${#GalfitBoxList[@]} != ${#GalfitRunList[@]} || "$*" == *"-h"* ]]; then
     echo " len(box) = ${#GalfitBoxList[@]}"
     echo " len(runbox.sh) = ${#GalfitRunList[@]}"
     echo ""
+    echo " Optional arguments:"
+    echo "    -overwrite # this will overwrite fit.log in each box"
+    echo ""
     exit
 fi
 # 
 # start from and finish up to some sources
 STARTSOURCE=0 # <Added> start from id
 FINALSOURCE=-1 # <Added> final upto id
+GALFITOVERWRITE=0 # <Added> overwrite
 if [[ $* == *-start*          ]]; then STARTSOURCE=$(echo $* | sed -e 's/.*-start[ ]*\([^ -]*\).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -start parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
 if [[ $* == *-begin*          ]]; then STARTSOURCE=$(echo $* | sed -e 's/.*-begin[ ]*\([^ -]*\).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -begin parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
 if [[ $* == *-from*           ]]; then STARTSOURCE=$(echo $* | sed -e 's/.*-from[ ]*\([^ -]*\).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -from parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
 if [[ $* == *-finish*         ]]; then FINALSOURCE=$(echo $* | sed -e 's/.*-finish[ ]*\([^ -]*\).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -finish parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
 if [[ $* == *-upto*           ]]; then FINALSOURCE=$(echo $* | sed -e 's/.*-upto[ ]*\([^ -]*\).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -upto parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
 if [[ $* == *-end*            ]]; then FINALSOURCE=$(echo $* | sed -e 's/.*-end[ ]*\([^ -]*\).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -end parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
+if [[ $* == *-overwrite*      ]]; then GALFITOVERWRITE=1; echo "We will overwrite the galfit fitting result e.g. fit.log fit.out fit.fits in each box!"; fi
 # 
 # 
 for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
@@ -87,7 +95,7 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
     fi
     # 
     # we do not re-galfit the data 
-    if [[ -f "${GalfitBoxList[i]}"/fit.log ]]; then
+    if [[ -f "${GalfitBoxList[i]}"/fit.log && $GALFITOVERWRITE -eq 0 ]]; then
         echo 
         echo Detected "${GalfitBoxList[i]}"/fit.log, we will not redo the fit.
         echo 
@@ -100,7 +108,7 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
             echo "${GalfitBoxList[i]}"
             # 
             # check hostname
-            if [[ $(hostname) == *localhost* || $(hostname) == *bogon* || $(hostname) == *mars* || $(hostname) == *sapmcm116* || $(hostname) == *sapherschel* || $(hostname) == *sappcb34* ]]; then
+            if [[ $(hostname) == *localhost* || $(hostname) == *bogon* || $(hostname) == *SN* || $(hostname) == *mars* || $(hostname) == *sapmcm116* || $(hostname) == *sapherschel* || $(hostname) == *sappcb34* ]]; then
                 echo Checking hostname $(hostname)
                 cp  "${GalfitRunList[i]}"                          "${GalfitRunList[i]}.$(hostname).sh"
                 sed --in-place -e "s%^cd .*/boxgalfit_vary/%cd %g" "${GalfitRunList[i]}.$(hostname).sh"

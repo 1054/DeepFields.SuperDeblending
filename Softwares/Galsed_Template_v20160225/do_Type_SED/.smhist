@@ -24,3 +24,7 @@ macro read do_Type_SED.sm do_Type_SED
 QUIT
 macro read do_Type_SED.sm do_Type_SED
 QUIT
+macro read do_Type_SED.sm do_Type_SED
+QUIT
+macro read do_Type_SED.sm do_Type_SED
+QUIT

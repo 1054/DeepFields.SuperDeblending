@@ -5,10 +5,15 @@
 
 
 FUNCTION RecognizeFilter, InputText, Wavelength=S_Wavelength, Frequency=S_Frequency
+    IF STRPOS(InputText,'/') GE 0 THEN BEGIN
+        SearchText = STRMID(InputText,STRPOS(InputText,'/',/REVERSE_SEARCH))
+    ENDIF ELSE BEGIN
+        SearchText = InputText
+    ENDELSE
+    SearchText = CrabStringClean(SearchText,TextsToRemove=['_',' '])
     S_Filter = ''
     S_Wavelength = 0.0D
     S_Frequency = 0.0D
-    SearchText = CrabStringClean(InputText,TextsToRemove=['_',' '])
     
     IF S_Filter EQ '' THEN IF STRMATCH(SearchText,'*F435W*'        ,/FOLD_CASE) THEN BEGIN & S_Filter='F435W'  & S_Wavelength=0.435D-6 & ENDIF
     IF S_Filter EQ '' THEN IF STRMATCH(SearchText,'*F606W*'        ,/FOLD_CASE) THEN BEGIN & S_Filter='F606W'  & S_Wavelength=0.606D-6 & ENDIF
@@ -74,7 +79,7 @@ FUNCTION RecognizeFilter, InputText, Wavelength=S_Wavelength, Frequency=S_Freque
     
     IF S_Filter EQ "" THEN IF STRMATCH(SearchText,'*[^A-z]975ks[^A-z]*' ,/FOLD_CASE) THEN S_Filter = '975ks'
     
-    ; 
     IF S_Wavelength NE 0 THEN S_Frequency = 2.99792458D8/S_Wavelength
+    
     RETURN, S_Filter
 END

@@ -1,9 +1,10 @@
 #!/bin/bash
 # 
 # common caller for wcstools:
+#=  imhead
+#=  edhead
 #=  gethead
 #=  getpix
-#=  imhead
 #=  sethead
 #=  sky2xy
 #=  xy2sky

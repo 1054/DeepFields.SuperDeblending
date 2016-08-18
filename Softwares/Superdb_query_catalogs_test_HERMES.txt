@@ -1,0 +1,74 @@
+{
+    "SelectSqlQuery": {
+        "column": [{
+            "Column": {
+                "column_name": "field",
+                "table": "all_scat500_dr2",
+                "alias": "all_scat500_dr2_Field"
+            }
+        }, {
+            "Column": {
+                "column_name": "iau_name",
+                "table": "all_scat500_dr2",
+                "alias": "all_scat500_dr2_IAU"
+            }
+        }, {
+            "Column": {
+                "column_name": "ra",
+                "table": "all_scat500_dr2",
+                "alias": "all_scat500_dr2_RA"
+            }
+        }, {
+            "Column": {
+                "column_name": "dec",
+                "table": "all_scat500_dr2",
+                "alias": "all_scat500_dr2_Dec"
+            }
+        }, {
+            "Column": {
+                "column_name": "f500",
+                "table": "all_scat500_dr2",
+                "alias": "all_scat500_dr2_F500"
+            }
+        }, {
+            "Column": {
+                "column_name": "e500",
+                "table": "all_scat500_dr2",
+                "alias": "all_scat500_dr2_e_F500"
+            }
+        }],
+        "table": {
+            "Table": {
+                "name": "all_scat500_dr2",
+                "alias": ""
+            }
+        },
+        "join": [],
+        "where": [{
+            "BetweenCriterion": {
+                "column": "all_scat500_dr2.ra",
+                "link": "AND",
+                "start_value": 258.37880851347,
+                "end_value": 258.38527481993
+            }
+        }, {
+            "BetweenCriterion": {
+                "column": "all_scat500_dr2.dec",
+                "link": "AND",
+                "start_value": 58.966277777733,
+                "end_value": 58.969611111067
+            }
+        }, {
+            "MatchCriterion": {
+                "column": "(0.26575835254892 * (258.3820416667 - all_scat500_dr2.ra)*(258.3820416667 - all_scat500_dr2.ra)) + ((58.9679444444 - all_scat500_dr2.dec)*(58.9679444444 - all_scat500_dr2.dec))",
+                "link": "AND",
+                "match_type": "<=",
+                "value": 36
+            }
+        }],
+        "group": [],
+        "having": [],
+        "order": [],
+        "limit": ""
+    }
+}

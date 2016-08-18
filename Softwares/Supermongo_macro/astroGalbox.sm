@@ -353,8 +353,8 @@ astroGalbox_make_box 07
     # decide box buffer
     if($?6) {set nBoxBuff1 = $6}
     if($?7) {set nBoxBuff2 = $7}
-    if(!is_vector(nBoxBuff1)) {set nBoxBuff1=0}
-    if(!is_vector(nBoxBuff2)) {set nBoxBuff2=0}
+    if(!is_vector(nBoxBuff1)) {set nBoxBuff1=30}
+    if(!is_vector(nBoxBuff2)) {set nBoxBuff2=30}
     # check image size
     # if(!is_vector(nAxis1)||!is_vector(nAxis2)) {
     load astroPhot.sm
@@ -388,7 +388,7 @@ astroGalbox_make_box 07
         set pbF = (pxF>=nBoxLi1+1   && pxF<nBoxLi2+1   && pyF>=nBoxLj1+1   && pyF<nBoxLj2+1)   # obj in buffer box
     }
     set nBoxVol = sum(pcF>0) # number of obj in box
-    if($verbose){print 'astroGalbox_make_box: nBoxId=$1 ' {} 
+    if($verbose){print 'astroGalbox_make_box: nBoxId=$1 ' {}
                  if(is_vector(nBoxSize1)&&is_vector(nBoxSize1)) {
                  print '(starting from 1 up to ' {}
                  print '$(nBoxSize1)x$(nBoxSize2)=$(nBoxSize1*nBoxSize2)) ' {} }
@@ -446,7 +446,7 @@ astroGalbox_make_box 07
 
 astroGalbox_make_galfit 01
     # make galfit input files in a box directory
-    # input $1 is optional
+    # input $1 is the basename, optional, default is "fit"
     # but the following vectors are required:
     #   pxF pxG (PosX ParamFitPosX)
     #   pyF pyG (PosY ParamFitPosY)
@@ -455,7 +455,7 @@ astroGalbox_make_galfit 01
     #   nBoxLi1 nBoxLj1
     #   idF
     load astroGalfit.sm
-    verbose 0
+    astroGalfitOnMute
     if(!is_vector(paF)) {set paF = pxF*0+1}
     if(dimen(paF)!=dimen(pxF)) {set paF = pxF*0+1}
     if(!is_vector(pbF)) {set pbF = pxF*0+1}
@@ -475,6 +475,12 @@ astroGalbox_make_galfit 01
     ##set Mags = Mags*0.0+5.0
     if($?SkyValue_$(boxBand)) {
         set SkyValue = $SkyValue_$(boxBand) #<added><20150718><dzliu># skyvalue
+    }
+    if($?SkyDoFit_$(boxBand)) {
+        set ParamFitSkyValue = $SkyDoFit_$(boxBand) #<added><20160530><dzliu># skyvalue
+    }
+    if($?ParamFitSkyValue_$(boxBand)) {
+        set ParamFitSkyValue = $ParamFitSkyValue_$(boxBand) #<added><20160530><dzliu># skyvalue
     }
     if(is_vector(pmF)){if(dimen(pmF)==dimen(pbF)){ #<added><20150429><dzliu># fix some objects
         set Mags = pmF if(paF>0 && pbF>0)
@@ -497,17 +503,33 @@ astroGalbox_make_galfit 01
             writeGalfitParam $1.param
             writeGalfitLimit $1.limit
             writeGalfitInput $1.input $1.fits fit.fits rms.fits psf.fits $1.limit
-            echo astroGalbox::writeGalfitInput: $1.input $1.fits fit.fits rms.fits psf.fits $1.limit
+            if($verbose) {
+                echo astroGalbox::writeGalfitInput: $1.input $1.fits fit.fits rms.fits psf.fits $1.limit
+            }
         }
         if('$1'=='obj_fix') {
             set SkyValue = 0.0
             writeGalfitParam $1.param
             writeGalfitLimit $1.limit
             writeGalfitInput $1.input sci.fits $1.fits rms.fits psf.fits $1.limit
-            echo astroGalbox::writeGalfitInput: $1.input sci.fits $1.fits rms.fits psf.fits $1.limit
+            if($verbose) {
+                echo astroGalbox::writeGalfitInput: $1.input sci.fits $1.fits rms.fits psf.fits $1.limit
+            }
             !galfit $1.input > $1.out
             #<added><20150719><dzliu># subtract faint sources then fit - <TODO> output fits obj_fit.fits
             astroGalfitSubFits sci $1[2] obj_fit
+        }
+        if('$1'=='sim_model') {
+            set SkyValue = 0.0
+            writeGalfitParam $1.param
+            writeGalfitLimit $1.limit
+            writeGalfitInput $1.input sci.fits $1.fits rms.fits psf.fits $1.limit
+            if($verbose) {
+                echo astroGalbox::writeGalfitInput: $1.input sci.fits $1.fits rms.fits psf.fits $1.limit
+            }
+            !galfit $1.input > $1.out
+            #<added><20160530><dzliu># add simulated model source then fit - <TODO> output fits sim_coadd.fits
+            astroGalfitAddFits sci $1[2] sim_coadd
         }
         # <added><20160101><dzliu> # if sci map pixels are all zeros
         if('$1'=='map_null') {
@@ -519,7 +541,9 @@ astroGalbox_make_galfit 01
             writeGalfitParam fit.param
             writeGalfitLimit fit.limit
             writeGalfitInput fit.input sci.fits fit.fits rms.fits psf.fits fit.limit
-            echo astroGalbox::writeGalfitInput: fit.input sci.fits fit.fits rms.fits psf.fits fit.limit (null map)
+            if($verbose) {
+                echo astroGalbox::writeGalfitInput: fit.input sci.fits fit.fits rms.fits psf.fits fit.limit (null map)
+            }
             !galfit fit.input > fit.out
             !grep -h "psf\ *:" fit.out > fit.log
         }
@@ -528,7 +552,7 @@ astroGalbox_make_galfit 01
         writeGalfitLimit fit.limit
         writeGalfitInput fit.input
     }
-    verbose 1
+    astroGalfitUnMute
     # define aaa ?
     # done 
 
@@ -680,7 +704,7 @@ astroGalbox_read_box 07
     readGalfitParam fit.param
     readGalfitResult fit.fits
     astroGalboxUnMute
-    set astroGalbox_goodObj = (ResultType!='sky') #<TODO> must make sure ResultType be psf, etc
+    set astroGalbox_goodObj = (ResultType!='sky')
     foreach astroGalbox_goodVar {ResultType ResultPosX ResultPosXErr ResultPosY ResultPosYErr} {
         if(dimen(astroGalbox_goodObj)!=dimen($astroGalbox_goodVar)) {
             echo
@@ -725,6 +749,7 @@ astroGalbox_read_box 07
     }
     if($verbose) {
     # <TODO> we only read object inside box (rather than buffer box) (identified by positive Note number)
+    echo "astroGalbox_read_box: read "$(dimen(Type))" results from "$(nBoxDir)"/fit.param" 
     echo "astroGalbox_read_box: read "$(dimen(ResultType))" results from "$(nBoxDir)"/fit.fits" 
     ## echo "astroGalbox_read_box: print {PosX PosY Mags Type Note ResultPosX ResultPosY ResultMags ResultMagsErr}"}
     # <Added><20150222><DzLIU> get noise, residual, crowdness, and sci map flux.
@@ -779,7 +804,7 @@ astroGalbox_read_box 07
     # print what we have read
     if($verbose) {
         #echo ""
-        print 'astroGalbox_read_box: read $(dimen(ResultType)) additional results into ' {}
+        print 'astroGalbox_read_box: added $(dimen(ResultType)) results into ' {}
         if(is_vector(astroGalbox_Result_frms)) {print 'astroGalbox_Result_frms ' {}}
         if(is_vector(astroGalbox_Result_fres)) {print 'astroGalbox_Result_fres ' {}}
         if(is_vector(astroGalbox_Result_fcwd)) {print 'astroGalbox_Result_fcwd ' {}}
@@ -870,25 +895,72 @@ astroGalbox_mosaic_box 05
     # prepare to read one box results
     set nBoxId = $1
     set nBoxDir = {"}+sprintf('box%0d',$1)+{"}
+    # decide box rect <Note><20160714> same as astroGalbox_make_box
+    if(!$?2||!$?3||!$?4||!$?5) {
+        # decide box rect by dividing image into every small box
+        set nBoxPosY0 = int( int(nBoxId-1) / int(nBoxSize1) + 1 )
+        set nBoxPosX0 = int( int(nBoxId-1) % int(nBoxSize1) + 1 )
+        if(nBoxPosX0>nBoxSize1){print 'astroGalbox_make_box: Error! nBoxId=$(nBoxId) out of x range!\n'{} return}
+        if(nBoxPosY0>nBoxSize2){print 'astroGalbox_make_box: Error! nBoxId=$(nBoxId) out of y range!\n'{} return}
+        if(!is_vector(nBoxStep1)){print 'astroGalbox_make_box: Error! nBoxId=$(nBoxId) required vector nBoxStep1!\n'{} return}
+        if(!is_vector(nBoxStep2)){print 'astroGalbox_make_box: Error! nBoxId=$(nBoxId) required vector nBoxStep2!\n'{} return}
+        set nBoxPosI1 = (nBoxPosX0-1) * nBoxStep1
+        set nBoxPosJ1 = (nBoxPosY0-1) * nBoxStep2
+        set nBoxPosI2 = (nBoxPosX0+0) * nBoxStep1 - 1 + 1  #<corrected><20150223><dzliu># step is int, width should include fractional region between steps
+        set nBoxPosJ2 = (nBoxPosY0+0) * nBoxStep2 - 1 + 1  #<corrected><20150223><dzliu># step is int, width should include fractional region between steps
+        set nBoxPosXC = float(nBoxPosI1+1+nBoxPosI2+1)/2.0 #<corrected><20150223><dzliu># step is int, width should include fractional region between steps
+        set nBoxPosYC = float(nBoxPosJ1+1+nBoxPosJ2+1)/2.0 #<corrected><20150223><dzliu># step is int, width should include fractional region between steps
+        set nBoxWidth = float(nBoxStep1+1.0)               #<corrected><20150223><dzliu># step is int, width should include fractional region between steps
+        set nBoxHaute = float(nBoxStep2+1.0)               #<corrected><20150223><dzliu># step is int, width should include fractional region between steps
+    } else {
+        # directly input box rect <Added><20150218><DzLIU>
+        set nBoxPosI1 = $2
+        set nBoxPosI2 = $3
+        set nBoxPosJ1 = $4
+        set nBoxPosJ2 = $5
+    }
+    # decide box buffer <Note><20160714> same as astroGalbox_make_box
+    if($?6) {set nBoxBuff1 = $6}
+    if($?7) {set nBoxBuff2 = $7}
+    if(!is_vector(nBoxBuff1)) {set nBoxBuff1=30}
+    if(!is_vector(nBoxBuff2)) {set nBoxBuff2=30}
+    # check image size <Note><20160714> same as astroGalbox_make_box
+    # if(!is_vector(nAxis1)||!is_vector(nAxis2)) {
+    #load astroPhot.sm
+    #get_image_size $SciPhoto_$(boxBand)".fits" # }
+    # now we get the box rect i,j coordinate, which can convert box coordinate to original image coordinate
+    #set nBoxLi1 = nBoxPosI1 - nBoxBuff1
+    #set nBoxLj1 = nBoxPosJ1 - nBoxBuff2
+    #set nBoxLi2 = nBoxPosI2 + nBoxBuff1
+    #set nBoxLj2 = nBoxPosJ2 + nBoxBuff2
+    #set nBoxLi1 = nBoxLi1>=0 ? nBoxLi1 : 0                #<TODO># CrabFitsImageCrop should take care of cutting range overflow
+    #set nBoxLj1 = nBoxLj1>=0 ? nBoxLj1 : 0                #<TODO># CrabFitsImageCrop should take care of cutting range overflow
+    #set nBoxLi2 = nBoxLi2<=nAxis1-1 ? nBoxLi2 : nAxis1-1  #<TODO># CrabFitsImageCrop should take care of cutting range overflow
+    #set nBoxLj2 = nBoxLj2<=nAxis2-1 ? nBoxLj2 : nAxis2-1  #<TODO># CrabFitsImageCrop should take care of cutting range overflow
     # #<20160130>#
     # read box rect from sci.fits.log
     chdir $(nBoxDir)
     if(!is_file("sci.fits.log")) {print 'astroGalbox_mosaic_box: Error! \"sci.fits.log\" not found!\n' {} define errorbreak ?}
     !cat "sci.fits.log" | grep 'rect(i0,j0,i1,j1)=' | sed -e 's/.*rect(i0,j0,i1,j1)=(//g' | sed -e 's/)//g' > "aaa_rect"
     astroGalboxOnMute
-    data "aaa_rect" read {nBoxPosI1 1 nBoxPosJ1 2 nBoxPosI2 3 nBoxPosJ2 4}
+    data "aaa_rect" read {nBoxLi1 1 nBoxLj1 2 nBoxLi2 3 nBoxLj2 4}
+    !rm "aaa_rect"
     astroGalboxUnMute
     chdir ".."
+    # 
+    # deal with image edge pixel range problem <Added><20160714><dzliu>
+    set nBoxPosI2 = nBoxPosI2>nBoxLi2 ? nBoxLi2 : nBoxPosI2
+    set nBoxPosJ2 = nBoxPosJ2>nBoxLj2 ? nBoxLj2 : nBoxPosJ2
     # ok
     # now mosaic the fit.fits
-    set nBoxPosX1INN = nBoxPosI1-nBoxPosI1+1 # the inner cutout coordinate, iraf coordinate, starts from 1
-    set nBoxPosY1INN = nBoxPosJ1-nBoxPosJ1+1 # the inner cutout coordinate, iraf coordinate, starts from 1
-    set nBoxPosX2INN = nBoxPosI2-nBoxPosI1+1 # the inner cutout coordinate, iraf coordinate, starts from 1
-    set nBoxPosY2INN = nBoxPosJ2-nBoxPosJ1+1 # the inner cutout coordinate, iraf coordinate, starts from 1
-    set nBoxPosX1 = nBoxPosI1 + 1 # the outer image coordinate, iraf coordinate, starts from 1
-    set nBoxPosY1 = nBoxPosJ1 + 1 # the outer image coordinate, iraf coordinate, starts from 1
-    set nBoxPosX2 = nBoxPosI2 + 1 # the outer image coordinate, iraf coordinate, starts from 1
-    set nBoxPosY2 = nBoxPosJ2 + 1 # the outer image coordinate, iraf coordinate, starts from 1
+    set nBoxPosX1INN = nBoxPosI1-nBoxLi1+1 # +nBoxBuff1 # the inner cutout coordinate, iraf coordinate, starts from 1
+    set nBoxPosY1INN = nBoxPosJ1-nBoxLj1+1 # +nBoxBuff2 # the inner cutout coordinate, iraf coordinate, starts from 1
+    set nBoxPosX2INN = nBoxPosI2-nBoxLi1+1 # -nBoxBuff1 # the inner cutout coordinate, iraf coordinate, starts from 1
+    set nBoxPosY2INN = nBoxPosJ2-nBoxLj1+1 # -nBoxBuff2 # the inner cutout coordinate, iraf coordinate, starts from 1
+    set nBoxPosX1 = nBoxPosI1+1 # +nBoxBuff1 # the outer image coordinate, iraf coordinate, starts from 1
+    set nBoxPosY1 = nBoxPosJ1+1 # +nBoxBuff2 # the outer image coordinate, iraf coordinate, starts from 1
+    set nBoxPosX2 = nBoxPosI2+1 # -nBoxBuff1 # the outer image coordinate, iraf coordinate, starts from 1
+    set nBoxPosY2 = nBoxPosJ2+1 # -nBoxBuff2 # the outer image coordinate, iraf coordinate, starts from 1
     print +"rebuild_mosaic_model.cl"    'imcopy $(nBoxDir)/fit.fits[2][$(nBoxPosX1INN):$(nBoxPosX2INN),$(nBoxPosY1INN):$(nBoxPosY2INN)] ' {}
     print +"rebuild_mosaic_residual.cl" 'imcopy $(nBoxDir)/fit.fits[3][$(nBoxPosX1INN):$(nBoxPosX2INN),$(nBoxPosY1INN):$(nBoxPosY2INN)] ' {}
     print +"rebuild_mosaic_model.cl"    'rebuild_mosaic_model.fits[$(nBoxPosX1):$(nBoxPosX2),$(nBoxPosY1):$(nBoxPosY2)]\n' {}

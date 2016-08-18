@@ -38,3 +38,5 @@ macro read do_Type_FIT.sm go 1000 2
 QUIT
 macro read do_Type_FIT.sm go 1000 2
 QUIT
+macro read do_Type_FIT.sm go 850 2.0
+QUIT

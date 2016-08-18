@@ -38,9 +38,10 @@ PRO do_SExtract_Mask, FITPhoto = FITPhoto, RMSPhoto = RMSPhoto
             CatPI[Hull] = -1
             CatPJ[Hull] = -1
             CatID[Hull] = -1
-            CatPI = CatPI[WHERE(CatPI GE 0, /NULL)]
-            CatPJ = CatPJ[WHERE(CatPJ GE 0, /NULL)]
-            CatID = CatID[WHERE(CatID GE 0, /NULL)]
+            CooID = WHERE(CatPI GE 0 AND CatPJ GE 0, /NULL)
+            CatPI = CatPI[CooID]
+            CatPJ = CatPJ[CooID]
+            CatID = CatID[CooID]
         ENDFOR
         CrabTablePrintC, "perimeter.txt", PerimeterID, PerimeterPI, PerimeterPJ
         SPAWN, 'CrabTable2ds9reg perimeter.txt perimeter.ds9.reg -image -radius 5'
@@ -90,7 +91,8 @@ PRO do_SExtract_Mask, FITPhoto = FITPhoto, RMSPhoto = RMSPhoto
         ; IF iLeft LE iRight THEN BEGIN
         ;     Mask[iLeft:iRight,j] = 1
         ; ENDIF
-        IF iLeft+ShrinkPixel LE iRight-ShrinkPixel THEN BEGIN
+        
+        IF iLeft+ShrinkPixel LE iRight-ShrinkPixel AND j LT NAXIS[1] THEN BEGIN
             Mask[iLeft+ShrinkPixel:iRight-ShrinkPixel,j] = 1 ;<TODO>; use smaller sky area, by shrinking 15 pixel border
         ENDIF
     ENDFOR

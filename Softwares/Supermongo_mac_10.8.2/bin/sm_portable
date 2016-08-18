@@ -1,6 +1,15 @@
 #!/bin/bash
 #
 
+#
+# readlink for Mac (because Mac readlink does not accept "-f" option)
+if [[ $(uname) == *"Darwin"* ]]; then
+    function readlink() {
+        if [[ $# -gt 1 ]]; then if [[ "$1" == "-f" ]]; then shift; fi; fi
+        DIR=$(echo "${1%/*}"); (cd "$DIR" && echo "$(pwd -P)/$(basename ${1})")
+    }
+fi
+
 type readlink > /dev/null
 type dirname > /dev/null
 
@@ -22,7 +31,10 @@ echo "macro		/tmp/sm.$SMDATE/macro/"        >> "/tmp/sm.$SMDATE/.sm"
 #echo "macro		$SMPATH/lib/sm/macro/"     >> "/tmp/sm.$SMDATE/.sm"
 chmod 777                                        "/tmp/sm.$SMDATE/.sm"
 
-ln -fs "$SMPATH/lib/sm/macro" "/tmp/sm.$SMDATE/macro" 2>/dev/null
+#ln -fs "$SMPATH/lib/sm/macro" "/tmp/sm.$SMDATE/macro" 2>/dev/null
+#cp -rL "$SMPATH/lib/sm/macro" "/tmp/sm.$SMDATE/" 2>/dev/null #<bug><fixed><20160628><dzliu># use cp -r on Mac.
+cp -r "$SMPATH/lib/sm/macro" "/tmp/sm.$SMDATE/" 2>/dev/null
+cp "$SMPATH/../Supermongo_macro/"*.sm "/tmp/sm.$SMDATE/macro/" 2>/dev/null
 ln -fs "$SMPATH/lib/sm/help" "/tmp/sm.$SMDATE/help" 2>/dev/null
 if [[ -f $SMPATH/bin/sm ]]; then
 $SMPATH/bin/sm -f "/tmp/sm.$SMDATE/.sm" $*
