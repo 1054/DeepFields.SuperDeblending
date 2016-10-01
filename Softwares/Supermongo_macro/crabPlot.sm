@@ -71,7 +71,7 @@ crabPlotClosePS 00
             !ps2pdf -dEPSCrop $(__crabPlot__PSFILE) $(__crabPlot__PFFILE)
             !pdfcrop --margins 15 $(__crabPlot__PFFILE) $(__crabPlot__PFFILE) >/dev/null
         }
-        echo "crabPlotClosePS: Output to "\"$(__crabPlot__PSFILE)\""!"
+        echo "crabPlotClosePS: Output to "\"$(__crabPlot__PSFILE)\""!" # "
         unset __crabPlot__PSFILE
     } else {
         print 'crabPlotClosePS: No crabPlotOpenPS yet. Do nothing.\n' {}
@@ -131,7 +131,7 @@ crabPlotDefaultPenForBox 00
     expand 1.4 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype default
 
 crabPlotDefaultPenForTitle 00
-    expand 1.5 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype default
+    expand 1.5 lweight 4.0 ltype 0 ltype expand 1.5 ptype 4 1 ctype default
 
 crabPlotDefaultPenForLegend 00
     expand 1.3 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype blue
@@ -414,6 +414,35 @@ crabPlotOverHist_log10 03
     get_hist __crabPlot__x __crabPlot__l __crabPlot__h $(__crabPlot__min) $(__crabPlot__max) $(__crabPlot__step)
     histogram __crabPlot__l __crabPlot__h
     crabPlotResetPen
+
+
+
+crabPlotLegend 04
+    # when input 3 or 4 arguments, they are: normalized-x normalized-y text [alignment]
+    # when input 1 or 2 arguments, they are: text [alignment]
+    if(is_vector(_crabPlot_legend_px)) {set _crabPlot_legend_px_backup = _crabPlot_legend_px}
+    if(is_vector(_crabPlot_legend_py)) {set _crabPlot_legend_py_backup = _crabPlot_legend_py}
+    if($?3) {
+        set _crabPlot_legend_px = float($1)
+        set _crabPlot_legend_py = float($2)
+        relocate $($fx1+($fx2-$fx1)*_crabPlot_legend_px) $($fy1+($fy2-$fy1)*_crabPlot_legend_py)
+        if($?4) { putlabel $4 $3 } else { puts $3 }
+    } else {
+        if(!is_vector(_crabPlot_legend_px)) {set _crabPlot_legend_px = 0.15}
+        if(!is_vector(_crabPlot_legend_py)) {set _crabPlot_legend_py = 1.00}
+        if(!is_vector(_crabPlot_legend_dy)) {set _crabPlot_legend_dy = 0.05}
+        set _crabPlot_legend_py = _crabPlot_legend_py - _crabPlot_legend_dy
+        relocate $($fx1+($fx2-$fx1)*_crabPlot_legend_px) $($fy1+($fy2-$fy1)*_crabPlot_legend_py)
+        if($?2) { putlabel $2 $1 } else { puts $1 }
+    }
+
+
+crabPlotLegendLineSpacing 01
+    # 
+    if($?1) {
+        if(is_vector(_crabPlot_legend_dy)) {set _crabPlot_legend_dy_backup = _crabPlot_legend_dy}
+        set _crabPlot_legend_dy = float($1)
+    }
 
 
 

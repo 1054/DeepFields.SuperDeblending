@@ -135,6 +135,7 @@ cl << EOF | tee "$DG_FLOG.cllog"
     if($DG_IMAX==250) { fitsOUT = "spire250_ima_3p6_v0_100615_subfaintDL.fits" };
     if($DG_IMAX==350) { fitsOUT = "spire350_ima_4p8_v0_100615_subfaintDL.fits" };
     if($DG_IMAX==500) { fitsOUT = "spire500_ima_7p2_v0_100615_subfaintDL.fits" };
+    if($DG_IMAX==850) { fitsOUT = "S2CLS_GOODSN_MF_FLUX_DR1_subfaintDL.fits" };
     if($DG_IMAX==1160) { fitsOUT = "combined_maw0_4_azw0_5_sig_subfaintDL.fits" };
     print ""
     print(fitsOUT)

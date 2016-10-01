@@ -1083,8 +1083,8 @@ noise_XXX       !\rm aaa_noise >> /dev/null 2>&1   ###<Modified><DZLIU>### stdou
 		verbose 0 ###<Added><DZLIU>###
                 data aaa_noise read noi$imax 4
 		verbose $pref_verbose ###<Added><DZLIU>###
-		set  noi$imax = (x1==1 || y1==1 || x2==$imax_xsize || y2==$imax_ysize) ? 1e7 : noi$imax
-		set  noi$imax = noi$imax >0 ? noi$imax : 1e7
+		set  noi$imax = (x1==1 || y1==1 || x2==$imax_xsize || y2==$imax_ysize) ? 1e30 : noi$imax ###<Modified><DZLIU>### "1e7" --> "1e30"
+		set  noi$imax = noi$imax >0 ? noi$imax : 1e30
 		echo Done  noise_XXX
 		###<Added><DZLIU>### Check noi$imax
 		if(dimen(noi$imax)<=0) { 
@@ -1519,6 +1519,8 @@ xSet_850	define imax 850
 		
 		define mag_toofaint 20
 		define max_noise 1.5   # DZLIU 20160719
+		define max_noise 1e30   # DZLIU 20160909
+		define max_noise 1e20   # DZLIU 20160909
 		define mag_start 5
 		define Xback 0.0    # TODO: background value
 		
@@ -3077,6 +3079,7 @@ R_MIPS500_E 00
 R_MIPS850_E 00
 			define imax 850
 			define xdate 20160719
+			define xdate 20160909
 			define vary_positions 1
 			define rrrr_name "results_"$imax"_"$xdate"_vary" ###<Modified><DZLIU>### NO vary FOR 850!!!
 			data $rrrr_name read {x850 1 y850 2 m850 4 e850 5 noi850 3 ra850 6 de850 7 id850 8}
@@ -3086,7 +3089,11 @@ R_MIPS850_E 00
 			set df850 = f850*e850/1.08   #  
 			
 		    define rBeam_850 14.8
-			macro read run_simu_stats_v7.sm
+		    if(is_file("run_simu_stats_v8.sm")) {
+		    	macro read run_simu_stats_v8.sm
+		    } else {
+		    	macro read run_simu_stats_v7.sm
+		    }
 			go_correct_three_step_recipes
 			
 			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>

@@ -1,0 +1,59 @@
+go_20151127
+    #  
+    #  macro read make_CatalogSubsample_SNR_GE_5_AND_zphot_GE_2p5.sm go_20151127
+    #  
+    chdir "../../"
+    macro read CatalogReader.sm go
+    chdir "CatalogSubsample"
+    chdir "CatalogSubsample_SNR_GE_5_AND_zphot_GE_2p5"
+    
+    define outfile "CatalogSubsample_SNR_GE_5_AND_zphot_GE_2p5"
+    
+    #set flag_SB_MS = EMS>6 ? 1 : 0
+    #set flag_SB_MS = EMS<4 ? -1 : flag_SB_MS
+    
+    set cooCat = (snrIR>=5.0 && z>2.5 && id<100000)
+    set cooAdd = (snrIR>=5.0 && z>2.5 && z<4 && id>100000)
+    set cooAdd = cooAdd || (snrIR>=10.0 && z>4 && id>100000)
+    set coo = cooCat || cooAdd
+    echo 24 + radio source number $(sum(cooCat))
+    echo Additional source number $(sum(cooAdd))
+    echo Total source number $(sum(coo))
+    foreach foo {id ra de alias z zphot zspec snrIR Mstar SFR eSFR sSFR excessMS flag_SB_MS flag_Radio_AGN Mgas} \
+    { set $foo = $foo if(coo)}
+    set soo = zphot
+    sort {soo id ra de alias z zphot zspec snrIR Mstar SFR eSFR sSFR excessMS flag_SB_MS flag_Radio_AGN Mgas}
+    
+    # print number of MS SB
+    set TypeSBrst = int(flag_SB_MS)
+    set TypeRLAGN = int(flag_Radio_AGN)
+    echo MS source number $(sum(TypeSBrst==-1))
+    echo MX source number $(sum(TypeSBrst==0))
+    echo SB source number $(sum(TypeSBrst==1))
+    
+    # do not use Keck new spec-z for now
+    set zspec = (zspec<0) ? -99 : zspec
+    set zspec = (zspec>0 && zspec!=zphot) ? -99 : zspec
+    
+    # convert to log space
+    set cid = 0,dimen(Mstar)-1 set cid=cid if(Mstar>0)
+    set lgMstar = Mstar*0-99 set lgMstar[cid]=lg(Mstar[cid])
+    
+    set lgSSFR = sSFR*0-99 set lgSSFR[cid]=lg(sSFR[cid])
+    
+    # print catalog
+    print $outfile".dat" \
+        '%10.0f %30s %8.2f %8.2f %8g %8.0f %8.0f %8.2f %8.2f %10d %10d\n' \
+        { id alias zphot zspec snrIR SFR eSFR lgMstar lgSSFR TypeSBrst TypeRLAGN}
+    !sed -i -e 's/-99.00/   -99/g' $outfile".dat"
+    
+    # print catalog (with ra dec)
+    print $outfile"_with_ra_dec.dat" \
+        '%10.0f %30s %12.6f %12.6f %8.2f %8.2f %8g %8.0f %8.0f %8.2f %8.2f %10d %10d\n' \
+        { id alias ra de zphot zspec snrIR SFR eSFR lgMstar lgSSFR TypeSBrst TypeRLAGN}
+    !sed -i -e 's/-99.00/   -99/g' $outfile"_with_ra_dec.dat"
+    
+    # Done!
+    echo ""
+    echo "Successfully output to "$outfile".dat!"
+

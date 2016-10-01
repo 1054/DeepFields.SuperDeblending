@@ -36,8 +36,8 @@ go 02
       if('$1'=='850') {
         define band 850
         define fcut$band $2 #  # cutting f+2*df
-        define fsig$band 2.00 # 1-sigma flux from S2CLS 850um paper http://arxiv.org/pdf/1607.03904v1.pdf Figure 5
-        define fmax$band 20.00
+        define fsig$band 1.20 # 1-sigma flux from S2CLS 850um paper http://arxiv.org/pdf/1607.03904v1.pdf Abstract -- or Figure 5
+        define fmax$band 10.00
       }
       if('$1'=='1160') {
         define band 1160

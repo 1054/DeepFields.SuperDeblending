@@ -1,0 +1,40 @@
+analyze_Distance_to_MS
+    # 
+    #  macro read analyze_dis2ms.sm analyze_Distance_to_MS
+    # 
+    !mkdir "analyze_dis2ms"
+    chdir "../Catalog/"
+    load rfile.sm
+    rfile "RadioOwenMIPS24_priors_201500_v2.txt"
+    rfile "ResLMT_RadioOwenMIPS24_priors_201500_v2.txt"
+    chdir "../CatalogAnalyze/analyze_dis2ms/"
+    
+    set id = _id
+    set zbest = xf_zz
+    set Valid = (MassX>-99&&xfSFR>0&&xeSFR>0)
+    set VID = 0,dimen(xfSFR)-1 set VID = VID if(Valid)
+    set SNR = xfSFR*0.0-99                  # SFR signal to noise ratio
+    set SNR[VID] = xfSFR[VID]/xeSFR[VID]    # SFR signal to noise ratio
+    set lg_SFR = xfSFR*0.0-99               # Chabrier IMF
+    set lg_SFR[VID] = lg(xfSFR[VID])        # Chabrier IMF
+    set lg_Mstar = MassX*0.0-99             # 
+    set lg_Mstar[VID] = MassX[VID]-lg(1.73) # convert from Salpeter IMF to Chabrier IMF
+    
+    load astroSfig.sm
+    set lg_MSSFR_Sargent = MassX*0.0-99                                         # 
+    set lg_MSSFR_Sargent[VID] = calc_Sargent2014_SFR(zbest[VID],lg_Mstar[VID])  # Sargent et al. 2014 use Chabrier IMF
+    set lg_MSSFR_Schreiber = MassX*0.0-99                                       # 
+    set lg_MSSFR_Schreiber[VID] = calc_Schreiber2014_SFR(zbest[VID],MassX[VID]) # Schreiber et al. 2015 use Salpeter IMF
+    set lg_MSSFR_Schreiber[VID] = lg_MSSFR_Schreiber[VID]-lg(1.73)              # convert from Salpeter IMF to Chabrier IMF
+    
+    # Distance to MS <20150114> <20150907>
+    set dist_to_MS_1 = MassX*0.0-99                              # 
+    set dist_to_MS_1[VID] = lg_SFR[VID]-lg_MSSFR_Sargent[VID]    # 
+    set dist_to_MS_2 = MassX*0.0-99                              # 
+    set dist_to_MS_2[VID] = lg_SFR[VID]-lg_MSSFR_Schreiber[VID]  # 
+    set coo_SED = MassX*0                                                        # 
+    set coo_SED = (dist_to_MS_1>-99 && dist_to_MS_1>lg(6) && SNR>=3) ?  1 : coo_SED  # 
+    set coo_SED = (dist_to_MS_1>-99 && dist_to_MS_1<lg(4) && SNR>=3) ? -1 : coo_SED  # 
+    print "GOODSN_Distance_to_MS.txt" '%15g%15.0f%15g%15g%15g%15g%20g%20g%20g%20g\n' \
+          {coo_SED id dist_to_MS_1 dist_to_MS_2 lg_Mstar lg_SFR lg_MSSFR_Sargent lg_MSSFR_Schreiber Valid SNR}
+    chdir ".."

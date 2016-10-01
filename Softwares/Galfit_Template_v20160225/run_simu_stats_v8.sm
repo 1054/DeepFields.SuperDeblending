@@ -1,0 +1,1425 @@
+run_simu_stats_v8 02
+    # 
+    # Usage: 
+    #     macro read run_simu_stats_v8.sm run_simu_stats_v8 20cm 201500
+    #     macro read run_simu_stats_v8.sm run_simu_stats_v8 20cm_Glenn 201500
+    #     macro read run_simu_stats_v8.sm run_simu_stats_v8 20cm_Glenn 20160115
+    #     macro read run_simu_stats_v8.sm run_simu_stats_v8 850 20160812
+    #     
+    #     echo "macro read run_simu_stats_v8.sm run_simu_stats_v8 100 20151201" | sm | tee log_run_simu_stats_v8_20160913.txt
+    #     pdfjoin --rotateoversize 'false' sim_diagram_output_v8/*{bin,fbias,dfcorr}*.pdf
+    #     
+    #     echo "macro read run_simu_stats_v8.sm run_simu_stats_v8 160 20151201" | sm | tee log_run_simu_stats_v8_20160913.txt
+    #     pdfjoin --rotateoversize 'false' sim_diagram_output_v8/*{bin,fbias,dfcorr}*.pdf
+    #     
+    #     echo "macro read run_simu_stats_v8.sm run_simu_stats_v8 250 20151201" | sm | tee log_run_simu_stats_v8_20160913.txt
+    #     pdfjoin --rotateoversize 'false' sim_diagram_output_v8/*{bin,fbias,dfcorr}*.pdf
+    #     
+    #     echo "macro read run_simu_stats_v8.sm run_simu_stats_v8 350 20151201" | sm | tee log_run_simu_stats_v8_20160913.txt
+    #     pdfjoin --rotateoversize 'false' sim_diagram_output_v8/*{bin,fbias,dfcorr}*.pdf
+    #     
+    #     echo "macro read run_simu_stats_v8.sm run_simu_stats_v8 500 20151201" | sm | tee log_run_simu_stats_v8_20160913.txt
+    #     pdfjoin --rotateoversize 'false' sim_diagram_output_v8/*{bin,fbias,dfcorr}*.pdf
+    #     
+    #     echo "macro read run_simu_stats_v8.sm run_simu_stats_v8 1160 20151201" | sm | tee log_run_simu_stats_v8_20160913.txt
+    #     pdfjoin --rotateoversize 'false' sim_diagram_output_v8/*{bin,fbias,dfcorr}*.pdf
+    #     
+    #     echo "macro read run_simu_stats_v8.sm run_simu_stats_v8 850 20160812" | sm | tee log_run_simu_stats_v8_20160913.txt
+    #     pdfjoin --rotateoversize 'false' sim_diagram_output_v8/*{bin,fbias,dfcorr,hist}*.pdf
+    # 
+    # Update:
+    #     2015-12 do fbias and dfcorr step by step together
+    #     2016-09 do_plot_XXX
+    # 
+    
+    if($?1==0){
+        print 'Usage: \n' {} 
+        print '       macro read run_simu_stats_v8.sm run_simu_stats_v8 \$imax \$xdate\n' {} return
+    }
+    
+    load crabStat.sm
+    load crabPlot.sm
+    load crabPlotHistogram.sm
+    
+    define imax       $1
+    define xdate      $2
+    define imax_name "xsimuGN_OUT_"$imax"_"$xdate".txt"
+    define imax_mags "xpriorGN_MAG_"$imax"_"$xdate".txt"
+    #define rrrr_name "results_"$1"_201500" #<TODO>#
+    define outdir    "sim_diagram_output_v8"
+    
+    if(!is_file($imax_name)) {
+        print 'Error! $imax_name was not found!\n\n' {}
+        return
+    }
+    if(!is_file($imax_mags)) {
+        print 'Error! $imax_mags was not found!\n\n' {}
+        return
+    }
+    
+    echo  
+    !mkdir $outdir 2>/dev/null
+    echo  
+    
+    
+    # Read simulation results
+    data $imax_name read {px 1 py 2 sm 3 mm 4 em 5 noise 6 fres 7 closdist 8 crowdiness 9 faper 10}
+    data $imax_name read {strx 1.s stry 2.s strm 3.s id 11}
+    
+    
+    
+    # <TODO> filter some outliers? <20160111>
+    # if('$imax'=='20cm_Glenn') {
+    #     set svar = (fres/noise<150)
+    #     foreach var {px py sm mm em noise fres closdist crowdiness faper strx stry strm id} {
+    #         set ex_$var = $var if(!svar)
+    #     }
+    #     foreach var {px py sm mm em noise fres closdist crowdiness faper strx stry strm id} {
+    #         set $var = $var if(svar)
+    #     }
+    #     print $outdir"/aaa_outliers_excluded.txt" '%15.0f%15g%15g%15g%15g\n' {ex_id ex_sm ex_mm ex_fres ex_crowdiness}
+    # }
+    
+    
+    # <TODO> filter some outliers? <20160127>
+    if('$imax'=='16') {
+        set svar = (noise<100)
+        foreach var {px py sm mm em noise fres closdist crowdiness faper strx stry strm id} {
+            set ex_$var = $var if(!svar)
+        }
+        foreach var {px py sm mm em noise fres closdist crowdiness faper strx stry strm id} {
+            set $var = $var if(svar)
+        }
+        print $outdir"/aaa_outliers_excluded.txt" '%15.0f%15g%15g%15g%15g\n' {ex_id ex_sm ex_mm ex_fres ex_crowdiness}
+    }
+    
+    # <TODO> filter some outliers? <20160817>
+    if('$imax'=='850') {
+        set svar = (em!=0)
+        foreach var {px py sm mm em noise fres closdist crowdiness faper strx stry strm id} {
+            set ex_$var = $var if(!svar)
+        }
+        foreach var {px py sm mm em noise fres closdist crowdiness faper strx stry strm id} {
+            set $var = $var if(svar)
+        }
+        print $outdir"/aaa_outliers_excluded.txt" '%15.0f%15g%15g%15g%15g\n' {ex_id ex_sm ex_mm ex_fres ex_crowdiness}
+    }
+    
+    
+    # <TODO> define final scaling? <20160127>
+    if('$imax'=='16') {
+        define FinalScaling 0.9
+    }
+    if('$imax'=='160') {
+        define FinalScaling 0.9
+    }
+    if('$imax'=='250') {
+        define FinalScaling 0.9
+    }
+    if('$imax'=='350') {
+        define FinalScaling 0.95
+    }
+    if('$imax'=='850') {
+        define FinalScaling 0.95
+    }
+    
+    
+    # <TODO> define number of steps <20160817>
+    define NumberSteps 3
+    
+    if('$imax'=='850') {
+        define NumberSteps 2
+    }
+    
+    
+    
+    # <Added><20151220> recompute fres
+    # load fresidual.sm
+    # load astroPhot.sm
+    # set_goodsn_photometry_constants_$imax
+    # if(is_file("aaa_fresidual.txt") && 1) {
+    #     data "aaa_fresidual.txt" read fres 1
+    # } else {
+    #     data "xpriorGN_RAD_100_20151201.txt" read {sim_id 1 sim_ra 2 sim_de 3} #<TODO># redo residual by ourselves here
+    #     !ln -s "../Galfit_Band100_Pass1/FIT_goodsn_100_Map_201512_vary.fits"
+    #     set fres = fresidual("FIT_goodsn_100_Map_201512_vary.fits[2]", sim_ra, sim_de, $rBeam_$imax/2.0)
+    #     print "aaa_fresidual.txt" <fres sim_id>
+    # }
+    
+    
+    # Set vectors (compatible)
+    set fRes$imax = fres
+    set closeDis$imax = crowdiness
+    set x$imax = px
+    set y$imax = py
+    
+    
+    # Convert mag to flux
+    load astroPhot.sm
+    set_goodsn_photometry_constants_$imax
+    define fBias_$imax 0.0 # define mBias_$imax 0.0
+    set f$imax = 0.0 
+    set df$imax = 0.0 
+    set m$imax = 0.0 
+    set em$imax = 0.0
+    convert_mag2flux goodsn $imax mm em
+    set ff = f$imax 
+    set fe = df$imax
+    set Tf = ff 
+    set f = ff 
+    set df = fe 
+    set Tdf = fe 
+    set Edf = fe
+    convert_mag2flux goodsn $imax sm em
+    set Xf = f$imax 
+    set Xm = sm
+    
+    
+    # Normalize by noise
+    set dfRMS = fe/noise
+    vecminmax dfRMS feMin feMax
+    stats dfRMS feMean feSigma feKurt
+    stats_med dfRMS feMedian feSIQR
+    set fresRMS = fres/noise
+    set crowRMS = crowdiness/noise
+    set crow = crowdiness
+    
+    
+    # Analyzing sources
+    echo  
+    echo Analyzing $(dimen(Xf)) sources
+    echo  
+    
+    
+    # Analyzing flux bias
+    stats_med (Xf-f) fbias fsiqr
+    
+    
+    # 
+    # 2015-12: 
+    #   we will bin simulated sources by parameters
+    #   and check the f, df in each bin
+    #   then define fbias and dfcorr as a function of that parameter
+    # 
+    # 
+    
+    
+    
+    #<TODO># do we need to do a first first step with constant fbias and linear dfcorr?
+    #<TODO># go_check_stats 0 
+    
+    
+    
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # 
+    # Test bin by df
+    # 
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # 
+    # <TODO><TEST> 
+    if(0) {
+        # 
+        # dfBinVolume
+        set dfBinVolume = <0.3 0.3 0.3 0.3 0.2 0.1>
+        # 
+        # divide bins
+        ### set binVolume = <0.1 0.1 0.1 0.1 0.1 0.1>
+        ### set binVar = lg(df)
+        ### define plotTitle "\sigma{f}_{galfit} [mJy]" # "flux uncertainty"
+        ### set binVar = lg(df/noise)
+        ### define plotTitle "\sigma{f}_{galfit} [mJy]" # "flux uncertainty"
+        ### ### set binVar = lg(noise)
+        ### ### define plotTitle "\sigma{noise} [mJy]" # "noise rms"
+        ### set binVar = lg(f)
+        ### define plotTitle "flux [mJy]" # "flux"
+        ### set binVar = (f/df)
+        ### define plotTitle "S/N ratio" # "S/N ratio"
+        ### set binVar = lg(fres)
+        ### define plotTitle "f_{residual} [mJy]"
+        ### set binVar = lg(fresRMS)
+        ### define plotTitle "f_{residual}\,/\,noise [mJy]"
+        ### set binVolume = <0.01 0.03 0.06 0.1 0.1 0.1 0.1 0.075 0.018 0.006>
+        set binVar = lg(crowdiness)
+        define plotTitle "crowdiness"
+        # 
+        go_analyze_fbias 9
+        set Tf = Tf + fbias_9 # correcting flux bias: Tf is corrected one, Tf0 is uncorrected one. 
+        # 
+        go_analyze_dfcorr 9
+        set df = df*dfcorr_9 # correcting flux uncertainty: df is corrected one, Edf0 is uncorrected one. 
+        # 
+        echo   
+        echo   Bin by $plotTitle
+        echo   
+        print '%16.5f %10.0f %16.5f %16.5f %16.5f %16.5f %16.5f %16.5f\n' \
+              {binCen binHis BIN_fbias SNR_fbias BIN_dfgal BIN_dfsim FUN_dfcorr_x FUN_dfcorr_y}
+        # 
+        go_check_stats 9
+        # 
+        # <TODO><TEST>
+        return
+    }
+    
+    
+    
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # 
+    # Bin by df/rms (dfRMS)
+    # 
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # 
+    if($NumberSteps>=1) {
+        # 
+        # set binVolume = <0.03 0.27 0.35 0.20 0.10 0.05 0.01>
+        set binVolume = <10 50 100 50 10 5 1>
+        if('$imax'=='20cm_Glenn') {set binVolume = <10 50 100 50 10 5 1>}
+        if('$imax'=='20cm') {set binVolume = <10 50 100 50 10 5 1>}
+        if('$imax'=='24') {set binVolume = <10 50 50 50 30 15 5>}
+        if('$imax'=='16') {set binVolume = <10 50 100 50 10 5 1>}
+        if('$imax'=='100') {set binVolume = <8 80 100 20 10 4 2 1>}
+        if('$imax'=='160') {set binVolume = <8 80 100 20 10 4 2 1>}
+        if('$imax'=='250') {set binVolume = <8 80 100 20 10 4 2 1>}
+        if('$imax'=='350') {set binVolume = <8 80 100 20 10 4 2 1>}
+        if('$imax'=='500') {set binVolume = <8 80 100 20 10 4 2 1>}
+        if('$imax'=='1160') {set binVolume = <8 80 100 20 10 4 2 1>}
+        if('$imax'=='850') {set binVolume = <6 30 60 100 20 10>}
+        # 
+        set binVar = lg(dfRMS)
+        define plotTitle "\sigma_{galfit}/\sigma_{rms\,noise}" # "flux uncertainty\,/\,rms\,noise"
+        # 
+        # if('$imax'=='20cm') {
+        #     set binVolume = <0.03 0.27 0.4 0.3 0.05 0.05 0.02 0.005 0.001>
+        # }
+        # 
+        go_analyze_fbias 1
+        set Tf = Tf + fbias_1 # correcting flux bias: Tf is corrected one, Tf0 is uncorrected one. 
+        # 
+        go_analyze_dfcorr 1
+        set df = df*dfcorr_1 # correcting flux uncertainty: df is corrected one, Edf0 is uncorrected one. 
+        # 
+        # <DZLIU><20151216> new method, not using aaF ccF any more
+        # set aaF = binCen
+        # set ccF = RMSInBin
+        # 
+        # <EDADDI><20140605>
+        # if(ccF[dimen(ccF)-1]<aaF[dimen(aaF)-1]) { set ccF[dimen(ccF)-1] = aaF[dimen(aaF)-1] }
+        # <EDADDI><20140707> we do not correct the df to be smaller, but only larger?
+        # set ccF = ccF>aaF ? ccF : aaF
+        # 
+        echo   
+        echo   Bin by df/noise (galfit output flux uncertainty normalized by rms noise)
+        echo   
+        print '%16.5f %10.0f %16.5f %16.5f %16.5f %16.5f %16.5f %16.5f\n' \
+              {binCen binHis BIN_fbias SNR_fbias BIN_dfgal BIN_dfsim FUN_dfcorr_x FUN_dfcorr_y}
+        # 
+        go_check_stats 1
+        
+        go_check_outliers
+        
+        plot_S_in_S_out
+        
+        # 
+        # if('$imax'=='20cm_Glenn') { return }
+        # if('$imax'=='20cm') { return }
+    }
+    
+    
+    
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # 
+    # Bin by fres/rms (fresRMS)
+    # 
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # 
+    if($NumberSteps>=2) {
+        # 
+        # set binVolume = <0.02 0.08 0.1 0.2 0.1 0.06 0.01 0.005>
+        set binVolume = <10 50 100 50 10 5 1>
+        if('$imax'=='20cm_Glenn') {set binVolume = <5 5 25 25 50 50 25 25 10 5>}
+        if('$imax'=='20cm') {set binVolume = <10 50 100 50 10 5 1>}
+        if('$imax'=='24') {set binVolume = <10 50 100 50 10 5 1>}
+        if('$imax'=='16') {set binVolume = <10 50 50 50 25 25 10>}
+        if('$imax'=='100') {set binVolume = <10 50 100 50 10 5 1>}
+        if('$imax'=='100') {set binVolume = <0.02 0.08 0.1 0.1 0.1 0.08 0.02>}
+        if('$imax'=='160') {set binVolume = <0.02 0.08 0.1 0.1 0.1 0.08 0.02>}
+        if('$imax'=='250') {set binVolume = <0.02 0.08 0.1 0.1 0.1 0.08 0.02>}
+        if('$imax'=='350') {set binVolume = <0.02 0.08 0.1 0.1 0.1 0.08 0.02>}
+        if('$imax'=='500') {set binVolume = <0.02 0.08 0.1 0.1 0.1 0.08 0.02>}
+        if('$imax'=='1160') {set binVolume = <0.02 0.08 0.1 0.1 0.1 0.08 0.02>}
+        #if('$imax'=='850') {set binVolume = <0.1 0.1 0.1 0.1 0.08 0.02>} # Galsim_20160812 analyze_20160812
+        if('$imax'=='850') {set binVolume = <0.03 0.07 0.1 0.1 0.1 0.08 0.02>} # Galsim_20160812 analyze_20160913
+        set binVar = lg(fresRMS)
+        define plotTitle "f_{residual}/\sigma_{rms\,noise}" # "flux in residual image\,/\,rms\,noise"
+        # 
+        go_analyze_fbias 2
+        set Tf = Tf + fbias_2 # correcting flux bias: Tf is corrected one, Tf0 is uncorrected one. 
+        # 
+        go_analyze_dfcorr 2
+        set df = df*dfcorr_2 # correcting flux uncertainty: df is corrected one, Edf0 is uncorrected one. 
+        # 
+        echo   
+        echo   Bin by fresidual/noise (galfit output flux uncertainty normalized by rms noise)
+        echo   
+        print '%16.5f %10.0f %16.5f %16.5f %16.5f %16.5f %16.5f %16.5f\n' \
+              {binCen binHis BIN_fbias SNR_fbias BIN_dfgal BIN_dfsim FUN_dfcorr_x FUN_dfcorr_y}
+        # 
+        go_check_stats 2
+    }
+    
+    
+    
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # 
+    # Bin by crowdiness/rms (crowRMS)
+    # 
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    # 
+    if($NumberSteps>=3) {
+        # 
+        # set binVolume = <0.2 0.1 0.1 0.1 0.1 0.08 0.02>
+        set binVolume = <400 30 15 10 7>
+        if('$imax'=='20cm_Glenn') {set binVolume = <400 30 15 10 7>}
+        if('$imax'=='20cm') {set binVolume = <400 30 15 10 7>}
+        if('$imax'=='24') {set binVolume = <30 70 100 70 50 30 7>}
+        if('$imax'=='16') {set binVolume = <400 30 15 10 7>}
+        if('$imax'=='100') {set binVolume = <250 80 60 60 50 20 5>}
+        if('$imax'=='160') {set binVolume = <250 80 60 60 50 20 5>}
+        if('$imax'=='250') {set binVolume = <150 100 80 60 60 50 20 5>}
+        if('$imax'=='350') {set binVolume = <150 100 80 60 60 50 20 5>}
+        if('$imax'=='500') {set binVolume = <150 100 80 60 60 50 20 5>}
+        if('$imax'=='1160') {set binVolume = <150 100 80 60 60 50 20 5>}
+        if('$imax'=='850') {set binVolume = <150 100 80 60 60 50 20 5>}
+        # 
+        set binVar = lg(crow)
+        define plotTitle "crowdiness" # "crowdiness normalized by rms noise"
+        # 
+        go_analyze_fbias 3
+        set Tf = Tf + fbias_3 # correcting flux bias: Tf is corrected one, Tf0 is uncorrected one. 
+        # 
+        go_analyze_dfcorr 3
+        set df = df*dfcorr_3 # correcting flux uncertainty: df is corrected one, Edf0 is uncorrected one. 
+        # 
+        echo   
+        echo   Bin by crowdiness
+        echo   
+        print '%16.5f %10.0f %16.5f %16.5f %16.5f %16.5f %16.5f %16.5f\n' \
+              {binCen binHis BIN_fbias SNR_fbias BIN_dfgal BIN_dfsim FUN_dfcorr_x FUN_dfcorr_y}
+        # 
+        go_check_stats 3
+    }
+    
+    
+    
+    # FINAL
+    # CHECK OUTLIERS
+    go_check_outliers
+    go_check_outliers_df
+    plot_S_in_S_out
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+plot_S_in_S_out 
+    # plot Sin vs Sout
+    ticksize -1 10 0 0
+    ctype blue lweight 0.2 expand 0.3 location 6000 31500 18000 31500
+    crabPlotQuickPlot (lg(Xf)) (Xf-(Tf)) $outdir/galsim_$imax""_S_in_S_out.eps keep
+    ctype default lweight 4.0 ltype 1 rel $fx1 0 draw $fx2 0 # plot horizontal Y=0 line
+    ctype default lweight 4.5 ltype 0 expand 2.2 xlabel "S_{in} [mJy]" # plot title 
+    ctype default lweight 4.5 ltype 0 expand 2.0 ylabel "(S_{in}-S_{out}) [mJy]"
+    crabPlotClosePS
+
+
+
+go_analyze_fbias 01
+    # 
+    # check input
+    if(!is_vector(binVar) || !is_vector(binVolume)) {
+        print 'Error! go_analyze_fbias needs these vectors:\n' {}
+        print '       binVar, binVolume, Xf, Tf, \n' {}
+        print '       plotTitle (string variable)\n' {}
+        return
+    }
+    # 
+    # check fbias=mean(Xf-Tf) in each bin
+    crabStat_vecBins binVar binVolume binCen binHis (Xf-Tf) MeanInBin MedianInBin SigmaInBin RMSInBin
+    ## crabStat_vecBins_ULog binVar 6 binCen binHis (Xf-Tf) MeanInBin MedianInBin SigmaInBin RMSInBin
+    set SNR_fbias = MedianInBin/SigmaInBin*sqrt(dimen(binCen))
+    set BIN_fbias = MedianInBin
+    #<TODO># set SNR_fbias = MeanInBin/SigmaInBin*sqrt(dimen(binCen))
+    #<TODO># set BIN_fbias = MeanInBin
+    # 
+    # correc fbias
+    set FUN_fbias_variable = binCen
+    set FUN_fbias_value = MedianInBin #<TODO># MedianInBin or MeanInBin?
+    set FUN_fbias_order = 2 #<TODO># order of polyfit for flux bias?
+    if('$imax'=='100' && '$1'=='2') {set FUN_fbias_order = 3} #<TODO># Band100 fres-dfcorr
+    set FUN_fbias_$1 = fit_PolyLine(FUN_fbias_variable, FUN_fbias_value, FUN_fbias_order)
+    set fbias_$1 = get_PolyLine(FUN_fbias_$1, binVar)
+    print $outdir"/FUN_fbias_"$1".txt" <FUN_fbias_$1>
+    print $outdir"/VAL_fbias_"$1".txt" <fbias_$1>
+    # 
+    go_plot_bin_fbias $1
+    # 
+    set fbias_var = binVar
+    go_plot_fbias $1
+
+
+
+go_analyze_dfcorr 01
+    # 
+    # check input
+    if(!is_vector(binVar) || !is_vector(binVolume)) {
+        print 'Error! go_analyze_dfcorr needs these vectors:\n' {}
+        print '       binVar, binVolume, Xf, Tf, df, noise, \n' {}
+        print '       plotTitle (string variable)\n' {}
+        return
+    }
+    # 
+    # check df_galfit in each bin
+    crabStat_vecBins binVar binVolume binCen binHis (df) MeanInBin MedianInBin SigmaInBin RMSInBin
+    ## crabStat_vecBins_ULog binVar 6 binCen binHis (df) MeanInBin MedianInBin SigmaInBin RMSInBin
+    set BIN_dfgal = MeanInBin # galfit flux uncertainty
+    # 
+    # check df_rms(Xf-Tf) in each bin
+    crabStat_vecBins binVar binVolume binCen binHis (Xf-Tf) MeanInBin MedianInBin SigmaInBin RMSInBin
+    ## crabStat_vecBins_ULog binVar 6 binCen binHis (Xf-Tf) MeanInBin MedianInBin SigmaInBin RMSInBin
+    set BIN_dfsim = RMSInBin # true flux uncertainty
+    # 
+    # compute dfcorr = true flux unc. / galfit flux unc.
+    set FUN_dfcorr_x = binCen
+    set FUN_dfcorr_y = BIN_dfsim / BIN_dfgal
+    set FUN_dfcorr_order = 2 #<TODO># order of polyfit for dfcorr?
+    if('$imax'=='100' && '$1'=='3') {set FUN_dfcorr_order = 3} #<TODO># Band100 crow-dfcorr
+    set FUN_dfcorr_$1 = fit_PolyLine(FUN_dfcorr_x, FUN_dfcorr_y, FUN_dfcorr_order)
+    set VAR_dfcorr_$1 = binVar
+    set dfcorr_$1 = get_PolyLine(FUN_dfcorr_$1, VAR_dfcorr_$1)
+    go_constrain_dfcorr $1
+    print $outdir"/FUN_dfcorr_"$1".txt" <FUN_dfcorr_$1>
+    print $outdir"/VAR_dfcorr_"$1".txt" <VAR_dfcorr_$1 dfcorr_$1>
+    print $outdir"/VAL_dfcorr_"$1".txt" <dfcorr_$1>
+    # 
+    go_plot_bin_scatter $1
+    # 
+    set dfcorr_var = binVar
+    go_plot_dfcorr $1
+
+
+
+go_plot_bin_fbias 02
+    # Plot a scatter plot for the input correction step
+    # Input 1 is the step number, 
+    # 1 for binVar = dfgalfit/rms
+    # 2 for binVar = fresidual/rms
+    # 3 for binVar = crowdiness
+    # The scatter plot contains (S_{in}-S_{out}) uncorrected and corrected
+    # X axis is the dependent paramter (binVar)
+    # Y axis is (S_{in}-S_{out})
+    # Input 2 is output eps file name (optional)
+    # This subroutine is split from subroutine "go_analyze_fbias"
+    # 20160913
+    # 
+    # check input and vectors
+    if(!$?1) {print 'Error! Please input step number!\n'{} exit }
+    if(!$?imax) {print 'Error! Please define band number \$imax!\n'{} exit }
+    if(!is_vector(Xf)) {print 'Error! Data array Xf was not set!\n' {} exit }
+    if(!is_vector(Tf)) {print 'Error! Data array Tf was not set!\n' {} exit }
+    if(!is_vector(fenBinEdges)) {print 'Error! Data array fenBinEdges was not set!\n' {} exit }
+    if(!is_vector(binVar)) {print 'Error! Data array binVar was not set!\n' {} exit }
+    # 
+    # plot bin (S_{in}-S_{out}) i.e. fbias
+    load crabPlot.sm
+    if($?2) {
+        crabPlotOpenPS $2
+    } else {
+        crabPlotOpenPS $outdir/galsim_$imax""_bin_fbias_$1.eps
+    }
+    set rangeX = binVar
+    set rangeY = (Xf-(Tf))
+    set rangeY = rangeY concat (-rangeY)
+    location 6000 28000 20000 31000
+    ticksize -1 10 0 0
+    if($1==3) {ticksize -1 1 0 0}
+    limits rangeX rangeY
+    crabPlotDefaultPenForBox box 
+    ctype blue lweight 0.2 expand 0.3 points binVar (Xf-(Tf))
+    ctype default lweight 4.5 ltype 1 # plot edge of bins
+    foreach binEdge fenBinEdges {rel $(($binEdge)) $fy1 draw $(($binEdge)) $fy2}
+    ctype default lweight 4.0 ltype 1 rel $fx1 0 draw $fx2 0 # plot horizontal Y=0 line
+    ctype default lweight 4.5 ltype 0 expand 2.2 xlabel $plotTitle # plot title 
+    ctype default lweight 4.5 ltype 0 expand 2.0 ylabel "(S_{in}-S_{out}) [mJy]"
+    set plotX = binVar set plotY = fbias_$1 sort {plotX plotY} # the fbias function
+    ctype default lweight 5.5 expand 0.85 connect plotX plotY
+    ctype red     lweight 2.5 expand 0.85 connect plotX plotY
+    ctype default lweight 5.5 expand 1.35 relocate $(plotX[dimen(plotX)-1]) $(plotY[dimen(plotY)-1]) putlabel 4 "flux bias"
+    ctype red     lweight 2.5 expand 1.35 relocate $(plotX[dimen(plotX)-1]) $(plotY[dimen(plotY)-1]) putlabel 4 "flux bias"
+    ctype navyblue lweight 4.5 expand 3.0 ptype 4 0 points binCen MedianInBin
+    crabPlotClosePS
+
+
+
+go_plot_bin_scatter 02
+    # Plot a scatter plot for the input correction step
+    # Input 1 is the step number, 
+    # 1 for dfcorr_var = dfgalfit/rms
+    # 2 for dfcorr_var = fresidual/rms
+    # 3 for dfcorr_var = crowdiness
+    # The scatter plot contains (S_{in}-S_{out}/df_uncorr) and (S_{in}-S_{out}/df_corr)
+    # X axis is the dependent paramter (dfcorr_var)
+    # Y axis is (S_{in}-S_{out}/df)
+    # Input 2 is output eps file name (optional)
+    # This subroutine is split from subroutine "go_analyze_dfcorr"
+    # 20160913
+    # 
+    # check input and vectors
+    if(!$?1) {print 'Error! Please input step number!\n'{} exit }
+    if(!$?imax) {print 'Error! Please define band number \$imax!\n'{} exit }
+    if(!is_vector(Xf)) {print 'Error! Data array Xf was not set!\n' {} exit }
+    if(!is_vector(Tf)) {print 'Error! Data array Tf was not set!\n' {} exit }
+    if(!is_vector(df)) {print 'Error! Data array df was not set!\n' {} exit }
+    if(!is_vector(dfcorr_$1)) {print 'Error! Data array dfcorr_$1 was not set!\n' {} exit }
+    if(!is_vector(fenBinEdges)) {print 'Error! Data array fenBinEdges was not set!\n' {} exit }
+    if(!is_vector(binVar)) {print 'Error! Data array binVar was not set!\n' {} exit }
+    # 
+    # plot (Xf-Tf)/df before and after correction agains Param.
+    load crabPlot.sm
+    if($?2) {
+        crabPlotOpenPS $2
+    } else {
+        crabPlotOpenPS $outdir/galsim_$imax""_bin_dfcorr_$1.eps
+    }
+    # determine plotTitle
+    if($1==1) { define plotTitle "\sigma_{galfit}/\sigma_{rms\,noise}" } # "flux uncertainty\,/\,rms\,noise"
+    if($1==2) { define plotTitle "f_{residual}/\sigma_{rms\,noise}" } # "flux in residual image\,/\,rms\,noise"
+    if($1==3) { define plotTitle "crowdiness" }
+    # compute plot range
+    ###verbose 0
+    ###load vecStats.sm vecStats binVar
+    ###load vecStats.sm vecStats fenBinEdges
+    ###verbose 1
+    #<20160913># set binRange1 = fenBinEdges[1]                                                                           #<TODO># tune plot limits XRange
+    #<20160913># set binRange1 = binRange1 - 0.7*abs(fenBinEdges[2]-fenBinEdges[1])                                       #<TODO># tune plot limits XRange
+    #<20160913># set binRange2 = fenBinEdges[dimen(fenBinEdges)-2]                                                        #<TODO># tune plot limits XRange
+    #<20160913># set binRange2 = binRange2 + 2.0*abs(fenBinEdges[dimen(fenBinEdges)-2]-fenBinEdges[dimen(fenBinEdges)-3]) #<TODO># tune plot limits XRange
+    #<20160913># set binRange1 = fenBinEdges[0]                                                                           #<TODO># tune plot limits XRange
+    #<20160913># set binRange2 = fenBinEdges[dimen(fenBinEdges)-1]                                                        #<TODO># tune plot limits XRange
+    #<20160913># set rangeX = binRange1 concat binRange2
+    #<20160913># ###set rangeX = binVar_MIN_3SIGMA concat binVar_MAX_6SIGMA
+    #<20160913># ###set rangeX = fenBinEdges_MIN_2SIGMA concat fenBinEdges_MAX_2SIGMA
+    set rangeX = binVar
+    set rangeY = abs((Xf-Tf)/(df))*1.2
+    set rangeY = rangeY concat (-rangeY)
+    location 6000 28000 20000 31000
+    ticksize -1 10 0 0
+    if($1==3) {ticksize -1 1 0 0}
+    limits rangeX rangeY
+    crabPlotDefaultPenForBox box 1 2 0 3
+    ctype blue lweight 0.2 expand 0.3 points binVar ((Xf-Tf)/(df))
+    ctype default lweight 4.0 ltype 0 rel $fx1 0 draw $fx2 0 # plot horizontal Y=0 line
+    ctype red lweight 0.3 expand 0.4 points binVar ((Xf-Tf)/(df*dfcorr_$1))
+    ctype default lweight 4.5 ltype 1 # plot edge of bins
+    foreach binEdge fenBinEdges {rel $(($binEdge)) $fy1 draw $(($binEdge)) $fy2}
+    ctype default lweight 4.5 ltype 0 expand 2.2 xlabel $plotTitle # plot title 
+    ctype default lweight 4.5 ltype 0 expand 2.0 ylabel "(S_{in}-S_{out})/\sigma_{"$imax"}"
+    ctype default lweight 5.5 expand 1.7 relocate (7000 29500) puts "before corr."
+    ctype blue    lweight 2.5 expand 1.7 relocate (7000 29500) puts "before corr."
+    ctype default lweight 5.5 expand 1.7 relocate (7000 28000) puts "after corr."
+    ctype red     lweight 2.5 expand 1.7 relocate (7000 28000) puts "after corr."
+    # overplot applied correction factor / dfcorr function in Y2 axis
+    set rangeY = {-1 1.5} # rangeY1 concat rangeY2
+    limits rangeX rangeY
+    ticksize -1 10 -1 10
+    if($1==3) {ticksize -1 1 -1 10}
+    crabPlotDefaultPenForBox box 3 3 3 2
+    set plotX = binVar
+    set plotY = lg(dfcorr_$1)
+    sort {plotX plotY} # the dfcorr function
+    ctype default lweight 6.0 expand 0.85 connect plotX plotY
+    ctype red     lweight 3.5 expand 0.85 connect plotX plotY
+    ctype default lweight 6.0 expand 1.25 relocate $(plotX[dimen(plotX)-1]) $(plotY[dimen(plotY)-1]) putlabel 4 "\sigma \ corr. factor"
+    ctype red     lweight 2.5 expand 1.25 relocate $(plotX[dimen(plotX)-1]) $(plotY[dimen(plotY)-1]) putlabel 4 "\sigma \ corr. factor"
+    ctype default lweight 4.5 expand 1.5 # plot Y2 axis title
+    relocate $($fx2+0.15*($fx2-$fx1)) $($fy2-0.5*($fy2-$fy1)) angle 90 putlabel 8 "\sigma \ corr. factor"
+    angle 0
+    # close plot file
+    #set plotX = binVar set plotY = dfcorr_$1 sort {plotX plotY} # the dfcorr function
+    #ctype red lweight 2.5 expand 0.85 connect plotX plotY
+    #ctype red lweight 4.5 expand 1.5
+    #relocate $(plotX[dimen(plotX)-1]) $(plotY[dimen(plotY)-1]) putlabel 4 "\sigma{f} corr."
+    crabPlotClosePS
+
+
+
+go_plot_fbias 02
+    # Plot a scatter plot for the input correction step
+    # Input 1 is the step number, 
+    # 1 for binVar = dfgalfit/rms
+    # 2 for binVar = fresidual/rms
+    # 3 for binVar = crowdiness
+    # The scatter plot contains uncorrected and corrected flux in log axis
+    # X axis is the dependent paramter (binVar)
+    # Y axis is the flux before and after correction in log axis
+    # Input 2 is output eps file name (optional)
+    # This subroutine is split from subroutine "go_correct_fbias"
+    # 20160913
+    # 
+    # check input and vectors
+    if(!$?1) {print 'Error! Please input step number!\n'{} exit }
+    if(!$?imax) {print 'Error! Please define band number \$imax!\n'{} exit }
+    if(!is_vector(f)) {print 'Error! Data array f was not set!\n' {} exit }
+    if(!is_vector(df)) {print 'Error! Data array df was not set!\n' {} exit }
+    if(!is_vector(fbias_$1)) {print 'Error! Data array fbias_$1 was not set!\n' {} exit }
+    if(!is_vector(fbias_var)) {print 'Error! Data array fbias_var was not set!\n' {} exit }
+    # 
+    # plot dfcorr -- Y axis is log
+    load crabPlot.sm
+    if($?2) {
+        crabPlotOpenPS $2
+    } else {
+        crabPlotOpenPS $outdir/galsim_$imax""_fbias_$1.eps
+    }
+    # determine plotTitle
+    if($1==1) { define plotTitle "\sigma_{galfit}/\sigma_{rms\,noise}" } # "flux uncertainty\,/\,rms\,noise"
+    if($1==2) { define plotTitle "f_{residual}/\sigma_{rms\,noise}" } # "flux in residual image\,/\,rms\,noise"
+    if($1==3) { define plotTitle "crowdiness" }
+    # determine affected data points
+    #if(!is_vector(fbias_coo)) {
+        set fbias_coo = (f>0 && f+fbias_$1>0 && df>0 && df<1e10 && f>0.1*df) #<TODO># only affect S/N>0.1 data points
+    #}
+    # compute plot range
+    set rangeX = fbias_var     if(fbias_coo)
+    set rangeY1 = (f)          if(fbias_coo)
+    set rangeY2 = (f+fbias_$1) if(fbias_coo)
+    set rangeY = rangeY1 concat rangeY2
+    #<lg>#set rangeY = (lg(rangeY1)) concat (lg(rangeY2))
+    location 6000 28000 20000 31000
+    #<lg>#ticksize -1 10 -1 10
+    #<lg>#if($1==3) {ticksize -1 1 -1 10}
+    ticksize -1 10 0 0
+    if($1==3) {ticksize -1 1 0 0}
+    limits rangeX rangeY
+    crabPlotDefaultPenForBox box 1 2 0 3
+    # plot uncorrected flux
+    set plotX = fbias_var if(fbias_coo)
+    set plotY = (f)       if(fbias_coo)
+    #<lg>#set plotY = lg(plotY)
+    sort {plotX plotY}
+    set plotPosY = plotY[0]
+    set plotPosY1 = plotPosY
+    ctype blue lweight 0.2 expand 0.3 points plotX plotY
+    # plot corrected flux error
+    set plotX = fbias_var    if(fbias_coo)
+    set plotY = (f+fbias_$1) if(fbias_coo)
+    #<lg>#set plotY = lg(plotY)
+    sort {plotX plotY}
+    set plotPosY = (abs(plotY[0]-plotPosY)>0.10*($fy2-$fy1)) ? plotY[0] : plotPosY + 0.10*($fy2-$fy1)*(abs(plotY[0]-plotPosY)/(plotY[0]-plotPosY)) # in case text overlap
+    set plotPosY2 = plotPosY
+    ctype red lweight 0.3 expand 0.4 points plotX plotY
+    # plot annotation for uncorrected flux
+    ctype default lweight 6.5 expand 1.7 relocate $($fx1+0.05*($fx2-$fx1)) $(plotPosY1) puts "f_{uncorr.}"
+    ctype blue    lweight 2.5 expand 1.7 relocate $($fx1+0.05*($fx2-$fx1)) $(plotPosY1) puts "f_{uncorr.}"
+    # plot annotation for corrected flux
+    ctype default lweight 6.5 expand 1.7 relocate $($fx1+0.05*($fx2-$fx1)) $(plotPosY2) puts "f_{corr.}"
+    ctype red     lweight 2.5 expand 1.7 relocate $($fx1+0.05*($fx2-$fx1)) $(plotPosY2) puts "f_{corr.}"
+    ctype default lweight 4.5 ltype 1 # plot edge of bins
+    # plot bins
+    if(is_vector(fenBinEdges)) {
+        foreach binEdge fenBinEdges {rel $(($binEdge)) $fy1 draw $(($binEdge)) $fy2}
+    }
+    # plot title
+    ctype default lweight 4.5 expand 2.2 xlabel $plotTitle # plot title
+    ctype default lweight 4.5 expand 2.0 ylabel "f_{"$imax"} [mJy]"
+    # overplot applied correction factor / fbias function in Y2 axis
+    #<lg>#set rangeY = {-1 1.5} # rangeY1 concat rangeY2
+    #set rangeY = fbias_$1*2.0 if(fbias_coo)
+    limits rangeX rangeY
+    ticksize -1 10 0 0
+    if($1==3) {ticksize -1 1 0 0}
+    crabPlotDefaultPenForBox box 3 3 3 2
+    set plotX = fbias_var if(fbias_coo)
+    set plotY = fbias_$1  if(fbias_coo)
+    sort {plotX plotY} # the fbias function
+    ctype default lweight 6.0 expand 0.85 connect plotX plotY
+    ctype red     lweight 3.5 expand 0.85 connect plotX plotY
+    ctype default lweight 6.0 expand 1.35 relocate $(plotX[dimen(plotX)-1]) $(plotY[dimen(plotY)-1]) putlabel 4 "flux bias"
+    ctype red     lweight 2.5 expand 1.35 relocate $(plotX[dimen(plotX)-1]) $(plotY[dimen(plotY)-1]) putlabel 4 "flux bias"
+    ctype default lweight 4.5 expand 1.5 # plot Y2 axis title
+    relocate $($fx2+0.15*($fx2-$fx1)) $($fy2-0.5*($fy2-$fy1)) angle 90 putlabel 8 "flux bias [mJy]"
+    angle 0
+    # close plot file
+    crabPlotClosePS
+
+
+
+go_plot_dfcorr 02
+    # Plot a scatter plot for the input correction step
+    # Input 1 is the step number, 
+    # 1 for dfcorr_var = dfgalfit/rms
+    # 2 for dfcorr_var = fresidual/rms
+    # 3 for dfcorr_var = crowdiness
+    # The scatter plot contains df_uncorr and df_corr and the correction factor curve
+    # X axis is the dependent paramter (dfcorr_var)
+    # Y axis is df (left Y axis) or correction factor (right Y axis / Y2 axis)
+    # Input 2 is output eps file name (optional)
+    # This subroutine is split from subroutine "go_analyze_dfcorr"
+    # 20160913
+    # 
+    # check input and vectors
+    if(!$?1) {print 'Error! Please input step number!\n'{} exit }
+    if(!$?imax) {print 'Error! Please define band number \$imax!\n'{} exit }
+    if(!is_vector(df)) {print 'Error! Data array df was not set!\n' {} exit }
+    if(!is_vector(dfcorr_$1)) {print 'Error! Data array dfcorr_$1 was not set!\n' {} exit }
+    if(!is_vector(dfcorr_var)) {print 'Error! Data array dfcorr_var was not set!\n' {} exit }
+    # 
+    # plot dfcorr -- Y axis is log
+    load crabPlot.sm
+    if($?2) {
+        crabPlotOpenPS $2
+    } else {
+        crabPlotOpenPS $outdir/galsim_$imax""_dfcorr_$1.eps
+    }
+    # determine plotTitle
+    if($1==1) { define plotTitle "\sigma_{galfit}/\sigma_{rms\,noise}" } # "flux uncertainty\,/\,rms\,noise"
+    if($1==2) { define plotTitle "f_{residual}/\sigma_{rms\,noise}" } # "flux in residual image\,/\,rms\,noise"
+    if($1==3) { define plotTitle "crowdiness" }
+    # determine affected data points
+    if(!is_vector(dfcorr_coo)) {
+        set dfcorr_coo = (df>0 && df<1e10) #<TODO># only affect df>0 and df<1e10 data points
+    }
+    # compute plot range
+    set rangeX = dfcorr_var          if(dfcorr_coo)
+    set rangeY1 = (lg(df))           if(dfcorr_coo)
+    set rangeY2 = (lg(df*dfcorr_$1)) if(dfcorr_coo)
+    set rangeY = rangeY1 concat rangeY2
+    location 6000 28000 20000 31000
+    ticksize -1 10 -1 10
+    if($1==3) {ticksize -1 1 -1 10}
+    limits rangeX rangeY
+    crabPlotDefaultPenForBox box 1 2 0 3
+    # plot uncorrected flux error
+    set plotX = dfcorr_var if(dfcorr_coo)
+    set plotY = (lg(df))   if(dfcorr_coo)
+    sort {plotX plotY}
+    set plotPosY = plotY[0]
+    ctype blue    lweight 0.2 expand 0.3 points plotX plotY
+    ctype default lweight 6.5 expand 1.7 relocate $($fx1+0.05*($fx2-$fx1)) $(plotPosY) puts "\sigma_{}_{uncorr.}"
+    ctype blue    lweight 2.5 expand 1.7 relocate $($fx1+0.05*($fx2-$fx1)) $(plotPosY) puts "\sigma_{}_{uncorr.}"
+    # plot corrected flux error
+    set plotX = dfcorr_var         if(dfcorr_coo)
+    set plotY = (lg(df*dfcorr_$1)) if(dfcorr_coo)
+    sort {plotX plotY}
+    set plotPosY = (abs(plotY[0]-plotPosY)>0.10*($fy2-$fy1)) ? plotY[0] : plotPosY + 0.10*($fy2-$fy1)*(abs(plotY[0]-plotPosY)/(plotY[0]-plotPosY)) # in case text overlap
+    ctype red     lweight 0.3 expand 0.4 points plotX plotY
+    ctype default lweight 6.5 expand 1.7 relocate $($fx1+0.05*($fx2-$fx1)) $(plotPosY) puts "\sigma_{}_{corr.}"
+    ctype red     lweight 2.5 expand 1.7 relocate $($fx1+0.05*($fx2-$fx1)) $(plotPosY) puts "\sigma_{}_{corr.}"
+    ctype default lweight 4.5 ltype 1 # plot edge of bins
+    # plot bins
+    if(is_vector(fenBinEdges)) {
+        foreach binEdge fenBinEdges {rel $(($binEdge)) $fy1 draw $(($binEdge)) $fy2}
+    }
+    # plot title
+    ctype default lweight 4.5 expand 2.2 xlabel $plotTitle # plot title
+    ctype default lweight 4.5 expand 2.0 ylabel "\sigma_{"$imax"} [mJy]"
+    # overplot applied correction factor / dfcorr function in Y2 axis
+    #set rangeY1 = dfcorr_$1*0.8 if(dfcorr_coo)
+    #set rangeY2 = dfcorr_$1*1.2 if(dfcorr_coo)
+    set rangeY = {-1 1.5} # rangeY1 concat rangeY2
+    limits rangeX rangeY
+    ticksize -1 10 -1 10
+    if($1==3) {ticksize -1 1 -1 10}
+    crabPlotDefaultPenForBox box 3 3 3 2
+    set plotX = dfcorr_var    if(dfcorr_coo)
+    set plotY = lg(dfcorr_$1) if(dfcorr_coo)
+    sort {plotX plotY} # the dfcorr function
+    ctype default lweight 6.0 expand 0.85 connect plotX plotY
+    ctype red     lweight 3.5 expand 0.85 connect plotX plotY
+    ctype default lweight 6.0 expand 1.25 relocate $(plotX[dimen(plotX)-1]) $(plotY[dimen(plotY)-1]) putlabel 4 "\sigma \ corr. factor"
+    ctype red     lweight 2.5 expand 1.25 relocate $(plotX[dimen(plotX)-1]) $(plotY[dimen(plotY)-1]) putlabel 4 "\sigma \ corr. factor"
+    ctype default lweight 4.5 expand 1.5 # plot Y2 axis title
+    relocate $($fx2+0.15*($fx2-$fx1)) $($fy2-0.5*($fy2-$fy1)) angle 90 putlabel 8 "\sigma \ corr. factor"
+    angle 0
+    # close plot file
+    crabPlotClosePS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+go_correct_three_step_recipes
+    # this function can be used in goFine.sm R_MIPS$imax
+    # check input
+    define _lets_go_ 1
+    if(!$?imax)              {print 'go_correct_three_steps: Error! imax was not defined!\n'           define _lets_go_ 0}
+    if(!$?xdate)             {print 'go_correct_three_steps: Error! xdate was not defined!\n'          define _lets_go_ 0}
+    if(!$?vary_positions)    {print 'go_correct_three_steps: Error! vary_positions was not defined!\n' define _lets_go_ 0}
+    if(!$?rBeam_$imax)       {print 'go_correct_three_steps: Error! rBeam_$imax was not defined!\n'    define _lets_go_ 0}
+    if(!is_vector(ra$imax))  {print 'go_correct_three_steps: Error! ra$imax was not set!\n'            define _lets_go_ 0}
+    if(!is_vector(de$imax))  {print 'go_correct_three_steps: Error! de$imax was not set!\n'            define _lets_go_ 0}
+    if(!is_vector(id$imax))  {print 'go_correct_three_steps: Error! id$imax was not set!\n'            define _lets_go_ 0}
+    if(!is_vector(x$imax))   {print 'go_correct_three_steps: Error! x$imax was not set!\n'             define _lets_go_ 0}
+    if(!is_vector(y$imax))   {print 'go_correct_three_steps: Error! y$imax was not set!\n'             define _lets_go_ 0}
+    if(!is_vector(f$imax))   {print 'go_correct_three_steps: Error! f$imax was not set!\n'             define _lets_go_ 0}
+    if(!is_vector(df$imax))  {print 'go_correct_three_steps: Error! df$imax was not set!\n'            define _lets_go_ 0}
+    if(!is_vector(noi$imax)) {print 'go_correct_three_steps: Error! noi$imax was not set!\n'           define _lets_go_ 0}
+    if(!$_lets_go_) { define aaa ? return } # check failed, return # <TODO> still needs to check sim_diagram_output_v8
+    # go correct fbias
+    # go correct df
+    set fit_coo = (x$imax!=-99&&y$imax!=-99)
+    set fit_sid = 0,dimen(id$imax)-1
+    set fit_sid = fit_sid if(fit_coo)
+    set fit_ra = ra$imax if(fit_coo)
+    set fit_de = de$imax if(fit_coo)
+    # calc residual flux
+    if(is_file("aaa_fresidual.txt")) {data "aaa_fresidual.txt" read fres$imax 1}
+    if(is_vector(fres$imax)) {if(dimen(fres$imax)==dimen(id$imax)) {set fit_fres=fres$imax[fit_sid]} else {unset fres$imax}}
+    if(!is_vector(fres$imax)) {
+        load fresidual.sm
+        if($vary_positions) {
+          set fit_fres = fresidual("FIT_goodsn_"$imax"_Map_"$xdate"_vary.fits[2]", fit_ra, fit_de, $rBeam_$imax/2.0)
+        } else {
+          set fit_fres = fresidual("FIT_goodsn_"$imax"_Map_"$xdate".fits[2]", fit_ra, fit_de, $rBeam_$imax/2.0)
+        }
+        set fres$imax = float(ra$imax)*0.0-99
+        set fres$imax[fit_sid] = fit_fres
+        print "aaa_fresidual.txt" '%15g%15.0f%15.3f%15.3f%15g%15g\n' <fres$imax id$imax x$imax y$imax f$imax df$imax>
+    }
+    # calc crowdiness number density
+    if(is_file("aaa_crowdiness.txt")) {data "aaa_crowdiness.txt" read crow$imax 1}
+    if(is_vector(crow$imax)) {if(dimen(crow$imax)==dimen(id$imax)) {set fit_crow=crow$imax[fit_sid]} else {unset crow$imax}}
+    if(!is_vector(crow$imax)) {
+        load crowdiness.sm
+        set fit_crow = crowdiness(fit_ra, fit_de, $rBeam_$imax, 1.5)
+        set crow$imax = float(ra$imax)*0.0-99
+        set crow$imax[fit_sid] = fit_crow
+        print "aaa_crowdiness.txt" '%15g%15.0f%15.3f%15.3f%15g%15g\n' <crow$imax id$imax x$imax y$imax f$imax df$imax>
+    }
+    # load simulation-based correction functions
+    if(is_file("sim_diagram_output_v8/FUN_fbias_1.txt")) { 
+          data "sim_diagram_output_v8/FUN_fbias_1.txt"  read FUN_fbias_1  1
+    }
+    if(is_file("sim_diagram_output_v8/FUN_fbias_1.txt")) {
+          data "sim_diagram_output_v8/FUN_fbias_2.txt"  read FUN_fbias_2  1
+    }
+    if(is_file("sim_diagram_output_v8/FUN_fbias_3.txt")) { 
+          data "sim_diagram_output_v8/FUN_fbias_3.txt"  read FUN_fbias_3  1
+    }
+    if(is_file("sim_diagram_output_v8/FUN_dfcorr_1.txt")) { 
+          data "sim_diagram_output_v8/FUN_dfcorr_1.txt" read FUN_dfcorr_1 1
+    }
+    if(is_file("sim_diagram_output_v8/FUN_dfcorr_2.txt")) { 
+          data "sim_diagram_output_v8/FUN_dfcorr_2.txt" read FUN_dfcorr_2 1
+    }
+    if(is_file("sim_diagram_output_v8/FUN_dfcorr_3.txt")) { 
+          data "sim_diagram_output_v8/FUN_dfcorr_3.txt" read FUN_dfcorr_3 1
+    }
+    if(is_file("sim_diagram_output_v8/NOM_fbias_1.txt")) { 
+          data "sim_diagram_output_v8/NOM_fbias_1.txt"  read NOM_fbias_1  1
+    }
+    if(is_file("sim_diagram_output_v8/NOM_fbias_2.txt")) { 
+          data "sim_diagram_output_v8/NOM_fbias_2.txt"  read NOM_fbias_2  1
+    }
+    if(is_file("sim_diagram_output_v8/NOM_fbias_3.txt")) { 
+          data "sim_diagram_output_v8/NOM_fbias_3.txt"  read NOM_fbias_3  1
+    }
+    if(is_file("sim_diagram_output_v8/NOM_dfcorr_1.txt")) { 
+          data "sim_diagram_output_v8/NOM_dfcorr_1.txt" read NOM_dfcorr_1 1
+    }
+    if(is_file("sim_diagram_output_v8/NOM_dfcorr_2.txt")) { 
+          data "sim_diagram_output_v8/NOM_dfcorr_2.txt" read NOM_dfcorr_2 1
+    }
+    if(is_file("sim_diagram_output_v8/NOM_dfcorr_3.txt")) { 
+          data "sim_diagram_output_v8/NOM_dfcorr_3.txt" read NOM_dfcorr_3 1
+    }
+    # correct negative flux and negative df
+    set df$imax = df$imax<0 ? 1e10 : df$imax
+    # do simulation-based corrections
+    # macro read run_simu_stats_v8.sm
+    go_correct_fbias   1   (lg(df$imax/noi$imax))      "\sigma_{galfit}/\sigma_{rms\,noise}"
+    go_correct_df      1   (lg(df$imax/noi$imax))      "\sigma_{galfit}/\sigma_{rms\,noise}"
+    go_correct_fbias   2   (lg(fres$imax/noi$imax))    "f_{residual}/\sigma_{rms\,noise}"
+    go_correct_df      2   (lg(fres$imax/noi$imax))    "f_{residual}/\sigma_{rms\,noise}"
+    if(is_file("sim_diagram_output_v8/FUN_dfcorr_3.txt")) {
+        go_correct_fbias   3   (lg(crow$imax))         "crowdiness"
+        go_correct_df      3   (lg(crow$imax))         "crowdiness"
+    }
+    if(!is_vector(f$imax""_corr_3)) { set f$imax""_corr_3 = f$imax""_corr_2 } #<20160818><dzliu>#
+    if(!is_vector(df$imax""_corr_3)) { set df$imax""_corr_3 = df$imax""_corr_2 } #<20160818><dzliu>#
+    # 
+    print "aaa_sim_recipe_output_fbias.txt" '%15.0f%15g%15g%15g%15g\n' \
+    <id$imax f$imax""_uncorr_1 f$imax""_corr_1 f$imax""_corr_2 f$imax""_corr_3>
+    print "aaa_sim_recipe_output_dfcorr.txt" '%15.0f%15g%15g%15g%15g\n' \
+    <id$imax df$imax""_uncorr_1 df$imax""_corr_1 df$imax""_corr_2 df$imax""_corr_3>
+    print "aaa_sim_recipe_output_id_f_df.txt" '%15.0f%15g%15g\n' \
+    <id$imax f$imax df$imax>
+
+
+
+go_correct_fbias 03
+    # 
+    # check input
+    if(!$?1 || !$?imax) {
+        print 'go_correct_fbias: Error! Please input step and var array!\n' {}
+        print '                  e.g. \"go_correct_fbias 1 (df/RMS)\"\n' {}
+        print '                  for step 1 and var=df/RMS\n' {}
+        print '                  and FUN_fbias_1\n' {}
+        print '                  and current band \$imax\n' {}
+        return
+    }
+    if(!is_vector(f$imax)) {
+        print 'go_correct_fbias: Error! Please define band \$imax and set flux data array f$imax!\n' {}
+        return
+    }
+    if($verbose) {
+        if($?2) {
+            print 'go_correct_fbias: Correcting flux bias step $1 with parameter $2\n' {}
+        } else {
+            print 'go_correct_fbias: Correcting flux bias step $1 (constant bias)\n' {}
+        }
+    }
+    ### if(!$?outdir) {
+    ###     define outdir "sim_diagram_output_v8" #<TODO># make sure same as above
+    ### }
+    # 
+    # do the correction for only good data points
+    load crabStat.sm
+    set fbias_coo = (f$imax>0.1*df$imax) #<TODO># we only correct S/N>0.1 data -- S/N limit -- SNR limit <TODO>
+    set fbias_cid = 0,dimen(f$imax)-1 
+    set fbias_cid = fbias_cid if(fbias_coo)
+    set f$imax""_uncorr_$1 = f$imax
+    set f$imax""_corr_$1 = f$imax
+    # 
+    set fbias_$1 = f$imax*0.0 + 0.0
+    # 
+    if(is_vector(FUN_fbias_$1) && $?2) {
+        ### data $outdir"/FUN_fbias_"$1".txt"
+        ### read FUN_fbias_$1 1
+        set fbias_var = $2
+        set fbias_$1[fbias_cid] = get_PolyLine(FUN_fbias_$1, fbias_var[fbias_cid])
+    }
+    # 
+    if(is_vector(NOM_fbias_$1)) {
+        ### data $outdir"/NOM_fbias_"$1".txt"
+        ### read NOM_fbias_$1 1
+        set fbias_$1[fbias_cid] = fbias_$1[fbias_cid] + NOM_fbias_$1
+    }
+    set f$imax[fbias_cid] = f$imax[fbias_cid] + fbias_$1[fbias_cid]
+    set f$imax""_corr_$1[fbias_cid] = f$imax[fbias_cid]
+    # 
+    if($?2) {
+        # plot fbias (using new subroutine "go_plot_fbias")
+        set f = f$imax
+        set df = df$imax
+        go_plot_fbias $1 aaa_fbias_$1.eps
+        unset fbias_coo
+        unset fbias_cid
+        unset f
+        unset df
+        #<20160913># # plot fbias
+        #<20160913># load crabPlot.sm
+        #<20160913># set plot_coo = fbias_cid if(f$imax""_uncorr_$1[fbias_cid]>0.0 && f$imax""_corr_$1[fbias_cid]>0.0)
+        #<20160913># set plot_f_var = (fbias_var[plot_coo])
+        #<20160913># set plot_f_uncorr = (f$imax""_uncorr_$1[plot_coo])
+        #<20160913># set plot_f_corr = (f$imax""_corr_$1[plot_coo])
+        #<20160913># ticksize -1 10 0 0
+        #<20160913># if($1==3) {ticksize -1 1 0 0}
+        #<20160913># ctype blue lweight 0.2 expand 0.3 location 6000 31500 18000 31500
+        #<20160913># crabPlotQuickPlot plot_f_var plot_f_uncorr aaa_fbias_$1.eps keep
+        #<20160913># ctype red lweight 0.3 expand 0.4 
+        #<20160913># crabPlotOverPlot plot_f_var plot_f_corr
+        #<20160913># ctype default lweight 4.0 ltype 1 rel $fx1 0 draw $fx2 0 # plot horizontal Y=0 line
+        #<20160913># define TeX_strings 0
+        #<20160913># if($?3) {
+        #<20160913>#     ctype default lweight 4.5 ltype 0 expand 2.2 xlabel $3 # plot title 
+        #<20160913># } else {
+        #<20160913>#     ctype default lweight 4.5 ltype 0 expand 2.2 xlabel $2 # plot title 
+        #<20160913># }
+        #<20160913># ctype default lweight 4.5 ltype 0 expand 2.0 ylabel "f"$imax" [mJy]"
+        #<20160913># ctype blue lweight 4.5 expand 1.7 relocate (26000 29500) puts "f"$imax"_{uncorr.}"
+        #<20160913># ctype red lweight 4.5 expand 1.7 relocate (26000 28000) puts "f"$imax"_{corr.}"
+        #<20160913># #set plotX = plot_f_var set plotY = (plot_f_corr-plot_f_uncorr) sort {plotX plotY} # the fbias function
+        #<20160913># #ctype red lweight 2.5 expand 0.85 connect plotX plotY
+        #<20160913># #ctype red lweight 4.0 expand 1.35
+        #<20160913># #relocate $(plotX[dimen(plotX)-1]) $(plotY[dimen(plotY)-1]) putlabel 4 "flux bias"
+        #<20160913># crabPlotClosePS
+    }
+    # 
+    # return
+    if($verbose) {
+        print 'go_correct_fbias: Corrected flux bias have been saved into f$imax (correction values in fbias_$1)!\n' {}
+    }
+    print '\n' {}
+    return
+
+
+go_correct_df 03
+    # 
+    # check input
+    if(!$?1 || !$?imax) {
+        print 'go_correct_df: Error! Please input step and var array!\n' {}
+        print '               e.g. \"go_correct_df 1 (df/RMS)\"\n' {}
+        print '               for step 1 and var=df/RMS\n' {}
+        print '               and FUN_dfcorr_1\n' {}
+        print '               and current band \$imax.\n' {}
+        return
+    }
+    if(!is_vector(df$imax)) {
+        print 'go_correct_df: Error! Please define band \$imax and set flux uncertainty data array df$imax!\n' {}
+        return
+    }
+    if($verbose) {
+        if($?2) {
+            print 'go_correct_df: Correcting flux uncertainty step $1 with parameter $2\n' {}
+        } else {
+            print 'go_correct_df: Correcting flux uncertainty step $1 (constant factor)\n' {}
+        }
+    }
+    ### if(!$?outdir) {
+    ###     define outdir "sim_diagram_output_v8" #<TODO># make sure same as above
+    ### }
+    # 
+    # do the correction for only good data points
+    load crabStat.sm
+    set dfcorr_coo = (df$imax>0 && df$imax<1e10)
+    set dfcorr_cid = 0,dimen(df$imax)-1
+    set dfcorr_cid = dfcorr_cid if(dfcorr_coo)
+    #<CORRECTED><BUG><20151230># set dfcorr_cid = dfcorr_cid if(f$imax>0.1*df$imax) #<TODO># we only correct S/N>0.1 data
+    #<CORRECTED><BUG><20151230># we should not apply S/N cut when correcting df!
+    set df$imax""_uncorr_$1 = df$imax
+    set df$imax""_corr_$1 = df$imax
+    # 
+    set dfcorr_$1 = df$imax*0.0 + 1.0
+    # 
+    if(is_vector(FUN_dfcorr_$1) && $?2) {
+        ### data $outdir"/FUN_dfcorr_"$1".txt"
+        ### read FUN_dfcorr_$1 1
+        set dfcorr_var = $2
+        set VAR_dfcorr_$1 = dfcorr_var
+        set dfcorr_$1[dfcorr_cid] = get_PolyLine(FUN_dfcorr_$1, VAR_dfcorr_$1[dfcorr_cid])
+        go_constrain_dfcorr $1
+    } 
+    # 
+    if(is_vector(NOM_dfcorr_$1)) {
+        ### data $outdir"/NOM_dfcorr_"$1".txt"
+        ### read NOM_dfcorr_$1 1
+        set dfcorr_$1[dfcorr_cid] = dfcorr_$1[dfcorr_cid] * NOM_dfcorr_$1
+    }
+    set df$imax[dfcorr_cid] = df$imax[dfcorr_cid] * dfcorr_$1[dfcorr_cid]
+    set df$imax""_corr_$1[dfcorr_cid] = df$imax[dfcorr_cid]
+    # 
+    if($?2) {
+        # plot dfcorr (using new subroutine "go_plot_dfcorr")
+        set df = df$imax
+        go_plot_dfcorr $1 aaa_dfcorr_$1.eps
+        unset dfcorr_coo
+        unset dfcorr_cid
+        unset df
+        #<20160913># # plot dfcorr
+        #<20160913># load crabPlot.sm
+        #<20160913># set plot_df_var = (dfcorr_var[dfcorr_cid])
+        #<20160913># set plot_df_factor = (dfcorr_$1[dfcorr_cid])
+        #<20160913># set plot_df_uncorr = lg(df$imax""_uncorr_$1[dfcorr_cid])
+        #<20160913># set plot_df_corr = lg(df$imax""_corr_$1[dfcorr_cid])
+        #<20160913># ticksize -1 10 -1 10
+        #<20160913># if($1==3) {ticksize -1 1 -1 10}
+        #<20160913># ctype blue lweight 0.2 expand 0.3 location 6000 31500 18000 31500
+        #<20160913># crabPlotQuickPlot plot_df_var plot_df_uncorr aaa_dfcorr_$1.eps keep
+        #<20160913># ctype red lweight 0.3 expand 0.4 
+        #<20160913># crabPlotOverPlot plot_df_var plot_df_corr
+        #<20160913># define TeX_strings 0
+        #<20160913># if($?3) {
+        #<20160913>#     ctype default lweight 4.5 ltype 0 expand 2.2 xlabel $3 # plot title 
+        #<20160913># } else {
+        #<20160913>#     ctype default lweight 4.5 ltype 0 expand 2.2 xlabel $2 # plot title 
+        #<20160913># }
+        #<20160913># ctype default lweight 4.5 expand 2.0 ylabel "\sigma [mJy]"
+        #<20160913># define TeX_strings 1
+        #<20160913># ctype blue lweight 4.5 expand 1.7 relocate (26000 29500) puts "\sigma_{uncorr.}"
+        #<20160913># ctype red lweight 4.5 expand 1.7 relocate (26000 28000) puts "\sigma_{corr.}"
+        #<20160913># set plotX = plot_df_var set plotY = plot_df_factor sort {plotX plotY} # the dfcorr function
+        #<20160913># ctype red lweight 2.5 expand 0.85 connect plotX plotY
+        #<20160913># ctype red lweight 4.5 expand 1.8 
+        #<20160913># relocate $(plotX[dimen(plotX)-1]) $(plotY[dimen(plotY)-1]) putlabel 4 "\sigma \ corr. factor"
+        #<20160913># crabPlotClosePS
+    }
+    # 
+    # return
+    if($verbose) {
+        print 'go_correct_df: Corrected flux uncertainty have been saved into df$imax (correction factors in dfcorr_$1)!\n' {}
+    }
+    print '\n' {}
+    return
+
+
+go_constrain_dfcorr 01
+    if('$imax'=='100') {
+        if('$1'=='1') {
+            set dfcorr_1 = (VAR_dfcorr_1>lg(1e8)) ? 1.0 : dfcorr_1
+        }
+    }
+    if('$imax'=='1160') {
+        if('$1'=='1') {
+            set dfcorr_1 = (VAR_dfcorr_1>lg(1.0) && dfcorr_1<1.0) ? 1.0 : dfcorr_1
+        }
+    }
+    if('$imax'=='850') {
+        if('$1'=='1') {
+            set dfcorr_1 = (VAR_dfcorr_1>lg(1.0) && dfcorr_1<1.0) ? 1.0 : dfcorr_1
+        }
+    }
+
+
+go_check_stats 01
+    ###############################################################################################################
+                                                   echo    
+    set XfmTf = (Xf-Tf)                            echo    
+    stats_med XfmTf XTMedian XTSIQR                echo    Median of (Xf-Tf) is $XTMedian (correcting to 0.0)
+    set Tf = Tf + $XTMedian                        echo    
+                                                   set     fbias_Norm_$1 = $XTMedian
+                                                   print   $outdir"/NOM_fbias_"$1".txt" <fbias_Norm_$1>
+    set XfmTfdEdf = (Xf-Tf)/df                     echo    
+    stats XfmTfdEdf XTMean XTSigma XTKurt          echo    Sigma of (Xf-Tf)/df is $XTSigma (correcting to 1.0)
+    set df = df * $XTSigma                         echo    
+                                                   set     dfcorr_Norm_$1 = $XTSigma
+                                                   print   $outdir"/NOM_dfcorr_"$1".txt" <dfcorr_Norm_$1>
+                                                   echo    
+    stats_med df me si                             echo    Stat   Edf         Median $me   SIQR $si
+    stats (Xf-Tf) me si ku                         echo    Stat  (Xf-Tf)      Mean $me   Sigma $si   Kurtosis $ku
+    stats ((Xf-Tf)/df) me si ku                    echo    Stat ((Xf-Tf)/df)  Mean $me   Sigma $si   Kurtosis $ku
+                                                   echo    
+                                                   echo    
+    ###############################################################################################################
+    if(is_vector(dfcorr_$1)) {
+        set XfmTfdEdf_uncorr = (Xf-Tf)/(df/dfcorr_Norm_$1/dfcorr_$1)
+        set XfmTfdEdf_corr = (Xf-Tf)/(df)
+        # --- <TODO> FINAL NORMALIZATION TO MAKE GAUSSIAN FITTING INTERNAL WIDTH = 1
+        if('$imax'=='24' && '$1'=='3') {
+            set dfcorr_Norm_$1 = dfcorr_Norm_$1*0.85
+            set df = df*0.85
+            set XfmTfdEdf_corr = (Xf-Tf)/(df)
+            print $outdir"/NOM_dfcorr_"$1".txt" <dfcorr_Norm_$1>
+        }
+        # --- <TODO> FINAL NORMALIZATION TO MAKE GAUSSIAN FITTING INTERNAL WIDTH = 1 -- with $FinalScaling
+        # --- <20160818><dzliu> if($?FinalScaling && '$1'=='3') 
+        if($?FinalScaling && '$1'=='$NumberSteps') {
+            if($FinalScaling>0.0) {
+                set dfcorr_Norm_$1 = dfcorr_Norm_$1*$FinalScaling
+                set df = df*$FinalScaling
+                set XfmTfdEdf_corr = (Xf-Tf)/(df)
+                print $outdir"/NOM_dfcorr_"$1".txt" <dfcorr_Norm_$1>
+            }
+        }
+        #if('$imax'=='20cm_Glenn' && '$1'=='3') {
+        #    set dfcorr_Norm_$1 = dfcorr_Norm_$1*0.85
+        #    set df = df*0.85
+        #    set XfmTfdEdf_corr = (Xf-Tf)/(df)
+        #    print $outdir"/NOM_dfcorr_"$1".txt" <dfcorr_Norm_$1>
+        #}
+        #<TODO>##<TODO>##<TODO>##<TODO>##<TODO>#
+        #<TODO>##<TODO>##<TODO>##<TODO>##<TODO>#
+        #<TODO>##<TODO>##<TODO>##<TODO>##<TODO>#
+        #<TODO>##<TODO>##<TODO>##<TODO>##<TODO>#
+        #<TODO>##<TODO>##<TODO>##<TODO>##<TODO>#
+        #<TODO># if('$imax'=='20cm_Glenn' && '$1'=='1') { #<TODO># if do-1-step-correction ONLY!
+        #<TODO>#     set dfcorr_Norm_$1 = dfcorr_Norm_$1*0.65
+        #<TODO>#     set df = df*0.65
+        #<TODO>#     set XfmTfdEdf_corr = (Xf-Tf)/(df)
+        #<TODO>#     print $outdir"/NOM_dfcorr_"$1".txt" <dfcorr_Norm_$1>
+        #<TODO># }
+        #<TODO>##<TODO>##<TODO>##<TODO>##<TODO>#
+        #<TODO>##<TODO>##<TODO>##<TODO>##<TODO>#
+        #<TODO>##<TODO>##<TODO>##<TODO>##<TODO>#
+        #<TODO>##<TODO>##<TODO>##<TODO>##<TODO>#
+        #<TODO>##<TODO>##<TODO>##<TODO>##<TODO>#
+        location 6000 28000 20000 31000
+        crabPlotHistogramCalculation XfmTfdEdf_corr -5 5 0.3
+        set histogram_y_corr = histogram_y*1.4 # compute plotting yrange 
+        crabPlotHistogramCalculation XfmTfdEdf_uncorr -5 5 0.3
+        set histogram_y_uncorr = histogram_y*1.4 # compute plotting yrange 
+        set crabPlotHistogram_ylimit = histogram_y_corr concat histogram_y_uncorr # compute plotting yrange 
+        ctype blue lweight 5.0 
+        crabPlotHistogramPlot XfmTfdEdf_uncorr -5 5 0.3 $outdir/galsim_$imax""_hist_dfcorr_$1.pdf keep
+        ctype blue lweight 5.0 expand 1.4
+        crabPlotHistogramGaussianFit XfmTfdEdf_uncorr -5 5 0.3
+        ctype red lweight 5.0
+        crabPlotHistogramOverPlot XfmTfdEdf_corr -5 5 0.3
+        ctype red lweight 5.0 expand 1.4
+        crabPlotHistogramGaussianFit XfmTfdEdf_corr -5 5 0.3
+        ctype default lweight 5.0 expand 2.0 xlabel "(S_{in}-S_{out})/\sigma_{}"
+        relocate (7000 29500) lweight 5.5 expand 1.3 
+        ctype default puts "before corr."
+        ctype default puts "after corr."
+        relocate (7000 29500) lweight 2.5 expand 1.3 
+        ctype blue puts "before corr."
+        ctype red puts "after corr."
+        crabPlotResetAll
+        device nodevice
+        !pdfcrop --margins 15 $outdir/galsim_$imax""_hist_dfcorr_$1.pdf $outdir/galsim_$imax""_hist_dfcorr_$1.pdf >/dev/null
+        
+        # plot flux uncertainty histogram
+        set plot_df_uncorr = (df/dfcorr_Norm_$1/dfcorr_$1) if(Tf>0 && (Tf-fbias_Norm_$1-fbias_$1)>0)
+        set plot_df_corr = df if(Tf>0 && (Tf-fbias_Norm_$1-fbias_$1)>0)
+        stats plot_df_corr plot_df_MEAN plot_df_SIGMA plot_df_KURT # first compute flux uncertainty range
+        stats_med plot_df_corr plot_df_MED plot_df_SIQR            # first compute flux uncertainty range
+        define plot_df_MIN $($plot_df_MED-2.0*$plot_df_SIGMA)      # first compute flux uncertainty range
+        define plot_df_MAX $($plot_df_MED+2.0*$plot_df_SIGMA)      # first compute flux uncertainty range
+        define plot_df_ITV $(0.05*$plot_df_SIGMA)                  # first compute flux uncertainty range
+        location 6000 28000 20000 31000
+        ctype blue lweight 5.0
+        crabPlotHistogramPlot plot_df_uncorr $plot_df_MIN $plot_df_MAX $plot_df_ITV $outdir/galsim_$imax""_hist_uncertainty_$1.pdf keep
+        ctype red lweight 5.0
+        crabPlotHistogramOverPlot plot_df_corr $plot_df_MIN $plot_df_MAX $plot_df_ITV
+        ctype default lweight 2.0 ltype 1 # plot a dashed line indicating median flux uncertainty
+        rel $plot_df_MED $fy1 draw $plot_df_MED $fy2 lweight 3.0 expand 0.75 # print median flux uncertainty
+        puts ""
+        puts ""
+        puts "median "$(sprintf('%.4g',$plot_df_MED))" mJy"
+        ctype default lweight 5.0 expand 2.0 xlabel "\sigma_{"$imax"} [mJy]"
+        relocate (7000 29500) lweight 5.0 expand 1.3 
+        ctype red puts after corr.
+        ctype blue puts before corr.
+        crabPlotResetAll
+        device nodevice
+        !pdfcrop --margins 15 $outdir/galsim_$imax""_hist_uncertainty_$1.pdf $outdir/galsim_$imax""_hist_uncertainty_$1.pdf >/dev/null
+        
+        # plot flux histogram
+        set lg_f_coo = (Tf>0 && (Tf-fbias_Norm_$1-fbias_$1)>0 && df>0 && df<1e10)
+        set lg_f_uncorr = (Tf-fbias_Norm_$1-fbias_$1) if(lg_f_coo)
+        set lg_f_uncorr = lg(lg_f_uncorr)
+        set lg_f_corr = Tf if(lg_f_coo)
+        set lg_f_corr = lg(lg_f_corr)
+        stats lg_f_corr lg_f_MEAN lg_f_SIGMA lg_f_KURT # first compute flux range
+        stats_med lg_f_corr lg_f_MED lg_f_SIQR         # first compute flux range
+        define lg_f_MIN $($lg_f_MED-3.0*$lg_f_SIGMA)   # first compute flux range
+        define lg_f_MAX $($lg_f_MED+3.0*$lg_f_SIGMA)   # first compute flux range
+        define lg_f_ITV $(0.05*$lg_f_SIGMA)            # first compute flux range
+        location 6000 28000 20000 31000
+        ticksize -1 10 0 0
+        ctype blue lweight 5.0
+        crabPlotHistogramPlot lg_f_uncorr $lg_f_MIN $lg_f_MAX $lg_f_ITV $outdir/galsim_$imax""_hist_flux_$1.pdf keep
+        ctype red lweight 5.0
+        crabPlotHistogramOverPlot lg_f_corr $lg_f_MIN $lg_f_MAX $lg_f_ITV
+        ctype default lweight 2.0 ltype 1 # plot a dashed line indicating median flux
+        rel $lg_f_MED $fy1 draw $lg_f_MED $fy2 lweight 3.0 expand 0.75 # print median flux 
+        puts ""
+        puts ""
+        puts "median "$(sprintf('%.4g',10**$lg_f_MED))" mJy"
+        ctype default lweight 5.0 ltype 0 expand 2.0 xlabel "f_{"$imax"} [mJy]"
+        relocate (7000 29500) lweight 5.0 expand 1.3 
+        ctype red puts after corr.
+        ctype blue puts before corr.
+        crabPlotResetAll
+        device nodevice
+        !pdfcrop --margins 15 $outdir/galsim_$imax""_hist_flux_$1.pdf $outdir/galsim_$imax""_hist_flux_$1.pdf >/dev/null
+    }
+    ###############################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+go_check_outliers
+    ###############################################################################################################
+    set XfmTf = (Xf-Tf)
+    set ABSXfmTf = abs(XfmTf)
+    set SORTXfmTf = XfmTf
+    set SORTpx = px
+    set SORTpy = py
+    set SORTsm = sm
+    set SORTmm = mm
+    set SORTid = id
+    sort {ABSXfmTf SORTpx SORTpy SORTsm SORTmm SORTXfmTf SORTid}
+    foreach var {ABSXfmTf SORTpx SORTpy SORTsm SORTmm SORTXfmTf SORTid} {set $var=reverse($var)}
+    print "aaa_check_outliers_go.txt" '%15.3f%15.3f%15g%15g%15g%20.0f\n' {SORTpx SORTpy SORTsm SORTmm SORTXfmTf SORTid}
+    ###############################################################################################################
+    
+
+go_check_outliers_df
+    ###############################################################################################################
+    set ABSdf = abs(df)
+    set SORTdf = df
+    set SORTpx = px
+    set SORTpy = py
+    set SORTsm = sm
+    set SORTmm = mm
+    set SORTid = id
+    sort {ABSdf SORTpx SORTpy SORTsm SORTmm SORTdf SORTid}
+    foreach var {ABSdf SORTpx SORTpy SORTsm SORTmm SORTdf SORTid} {set $var=reverse($var)}
+    print "aaa_check_outliers_df.txt" '%15.3f%15.3f%15g%15g%15g%20.0f\n' {SORTpx SORTpy SORTsm SORTmm SORTdf SORTid}
+    ###############################################################################################################
+
+
+
+    
+
+
+
+    
+
+
+
+

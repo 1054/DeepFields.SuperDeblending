@@ -154,6 +154,9 @@ calc_Daddi2010_CO 05
     if(dimen(_Daddi2010_excitation)>1) {set _Daddi2010_excitation = _Daddi2010_excitation[_Daddi2010_PosID]}
     set _Daddi2010_LPrmCO = (1.0-_Daddi2010_starbursty)*_Daddi2010_Mmol_Disc/4.6 + _Daddi2010_starbursty*_Daddi2010_Mmol_SBst/0.8
     set _Daddi2010_FluxCO = _Daddi2010_LPrmCO*0.0
+    set _Daddi2010_FreqCO = _Daddi2010_LPrmCO*0.0
+    set _Daddi2010_ResFreq = _Daddi2010_LPrmCO*0.0
+    set _Daddi2010_ObsFreq = _Daddi2010_LPrmCO*0.0
     if(1==1) { 
         set _Daddi2010_Jupper = _Daddi2010_LumTIR*0+1.0
         set _Daddi2010_Jscale = _Daddi2010_LumTIR*0+1.0
@@ -200,16 +203,20 @@ calc_Daddi2010_CO 05
         set _Daddi2010_LPrmCO = _Daddi2010_LPrmCO * _Daddi2010_Jscale / _Daddi2010_Jupper**2 # note that the LPrm is K km s-1 pc2
         if($?3) { if($3>0) {
             define _Daddi2010_Verbose $verbose verbose 0
-            set _Daddi2010_ResFreq = _Daddi2010_LumTIR*0+calc_line_freq(co,$2,0) # ResFreq is restframe
-            set _Daddi2010_LumDist = calc_lumdist($3)
-            set _Daddi2010_FluxCO[_Daddi2010_PosID] = convert_lprm2flux($3,_Daddi2010_LPrmCO[_Daddi2010_PosID],_Daddi2010_ResFreq,_Daddi2010_LumDist)
-            set _Daddi2010_FreqCO = _Daddi2010_LumTIR*0 + calc_line_freq(co,$2,$3) # FreqCO is obsframe
+            set _Daddi2010_Redshift = ($3)
+            set _Daddi2010_LumDist = calc_lumdist(_Daddi2010_Redshift)
+            do _Daddi2010_i = 0, dimen(_Daddi2010_Redshift)-1 {
+                set _Daddi2010_ResFreq[$_Daddi2010_i] = calc_line_freq(co,$(_Daddi2010_Jupper[$_Daddi2010_i]),0) # ResFreq is restframe
+                set _Daddi2010_ObsFreq[$_Daddi2010_i] = calc_line_freq(co,$(_Daddi2010_Jupper[$_Daddi2010_i]),$(_Daddi2010_Redshift[$_Daddi2010_i])) # FreqCO is obsframe
+            }
+            set _Daddi2010_FluxCO[_Daddi2010_PosID] = convert_lprm2flux(_Daddi2010_Redshift,_Daddi2010_LPrmCO[_Daddi2010_PosID],_Daddi2010_ResFreq,_Daddi2010_LumDist)
+            set _Daddi2010_FreqCO = _Daddi2010_ObsFreq
             verbose $_Daddi2010_Verbose #undef _Daddi2010_Verbose
         }}
         if($verbose) { 
             define print_noheader 1
             print '\ncalc_Daddi2010_CO:\n' {}
-            print '\nJ_CO  = %15.0f\nSB    = %15.2f\nRJ1   = %15.2f\nL_CO  = %15.7e  K km s-1 pc2\nS_CO  = %15f  Jy km s-1\n' \
+            print '\nJ_CO  = %15.0f\nSB    = %15.2f\nRJ1   = %15.2f\nL_CO  = %15.7e  K km s-1 pc2\nF_CO  = %15f  Jy km s-1\n' \
                    {_Daddi2010_Jupper _Daddi2010_starbursty _Daddi2010_Jscale _Daddi2010_LPrmCO _Daddi2010_FluxCO} 
             define print_noheader 0
         }
@@ -378,64 +385,117 @@ calc_Genzel2010_CO 05
     set $0 = _Genzel2010_LPrmCO
     return
 
-calc_Liu2015_CO 03
+calc_Liu2015_CO 04
     # 
     # calculate the multiple CO line luminosities for a given total IR luminosity 
     # calc_Liu2015_CO LTIR CO_J_up z
     # 
-    if($?1==0||$?2==0){print 'Usage: set L_CO_J_up = calc_Liu2015_CO(LTIR,J_up[,z]) --> LCO_J_up\n' {} return}
+    if($?1==0||$?2==0){print 'Usage: set L_CO_J_up = calc_Liu2015_CO(LTIR,J_up[,z,[LineWidth]]) --> LCO_J_up\n' {} return}
     if($2<1||$2>15){print 'calc_Liu2015_CO: Error! we only support CO(4-3) to CO(15-14), sorry!\n' {} return}
     set _Liu2015_LumTIR = $1
     set _Liu2015_LumFIR = _Liu2015_LumTIR/1.3 # convert TIR to FIR
     set _Liu2015_PosID = 0,dimen(_Liu2015_LumFIR)-1 set _Liu2015_PosID = _Liu2015_PosID if(_Liu2015_LumFIR>0)
-    if($?2){set _Liu2015_Jupper = _Liu2015_LumFIR*0+($2)} else {set _Liu2015_Jupper = _Liu2015_LumFIR*0+1}
+    if($?2){set _Liu2015_Jupper = _Liu2015_LumFIR*0+($2)} else {set _Liu2015_Jupper = _Liu2015_LumFIR*0+1} # default J = 1
     if(dimen(_Liu2015_PosID)==0){print 'calc_Liu2015_CO: Error! Input data array has no positive value!' {} return}
-    set _Liu2015_N = 0.0 set _Liu2015_A = 0.0
-    #if($2==1)  {set _Liu2015_N = 1.06 set _Liu2015_A = 1.49} #<TODO># using CO(4-3) as a lower limit for now
-    #if($2==2)  {set _Liu2015_N = 1.06 set _Liu2015_A = 1.49} #<TODO># using CO(4-3) as a lower limit for now
-    #if($2==3)  {set _Liu2015_N = 1.06 set _Liu2015_A = 1.49} #<TODO># using CO(4-3) as a lower limit for now
-    #if($2==4)  {set _Liu2015_N = 1.06 set _Liu2015_A = 1.49}
-    #if($2==5)  {set _Liu2015_N = 1.07 set _Liu2015_A = 1.71}
-    #if($2==6)  {set _Liu2015_N = 1.10 set _Liu2015_A = 1.79}
-    #if($2==7)  {set _Liu2015_N = 1.03 set _Liu2015_A = 2.62}
-    #if($2==8)  {set _Liu2015_N = 1.02 set _Liu2015_A = 2.82}
-    #if($2==9)  {set _Liu2015_N = 1.01 set _Liu2015_A = 3.10}
-    #if($2==10) {set _Liu2015_N = 0.96 set _Liu2015_A = 3.67}
-    #if($2==11) {set _Liu2015_N = 1.00 set _Liu2015_A = 3.51}
-    #if($2==12) {set _Liu2015_N = 0.99 set _Liu2015_A = 3.83}
-    if($2==1)  {set _Liu2015_N = 1.00 set _Liu2015_A = 1.96} #<TODO># using CO(4-3) as a lower limit for now
-    if($2==2)  {set _Liu2015_N = 1.00 set _Liu2015_A = 1.96} #<TODO># using CO(4-3) as a lower limit for now
-    if($2==3)  {set _Liu2015_N = 1.00 set _Liu2015_A = 1.96} #<TODO># using CO(4-3) as a lower limit for now
-    if($2==4)  {set _Liu2015_N = 1.00 set _Liu2015_A = 1.96}
-    if($2==5)  {set _Liu2015_N = 1.00 set _Liu2015_A = 2.27}
-    if($2==6)  {set _Liu2015_N = 1.00 set _Liu2015_A = 2.56}
-    if($2==7)  {set _Liu2015_N = 1.00 set _Liu2015_A = 2.86}
-    if($2==8)  {set _Liu2015_N = 1.00 set _Liu2015_A = 3.04}
-    if($2==9)  {set _Liu2015_N = 1.00 set _Liu2015_A = 3.20}
-    if($2==10) {set _Liu2015_N = 1.00 set _Liu2015_A = 3.38}
-    if($2==11) {set _Liu2015_N = 1.00 set _Liu2015_A = 3.56}
-    if($2==12) {set _Liu2015_N = 1.00 set _Liu2015_A = 3.77}
-    if($2==13) {set _Liu2015_N = 1.00 set _Liu2015_A = 3.98} #<TODO># STILL NEEDS TEST
-    if($2==14) {set _Liu2015_N = 1.00 set _Liu2015_A = 4.19} #<TODO># STILL NEEDS TEST
-    if($2==15) {set _Liu2015_N = 1.00 set _Liu2015_A = 4.40} #<TODO># STILL NEEDS TEST
+    #[20160828]#set _Liu2015_N = 0.0 set _Liu2015_A = 0.0
+    #[20160828]##if($2==1)  {set _Liu2015_N = 1.06 set _Liu2015_A = 1.49} #<TODO># using CO(4-3) as a lower limit for now
+    #[20160828]##if($2==2)  {set _Liu2015_N = 1.06 set _Liu2015_A = 1.49} #<TODO># using CO(4-3) as a lower limit for now
+    #[20160828]##if($2==3)  {set _Liu2015_N = 1.06 set _Liu2015_A = 1.49} #<TODO># using CO(4-3) as a lower limit for now
+    #[20160828]##if($2==4)  {set _Liu2015_N = 1.06 set _Liu2015_A = 1.49}
+    #[20160828]##if($2==5)  {set _Liu2015_N = 1.07 set _Liu2015_A = 1.71}
+    #[20160828]##if($2==6)  {set _Liu2015_N = 1.10 set _Liu2015_A = 1.79}
+    #[20160828]##if($2==7)  {set _Liu2015_N = 1.03 set _Liu2015_A = 2.62}
+    #[20160828]##if($2==8)  {set _Liu2015_N = 1.02 set _Liu2015_A = 2.82}
+    #[20160828]##if($2==9)  {set _Liu2015_N = 1.01 set _Liu2015_A = 3.10}
+    #[20160828]##if($2==10) {set _Liu2015_N = 0.96 set _Liu2015_A = 3.67}
+    #[20160828]##if($2==11) {set _Liu2015_N = 1.00 set _Liu2015_A = 3.51}
+    #[20160828]##if($2==12) {set _Liu2015_N = 0.99 set _Liu2015_A = 3.83}
+    #[20160828]#if($2==1)  {set _Liu2015_N = 1.00 set _Liu2015_A = 1.96} #<TODO># using CO(4-3) as a lower limit for now
+    #[20160828]#if($2==2)  {set _Liu2015_N = 1.00 set _Liu2015_A = 1.96} #<TODO># using CO(4-3) as a lower limit for now
+    #[20160828]#if($2==3)  {set _Liu2015_N = 1.00 set _Liu2015_A = 1.96} #<TODO># using CO(4-3) as a lower limit for now
+    #[20160828]#if($2==4)  {set _Liu2015_N = 1.00 set _Liu2015_A = 1.96}
+    #[20160828]#if($2==5)  {set _Liu2015_N = 1.00 set _Liu2015_A = 2.27}
+    #[20160828]#if($2==6)  {set _Liu2015_N = 1.00 set _Liu2015_A = 2.56}
+    #[20160828]#if($2==7)  {set _Liu2015_N = 1.00 set _Liu2015_A = 2.86}
+    #[20160828]#if($2==8)  {set _Liu2015_N = 1.00 set _Liu2015_A = 3.04}
+    #[20160828]#if($2==9)  {set _Liu2015_N = 1.00 set _Liu2015_A = 3.20}
+    #[20160828]#if($2==10) {set _Liu2015_N = 1.00 set _Liu2015_A = 3.38}
+    #[20160828]#if($2==11) {set _Liu2015_N = 1.00 set _Liu2015_A = 3.56}
+    #[20160828]#if($2==12) {set _Liu2015_N = 1.00 set _Liu2015_A = 3.77}
+    #[20160828]#if($2==13) {set _Liu2015_N = 1.00 set _Liu2015_A = 3.98} #<TODO># STILL NEEDS TEST
+    #[20160828]#if($2==14) {set _Liu2015_N = 1.00 set _Liu2015_A = 4.19} #<TODO># STILL NEEDS TEST
+    #[20160828]#if($2==15) {set _Liu2015_N = 1.00 set _Liu2015_A = 4.40} #<TODO># STILL NEEDS TEST
+    set _Liu2015_Jupper = int(_Liu2015_Jupper) #<Done># 20160828 Now support input Jupper as an array
+    set _Liu2015_N = _Liu2015_LumFIR*0 + 1.00 set _Liu2015_A = _Liu2015_LumFIR*0 - 99.0
+    set _Liu2015_N = (_Liu2015_Jupper==1)  ? 1.06 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==1)  ? 1.49 : _Liu2015_A #<TODO># using non-linear slope #<TODO># using CO(4-3) as a lower limit for now
+    set _Liu2015_N = (_Liu2015_Jupper==2)  ? 1.06 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==2)  ? 1.49 : _Liu2015_A #<TODO># using non-linear slope #<TODO># using CO(4-3) as a lower limit for now
+    set _Liu2015_N = (_Liu2015_Jupper==3)  ? 1.06 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==3)  ? 1.49 : _Liu2015_A #<TODO># using non-linear slope #<TODO># using CO(4-3) as a lower limit for now
+    set _Liu2015_N = (_Liu2015_Jupper==4)  ? 1.06 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==4)  ? 1.49 : _Liu2015_A #<TODO># using non-linear slope
+    set _Liu2015_N = (_Liu2015_Jupper==5)  ? 1.07 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==5)  ? 1.71 : _Liu2015_A #<TODO># using non-linear slope
+    set _Liu2015_N = (_Liu2015_Jupper==6)  ? 1.10 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==6)  ? 1.79 : _Liu2015_A #<TODO># using non-linear slope
+    set _Liu2015_N = (_Liu2015_Jupper==7)  ? 1.03 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==7)  ? 2.62 : _Liu2015_A #<TODO># using non-linear slope
+    #set _Liu2015_N = (_Liu2015_Jupper==1)  ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==1)  ? 1.96 : _Liu2015_A #<TODO># using linear slope #<TODO># using CO(4-3) as a lower limit for now
+    #set _Liu2015_N = (_Liu2015_Jupper==2)  ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==2)  ? 1.96 : _Liu2015_A #<TODO># using linear slope #<TODO># using CO(4-3) as a lower limit for now
+    #set _Liu2015_N = (_Liu2015_Jupper==3)  ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==3)  ? 1.96 : _Liu2015_A #<TODO># using linear slope #<TODO># using CO(4-3) as a lower limit for now
+    #set _Liu2015_N = (_Liu2015_Jupper==4)  ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==4)  ? 1.96 : _Liu2015_A #<TODO># using linear slope
+    #set _Liu2015_N = (_Liu2015_Jupper==5)  ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==5)  ? 2.27 : _Liu2015_A #<TODO># using linear slope
+    #set _Liu2015_N = (_Liu2015_Jupper==6)  ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==6)  ? 2.56 : _Liu2015_A #<TODO># using linear slope
+    #set _Liu2015_N = (_Liu2015_Jupper==7)  ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==7)  ? 2.86 : _Liu2015_A #<TODO># using linear slope
+    set _Liu2015_N = (_Liu2015_Jupper==8)  ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==8)  ? 3.04 : _Liu2015_A
+    set _Liu2015_N = (_Liu2015_Jupper==9)  ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==9)  ? 3.20 : _Liu2015_A
+    set _Liu2015_N = (_Liu2015_Jupper==10) ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==10) ? 3.38 : _Liu2015_A
+    set _Liu2015_N = (_Liu2015_Jupper==11) ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==11) ? 3.56 : _Liu2015_A
+    set _Liu2015_N = (_Liu2015_Jupper==12) ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==12) ? 3.77 : _Liu2015_A
+    set _Liu2015_N = (_Liu2015_Jupper==13) ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==13) ? 3.98 : _Liu2015_A #<TODO># STILL NEEDS TEST
+    set _Liu2015_N = (_Liu2015_Jupper==14) ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==14) ? 4.19 : _Liu2015_A #<TODO># STILL NEEDS TEST
+    set _Liu2015_N = (_Liu2015_Jupper==15) ? 1.00 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==15) ? 4.40 : _Liu2015_A #<TODO># STILL NEEDS TEST
+    set _Liu2015_PeakCO = _Liu2015_LumFIR*0-99.0
     set _Liu2015_FluxCO = _Liu2015_LumFIR*0+0.0
     set _Liu2015_LPrmCO = _Liu2015_LumFIR*0+0.0
-    set _Liu2015_LPrmCO[_Liu2015_PosID] = 10**((lg(_Liu2015_LumFIR[_Liu2015_PosID])-_Liu2015_A)/_Liu2015_N)
+    set _Liu2015_LPrmCO[_Liu2015_PosID] = 10**((lg(_Liu2015_LumFIR[_Liu2015_PosID])-_Liu2015_A[_Liu2015_PosID])/_Liu2015_N[_Liu2015_PosID])
     set _Liu2015_ObsFreq = _Liu2015_LumFIR*0+0.0
     if($?3) { if($3>0) { 
         define _Liu2015_Verbose $verbose verbose 0
-        set _Liu2015_ResFreq = _Liu2015_LumFIR*0 + calc_line_freq(co,$2,0) # ResFreq is restframe
-        set _Liu2015_ObsFreq = _Liu2015_LumFIR*0 + calc_line_freq(co,$2,$3) # ObsFreq is obsframe
-        set _Liu2015_LumDist = calc_lumdist($3) 
-        set _Liu2015_FluxCO[_Liu2015_PosID] = convert_lprm2flux($3,_Liu2015_LPrmCO[_Liu2015_PosID],_Liu2015_ResFreq,_Liu2015_LumDist)
-        set _Liu2015_FreqCO = _Liu2015_LumFIR*0 + calc_line_freq(co,$2,$3) # FreqCO is obsframe
+        set _Liu2015_ResFreq = _Liu2015_LumFIR*0 #[20160828]# + calc_line_freq(co,$2,0) # ResFreq is restframe
+        set _Liu2015_ObsFreq = _Liu2015_LumFIR*0 #[20160828]# + calc_line_freq(co,$2,$3) # ObsFreq is obsframe
+        set _Liu2015_Redshift = ($3)
+        set _Liu2015_LumDist = calc_lumdist(_Liu2015_Redshift)
+        if(dimen(_Liu2015_Redshift)==1 && dimen(_Liu2015_Jupper)>1) {
+            set _Liu2015_Redshift = _Liu2015_LumFIR*0 + _Liu2015_Redshift
+            set _Liu2015_LumDist = _Liu2015_LumFIR*0 + _Liu2015_LumDist
+        }
+        do _Liu2015_i = 0, dimen(_Liu2015_LumFIR)-1 {
+            set _Liu2015_ResFreq[$_Liu2015_i] = calc_line_freq(co,$(_Liu2015_Jupper[$_Liu2015_i]),0)
+            set _Liu2015_ObsFreq[$_Liu2015_i] = calc_line_freq(co,$(_Liu2015_Jupper[$_Liu2015_i]),$(_Liu2015_Redshift[$_Liu2015_i]))
+        }
+        set _Liu2015_FluxCO[_Liu2015_PosID] = convert_lprm2flux(_Liu2015_Redshift[_Liu2015_PosID],_Liu2015_LPrmCO[_Liu2015_PosID],_Liu2015_ResFreq[_Liu2015_PosID],_Liu2015_LumDist[_Liu2015_PosID])
+        set _Liu2015_FreqCO = _Liu2015_ObsFreq # FreqCO is obsframe
         verbose $_Liu2015_Verbose undef _Liu2015_Verbose
+        if($?4) { if($4>0) {
+            # 20160828
+            set _Liu2015_W_CO = float($4)
+            if(dimen(_Liu2015_W_CO)==1 && dimen(_Liu2015_Jupper)>1) {
+                set _Liu2015_W_CO = _Liu2015_LumFIR*0 + _Liu2015_W_CO
+            }
+            set _Liu2015_J_CO = _Liu2015_Jupper
+            set _Liu2015_L_CO = _Liu2015_LPrmCO
+            set _Liu2015_F_CO = _Liu2015_FluxCO
+            set _Liu2015_S_CO = _Liu2015_PeakCO
+            set _Liu2015_S_CO[_Liu2015_PosID] = _Liu2015_FluxCO[_Liu2015_PosID] / _Liu2015_W_CO[_Liu2015_PosID] * 1e3
+            set _Liu2015_PeakCO[_Liu2015_PosID] = _Liu2015_FluxCO[_Liu2015_PosID] / _Liu2015_W_CO[_Liu2015_PosID] * 1e3
+            set J_CO = _Liu2015_J_CO # 
+            set L_CO = _Liu2015_L_CO # K km/s pc2
+            set F_CO = _Liu2015_F_CO # Jy km/s
+            set S_CO = _Liu2015_S_CO # mJy
+            set W_CO = _Liu2015_W_CO # km/s
+            set v_CO = _Liu2015_FreqCO # GHz
+        }}
     }}
     if($verbose) { 
-        define print_noheader 1 set _Liu2015_Jupper = int(_Liu2015_Jupper)
+        define print_noheader 1 
         print '\ncalc_Liu2015_CO:\n' {}
-        print '\nL_TIR = %15.7e  L_sun\nL_FIR = %15.7e  L_sun\nJ_CO  = %15d\nv_CO  = %15.3f  GHz\nL_CO  = %15.7e  K km s-1 pc2\nS_CO  = %15f  Jy km s-1\n\n' \
-               {_Liu2015_LumTIR _Liu2015_LumFIR _Liu2015_Jupper _Liu2015_ObsFreq _Liu2015_LPrmCO _Liu2015_FluxCO}
+        print '\nL_TIR = %15.7e  L_sun\nL_FIR = %15.7e  L_sun\nJ_CO  = %15d\nv_CO  = %15.3f  GHz\nL_CO  = %15.7e  K km s-1 pc2\nF_CO  = %15f  Jy km s-1\nS_CO  = %15f  mJy\n\n' \
+               {_Liu2015_LumTIR _Liu2015_LumFIR _Liu2015_Jupper _Liu2015_ObsFreq _Liu2015_LPrmCO _Liu2015_FluxCO _Liu2015_PeakCO}
         define print_noheader 0
     }
     set $0 = _Liu2015_LPrmCO
@@ -483,41 +543,69 @@ calc_dzliu_CI 04
 calc_dzliu_CII 04
     # 
     # calculate the CII 158um line luminosities for a given total IR luminosity 
-    # calc_dzliu_CII LTIR CII_J_up z R60100 # all input are in linear form
+    # when L_TIR < 1e11, we use calc_DeLooze2011_CII(), 
+    # otherwise we consider a redshift/luminosity-dependent decaying, which can fit WangRan2013 data
     # 
-    if($?1==0||$?2==0){print 'Usage: set L_CII_158um = calc_dzliu_CII(LTIR,J_up[,z[,R60100]]) --> L_CII_158um\n' {} return}
-    if($2<1||$2>1){print 'calc_dzliu_CII: Error! we only support CII 158um 3P1-3P0, sorry!\n' {} return}
-    set _dzliu_LumTIR = $1
+    if($?1==0){print 'Usage: set L_CII_158um = calc_dzliu_CII(L_TIR[,z,W_CII]) --> L_CII_158um\n' {} return}
+    set _dzliu_LumTIR = ($1)
     set _dzliu_LumFIR = _dzliu_LumTIR/1.3 # convert TIR to FIR
-    set _dzliu_PosID = 0,dimen(_dzliu_LumFIR)-1 set _dzliu_PosID = _dzliu_PosID if(_dzliu_LumFIR>0)
-    if($?2){set _dzliu_Jupper = $2} else {set _dzliu_Jupper = _dzliu_LumFIR*0+1.0} # default CII transition = 3P1-3P0 158um
-    if($?4){set _dzliu_R60100 = $4} else {set _dzliu_R60100 = _dzliu_LumFIR*0+0.8} # TODO: default R_f60/f100 = 0.8
+    set _dzliu_PosID = 0,dimen(_dzliu_LumFIR)-1 set _dzliu_PosID = _dzliu_PosID if(_dzliu_LumFIR>0) # good input index
+    set _dzliu_Jupper = _dzliu_LumFIR*0+1   # default CII transition = 3P1-3P0 158um <TODO> will not be used in here
+    set _dzliu_R60100 = _dzliu_LumFIR*0+0.8 # default R_f60/f100 = 0.8 <TODO> will not be used in here
     if(dimen(_dzliu_Jupper)!=dimen(_dzliu_LumFIR)) {set _dzliu_Jupper = _dzliu_LumFIR*0+_dzliu_Jupper}
     if(dimen(_dzliu_R60100)!=dimen(_dzliu_LumFIR)) {set _dzliu_R60100 = _dzliu_LumFIR*0+_dzliu_R60100}
     if(dimen(_dzliu_PosID)==0){print 'calc_dzliu_CII: Error! Input data array has no positive value!' {} return}
-    set _dzliu_N = 0.0 set _dzliu_A = 0.0 
-    set _dzliu_I = 0,dimen(_dzliu_LumTIR)-1 set _dzliu_I = _dzliu_I if(_dzliu_R60100>0)
-    set _dzliu_X = float(_dzliu_I)*0+0.8 set _dzliu_X[_dzliu_I] = lg(_dzliu_R60100[_dzliu_I]) # TODO: default R_f60/f100 = 0.8
-    if($2==1) {set _dzliu_N = 1.00 set _dzliu_A = 3.0+(_dzliu_R60100-0.8)*1.2} # dzliu TODO 2016-03-13
+    set _dzliu_N = 0.983 set _dzliu_A = lg(194.55575172665547) # Slope is 0.983, Intercept see the above computing with IDL # see calc_DeLooze2011_CII()
     set _dzliu_FluxCII = _dzliu_LumFIR*0+0.0
-    set _dzliu_LumiCII = _dzliu_LumFIR*0+0.0
-    set _dzliu_LumiCII[_dzliu_PosID] = 10**((lg(_dzliu_LumTIR[_dzliu_PosID])-_dzliu_A)/_dzliu_N)
     set _dzliu_LPrmCII = _dzliu_LumFIR*0+0.0
-    set _dzliu_LPrmCII[_dzliu_PosID] = _dzliu_LumiCII[_dzliu_PosID] / (3.1814084e-11 * $(calc_line_freq(CII,$2,0))**3)
+    set _dzliu_LPrmCII[_dzliu_PosID] = 10**((lg(_dzliu_LumTIR[_dzliu_PosID])-_dzliu_A)/_dzliu_N)
+    set _dzliu_LumiCII = _dzliu_LumFIR*0+0.0
+    set _dzliu_LumiCII[_dzliu_PosID] = _dzliu_LPrmCII[_dzliu_PosID] * 0.21839784
+    set _dzliu_PeakCII = _dzliu_LumFIR*0-99.0
+    set _dzliu_FluxCII = _dzliu_LumFIR*0+0.0
+    set _dzliu_FreqCII = _dzliu_LumFIR*0+0.0
     set _dzliu_ObsFreq = _dzliu_LumFIR*0+0.0
-    if($?3) { if($3>0) { 
+    set _dzliu_ResFreq = _dzliu_LumFIR*0+0.0
+    if($?2) { 
+        set _dzliu_Redshift = ($2)
+        # Apply redshift/luminosity-dependent decaying <20160903> <TODO> assuming Bethermin 2015 Sec.4.3 http://cn.arxiv.org/pdf/1409.5796.pdf
+        set _dzliu_Decaying = (_dzliu_LumTIR>1e10) ? (_dzliu_LumTIR/1e11)**0.335 : 1.0
+        set _dzliu_Decaying = 1.0 / _dzliu_Decaying
+        set _dzliu_LPrmCII = _dzliu_LPrmCII * _dzliu_Decaying
+        set _dzliu_LumiCII = _dzliu_LumiCII * _dzliu_Decaying
+        # 
         define _dzliu_Verbose $verbose verbose 0
-        set _dzliu_FreqCII = _dzliu_LumFIR*0 + calc_line_freq(CII,$2,0) # FreqCII is restframe
-        set _dzliu_ObsFreq = _dzliu_LumFIR*0 + calc_line_freq(CII,$2,$3) # ObsFreq is obsframe
-        set _dzliu_LumDist = calc_lumdist($3) 
-        set _dzliu_FluxCII[_dzliu_PosID] = convert_lprm2flux($3,_dzliu_LPrmCII[_dzliu_PosID],_dzliu_FreqCII,_dzliu_LumDist)
+        set _dzliu_ResFreq = _dzliu_LumFIR*0 + calc_line_freq(CII,1,0)  # FreqCII is restframe
+        set _dzliu_ObsFreq = _dzliu_LumFIR*0 + calc_line_freq(CII,1,_dzliu_Redshift) # ObsFreq is obsframe
+        set _dzliu_LumDist = calc_lumdist(_dzliu_Redshift)
+        set _dzliu_FluxCII[_dzliu_PosID] = convert_lprm2flux(_dzliu_Redshift,_dzliu_LPrmCII[_dzliu_PosID],_dzliu_ResFreq,_dzliu_LumDist)
+        set _dzliu_FreqCII = _dzliu_ObsFreq
         verbose $_dzliu_Verbose undef _dzliu_Verbose
-    }}
+        if($?3) { 
+            # 20160903
+            set _dzliu_W_CII = float($3)
+            if(dimen(_dzliu_W_CII)==1 && dimen(_dzliu_Jupper)>1) {
+                set _dzliu_W_CII = _dzliu_LumFIR*0 + _dzliu_W_CII
+            }
+            set _dzliu_J_CII = _dzliu_Jupper
+            set _dzliu_L_CII = _dzliu_LPrmCII
+            set _dzliu_F_CII = _dzliu_FluxCII
+            set _dzliu_S_CII = _dzliu_PeakCII
+            set _dzliu_S_CII[_dzliu_PosID] = _dzliu_FluxCII[_dzliu_PosID] / _dzliu_W_CII[_dzliu_PosID] * 1e3
+            set _dzliu_PeakCII[_dzliu_PosID] = _dzliu_FluxCII[_dzliu_PosID] / _dzliu_W_CII[_dzliu_PosID] * 1e3
+            set J_CII = _dzliu_J_CII # 
+            set L_CII = _dzliu_L_CII # K km/s pc2
+            set F_CII = _dzliu_F_CII # Jy km/s
+            set S_CII = _dzliu_S_CII # mJy
+            set W_CII = _dzliu_W_CII # km/s
+            set v_CII = _dzliu_FreqCII # GHz
+        }
+    }
     if($verbose) { 
         define print_noheader 1 set _dzliu_Jupper = int(_dzliu_Jupper)
         print '\ncalc_dzliu_CII:\n' {}
-        print '\nL_TIR  = %15.7e  L_sun\nL_FIR  = %15.7e  L_sun\nJ_CII  = %15d\nv_CII  = %15.3f  GHz\nL_CII  = %15.7e  K km s-1 pc2\nS_CII  = %15f  Jy km s-1\n\n' \
-               {_dzliu_LumTIR _dzliu_LumFIR _dzliu_Jupper _dzliu_ObsFreq _dzliu_LPrmCII _dzliu_FluxCII}
+        print '\nL_TIR  = %15.7e  L_sun\nL_FIR  = %15.7e  L_sun\nJ_CII  = %15d\nv_CII  = %15.3f  GHz\nL_CII  = %15.7e  K km s-1 pc2\nF_CII  = %15f  Jy km s-1\nS_CII  = %15f  mJy\n\n' \
+               {_dzliu_LumTIR _dzliu_LumFIR _dzliu_Jupper _dzliu_ObsFreq _dzliu_LPrmCII _dzliu_FluxCII _dzliu_PeakCII}
         define print_noheader 0
     }
     set $0 = _dzliu_LPrmCII
@@ -609,6 +697,89 @@ calc_Zhao2016_NII 04
         define print_noheader 0
     }
     set $0 = _Zhao2016_LPrmNII
+
+calc_Ota2014_CII 04
+    # 
+    # calculate the CII 158um line luminosities for a given total IR luminosity 
+    # according to paper Ota et al. 2014 (cited by Capak 2015 Nature)
+    # https://arxiv.org/pdf/1405.5387v2.pdf
+    # TODO
+
+calc_DeLooze2011_CII 03
+    # 
+    # calculate the CII 158um line luminosities for a given total IR luminosity 
+    # according to paper Ota et al. 2014 (cited by Capak 2015 Nature)
+    # http://adsabs.harvard.edu/abs/2011MNRAS.416.2712D
+    # Equation 8
+    # SFR (Kroupa IMF) [Msun/yr] = ( L_CII [erg/s] )^0.983 / 1.028e40
+    # SFR (Kroupa IMF) [Msun/yr] = SFR (Salpeter IMF) [Msun/yr] / 1.51
+    # SFR (Salpeter IMF) [Msun/yr] = L_TIR [erg/s] / 2.2e43 = L_TIR [Lsun] / 5.8e9 -- Kennicutt 1998 ApJ
+    # => L_TIR [Lsun] = ( L_CII [erg/s]                                                           )^0.983 / 1.028D40 * 1.51 * 5.8D9 ; computing with IDL
+    #                 = ( L_CII [Lsun] * 2.2e43 / 5.8e9                                           )^0.983 / 1.028D40 * 1.51 * 5.8D9
+    #                 = ( LPrm_CII [K km s-1 pc2] * 3.1814084D-11 * 1900.53690^3 * 2.2D43 / 5.8D9 )^0.983 / 1.028D40 * 1.51 * 5.8D9
+    #                 = ( LPrm_CII [K km s-1 pc2] * 0.21839784                   * 2.2D43 / 5.8D9 )^0.983 / 1.028D40 * 1.51 * 5.8D9
+    #                 = ( LPrm_CII [K km s-1 pc2] * 8.2840560D+32                                 )^0.983 * 8.5194552D-31
+    #                 = ( LPrm_CII [K km s-1 pc2])^0.983 * 8.2840560D+32^0.983 * 8.5194552D-31
+    #                 = ( LPrm_CII [K km s-1 pc2])^0.983 * 194.55575172665547
+    # -- note that (3.1814084D-11 * 1900.53690^3) = 0.21839784
+    # 
+    if($?1==0){print 'Usage: set L_CII_158um = calc_DeLooze2011_CII(L_TIR[,z,W_CII]) --> L_CII_158um\n' {} return}
+    set _DeLooze2011_LumTIR = ($1)
+    set _DeLooze2011_LumFIR = _DeLooze2011_LumTIR/1.3 # convert TIR to FIR
+    set _DeLooze2011_PosID = 0,dimen(_DeLooze2011_LumFIR)-1 set _DeLooze2011_PosID = _DeLooze2011_PosID if(_DeLooze2011_LumFIR>0) # good input index
+    set _DeLooze2011_Jupper = _DeLooze2011_LumFIR*0+1   # default CII transition = 3P1-3P0 158um <TODO> will not be used in here
+    set _DeLooze2011_R60100 = _DeLooze2011_LumFIR*0+0.8 # default R_f60/f100 = 0.8 <TODO> will not be used in here
+    if(dimen(_DeLooze2011_Jupper)!=dimen(_DeLooze2011_LumFIR)) {set _DeLooze2011_Jupper = _DeLooze2011_LumFIR*0+_DeLooze2011_Jupper}
+    if(dimen(_DeLooze2011_R60100)!=dimen(_DeLooze2011_LumFIR)) {set _DeLooze2011_R60100 = _DeLooze2011_LumFIR*0+_DeLooze2011_R60100}
+    if(dimen(_DeLooze2011_PosID)==0){print 'calc_DeLooze2011_CII: Error! Input data array has no positive value!' {} return}
+    set _DeLooze2011_N = 0.983 set _DeLooze2011_A = lg(194.55575172665547) # Slope is 0.983, Intercept see the above computing with IDL
+    set _DeLooze2011_FluxCII = _DeLooze2011_LumFIR*0+0.0
+    set _DeLooze2011_LPrmCII = _DeLooze2011_LumFIR*0+0.0
+    set _DeLooze2011_LPrmCII[_DeLooze2011_PosID] = 10**((lg(_DeLooze2011_LumTIR[_DeLooze2011_PosID])-_DeLooze2011_A)/_DeLooze2011_N)
+    set _DeLooze2011_LumiCII = _DeLooze2011_LumFIR*0+0.0
+    set _DeLooze2011_LumiCII[_DeLooze2011_PosID] = _DeLooze2011_LPrmCII[_DeLooze2011_PosID] * 0.21839784
+    set _DeLooze2011_PeakCII = _DeLooze2011_LumFIR*0-99.0
+    set _DeLooze2011_FluxCII = _DeLooze2011_LumFIR*0+0.0
+    set _DeLooze2011_FreqCII = _DeLooze2011_LumFIR*0+0.0
+    set _DeLooze2011_ObsFreq = _DeLooze2011_LumFIR*0+0.0
+    set _DeLooze2011_ResFreq = _DeLooze2011_LumFIR*0+0.0
+    if($?2) { 
+        set _DeLooze2011_Redshift = ($2)
+        define _DeLooze2011_Verbose $verbose verbose 0
+        set _DeLooze2011_ResFreq = _DeLooze2011_LumFIR*0 + calc_line_freq(CII,1,0)  # FreqCII is restframe
+        set _DeLooze2011_ObsFreq = _DeLooze2011_LumFIR*0 + calc_line_freq(CII,1,_DeLooze2011_Redshift) # ObsFreq is obsframe
+        set _DeLooze2011_LumDist = calc_lumdist(_DeLooze2011_Redshift)
+        set _DeLooze2011_FluxCII[_DeLooze2011_PosID] = convert_lprm2flux(_DeLooze2011_Redshift,_DeLooze2011_LPrmCII[_DeLooze2011_PosID],_DeLooze2011_ResFreq,_DeLooze2011_LumDist)
+        set _DeLooze2011_FreqCII = _DeLooze2011_ObsFreq
+        verbose $_DeLooze2011_Verbose undef _DeLooze2011_Verbose
+        if($?3) { 
+            # 20160903
+            set _DeLooze2011_W_CII = float($3)
+            if(dimen(_DeLooze2011_W_CII)==1 && dimen(_DeLooze2011_Jupper)>1) {
+                set _DeLooze2011_W_CII = _DeLooze2011_LumFIR*0 + _DeLooze2011_W_CII
+            }
+            set _DeLooze2011_J_CII = _DeLooze2011_Jupper
+            set _DeLooze2011_L_CII = _DeLooze2011_LPrmCII
+            set _DeLooze2011_F_CII = _DeLooze2011_FluxCII
+            set _DeLooze2011_S_CII = _DeLooze2011_PeakCII
+            set _DeLooze2011_S_CII[_DeLooze2011_PosID] = _DeLooze2011_FluxCII[_DeLooze2011_PosID] / _DeLooze2011_W_CII[_DeLooze2011_PosID] * 1e3
+            set _DeLooze2011_PeakCII[_DeLooze2011_PosID] = _DeLooze2011_FluxCII[_DeLooze2011_PosID] / _DeLooze2011_W_CII[_DeLooze2011_PosID] * 1e3
+            set J_CII = _DeLooze2011_J_CII # 
+            set L_CII = _DeLooze2011_L_CII # K km/s pc2
+            set F_CII = _DeLooze2011_F_CII # Jy km/s
+            set S_CII = _DeLooze2011_S_CII # mJy
+            set W_CII = _DeLooze2011_W_CII # km/s
+            set v_CII = _DeLooze2011_FreqCII # GHz
+        }
+    }
+    if($verbose) { 
+        define print_noheader 1 set _DeLooze2011_Jupper = int(_DeLooze2011_Jupper)
+        print '\ncalc_DeLooze2011_CII:\n' {}
+        print '\nL_TIR  = %15.7e  L_sun\nL_FIR  = %15.7e  L_sun\nJ_CII  = %15d\nv_CII  = %15.3f  GHz\nL_CII  = %15.7e  K km s-1 pc2\nF_CII  = %15f  Jy km s-1\nS_CII  = %15f  mJy\n\n' \
+               {_DeLooze2011_LumTIR _DeLooze2011_LumFIR _DeLooze2011_Jupper _DeLooze2011_ObsFreq _DeLooze2011_LPrmCII _DeLooze2011_FluxCII _DeLooze2011_PeakCII}
+        define print_noheader 0
+    }
+    set $0 = _DeLooze2011_LPrmCII
 
 calc_Gao2007_HCN 04
     # 
@@ -739,7 +910,7 @@ calc_Gladders2013_CSFRD 03
     set _cosmic_z = float($1)
     !rm .cosmic.comoving.distance.tmp 2>/dev/null
     do _cosmic_j=0,dimen(_cosmic_z)-1 {
-        if($verbose) {echo Computing lumdist $(_cosmic_z[$_cosmic_j]) -verbose}
+        #if($verbose) {echo Computing lumdist $(_cosmic_z[$_cosmic_j]) -verbose}
         !lumdist $(_cosmic_z[$_cosmic_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
     }
     if(is_file(.cosmic.comoving.distance.tmp)) {
@@ -804,27 +975,33 @@ calc_comoving_volume 03
     # 
     set dimen(_cosmic_Vc) = dimen(_cosmic_z)
     do _cosmic_i=0,dimen(_cosmic_z)-1 {
-        set _cosmic_Sz = _cosmic_z[$_cosmic_i]-0.5*_cosmic_dz[$_cosmic_i],_cosmic_z[$_cosmic_i]+0.5*_cosmic_dz[$_cosmic_i],$(_cosmic_dz[$_cosmic_i]/10.)
-        set _cosmic_Ez = sqrt(_cosmic_OmeM*(1+_cosmic_Sz)**3+_cosmic_Omek*(1+_cosmic_Sz)**2+_cosmic_OmeL)
-        do _cosmic_j=0,dimen(_cosmic_Sz)-1 {
-            !lumdist -verbose $(_cosmic_Sz[$_cosmic_j]) | grep 'lumdist d_L=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
-        }
-        if(is_file(.cosmic.comoving.distance.tmp)) {
-            data .cosmic.comoving.distance.tmp read {_cosmic_DL 3 _cosmic_DC 6 _cosmic_DA 9}
-            !rm .cosmic.comoving.distance.tmp
+        if(_cosmic_dz[$_cosmic_i]>0) {
+            set _cosmic_Sz = _cosmic_z[$_cosmic_i]-0.5*_cosmic_dz[$_cosmic_i],_cosmic_z[$_cosmic_i]+0.5*_cosmic_dz[$_cosmic_i],$(_cosmic_dz[$_cosmic_i]/10.)
+            set _cosmic_Ez = sqrt(_cosmic_OmeM*(1+_cosmic_Sz)**3+_cosmic_Omek*(1+_cosmic_Sz)**2+_cosmic_OmeL)
+            do _cosmic_j=0,dimen(_cosmic_Sz)-1 {
+                !lumdist -verbose $(_cosmic_Sz[$_cosmic_j]) | grep 'lumdist d_L=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
+            }
+            if(is_file(.cosmic.comoving.distance.tmp)) {
+                data .cosmic.comoving.distance.tmp read {_cosmic_DL 3 _cosmic_DC 6 _cosmic_DA 9}
+                !rm .cosmic.comoving.distance.tmp
+            } else {
+                print 'Error! Failed to run lumdist!\n' {}
+                return
+            }
+            ##define aaa ?
+            set _cosmic_DH = 2.997902458e5/_cosmic_H0
+            set _cosmic_Az = _cosmic_DA**2*(1+_cosmic_Sz)**2*(_cosmic_area)*3600/4.25451703e10 # Mpc^2 #<TODO># GOODS-North (165) (11*17)
+            set _cosmic_Vz = _cosmic_DH/_cosmic_Ez * _cosmic_Az * $(_cosmic_dz[$_cosmic_i]/10.)
+            set _cosmic_Vc[$_cosmic_i] = sum(_cosmic_Vz) # Mpc^3
         } else {
-            print 'Error! Failed to run lumdist!\n' {}
-            return
+            # if input zero redshift range
+            set _cosmic_Vc[$_cosmic_i] = 0.0 # Mpc^3
         }
-        ##define aaa ?
-        set _cosmic_DH = 2.997902458e5/_cosmic_H0
-        set _cosmic_Az = _cosmic_DA**2*(1+_cosmic_Sz)**2*(_cosmic_area)*3600/4.25451703e10 # Mpc^2 #<TODO># GOODS-North (165) (11*17)
-        set _cosmic_Vz = _cosmic_DH/_cosmic_Ez * _cosmic_Az * $(_cosmic_dz[$_cosmic_i]/10.)
-        set _cosmic_Vc[$_cosmic_i] = sum(_cosmic_Vz) # Mpc^3
-        if(_cosmic_z[$_cosmic_i]==2.5) {
-            print {_cosmic_Sz _cosmic_Az _cosmic_Vz} # _cosmic_DA _cosmic_DC _cosmic_DL _cosmic_Ez
-            define aaa ?
-        }
+        
+        #if(_cosmic_z[$_cosmic_i]==2.5) {
+        #    print {_cosmic_Sz _cosmic_Az _cosmic_Vz} # _cosmic_DA _cosmic_DC _cosmic_DL _cosmic_Ez
+        #    define aaa ?
+        #}
     }
     #if($verbose) {print {_cosmic_z _cosmic_dz _cosmic_Vc _cosmic_Vz _cosmic_Az _cosmic_DH}} # _cosmic_DA _cosmic_DH _cosmic_DL _cosmic_Ez
     # 
@@ -991,6 +1168,9 @@ calc_line_freq 03
     # calc line frequency in observing frame
     if($?1==0||$?2==0){print 'Usage: set uCO10 = calc_line_freq(co,1,6.005) => output: LineFreq\n' {} return}
     set _line_freq = 0.0 # GHz
+    #<TODO><20160828># if(is_vector($1)) {set _line_name = $1} else {set _line_name = '$1'}
+    #<TODO><20160828># set _line_Jup = ($2)
+    #<TODO><20160828># -- TODO: only support input scalar variable
     if('$1'=='CO'||'$1'=='co'){
         if('$2'=='1')  {set _line_freq = 115.2712018}
         if('$2'=='2')  {set _line_freq = 230.5380000}

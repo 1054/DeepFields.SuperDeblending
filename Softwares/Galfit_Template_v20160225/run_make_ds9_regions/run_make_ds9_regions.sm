@@ -1,0 +1,84 @@
+run_make_ds9_regions 02
+    # 
+    #  macro read run_make_ds9_regions.sm run_make_ds9_regions 100
+    #  macro read run_make_ds9_regions.sm run_make_ds9_regions 850
+    # 
+    if(!$?1) {print 'Error! Please input band!\n' {} return}
+    if(!$?2) {print 'Error! Please input date!\n' {} return}
+    if('$1'=='100' || '$1'=='160' || '$1'=='850') {
+        define res_file "results_"$1"_"$2"_vary"
+        define sed_file "SED_predictions_"$1".txt"
+    } else {
+        define res_file "results_"$1"_"$2
+        define sed_file "SED_predictions_"$1".txt"
+    }
+    # 
+    # Read fitted sources, including prior catalog sources and additional residual iamge sources
+    # 
+    if(!is_file("../"$res_file)) {
+        echo ""
+        echo "Error! Photometry result file \""$res_file"\" was not found!"
+        echo ""
+        exit
+    }
+    load rfile.sm
+    rfile "../"$res_file
+    rfile "../"$res_file"__fluxes.txt"
+    data "../"$res_file"__fluxes.txt" read idS 1.s
+    data "../"$res_file"__fluxes.txt" read idF 1.f
+    # 
+    # Write fitted prior catalog sources
+    # 
+    load astroPhot.sm
+    if(sum(idF<100000)>0) {
+        set _id = idS if(idF<100000)
+        set _ra = raF if(idF<100000)
+        set _de = deF if(idF<100000)
+        set _f = f$1 if(idF<100000)
+        convert_id_ra_dec_flux_to_ds9_reg goodsn $1 _id _ra _de _f $res_file"__fluxes_catalog_sources.ds9.reg"
+        #if('$1'=='100' || '$1'=='160') {
+        #    !sed -i -e 's/width=1/width=2/g' $res_file"__fluxes_catalog_sources.ds9.reg"
+        #}
+        !cp $res_file"__fluxes_catalog_sources.ds9.reg" "../"
+    }
+    # 
+    # Write additional residual image sources
+    # 
+    if(sum(idF>=100000)>0) {
+        set _id = idS if(idF>=100000)
+        set _ra = raF if(idF>=100000)
+        set _de = deF if(idF>=100000)
+        set _f = f$1 if(idF>=100000)
+        convert_id_ra_dec_flux_to_ds9_reg goodsn $1 _id _ra _de _f $res_file"__fluxes_additional_sources.ds9.reg"
+        !sed -i -e 's/color=yellow/color=green/g' $res_file"__fluxes_additional_sources.ds9.reg"
+        #if('$1'=='100' || '$1'=='160') {
+        #    !sed -i -e 's/width=1/width=2/g' $res_file"__fluxes_additional_sources.ds9.reg"
+        #}
+        !cp $res_file"__fluxes_additional_sources.ds9.reg" "../"
+    }
+    # 
+    # Read SED prediction excluded sources (SED_predictions_$imax.txt)
+    # 
+    if(!is_file("../"$sed_file)) {
+        echo ""
+        echo "Error! SED prediction file \""$sed_file"\" was not found!"
+        echo ""
+        exit
+    }
+    rfile "../"$sed_file
+    data "../"$sed_file read idS 1.s
+    # 
+    # Write SED prediction excluded sources
+    # 
+    if(sum(exc$1)>0) {
+        set _id = idS if(exc$1)
+        set _ra = _ra if(exc$1)
+        set _de = _de if(exc$1)
+        set _f = xf$1 if(exc$1)
+        convert_id_ra_dec_flux_to_ds9_reg goodsn $1 _id _ra _de _f $res_file"__fluxes_excluded_sources.ds9.reg"
+        !sed -i -e 's/color=yellow/color=orange/g' $res_file"__fluxes_excluded_sources.ds9.reg"
+        !sed -i -e 's/dash=[0-9]*/dash=1/g' $res_file"__fluxes_excluded_sources.ds9.reg"
+        !cp $res_file"__fluxes_excluded_sources.ds9.reg" "../"
+    }
+    echo "Done!"
+

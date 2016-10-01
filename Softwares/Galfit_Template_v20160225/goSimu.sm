@@ -106,23 +106,9 @@ SimuX	00	## define Nsimu 6000
 			#define outfile   "xsimuGH_RAD_SPInewX2_"$imax".dat"
 			#define outfile   "xsimu_South_GH9_2014_"$imax".dat"     # GOODS-S
 			#define outfile   "xsimu_DF_GH1_"$imax".dat"             # Daddi-F
-			define outfile   "xsimuGN_OUT_"$imax"_"$xdate".txt"
+			#define outfile   "xsimuGN_OUT_"$imax"_"$xdate".txt"
 			#!\rm $outfile
 			#!\rm simu*fits >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
-			if(is_file($outfile)) {
-				define ToNewOutFile Replace
-				#<TODO># define ToNewOutFile ? <$outfile exists! Append or replace? [a/r]>
-				if(index('$ToNewOutFile','r')==0||index('$ToNewOutFile','R')==0) {
-				    echo 
-				    echo mv $outfile $outfile.backup
-				    echo 
-				    !\mv $outfile $outfile.backup
-				    echo 
-					echo Backuping $outfile as $outfile.backup
-					echo Creating new $outfile
-					echo 
-				}
-			}
 			#define mag_start 5
 			
 			# check the variable: doParallel doPostParallel
@@ -144,20 +130,42 @@ SimuX	00	## define Nsimu 6000
 			gPriors
 			macro read goFine.sm xdo_sizes
 			
+			# <20160914> note that after gPriors xdate already contains vary if defined vary_position
 			if($?doFakeDetection==1) {                                                    ###<Added><DZLIU>### doFakeDetection
 				define outfile "xsimu2GN_OUT_"$imax"_"$xdate".txt"                        ###<Added><DZLIU>### doFakeDetection
 				define sumfile "xpriorGN_MAG_"$imax"_"$xdate".txt"                        ###<Added><DZLIU>### doFakeDetection
 				!\mv $outfile $outfile.backup                                             ###<Added><DZLIU>### doFakeDetection
 			} else {                                                                      ###<Added><DZLIU>### doFakeDetection
+			    define outfile "xsimuGN_OUT_"$imax"_"$xdate".txt"                         ###<20160914><DZLIU### moved to here
 			    define sumfile "xpriorGN_MAG_"$imax"_"$xdate".txt"                        ###<Added><DZLIU>### doFakeDetection
 			   #!\mv $outfile $outfile.backup                                             ###<Added><DZLIU>### doFakeDetection
 			}                                                                             ###<Added><DZLIU>### doFakeDetection
+			
+			# <20160914> backup after gPriors (so xdate can contain vary)
+			if(is_file($outfile)) {
+				goBackupFile $outfile
+				#<20160914># define ToNewOutFile Replace
+				#<20160914># #<TODO># define ToNewOutFile ? <$outfile exists! Append or replace? [a/r]>
+				#<20160914># if(index('$ToNewOutFile','r')==0||index('$ToNewOutFile','R')==0) {
+				#<20160914>#     echo 
+				#<20160914>#     echo mv $outfile $outfile.backup
+				#<20160914>#     echo 
+				#<20160914>#     !\mv $outfile $outfile.backup
+				#<20160914>#     echo 
+				#<20160914># 	echo Backuping $outfile as $outfile.backup
+				#<20160914># 	echo Creating new $outfile
+				#<20160914># 	echo 
+				#<20160914># }
+			}
 			
 			### define doRedoGalsim 1 #<TODO># comment this 
 			
 			if($?doPostParallel==0 && $?doFakeDetection==0 && $?doRedoGalsim==0) {        ###<Added><DZLIU>### doPostParallel -doFakeDetection
 				verbose 0                                                                 ###<Added><DZLIU>### doPostParallel
-				if(!is_vector(Xid_)){                                                     ###<Added><DZLIU>### doPostParallel
+				if(is_file($sumfile)) {                                                   ###<Added><DZLIU>### doPostParallel
+					goBackupFile $sumfile                                                 ###<Added><DZLIU>### doPostParallel
+				}                                                                         ###<Added><DZLIU>### doPostParallel
+				if(!is_vector(Xid_)) {                                                    ###<Added><DZLIU>### doPostParallel
 					print $sumfile '%17.7f %17.7f %15.3f %15.3f %16.7g %20.0f\n' {x_si y_si x_si_ y_si_ mag_si Xid_}
 				} else {                                                                  
 					print $sumfile '%17.7f %17.7f %15.3f %15.3f %16.7g\n' {x_si y_si x_si_ y_si_ mag_si}
@@ -396,10 +404,14 @@ Simu_ 00
 				#!galfit -imax 500 $aa_file > "HSO_$imax"".STDOUT"                    ###<Added><DZLIU>### doParallel
 				!galfit $aa_file > "HSO_"$imax".STDOUT"                               ###<Added><DZLIU>### doParallel
 			} else {                                                                  ###<Added><DZLIU>### doParallel
-				if(1==1) {
+				if($vary_positions) {
+					define idBox "boxgalsim_vary/box"$idSi
+					define idRun "boxgalsim_vary/runbox"$idSi".sh"
+					define idTar "../doing"$imax".box.galsim_vary"
+				} else {
 					define idBox "boxgalsim/box"$idSi
 					define idRun "boxgalsim/runbox"$idSi".sh"
-					define idTar "../doing"$imax".box"
+					define idTar "../doing"$imax".box.galsim"
 				}
 				if($?doFakeDetection==1) {
 					define idBox boxfaked$idSi
@@ -882,7 +894,12 @@ goSS	00
 			###<Added><DzLIU><20141123>###
 			if($?doPostParallel) {
 				if($doPostParallel!=0) {
-					data "xpriorGN_RAD_"$imax"_"$xdate".txt" read {Xid_ 1 Xra_ 2 Xde_ 3}
+			        if($vary_positions) {
+					    data "xpriorGN_RAD_"$imax"_"$xdate"_vary.txt" 
+					} else {
+						data "xpriorGN_RAD_"$imax"_"$xdate".txt" 
+					}
+					read {Xid_ 1 Xra_ 2 Xde_ 3}
 					set x_si = Xra_
 					set y_si = Xde_
 					return
@@ -1018,33 +1035,80 @@ goSS	00
 			#Up to here they are just RA-DEC positions simulated
 			
 			###<Added><DzLIU><20141123>###
+			###<Modif><DzLIU><20160914>### fixed vary problem
 			set Xid_ = 0,dimen(Xra_)-1
 			set Xid_ = Xid_ + float($xdate)*1e6
-			if(is_file("xpriorGN_RAD_"$imax"_"$xdate".txt")) {
-				define ToNewOutFile Replace
-				# define ToNewOutFile ? <"xpriorGN_RAD_"$imax"_"$xdate".txt" exists! Do you really want to replace it? [Replace/No]>
-				if(index('$ToNewOutFile','r')==0||index('$ToNewOutFile','R')==0) {
-				    set BkOldOutFile = substr('$date',index('$date',':')+7,4)
-				    set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',':')+7,4)
-				    set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',' ')+1,index('$date',':')-index('$date',' ')-4)
-				    !\mv "xpriorGN_RAD_"$imax"_"$xdate".txt" "xpriorGN_RAD_"$imax"_"$xdate".txt".backup.$(BkOldOutFile)
-				    echo 
-					echo Backuping "xpriorGN_RAD_"$imax"_"$xdate".txt" as "xpriorGN_RAD_"$imax"_"$xdate".txt".backup.$(BkOldOutFile)
-					echo 
-					echo Creating new "xpriorGN_RAD_"$imax"_"$xdate".txt"
-					echo 
-				} else {
-				    echo TODO
-				    echo TODO
-				    echo TODO
-				    echo TODO
-				    echo TODO
-				    echo TODO
-				    define aaa ?
+			if($vary_positions) {
+				if(is_file("xpriorGN_RAD_"$imax"_"$xdate"_vary.txt")) {
+					goBackupFile "xpriorGN_RAD_"$imax"_"$xdate"_vary.txt"
 				}
+			    print "xpriorGN_RAD_"$imax"_"$xdate"_vary.txt" '%18.0f %15.7f %15.7f\n' {Xid_ Xra_ Xde_}
+			} else {
+				if(is_file("xpriorGN_RAD_"$imax"_"$xdate".txt")) {
+					goBackupFile "xpriorGN_RAD_"$imax"_"$xdate".txt"
+				}
+			    print "xpriorGN_RAD_"$imax"_"$xdate".txt" '%18.0f %15.7f %15.7f\n' {Xid_ Xra_ Xde_}
 			}
-			print "xpriorGN_RAD_"$imax"_"$xdate".txt" '%18.0f %15.7f %15.7f\n' {Xid_ Xra_ Xde_}
+			#<20160914># if(is_file("xpriorGN_RAD_"$imax"_"$xdate".txt")) {
+			#<20160914># 	goBackupFile "xpriorGN_RAD_"$imax"_"$xdate".txt"
+			#<20160914># 	#<20160914># define ToNewOutFile Replace
+			#<20160914># 	#<20160914># # define ToNewOutFile ? <"xpriorGN_RAD_"$imax"_"$xdate".txt" exists! Do you really want to replace it? [Replace/No]>
+			#<20160914># 	#<20160914># if(index('$ToNewOutFile','r')==0 || index('$ToNewOutFile','R')==0) {
+			#<20160914># 	#<20160914>#     set BkOldOutFile =              substr('$date',index('$date',':')+7,4)
+			#<20160914># 	#<20160914>#     set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',' ')*0,index('$date',' '))
+			#<20160914># 	#<20160914>#     set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',' ')+1,index('$date',':')-index('$date',' ')-4)+'.'
+			#<20160914># 	#<20160914>#     set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',':')-2,2)+'H'
+			#<20160914># 	#<20160914>#     set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',':')+1,2)+'M'
+			#<20160914># 	#<20160914>#     set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',':')+4,2)+'S'
+			#<20160914># 	#<20160914>#     !mv "xpriorGN_RAD_"$imax"_"$xdate".txt" "xpriorGN_RAD_"$imax"_"$xdate".txt".backup.$(BkOldOutFile)
+			#<20160914># 	#<20160914>#     echo 
+			#<20160914># 	#<20160914># 	echo Backuping "xpriorGN_RAD_"$imax"_"$xdate".txt" as "xpriorGN_RAD_"$imax"_"$xdate".txt".backup.$(BkOldOutFile)
+			#<20160914># 	#<20160914># 	echo 
+			#<20160914># 	#<20160914># 	echo Creating new "xpriorGN_RAD_"$imax"_"$xdate".txt"
+			#<20160914># 	#<20160914># 	echo 
+			#<20160914># 	#<20160914># } else {
+			#<20160914># 	#<20160914>#     echo TODO
+			#<20160914># 	#<20160914>#     echo TODO
+			#<20160914># 	#<20160914>#     echo TODO
+			#<20160914># 	#<20160914>#     echo TODO
+			#<20160914># 	#<20160914>#     echo TODO
+			#<20160914># 	#<20160914>#     echo TODO
+			#<20160914># 	#<20160914>#     define aaa ?
+			#<20160914># 	#<20160914># }
+			#<20160914># }
+			#<20160914># print "xpriorGN_RAD_"$imax"_"$xdate".txt" '%18.0f %15.7f %15.7f\n' {Xid_ Xra_ Xde_}
 			###<Added><DzLIU><20141123>###
+
+
+goBackupFile 01
+			if(!$?1) {return}
+			define ToNewOutFile Replace
+			# define ToNewOutFile ? <"xpriorGN_RAD_"$imax"_"$xdate".txt" exists! Do you really want to replace it? [Replace/No]>
+			if(index('$ToNewOutFile','r')==0 || index('$ToNewOutFile','R')==0) {
+			    set BkOldOutFile =              substr('$date',index('$date',':')+7,4)
+			    set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',' ')*0,index('$date',' '))
+			    set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',' ')+1,index('$date',':')-index('$date',' ')-4)+'.'
+			    set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',':')-2,2)+'H'
+			    set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',':')+1,2)+'M'
+			    set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',':')+4,2)+'S'
+			    !mv $1 $1.backup.$(BkOldOutFile)
+			    echo 
+				echo Backuping $1 as $1.backup.$(BkOldOutFile)
+				echo 
+				echo Creating new $1
+				echo 
+			} else {
+			    echo TODO
+			    echo TODO
+			    echo TODO
+			    echo TODO
+			    echo TODO
+			    echo TODO
+			    define aaa ?
+			}
+
+
+
 
 Read_All	
 			declare SNtot 0
@@ -1159,13 +1223,13 @@ gPriors	00
 			set x1=x$imax set y1=y$imax
 			set fix1 = x1*0 set fix2 = fix1
 			if($vary_positions) {
-			data results_$imax"_"$xdate read {ee 5 mm 4}
-			set fix1 = ee<=.05 && ee>=0
-			set fix2 = fix1
-			define xdate $xdate"_vary"
-			define use_prior_mags 1
-			set xm$imax = mm
-			set xm$imax = xm$imax > $mag_toofaint ? $mag_toofaint : xm$imax
+				data results_$imax"_"$xdate read {ee 5 mm 4}
+				set fix1 = ee<=.05 && ee>=0
+				set fix2 = fix1
+				define xdate $xdate"_vary"
+				define use_prior_mags 1
+				set xm$imax = mm
+				set xm$imax = xm$imax > $mag_toofaint ? $mag_toofaint : xm$imax
 			}
 
 			if( '$imax_name' == 'HTfinal_coadd20101016_ima_grn' && $fix_astrometry) {

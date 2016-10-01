@@ -15,8 +15,10 @@ do_Type_SED
         set msSFR = calc_Sargent2014_SFR(xf_zz,MassX) # already in log10 but in Salpeter IMF, while our xfSFR are in Chabrier IMF
         #<SEVERE><BUG><20160106># set Type_SED = (xfSFR>3*xeSFR) && (lgSFR-msSFR-lg(1.73)>0.6)
         #<SEVERE><BUG><20160106># set Type_MS = (xfSFR>3*xeSFR) && (lgSFR-msSFR-lg(1.73)<0.4)
-        set Type_SED = (xfSFR>3*xeSFR) && (lgSFR-msSFR+lg(1.73)>0.6) #<SEVERE><BUG><20160106><FIXED>#
-        set Type_MS = (xfSFR>3*xeSFR) && (lgSFR-msSFR+lg(1.73)<0.4) #<SEVERE><BUG><20160106><FIXED>#
+        #<SEVERE><BUG><20160909># set Type_SED = (xfSFR>3*xeSFR) && (lgSFR-msSFR+lg(1.73)>0.6) #<SEVERE><BUG><20160106><FIXED>#
+        #<SEVERE><BUG><20160909># set Type_MS = (xfSFR>3*xeSFR) && (lgSFR-msSFR+lg(1.73)<0.4) #<SEVERE><BUG><20160106><FIXED>#
+        set Type_SED = (xfSFR>3*xeSFR && xeSFR>0 && MassX>-99) && (lgSFR-msSFR+lg(1.73)>0.6) #<SEVERE><BUG><20160909><FIXED>#
+        set Type_MS = (xfSFR>3*xeSFR && xeSFR>0 && MassX>-99) && (lgSFR-msSFR+lg(1.73)<0.4) #<SEVERE><BUG><20160909><FIXED>#
         set Type_SED = (Type_MS==1) ? -1 : Type_SED
         print "coo_SED.txt" '%15.0f%15.0f%15g%15g%15g%15g%15g\n' {Type_SED SAVEDid lgSFR msSFR xfSFR xeSFR MassX}
         !date "+%Y-%m-%d\ %H:%M:%S" > coo_SED.log

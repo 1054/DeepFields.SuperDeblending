@@ -81,10 +81,12 @@ sm << EOF | tee $DG_FLOG".smlog"
     define catalog_file \"$DG_CATA\"
     if(is_file(\$catalog_file)) {
         data \$catalog_file
-        if(index('\$catalog_file','irac_mips_fluxes')>=0) {
+        if(index('\$catalog_file','irac_mips_fluxes')>=0 && index('\$catalog_file','id_ra_dec')<0) {
             read  {idF 3 raF 1 deF 2}
+            echo " "
         } else {
             read  {idF 1 raF 2 deF 3}
+            echo " "
         }
         echo "We are using "\$catalog_file" as the source catalog."
         echo " "

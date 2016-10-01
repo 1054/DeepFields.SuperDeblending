@@ -1,0 +1,82 @@
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go
+quit
+macro read CatalogConvert.sm go
+quit
+macro read CatalogConvert.sm go
+quit
+macro read CatalogReader.sm go
+echo $(sum(spezX))
+echo $(sum(spezX>0))
+echo $(sum(spezX>0)/dimen(spezX))
+echo $(sum(zspec>0 && z>0)/dimen(spezX))
+echo $(sum(spezX>0)/dimen(spezX))
+echo $(sum(spezX>0 && z<2)/dimen(spezX))
+echo $(sum(spezX>0 && z>2)/dimen(spezX))
+quit

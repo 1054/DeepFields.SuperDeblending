@@ -98,7 +98,7 @@ plot_Data 01
                 }
                 # 
                 # define plot legend-expand
-                if(temp_sline[0]=='\#' && (temp_sline[1]=='legend-expand' || temp_sline[1]=='legend-charsize')) {
+                if(temp_sline[0]=='\#' && (temp_sline[1]=='legend-expand' || temp_sline[1]=='legend-charsize' || temp_sline[1]=='legend-size')) {
                     set plot_legend_ps = plot_legend_ps concat float(temp_sline[2])
                 }
                 # 
@@ -152,8 +152,13 @@ plot_Data 01
                     }
                 }
                 # 
+                # define data label id
+                if(temp_sline[0]=='\#' && (temp_sline[1]=='id' || temp_sline[1]=='idcol' || temp_sline[1]=='label')) {
+                    set temp_idcol = int($(temp_sline[2]))
+                }
+                # 
                 # define data color coding
-                if(temp_sline[0]=='\#' && (temp_sline[1]=='color' || temp_sline[1]=='color-coding')) {
+                if(temp_sline[0]=='\#' && (temp_sline[1]=='ccol' || temp_sline[1]=='color' || temp_sline[1]=='color-coding')) {
                     set temp_ccol = int($(temp_sline[2]))
                 }
                 # 
@@ -319,6 +324,15 @@ plot_Data 01
                 }
             }
             # 
+            # plot data label id
+            if(is_vector(temp_idcol)) {
+                read <iddat $(temp_idcol)>
+                do idat=0,dimen(iddat)-1 {
+                    relocate $(xdat[$idat]) $(ydat[$idat])
+                    putlabel 9 $(iddat[$idat])
+                }
+            }
+            # 
             # plot legend
             if(dimen(temp_legend)>0) {
                 do temp_ichar=0,dimen(temp_legend)-1 {
@@ -348,10 +362,12 @@ plot_Data 01
     }
     # 
     if(is_vector(temp_ccol)) {unset temp_ccol}
+    if(is_vector(temp_idcol)) {unset temp_idcol}
     if(is_vector(temp_crange)) {unset temp_crange}
     if(is_vector(xdat)) {unset xdat}
     if(is_vector(ydat)) {unset ydat}
     if(is_vector(cdat)) {unset cdat}
+    if(is_vector(iddat)) {unset iddat}
     verbose $open_PS_verbose undef open_PS_verbose
     
 

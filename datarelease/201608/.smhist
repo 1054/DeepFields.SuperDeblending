@@ -1,0 +1,6 @@
+macro read calc_CSFRD.sm calc_CSFRD
+macro read calc_Vmax.sm plot_Vmax_histogram
+macro read calc_CSFRD_uncertainty.sm calc_CSFRD_uncertainty
+quit
+macro read calc_Vmax.sm calc_Vmax
+quit

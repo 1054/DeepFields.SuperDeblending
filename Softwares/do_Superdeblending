@@ -5,11 +5,41 @@
 echo "#!/bin/bash"
 echo "# "
 echo ""
-echo "# This is the Superdeblending Toolkit for deep field far-infrared photometry."
-echo "# We present the bash code below for the data processing at the given band. "
-echo "# One can type the following commands in a bash shell to run the processes. "
-echo "# But first make sure that the commands are run under the data directory "
-echo "# which contains necessary fits format image data files. "
+echo "# Welcome!"
+echo "# "
+echo "# This is the Superdeblending Toolkit for deep field far-infrared super-deblended photometry."
+echo "# "
+echo "# The super-deblended photometry is a sophisticated approach that makes use of "
+echo "# multi-wavelength information, for instance the SED fitting, of each source "
+echo "# to optimize the input prior source list at a given band, then use galfit "
+echo "# and IRAF to subtract hopelessly faint sources, then fit the rest prior "
+echo "# sources. "
+echo "# "
+echo "# We have three steps at a given band, which are GalSED, GalFIT, and GalSIM."
+echo "# GalSED is the step that we run SED fitting for each source with available "
+echo "# multi-wavelength information, so as to predict the flux at current band. "
+echo "# GalFIT is the step that we use SED prediction results to choose the "
+echo "# actual prior source list for galfit fitting, then subtract those "
+echo "# hopelessly faint i.e. excluded sources, then run galfit fitting. "
+echo "# GalSIM is the step that we run Monte Carlo simulation and then "
+echo "# statistical analyses. "
+echo "# "
+echo "# Running this script with proper arguments will generate the BASH commands "
+echo "# that are responsible for the prior-extraction photometry at a given band. "
+echo "# You can save these commands into a plain text file then run it as a BASH script. "
+echo "# "
+echo "# If no argument is given, this script will give some examples below. "
+#echo "# But first make sure that the commands are run under the data directory "
+#echo "# which contains necessary fits format image data files. "
+echo "# "
+echo "# The recommanded order of running the three steps and substeps at a given band is"
+echo "# 1. GalSED_BeforeBandXXX"
+echo "# 2. GalFIT_BandXXX"
+echo "# 3. GalFIT_BandXXX_WithAddSources"
+echo "# 3. GalSIM_BandXXX_WithAddSources"
+echo "# "
+echo "# Further notes on arguments"
+echo "# *. -catalog-input defines where to find the input catalog. The catalog should be plain text file with white-space-separated columns. The 1st, 2nd and 3rd columns should be ID, RA, and Dec. "
 
 
 # 
@@ -473,18 +503,22 @@ if [[ "${Superdeblending_Step^^}" == "GALFIT"* || "${Superdeblending_Step^^}" ==
     echo "ln -fs ../run_update_catalog_v7.sm"
     echo ""
     if [[ ! -f "goFine.sm" || ! -f "goSimu.sm" || ! -f "run_simu_stats_v7.sm" || ! -f "run_update_catalog_v7.sm" ]]; then
-        echo "***************************************************************************************************************************"
-        #echo "pwd: $(pwd)/"
-        #ls "goFine.sm" "goSimu.sm" "run_simu_stats_v7.sm" "run_update_catalog_v7.sm"
-        echo "Error! The supermongo macros could not be found under current dir $(readlink -f .)/!"
-        ls "goFine.sm" 
-        ls "goSimu.sm" 
-        ls "run_simu_stats_v7.sm" 
-        ls "run_update_catalog_v7.sm"
-        echo "You can consider copying these files from $Superdeblending_SrcDir/Galfit_Template_v20160225/ to $(readlink -f .)"
-        echo "***************************************************************************************************************************"
+        #echo "***************************************************************************************************************************"
+        ##echo "pwd: $(pwd)/"
+        ##ls "goFine.sm" "goSimu.sm" "run_simu_stats_v7.sm" "run_update_catalog_v7.sm"
+        echo "# Warning! The supermongo macros could not be found under current dir $(readlink -f .)/!"
+        #ls "goFine.sm" 
+        #ls "goSimu.sm" 
+        #ls "run_simu_stats_v7.sm" 
+        #ls "run_update_catalog_v7.sm"
+        echo "# We will copy these files from $Superdeblending_SrcDir/Galfit_Template_v20160225/"
+        cp "$Superdeblending_SrcDir/Galfit_Template_v20160225/goFineDL.sm"  "goFine.sm"   #<TODO><20160930>#
+        cp "$Superdeblending_SrcDir/Galfit_Template_v20160225/goSimu.sm"  .
+        cp "$Superdeblending_SrcDir/Galfit_Template_v20160225/run_simu_stats_v7.sm"  .
+        cp "$Superdeblending_SrcDir/Galfit_Template_v20160225/run_update_catalog_v7.sm" .
+        #echo "***************************************************************************************************************************"
         echo ""
-        exit
+        #exit
     fi
 elif [[ "${Superdeblending_Step^^}" == "GALSED"* ]]; then
     echo "###################################"
@@ -539,9 +573,14 @@ sm << EOF
     !echo \$SciPhoto_${Superdeblending_Band}\"\"_subfaintDL.fits > aaa_input_photo_sub
 EOF
     else
-      echo "ln -fs $(echo ../$GALFIT_FITTING_SCI | sed -e 's/\.fits$//g').fits"
-      echo "$(basename $GALFIT_FITTING_SCI | sed -e 's/\.fits$//g').fits" > aaa_input_photo_sci
-      echo "$(basename $GALFIT_FITTING_SCI | sed -e 's/\.fits$//g')_subfaintDL.fits" > aaa_input_photo_sub
+      GALFIT_FITTING_SCI_BASENAME="$(basename ${GALFIT_FITTING_SCI} | sed -e 's/\.fits$//g' | sed -e 's/\.FITS$//g')"
+      if [[ ! -f "${GALFIT_FITTING_SCI_BASENAME}.fits" ]]; then 
+        cp "${GALFIT_FITTING_SCI}" "${GALFIT_FITTING_SCI_BASENAME}.fits"
+      fi
+      echo     "ln -fs ../${GALFIT_FITTING_SCI_BASENAME}.fits"
+      echo               "${GALFIT_FITTING_SCI_BASENAME}.fits" > aaa_input_photo_sci
+      echo               "${GALFIT_FITTING_SCI_BASENAME}_subfaintDL.fits" > aaa_input_photo_sub
+      GALFIT_FITTING_SCI="${GALFIT_FITTING_SCI_BASENAME}.fits"
     fi
     # 
     if [[ x"$GALFIT_FITTING_RMS" == x ]]; then
@@ -552,8 +591,13 @@ sm << EOF
     !echo \$RmsPhoto_${Superdeblending_Band}.fits > aaa_input_photo_rms
 EOF
     else
-      echo "ln -fs $(echo ../$GALFIT_FITTING_RMS | sed -e 's/\.fits$//g').fits"
-      echo "$(basename $GALFIT_FITTING_RMS | sed -e 's/\.fits$//g').fits" > aaa_input_photo_rms
+      GALFIT_FITTING_RMS_BASENAME="$(basename ${GALFIT_FITTING_RMS} | sed -e 's/\.fits$//g' | sed -e 's/\.FITS$//g')"
+      if [[ ! -f "${GALFIT_FITTING_RMS_BASENAME}.fits" ]]; then 
+        cp "${GALFIT_FITTING_RMS}" "${GALFIT_FITTING_RMS_BASENAME}.fits"
+      fi
+      echo     "ln -fs ../${GALFIT_FITTING_RMS_BASENAME}.fits"
+      echo               "${GALFIT_FITTING_RMS_BASENAME}.fits" > aaa_input_photo_rms
+      GALFIT_FITTING_RMS="${GALFIT_FITTING_RMS_BASENAME}.fits"
     fi
     # 
     if [[ x"$GALFIT_FITTING_PSF" == x ]]; then
@@ -565,8 +609,13 @@ sm << EOF
     quit
 EOF
     else
-      echo "ln -fs $(echo ../$GALFIT_FITTING_PSF | sed -e 's/\.fits$//g').fits"
-      echo "$(basename $GALFIT_FITTING_PSF | sed -e 's/\.fits$//g').fits" > aaa_input_photo_psf
+      GALFIT_FITTING_PSF_BASENAME="$(basename ${GALFIT_FITTING_PSF} | sed -e 's/\.fits$//g' | sed -e 's/\.FITS$//g')"
+      if [[ ! -f "${GALFIT_FITTING_PSF_BASENAME}.fits" ]]; then 
+        cp "${GALFIT_FITTING_PSF}" "${GALFIT_FITTING_PSF_BASENAME}.fits"
+      fi
+      echo     "ln -fs ../${GALFIT_FITTING_PSF_BASENAME}.fits"
+      echo               "${GALFIT_FITTING_PSF_BASENAME}.fits" > aaa_input_photo_psf
+      GALFIT_FITTING_PSF="${GALFIT_FITTING_PSF_BASENAME}.fits"
     fi
     # 
     GALFIT_IMPHOTO_SCI=$(cat aaa_input_photo_sci)
@@ -577,7 +626,6 @@ EOF
     #echo "#" GALFIT_IMPHOTO_RMS=$GALFIT_IMPHOTO_RMS
     #echo "#" GALFIT_IMPHOTO_PSF=$GALFIT_IMPHOTO_PSF
     #echo "#" GALFIT_IMPHOTO_SUB=$GALFIT_IMPHOTO_SUB
-    rm aaa_input_photo_sci aaa_input_photo_rms aaa_input_photo_psf aaa_input_photo_sub
     echo ""
     
     if [[ ! -f "$GALFIT_IMPHOTO_SCI" || ! -f "$GALFIT_IMPHOTO_RMS" || ! -f "$GALFIT_IMPHOTO_PSF" ]]; then
@@ -589,6 +637,8 @@ EOF
         echo ""
         exit
     fi
+    
+    rm aaa_input_photo_sci aaa_input_photo_rms aaa_input_photo_psf aaa_input_photo_sub
 fi
 
 
@@ -643,7 +693,7 @@ if [[ "${Superdeblending_Step^^}" == "GALFIT"* ]]; then
         echo ""; echo "# *******"; echo "# Warning! No SED prediction file given! No need to do_Galsub?!"; GALFIT_IMPHOTO_SUB=""; echo "# *******"
     fi
     echo ""
-    echo "do_Galfit $Superdeblending_Band $Superdeblending_Date \\"echo
+    echo "do_Galfit $Superdeblending_Band $Superdeblending_Date \\"
     if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then echo "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
     if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then echo "          -sedpredict $(basename $GALSED_PREDICT_SED) \\"; fi
     if [[ "$GALFIT_IMPHOTO_SUB"x != ""x ]]; then echo "          -fitsname $(basename $GALFIT_IMPHOTO_SUB) \\"; fi

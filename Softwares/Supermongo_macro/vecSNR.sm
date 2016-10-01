@@ -64,7 +64,8 @@ vecSNR_conjunct 02
     do vecSNR_i=0,dimen(vecSNR_infs)-1 {
       set vecSNR_infi = $(vecSNR_infs[$vecSNR_i])
       set vecSNR_inei = $(vecSNR_ines[$vecSNR_i])
-      set vecSNR_snri = vecSNR_square(vecSNR_infi,vecSNR_inei)
+      set vecSNR_snri = vecSNR_square(vecSNR_infi,vecSNR_inei) # each band SNR
+      set vecSNR_snri = (vecSNR_snri==-99) ? 0.0 : vecSNR_snri
       if(dimen(vecSNR_snri)>0){
         if($vecSNR_i==0){set vecSNR_snr_conjunct_square = vecSNR_snri}else{
         set vecSNR_snr_conjunct_square = (vecSNR_snri==-99)? vecSNR_snr_conjunct_square : vecSNR_snr_conjunct_square+vecSNR_snri}

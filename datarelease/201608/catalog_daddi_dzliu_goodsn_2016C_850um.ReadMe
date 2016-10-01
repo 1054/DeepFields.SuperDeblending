@@ -1,0 +1,14 @@
+Version: 
+    201608
+
+LastUpdate: 
+    2016-08-24
+
+Usage: 
+    Please use supermongo as follows to read this catalog
+
+sm
+chdir "catalog_daddi_dzliu_goodsn_2016C_850um"
+macro read CatalogReader.sm go
+
+

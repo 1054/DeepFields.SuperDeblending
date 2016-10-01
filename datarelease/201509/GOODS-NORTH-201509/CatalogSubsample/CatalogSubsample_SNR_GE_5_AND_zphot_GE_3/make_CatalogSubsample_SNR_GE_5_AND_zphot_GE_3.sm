@@ -1,0 +1,23 @@
+go_1
+    #  
+    #  macro read make_CatalogSubsample_SNR_GE_5_AND_zphot_GE_3.sm go_1
+    #  
+    chdir "../../"
+    macro read CatalogReader.sm go
+    chdir "CatalogSubsample"
+    chdir "CatalogSubsample_SNR_GE_5_AND_zphot_GE_3"
+    
+    set flag_SB_MS = EMS>6 ? 1.0 : 0.0
+    set flag_SB_MS = EMS<4 ? -1.0 : flag_SB_MS
+    
+    set coo = (snrIR>=5.0 && z>=3.0 && id<100000)
+    set coo = coo || (snrIR>=10.0 && z>=3.0 && id>100000)
+    echo $(sum(coo))
+    foreach foo {id ra de z zphot zspec snrIR Mstar SFR eSFR sSFR excessMS flag_SB_MS flag_Radio_AGN Mgas} \
+    { set $foo = $foo if(coo)}
+    set soo = z sort {soo id ra de z zphot zspec snrIR Mstar SFR eSFR sSFR excessMS flag_SB_MS flag_Radio_AGN Mgas}
+    set flagSB = flag_SB_MS
+    set flagAGN = flag_Radio_AGN
+    print "CatalogSubsample_SNR_GE_5_AND_zphot_GE_3.dat" \
+        '%10.0f%15.7f%15.7f%10.3f%10g%22.1e%9.1f%9.1f%10.2f%10g%10g\n' \
+        {id ra de z snrIR Mstar SFR eSFR sSFR flagSB flagAGN}

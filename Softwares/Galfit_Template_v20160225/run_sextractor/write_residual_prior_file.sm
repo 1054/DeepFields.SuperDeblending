@@ -35,7 +35,13 @@ write_residual_prior_file 01
       print $(catalogadd) '%-9.0f %12.7f %12.7f %9g\n' \
       {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 f160 df160 f250 df250 f350 df350 f500 df500 f1160 df1160 radio eradio _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 _fch4 _dfch4 KtotX MassX distX spezX zq source distz idz goodArea}
     }
-    echo Successfully output to $(catalogadd)
+    if('$1'!='160' && '$1'!='250' && '$1'!='350' && '$1'!='500' && '$1'!='1160' && '$1'!='850') {
+        echo "*******************************************"
+        echo Error! Could not determine band $1!
+        echo "*******************************************"
+    } else {
+        echo Successfully output to $(catalogadd)
+    }
 
 
 

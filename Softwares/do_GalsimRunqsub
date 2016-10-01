@@ -25,8 +25,8 @@ echo Current directory $(pwd)
 echo Starting time $(date +"%Y-%m-%d %H:%M:%S")
 #GalfitTmpList=$(find . -maxdepth 1 -type d -name "box[0-9]*"       | sort -t 'x' -k 2 -n); GalfitBoxList=($(echo $GalfitTmpList))
 #GalfitTmpList=$(find . -maxdepth 1 -type f -name "runbox[0-9]*.sh" | sort -t 'x' -k 2 -n); GalfitRunList=($(echo $GalfitTmpList))
-GalfitBoxList=( $(find . -maxdepth 1 -type d -name "box*[0-9]"       | sort -t 'x' -k 2 -n) )
-GalfitRunList=( $(find . -maxdepth 1 -type f -name "runbox*[0-9].sh" | sort -t 'x' -k 2 -n) )
+GalfitBoxList=( $(find . -maxdepth 1 -type d -regex "./box[0-9]+"       | sort -t 'x' -k 2 -n) )
+GalfitRunList=( $(find . -maxdepth 1 -type f -regex "./runbox[0-9]+.sh" | sort -t 'x' -k 2 -n) )
 #echo $GalfitBoxList
 #echo $GalfitRunList
 #echo ${#GalfitBoxList}

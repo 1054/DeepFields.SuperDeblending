@@ -1,0 +1,431 @@
+go
+    # 
+    # This macro will read catalog goodsn daddi 201500
+    # usage macro read CatalogReader.sm go
+    # last update date 2015-08-30
+    # last update date 2015-09-07
+    # last update date 2015-09-08
+    # last update date 2015-11-27 -- update new cross-matching to Pope2005 GN
+    # 
+    # read catalog
+    echo CatalogReader: 
+    load rfile.sm
+    verbose 0
+    chdir "Catalog"
+    rfile "GOODSN_SNR_FIR.txt"
+    rfile "GOODSN_Distance_to_MS.txt"
+    data "coo_AGN.txt" read coo_AGN 1
+    #### data  "GOODSN_SED_Magdis_20150121.txt" read {Umean 6 Umean_lo 7 Umean_hi 8}
+    rfile "ResLMTfluxes_RadioOwenMIPS24_priors_201500_v2_c.txt"
+    rfile "ResLMT_RadioOwenMIPS24_priors_201500_v2_c.txt"
+    rfile "RadioOwenMIPS24_priors_201500_v2_c.txt"
+    chdir ".."
+    verbose 1
+    # 
+    # calc LIR
+    set LTIR = xfSFR * 1e10 # Using Chabrier IMF, conversion equation see Daddi 2010 apjl
+    set LFIR = LTIR/1.3
+    set LIR = LTIR # Using Total IR 8-1000um
+    echo prepared data array: LIR, LTIR, LFIR
+    set id = _id
+    set ra = _ra
+    set de = _de
+    set zphot = xf_zz
+    set zspec = spezX
+    recognize_goodsn_zspec id zspec
+    recognize_goodsn_alias id alias
+    fetchmore_goodsn_Mstar id MassX
+    set z = zspec>0 ? zspec : zphot # Using spec-z
+    echo prepared data array: id, ra, de, z, zphot, zspec
+    echo prepared data array: snrIR
+    # 
+    # calc Mstar
+    set Mstar_Salpeter = MassX # log
+    set Mstar_Chabrier = MassX>0? MassX-lg(1.73) : -99 # converting to Chabrier IMF for SFR 
+                                       #lg(1.4) # http://www.eso.org/~hkuntsch/papers/MNRAS_432_492.pdf
+    set Mstar = MassX>0? 10**Mstar_Chabrier : -99
+    echo prepared data array: Mstar, Mstar_Chabrier (log10), Mstar_Salpeter (log10)
+    # 
+    # calc sSFR
+    set SFR = xfSFR
+    set eSFR = xeSFR
+    set sSFR = MassX>0? xfSFR / Mstar * 1e9 : -99
+    echo prepared data array: SFR, eSFR, sSFR
+    # 
+    # calc starburstness
+    load astroSfig.sm
+    set lgSFR_MS_Sargent = calc_Sargent2014_SFR(z,Mstar_Chabrier)
+    set lgSFR_MS_Sargent = (Mstar_Chabrier==-99) ? -99 : lgSFR_MS_Sargent
+    set MSIR = 10**(lgSFR_MS_Sargent+10.0) # Using Chabrier IMF, convert SFR to LIR, conversion equation see Daddi 2010 apjl
+    set MSIR = (Mstar_Chabrier==-99) ? -99 : MSIR
+    set EMS = LTIR/MSIR
+    set EMS = (Mstar_Chabrier==-99) ? -99 : EMS
+    set excessMS = EMS
+    set SB = EMS>4 ? <"SB"> : <"MS">
+    echo prepared data array: excessMS, MSIR, EMS, SB
+    # 
+    # calc distance to MS in an older way
+    set flag_SB_MS = coo_SED
+    echo prepared data array: flag_SB_MS
+    # 
+    # calc radio loud AGN
+    set flag_Radio_AGN = coo_AGN
+    echo prepared data array: flag_Radio_AGN
+    # 
+    # calc molecular gas mass from 1160um SED best-fit flux
+    load astroSfig.sm
+    set Scoville_item_1 = 0.83*(1+z)**4.8
+    set Scoville_item_2 = (850.0/1160.0)**3.8
+    set dL = calc_lumdist(z)/1e3
+    set Mgas_Scoville2015 = xf1160 * dL**2 / Scoville_item_1 / Scoville_item_2 * 1e10
+    set Mgas = Mgas_Scoville2015
+    echo prepared data array: Mgas, Mgas_Scoville2015
+    # 
+    # read Umean
+    if(is_vector(Umean) && is_vector(Umean_Err)){
+        set Umean = Umean<0.0 ? -99 : Umean
+        set Umean_Err = Umean<0.0 ? 1e10 : (Umean_hi-Umean_lo)/2.0
+        set Umean_Err = (Umean>0.0&&Umean_Err<0.05) ? Umean*0.05 : Umean_Err #<added><20150830><dzliu># set a lower error limit
+    }
+    # 
+    # fin
+    echo CatalogReader: done!
+    echo 
+
+
+
+fetchmore_goodsn_Mstar 02
+    if($?1==0) {return} 
+    set fetchmore_souid = $1
+    if($?2) {set fetchmore_Mstar = $2} else {set fetchmore_Mstar = float(fetchmore_souid)*0.0-99}
+    set fetchmore_Mstar = (fetchmore_souid==12646) ? $(lg(3.5e11)) : fetchmore_Mstar # Salpeter IMF
+    if($?2) {set $2 = fetchmore_Mstar} else {echo fetchmore_Mstar = $(fetchmore_Mstar)}
+
+
+
+recognize_goodsn_alias 02
+    if($?1==0) {return}
+    set rec_souid = $1   #<TODO> currently input $1 should only be numbers
+    set rec_alias = {""}
+    if(dimen($1)>1) {do rec_i=1,dimen($1)-1 {set rec_alias = rec_alias concat {""}}}
+    if($?2) {if(is_vector($2)) {if(dimen($1)==dimen($2)) {set rec_alias = $2}}}
+    if(1==1) {
+    #set rec_alias = (rec_souid==564    ) ? {"AzGN01"                } : rec_alias   # Tan et al. 2014 CO(4-3)  # duplicated
+    set rec_alias = (rec_souid==658    ) ? {"GN20.2a"               } : rec_alias   # Tan et al. 2014 CO(4-3)
+    set rec_alias = (rec_souid==659    ) ? {"GN20.2b"               } : rec_alias   # Tan et al. 2014 CO(4-3)
+    set rec_alias = (rec_souid==714    ) ? {"BD29079"               } : rec_alias   # Tan et al. 2013 CO(4-3)
+    set rec_alias = (rec_souid==9293   ) ? {"M23"                   } : rec_alias   # Magdis et al. 2012a CO(3-2); Tan et al. 2013 CO(3-2)
+    set rec_alias = (rec_souid==11303  ) ? {"M18"                   } : rec_alias   # Magdis et al. 2012a CO(3-2) non-det;
+    #set rec_alias = (rec_souid==9710   ) ? {"AzGN03"                } : rec_alias   # Daddi et al. 2009 CO(4-3); Penner et al. 2011  # duplicated
+    set rec_alias = (rec_souid==12788  ) ? {"SMMJ123712.05+621212.3"} : rec_alias   # Bothwell et al. 2013 CO(3-2) non-det
+    set rec_alias = (rec_souid==15346  ) ? {"SMMJ123606+621047"     } : rec_alias   # Bothwell et al. 2013 CO(3-2)
+    set rec_alias = (rec_souid==11303  ) ? {"M18"                   } : rec_alias   # Magdis et al. 2012a CO(3-2) non-det;
+    #set rec_alias = (rec_souid==350056 ) ? {"HDF850.1"              } : rec_alias   # Walter et al. 2012  # duplicated -- Hughes1998
+    #set rec_alias = (rec_souid==11580  ) ? {"AzGN05?"               } : rec_alias   # Penner et al. 2011  # duplicated
+    #set rec_alias = (rec_souid==4991   ) ? {"AzGN02?"               } : rec_alias   # Penner et al. 2011  # duplicated
+    #set rec_alias = (rec_souid==18911  ) ? {"AzGN06?"               } : rec_alias   # Penner et al. 2011  # duplicated
+    #set rec_alias = (rec_souid==4500   ) ? {"AzGN09?"               } : rec_alias   # Penner et al. 2011  # duplicated
+    }
+    if(1==0) {
+    set rec_alias = (rec_souid==7966   ) ? {"RH_7966"               } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==10898  ) ? {"RH_10898"              } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==10059  ) ? {"RH_10059"              } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==13107  ) ? {"RH_13107"              } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==16791  ) ? {"RH_16791"              } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==17381  ) ? {"RH_17381"              } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==7270   ) ? {"RH_7270"               } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==10255  ) ? {"RH_10255"              } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==11303  ) ? {"M18;RH_11303"          } : rec_alias   # Magdis et al. 2012a CO(3-2) non-det;
+    set rec_alias = (rec_souid==12250  ) ? {"RL_12250"              } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==11276  ) ? {"RL_11276"              } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==12855  ) ? {"RL_12855"              } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==12856  ) ? {"Shu_GN500.21b"         } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==15820  ) ? {"Shu_GN500.12"          } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==5089   ) ? {"Shu_GN500.9"           } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==8612   ) ? {"Shu_GN500.16"          } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==9762   ) ? {"Shu_GN500.18"          } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==10750  ) ? {"Shu_GN500.20;AzGN07"   } : rec_alias   # Inami Keck Obs 2015
+    #set rec_alias = (rec_souid==???   ) ? {"AGN_7149"              } : rec_alias   # Inami Keck Obs 2015 no counterpart
+    set rec_alias = (rec_souid==9520   ) ? {"AGN_9520"              } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==10390  ) ? {"fir_10390"             } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==9370   ) ? {"fir_9370"              } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==3758   ) ? {"fir_3758"              } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==13159  ) ? {"CH15_44"               } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==15074  ) ? {"CH15_33"               } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==4379   ) ? {"CH15_120"              } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==8673   ) ? {"GH15_80"               } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==14905  ) ? {"GH15_132"              } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==6558   ) ? {"GH_29"                 } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==7800   ) ? {"GH15_70"               } : rec_alias   # Inami Keck Obs 2015
+    set rec_alias = (rec_souid==15139  ) ? {"GH_62"                 } : rec_alias   # Dickinson Keck Obs 2014
+    set rec_alias = (rec_souid==  5523 ) ? {"CH_42"                 } : rec_alias   # Dickinson Keck Obs 2014          
+    set rec_alias = (rec_souid==  6558 ) ? {"GH_29"                 } : rec_alias   # Dickinson Keck Obs 2014          
+    set rec_alias = (rec_souid== 10255 ) ? {"RH_10255"              } : rec_alias   # Dickinson Keck Obs 2014          
+    set rec_alias = (rec_souid==  4500 ) ? {"RH_4500"               } : rec_alias   # Dickinson Keck Obs 2014          
+    set rec_alias = (rec_souid==  7270 ) ? {"RH_7270"               } : rec_alias   # Dickinson Keck Obs 2014          
+    set rec_alias = (rec_souid== 12244 ) ? {"RL_12244"              } : rec_alias   # Dickinson Keck Obs 2014          
+    set rec_alias = (rec_souid==  8666 ) ? {"RL_8666"               } : rec_alias   # Dickinson Keck Obs 2014          
+    set rec_alias = (rec_souid== 15139 ) ? {"GH_62"                 } : rec_alias   # Dickinson Keck Obs 2014          
+    set rec_alias = (rec_souid== 15681 ) ? {"RL_15681"              } : rec_alias   # Dickinson Keck Obs 2014          
+    set rec_alias = (rec_souid== 12508 ) ? {"RH_12508"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid== 11966 ) ? {"RH_11966"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid== 15360 ) ? {"RH_15360"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid== 15078 ) ? {"RH_15078"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid== 13207 ) ? {"RH_13207"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid== 16121 ) ? {"RH_16121"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid== 16616 ) ? {"RH_16616"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid== 17874 ) ? {"RH_17874"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid== 12581 ) ? {"RL_12581"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid== 13161 ) ? {"RH_13161"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid==  8056 ) ? {"RH_8056"               } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid==  8484 ) ? {"RH_8484"               } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections *dzliu
+    set rec_alias = (rec_souid== 11499 ) ? {"RH_11499"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid== 11810 ) ? {"RL_11810"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid== 18379 ) ? {"RL_18379"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections *dzliu
+    set rec_alias = (rec_souid== 10710 ) ? {"RL_10710"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid== 11053 ) ? {"RL_11053"              } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid== 11580 ) ? {"Shu_GN500.24"          } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections *dzliu
+    set rec_alias = (rec_souid== 6061  ) ? {"Shu_GN500.10b"         } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_alias = (rec_souid== 7054  ) ? {"Shu_GN500.8"           } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    #set rec_alias= (rec_souid== 9710  ) ? {"Shu_GN500.14"          } : rec_alias   # Inami Keck Obs 2015 -- Keck marginal detections
+    #       U_16967
+    #      AGN_5730
+    #        CH15_0
+    }
+    # 
+    # *********************************
+    # 
+    if(1==1) {
+    set rec_alias = (rec_souid==   7053) ? {"GN01;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    #set rec_alias = (rec_souid==  13541) ? {"GN02;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog   # should be matched to 1160052 instead of 13541
+    set rec_alias = (rec_souid==1160052) ? {"GN02;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog   # should be matched to 1160052 instead of 13541
+    set rec_alias = (rec_souid==  11758) ? {"GN03;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   7991) ? {"GN04;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog   # <TODO> too blended
+    set rec_alias = (rec_souid==  15681) ? {"GN05;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   7054) ? {"GN06;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog   # <TODO> 500015? 7054 zspec=2.0
+    set rec_alias = (rec_souid==   5089) ? {"GN07;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   5090) ? {"GN07;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  11550) ? {"GN08;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  11533) ? {"GN08;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   6406) ? {"GN09;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   9710) ? {"GN10;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  13161) ? {"GN11;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   8612) ? {"GN12;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   8613) ? {"GN12;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    #set rec_alias = (rec_souid==  11165) ? {"GN13;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog   # 11019/11165/11245/11246/11244/11154 see HDF850.4
+    #set rec_alias = (rec_souid==  12429) ? {"GN14;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog   # should be matched to 350056 instead of 12429
+    set rec_alias = (rec_souid== 350056) ? {"GN14;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog   # should be matched to 350056 instead of 12429
+    set rec_alias = (rec_souid==  13037) ? {"GN15;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  12851) ? {"GN15;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  16681) ? {"GN16;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  13415) ? {"GN17;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid== 350059) ? {"GN17;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog   # <TODO> 13415/13291/350059
+    set rec_alias = (rec_souid==  11499) ? {"GN18;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==1160044) ? {"GN18;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   9761) ? {"GN19;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   9762) ? {"GN19;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==    564) ? {"GN20;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog   # duplicated
+    set rec_alias = (rec_souid==  13097) ? {"GN21;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog   # <TODO> 13097/12856/1160051
+    set rec_alias = (rec_souid==1160058) ? {"GN22;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  15326) ? {"GN22;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  15346) ? {"GN22;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  15264) ? {"GN22;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   9192) ? {"GN23;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  12526) ? {"GN24?;"  }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  12478) ? {"GN24?;"  }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  12586) ? {"GN24?;"  }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  14853) ? {"GN25;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid== 350054) ? {"GN26?;"  }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  12145) ? {"GN26?;"  }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  12000) ? {"GN26?;"  }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  18423) ? {"GN27?;"  }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  18341) ? {"GN27?;"  }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  18342) ? {"GN27?;"  }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  18502) ? {"GN27?;"  }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==1160001) ? {"GN27?;"  }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid== 500030) ? {"GN28?;"  }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  13504) ? {"GN28?;"  }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   3207) ? {"GN29;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog   # <TODO> 500009?
+    set rec_alias = (rec_souid==  10131) ? {"GN30;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  10159) ? {"GN30;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  14137) ? {"GN31;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   8636) ? {"GN32;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   8668) ? {"GN32;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   8427) ? {"GN32;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   3069) ? {"GN33;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   3071) ? {"GN33;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   1103) ? {"GN34;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   1150) ? {"GN34;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   1075) ? {"GN34;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   1053) ? {"GN34;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   1104) ? {"GN34;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    #set rec_alias = (rec_souid==       ) ? {"GN35;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog  # nearest 12arcsec
+    #set rec_alias = (rec_souid==       ) ? {"GN36;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog  # nearest 15arcsec
+    set rec_alias = (rec_souid==   4500) ? {"GN37;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   4404) ? {"GN37;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   4575) ? {"GN37;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  12508) ? {"GN38;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  12560) ? {"GN38;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  12419) ? {"GN38;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==  12301) ? {"GN38;"   }+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   8304) ? {"GN04.2?;"}+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    set rec_alias = (rec_souid==   8467) ? {"GN04.2?;"}+rec_alias : rec_alias   # Pope2005 GN 850um catalog
+    #set rec_alias = (rec_souid==    659) ? {"GN20.2;" }+rec_alias : rec_alias   # Pope2005 GN 850um catalog  # duplicated
+    }
+    # 
+    # **************************
+    # 
+    if(1==1) {
+    set rec_alias = (rec_souid==    564) ? {"AzGN01;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   4991) ? {"AzGN02;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   9710) ? {"AzGN03;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==  14914) ? {"AzGN04;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==  11580) ? {"AzGN05;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==  18911) ? {"AzGN06;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==  10750) ? {"AzGN07;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   8613) ? {"AzGN08;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   4500) ? {"AzGN09;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==  12646) ? {"AzGN10;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==  18341) ? {"AzGN11;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==  18792) ? {"AzGN12;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==  10411) ? {"AzGN13;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid== 350056) ? {"AzGN14;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   7616) ? {"AzGN15;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   7958) ? {"AzGN16;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   8880) ? {"AzGN17;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==  12560) ? {"AzGN18;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==  18389) ? {"AzGN19;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==  15078) ? {"AzGN20;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   6489) ? {"AzGN21;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==  12656) ? {"AzGN22;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   4592) ? {"AzGN23;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   8889) ? {"AzGN24;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    #set rec_alias = (rec_souid==       ) ? {"AzGN25;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog   # no matched
+    set rec_alias = (rec_souid==   3532) ? {"AzGN26;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==  12581) ? {"AzGN27;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   2320) ? {"AzGN28;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    #set rec_alias = (rec_souid==       ) ? {"AzGN29;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog   # no matched
+    set rec_alias = (rec_souid==   4826) ? {"AzGN30;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   6406) ? {"AzGN31;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==  10090) ? {"AzGN32;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==1160006) ? {"AzGN33;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   1159) ? {"AzGN34;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   9286) ? {"AzGN35;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    set rec_alias = (rec_souid==   7231) ? {"AzGN36;"}+rec_alias : rec_alias   # Perera2008 AzGN 1100um catalog
+    }
+    # 
+    # **************************
+    # 
+    if(1==0) {
+    set rec_alias = (rec_souid==  12000) ? {"GOODSN63;"  }+rec_alias : rec_alias  # YanHaojing2014 SDSS+HerMES # Wang2004 GOODS-850 850um catalog
+    set rec_alias = (rec_souid==  11580) ? {"GOODSN06;"  }+rec_alias : rec_alias  # YanHaojing2014 SDSS+HerMES # Wang2004 GOODS-850 850um catalog
+    }
+    # 
+    # **************************
+    # 
+    if(1==1) {
+    set rec_alias = (rec_souid== 350056) ? {"HDF850.1;"}+rec_alias : rec_alias   # Hughes1998 JCMT/SCUBA 850um catalog   # 350056/12429(zspec=1.2)/12572(zspec=0.3)
+    set rec_alias = (rec_souid==  12851) ? {"HDF850.2;"}+rec_alias : rec_alias   # Hughes1998 JCMT/SCUBA 850um catalog
+    set rec_alias = (rec_souid==  11303) ? {"HDF850.3;"}+rec_alias : rec_alias   # Hughes1998 JCMT/SCUBA 850um catalog   # 11303(zspec=2.9)/11449(zspec=0.4)
+    #set rec_alias = (rec_souid==  ?????) ? {"HDF850.4;"}+rec_alias : rec_alias   # 11019/11165(zspec=0.8)/11245(zspec=0.5)/11246(zspec=0.5)/11244/11154(zspec=1.2)
+    #set rec_alias = (rec_souid== 350056) ? {"HDF850.5;"}+rec_alias : rec_alias   # 11019/11165(zspec=0.8)/11245(zspec=0.5)/11246(zspec=0.5)/11244/11154(zspec=1.2)
+    # ---- note HDF850.4/.5 (close to each other) perhaps just too many sources?
+    }
+    # 
+    # **************************
+    # 
+    if(dimen($1)>1) { 
+        do rec_i=0,dimen($1)-1 { 
+            set emp_alias = {""}
+            if(rec_alias[$rec_i]!=emp_alias) {
+                set tmp_alias = <$(rec_alias[$rec_i])>
+                if(substr(tmp_alias,-1,1)==';') {
+                    set tmp_alias = substr(tmp_alias,0,strlen(tmp_alias)-1)
+                }
+                set rec_alias[$rec_i] = {"}+tmp_alias+{"}
+            }
+        }
+    }
+    if($?2) {set $2 = rec_alias} else {echo rec_alias = $(rec_alias)}
+
+
+
+recognize_goodsn_zspec 02
+    if($?1==0) {return} # inputs: id zspec
+    set rec_souid = $1   #<TODO> currently input $1 should only be numbers
+    set rec_zspec = -1   # non-match sources have zspec == -1
+    if(dimen($1)>1) {do rec_i=1,dimen($1)-1 {set rec_zspec = rec_zspec concat -1}}
+    if($?2) {if(is_vector($2)) {if(dimen($1)==dimen($2)) {set rec_zspec = $2}}}
+    set rec_zspec = (rec_souid==659   ) ? 4.056 : rec_zspec   # Tan et al. 2014
+    #set rec_zspec = (rec_souid==915   ) ? 2.635 : rec_zspec   # arleady spec-z Reddy et al. 2006 MD74 (near GN20, near BzK21000)
+    set rec_zspec = (rec_souid==7966  ) ? 2.928 : rec_zspec   # Inami Keck Obs 2015 # <Done> now correct spec-z!
+    set rec_zspec = (rec_souid==10898 ) ?  3.68 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==10059 ) ?  2.97 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==13107 ) ?  2.44 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==16791 ) ? 3.063 : rec_zspec   # Inami Keck Obs 2015 # <Done> now correct spec-z!
+    set rec_zspec = (rec_souid==17381 ) ?  3.10 : rec_zspec   # Inami Keck Obs 2015 # <TODO> incorrect spec-z!
+    set rec_zspec = (rec_souid==7270  ) ? 3.362 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==10255 ) ? 3.131 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==11303 ) ? 2.929 : rec_zspec   # Inami Keck Obs 2015 out of band but Steidel et al. 2003 gives spec-z HDF-M18
+    set rec_zspec = (rec_souid==12250 ) ? 3.479 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==11276 ) ?  2.58 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==12855 ) ?  2.93 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==12856 ) ?  2.27 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==15820 ) ?   2.3 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==5089  ) ? 1.988 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==8612  ) ? 3.411 : rec_zspec   # Inami Keck Obs 2015 # <TODO> incorrect spec-z!
+    set rec_zspec = (rec_souid==9762  ) ?  2.49 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==10750 ) ? 1.996 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==7149  ) ?  3.13 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==9520  ) ? 2.002 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==10390 ) ? 2.386 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==9370  ) ? 2.011 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==3758  ) ?  2.32 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==13159 ) ?  2.92 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==15074 ) ? 2.081 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==4379  ) ?    -1 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==8673  ) ?    -1 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==14905 ) ? 2.161 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==6558  ) ? 3.366 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==7800  ) ? 2.481 : rec_zspec   # Inami Keck Obs 2015
+    set rec_zspec = (rec_souid==  5523 ) ? 3.235  : rec_zspec   # Dickinson Keck Obs 2014
+    set rec_zspec = (rec_souid==  6558 ) ? 3.366  : rec_zspec   # Dickinson Keck Obs 2014
+    set rec_zspec = (rec_souid== 10255 ) ? 3.131  : rec_zspec   # Dickinson Keck Obs 2014
+    set rec_zspec = (rec_souid==  4500 ) ? 3.196  : rec_zspec   # Dickinson Keck Obs 2014
+    set rec_zspec = (rec_souid==  7270 ) ? 3.3625 : rec_zspec   # Dickinson Keck Obs 2014
+    set rec_zspec = (rec_souid== 12244 ) ? 2.487  : rec_zspec   # Dickinson Keck Obs 2014
+    set rec_zspec = (rec_souid==  8666 ) ? 2.588  : rec_zspec   # Dickinson Keck Obs 2014
+    set rec_zspec = (rec_souid== 15139 ) ? 3.082  : rec_zspec   # Dickinson Keck Obs 2014
+    set rec_zspec = (rec_souid== 15681 ) ? 2.215  : rec_zspec   # Dickinson Keck Obs 2014
+    set rec_zspec = (rec_souid== 12508 ) ? 3.130  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid== 11966 ) ? 3.020  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid== 15360 ) ? 3.290  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid== 15078 ) ? 3.860  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid== 13207 ) ? 4.300  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid== 16121 ) ? 4.110  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid== 16616 ) ? 3.140  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid== 17874 ) ? 4.080  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid== 12581 ) ? 2.920  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid== 13161 ) ? 5.010  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid==  8056 ) ? 3.040  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid==  8484 ) ? 3.030  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections *dzliu
+    set rec_zspec = (rec_souid== 11499 ) ? 5.040  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid== 11810 ) ? 2.690  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid== 18379 ) ? 2.640  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections *dzliu
+    set rec_zspec = (rec_souid== 10710 ) ? 2.620  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid== 11053 ) ? 2.950  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid== 11580 ) ? 3.070  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections *dzliu
+    set rec_zspec = (rec_souid== 6061  ) ? 2.470  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    set rec_zspec = (rec_souid== 7054  ) ? 2.000  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    #set rec_alias= (rec_souid== 9710  ) ? 4.040  : rec_zspec   # Inami Keck Obs 2015 -- Keck marginal detections
+    #       U_16967 2.020
+    #      AGN_5730 2.100
+    #        CH15_0 1.600
+    if($?2) {set $2 = rec_zspec} else {echo rec_zspec = $(rec_zspec)}
+
+
+
+
+
+
+

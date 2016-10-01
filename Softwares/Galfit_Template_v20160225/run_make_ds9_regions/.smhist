@@ -1,0 +1,12 @@
+macro read run_make_ds9_regions.sm run_make_ds9_regions
+QUIT
+macro read run_make_ds9_regions.sm run_make_ds9_regions
+quit
+macro read run_make_ds9_regions.sm run_make_ds9_regions
+quit
+macro read run_make_ds9_regions.sm run_make_ds9_regions
+QUIT
+macro read run_make_ds9_regions.sm run_make_ds9_regions
+QUIT
+macro read run_make_ds9_regions.sm run_make_ds9_regions
+QUIT

@@ -1,0 +1,19 @@
+macro read analyze_snr.sm calc_snr
+echo yes
+QUIT
+load rfile.sm rfile GOODSN_SNR_FIR.txt
+echo $(dimen(snr100))
+echo $(sum(snr100>3.0))
+echo $(sum(snr100>3.0 && id<100000))
+echo $(sum(snr160>3.0 && id<100000))
+echo $(sum(snr160>3.0))
+echo $(sum(snr250>3.0  && id<100000))
+echo $(sum(snr350>3.0  && id<100000))
+echo $(sum(snr500>3.0  && id<100000))
+echo $(sum(snr1160>3.0  && id<100000))
+echo $(sum(snr1160>3.0))
+echo $(sum(snr1160>3.0)-132)
+echo $(sum(snr500>3.0)-216)
+echo $(sum(snr350>3.0)-539)
+echo $(sum(snr250>3.0)-1016)
+echo $(sum(snr160>3.0)-1230)

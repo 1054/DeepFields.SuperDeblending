@@ -1,0 +1,90 @@
+
+\begin{deluxetable}{lcccccccccc}
+    \tabletypesize{
+        \footnotesize
+    }
+    \tablecaption{
+        Catalog of $z>2.5$ $S/N \ge 5$ sources from this FIR/mm deblending work in the GOODS-North field. \tablenotemark{l}
+        \label{Tab02}
+    }
+    \tablehead{
+        \colhead{id\tablenotemark{a}}						&
+        \colhead{alias\tablenotemark{b}}					&
+        \colhead{$z_{phot}$\tablenotemark{c}}				&
+        \colhead{$z_{spec}$\tablenotemark{d}}				&
+        \colhead{$S/N$\tablenotemark{e}}					&
+        \colhead{SFR\tablenotemark{f}}						&
+        \colhead{$\sigma$SFR\tablenotemark{g}}				&
+        \colhead{$\log M_{*}$\tablenotemark{h}}				&
+        \colhead{$\log s$SFR\tablenotemark{i}}				&
+        \colhead{${SB}$\tablenotemark{j}}					&
+        \colhead{${RLAGN}$\tablenotemark{k}}				
+    }
+    \startdata
+             16681 &                                                          GN16 &           2.53 &        \nodata &           35.981 &         372 &         100 &              11.33 &             0.24 &                       -1 &                        1 \\
+              6489 &                                                        AzGN21 &           2.54 &        \nodata &           17.204 &         271 &           3 &              11.38 &             0.05 &                       -1 &                        0 \\
+             17120 &                                                       \nodata &           2.56 &        \nodata &            16.27 &         204 &           5 &               9.90 &             1.41 &                        1 &                        0 \\
+             11580 &                                               AzGN05;GOODSN63 &           2.70 &        \nodata &           59.597 &        1385 &          55 &              10.92 &             1.22 &                        1 &                        0 \\
+             11303 &                                                      HDF850.3 &           2.93 &           2.93 &           11.339 &         248 &          15 &              10.41 &             0.98 &                       -1 &                        0 \\
+             12581 &                                               AzGN27;HDF850.2 &           3.13 &        \nodata &           12.413 &         340 &          25 &              11.21 &             0.32 &                       -1 &                        0 \\
+              1094 &                                                       \nodata &           3.53 &           3.53 &           13.138 &         288 &          44 &              10.29 &             1.17 &                        0 &                        0 \\
+               564 &                                                   AzGN01;GN20 &           4.05 &           4.05 &           41.882 &        1909 &          13 &              11.25 &             1.03 &                        0 &                        0 \\
+               658 &                                                       GN20.2a &           4.05 &           4.05 &           10.788 &         669 &          74 &              10.94 &             0.88 &                       -1 &                        1 \\
+               659 &                                                       GN20.2b &           4.05 &           4.05 &           5.3501 &         418 &         109 &              11.42 &             0.20 &                       -1 &                        0 \\
+             18911 &                                                        AzGN06 &           4.05 &        \nodata &           22.511 &         857 &          63 &            \nodata &          \nodata &                        0 &                        0 \\
+             11499 &                                                          GN18 &           4.50 &        \nodata &           23.424 &         939 &          46 &              11.44 &             0.53 &                       -1 &                        0 \\
+             13097 &                                                          GN21 &           4.51 &        \nodata &           12.506 &         672 &          41 &              11.69 &             0.14 &                       -1 &                        0 \\
+           1160054 &                                                       \nodata &           4.70 &        \nodata &           10.627 &         323 &         323 &            \nodata &          \nodata &                        0 &                        0 \\
+            350056 &                                          AzGN14;GN14;HDF850.1 &           5.45 &        \nodata &           13.459 &         639 &         164 &            \nodata &          \nodata &                        0 &                        0 \\
+            250003 &                                                       \nodata &           6.45 &        \nodata &           10.198 &         274 &         166 &            \nodata &          \nodata &                        0 &                        0 \\
+             12646 &                                                        AzGN10 &           6.55 &        \nodata &           11.674 &         631 &         193 &              11.31 &             0.49 &                        0 &                        1 \\
+           1160053 &                                                       \nodata &           6.55 &        \nodata &           10.845 &         505 &         124 &            \nodata &          \nodata &                        0 &                        0 \\
+    \enddata
+    \tablenotetext{a}{
+        The id are from the original GOODS-Spitzer IRAC catalog. 
+    }
+    \tablenotetext{b}{
+        Cross-matched to SCUBA $850\,{\mu}m$ HDF850 catalog \citep{Hughes1998}, SCUBA $850\,{\mu}m$ GN catalog \citep{Pope2005,Pope2006} and AzTEC $1100\,{\mu}m$ AzGN catalog \citep{Perera2008}. 
+        Both position and SED are considered during the cross-matching. 
+        Note that GN20.2 is found to be actually two sources: GN20.2a and GN20.2b \citep{Daddi2009GN20}, therefore we cross-matched both of them using \cite{Daddi2009GN20} positions. 
+        Also note that the counterpart GOODSN63 of id 11580 is from \cite{YanHaojing2014}. 
+        GN20, GN20.2a and GN20.2b are discussed in Section \ref{Sec.4.3}, and the deblending works on GOODSN63 (11580) are compared in Section \ref{Sec.4.4}. 
+        Finally, HDF850.1 (350056) is discussed as an example of additional source extracted from ($350\,{\mu}m$) residual image in Section \ref{Sec.4.5}. 
+    }
+    \tablenotetext{c}{
+        Photometric redshift derived from our NIR-to-radio SED fitting, described in Section \ref{Sec.3.2.2}. 
+    }
+    \tablenotetext{d}{
+        Spectroscopic redshift from publicly available literature. 
+    }
+    \tablenotetext{e}{
+        Combined signal-to-noise ratio over PACS $100\,{\mu}m$, $160\,{\mu}m$, SPIRE $250\,{\mu}m$, $350\,{\mu}m$, $500\,{\mu}m$ and $1.16\,mm$. 
+        $S/N = ( {S/N}_{100{\mu}m}^{\ 2}+{S/N}_{160{\mu}m}^{\ 2} + {S/N}_{250{\mu}m}^{\ 2} + {S/N}_{350{\mu}m}^{\ 2} + {S/N}_{500{\mu}m}^{\ 2} + {S/N}_{1mm}^{\ 2} )^{1/2}$. 
+    }
+    \tablenotetext{f}{
+        Star formation rate derived from our NIR-to-radio SED fitting, described in Section \ref{Sec.3.2.2}. We use Chabrier IMF \citep{Chabrier2003}. 
+    }
+    \tablenotetext{g}{
+        The uncertainty of star formation rate derived from the $\chi^2$ statistics of our NIR-to-radio SED fitting, described in Section \ref{Sec.3.2.2}. 
+    }
+    \tablenotetext{h}{
+        Stellar mass in log space, derived from optical/NIR SEDs by \citep{Pannella2015}. We use Chabrier IMF \citep{Chabrier2003}. 
+    }
+    \tablenotetext{i}{
+        Specific star formation rate in log space, i.e. $\log s\mathrm{SFR} = \log \left( \mathrm{SFR}/M_{*}\times10^{9} \right)$. 
+    }
+    \tablenotetext{j}{
+        The ''\textit{Type\_SB}'' parameter used in our ''super-deblending'' photometry processes, as described in Section \ref{Sec.3.2.2}. 
+        \textit{Type\_SB}$=1$ represents a pure SB galaxy with SFR at least 0.6 dex above the emperical MS' SFR at its redshift and stellar mass. 
+        \textit{Type\_SB}$=-1$ represents a pure MS galaxy with SFR at most 0.4 dex above the emperical MS' SFR at its redshift and stellar mass. 
+        \textit{Type\_SB}$=0$ represents a galaxy with SFR in between the above two limits, or are too uncertain to be determined during our processes. 
+    }
+    \tablenotetext{k}{
+        The ''\textit{Type\_RLAGN}'' parameter used in our ''super-deblending'' photometry processes, as described in Section \ref{Sec.3.2.2}. 
+        \textit{Type\_RLAGN}$=1$ indicates that the galaxy contains a radio loud active galactic nucleus, and its radio flux is above the $3\sigma$ of the mean radio-FIR correlation. 
+        \textit{Type\_RLAGN}$=0$ is for the rest galaxies. 
+    }
+    \tablenotetext{l}{
+        This table only show a few rows as examples. The full table is available in the on-line data. 
+    }
+\end{deluxetable}
