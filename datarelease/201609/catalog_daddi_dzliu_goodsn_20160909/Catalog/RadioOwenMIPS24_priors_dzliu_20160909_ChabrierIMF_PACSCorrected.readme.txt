@@ -1,0 +1,41 @@
+_id             Source ID from GOODS-Spitzer IRAC catalog
+_ra             Source RA from GOODS-Spitzer IRAC catalog
+_de             Source Dec from GOODS-Spitzer IRAC catalog
+zp_X            Source optical photo-z from Pannella et al. or 3D-HST catalog
+f24             Spitzer MIPS 24um flux in unit of uJy
+df24            Spitzer MIPS 24um flux error in unit of uJy
+f16             Spitzer IRS PUI 16um flux in unit of uJy
+df16            Spitzer IRS PUI 16um flux error in unit of uJy
+f100            Herschel PACS 100um flux in unit of mJy
+df100           Herschel PACS 100um flux error in unit of mJy
+f160            Herschel PACS 160um flux in unit of mJy
+df160           Herschel PACS 160um flux error in unit of mJy
+f250            Herschel SPIRE 250um flux in unit of mJy
+df250           Herschel SPIRE 250um flux error in unit of mJy
+f350            Herschel SPIRE 350um flux in unit of mJy
+df350           Herschel SPIRE 350um flux error in unit of mJy
+f500            Herschel SPIRE 500um flux in unit of mJy
+df500           Herschel SPIRE 500um flux error in unit of mJy
+f850            JCMT SCUBA-2 850um flux in unit of mJy
+df850           JCMT SCUBA-2 850um flux error in unit of mJy
+f1160           AzTEC+MAMBO 1160um (Penner et al. 2011) flux in unit of mJy
+df1160          AzTEC+MAMBO 1160um (Penner et al. 2011) flux error in unit of mJy
+radio           VLA 20cm (from both Morrison and Owen) flux in unit of uJy
+eradio          VLA 20cm (from both Morrison and Owen) flux error in unit of uJy
+_fch1           Spitzer IRAC 3.6um flux in unit of uJy, from GOODS-Spitzer IRAC catalog
+_dfch1          Spitzer IRAC 3.6um flux error in unit of uJy, from GOODS-Spitzer IRAC catalog
+_fch2           Spitzer IRAC 4.5um flux in unit of uJy, from GOODS-Spitzer IRAC catalog
+_dfch2          Spitzer IRAC 4.5um flux error in unit of uJy, from GOODS-Spitzer IRAC catalog
+_fch3           Spitzer IRAC 5.8um flux in unit of uJy, from GOODS-Spitzer IRAC catalog
+_dfch3          Spitzer IRAC 5.8um flux error in unit of uJy, from GOODS-Spitzer IRAC catalog
+_fch4           Spitzer IRAC 8.0um flux in unit of uJy, from GOODS-Spitzer IRAC catalog
+_dfch4          Spitzer IRAC 8.0um flux error in unit of uJy, from GOODS-Spitzer IRAC catalog
+KtotX           K_s band magnitude, from Pannella's work
+Mstar           Stellar mass converted to Chabrier IMF, in unit of M_sun, and in log, from Pannella's work
+distX           The position offset when matching IRAC catalog to Pannella et al. or 3D-HST catalog
+spezX           Source optical spec-z from various literature
+zq              Redshift flag (internal use only)
+source          (internal use only)
+distz           (internal use only)
+idz             (internal use only)
+goodArea        Whether the source is in a low 24um noise area or not (non-goodArea sources are located at the edge of 24um image and their photometry might suffer from incomplete prior sources)

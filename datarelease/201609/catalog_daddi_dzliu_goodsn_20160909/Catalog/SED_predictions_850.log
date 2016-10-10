@@ -1,0 +1,14 @@
+# 2016-09-11 10:59:06 CST
+band: 850
+fcut: 1.2   # mJy # the cutting value of f+2df
+fsig: 1.2   # mJy # the 1-sigma detection limit
+Total source number: 3306
+Fitting source number: 667
+Fitting source number (SED prediction selection): 667
+Fitting source number (previous band S/N selection): 0
+Subtract source number: 2639
+
+
+# 2016-09-11
+# manually set to fit ID10335, 
+# see /home/dzliu/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016C_850um/TODO_20160909_dzliu_TRY.txt

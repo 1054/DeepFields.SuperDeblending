@@ -1,2 +1,7 @@
 echo yes
 QUIT
+print
+echo $(sum(aaa))
+set aaa = {1 2 3}
+echo $(sum(aaa))
+quit
