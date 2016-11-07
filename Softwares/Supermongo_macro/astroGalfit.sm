@@ -105,69 +105,69 @@ readGalfitInput 02
         set readginput_tmp = {"._.AstroGalfit._.GetGalfitParam._."} # temporary file
         astroGalfitOnMute
         if(readginput_key=='sci_map') { 
-            if($astroGalfit_pref_verbose){echo Read galfit sci map parameter as vectors ParamSci}
+            if($verbose){echo Read galfit sci map parameter as vectors ParamSci}
             !cat $(readginput_file) | grep 'A)' | sed 's/A)//g' > $(readginput_tmp)
             data $(readginput_tmp) read {ParamSci 1.s}
         }
         if(readginput_key=='out_map') { 
-            if($astroGalfit_pref_verbose){echo Read galfit out map parameter as vectors ParamOut}
+            if($verbose){echo Read galfit out map parameter as vectors ParamOut}
             !cat $(readginput_file) | grep 'B)' | sed 's/B)//g' > $(readginput_tmp)
             data $(readginput_tmp) read {ParamOut 1.s}
         }
         if(readginput_key=='rms_map') { 
-            if($astroGalfit_pref_verbose){echo Read galfit rms map parameter as vectors ParamRMS}
+            if($verbose){echo Read galfit rms map parameter as vectors ParamRMS}
             !cat $(readginput_file) | grep 'C)' | sed 's/C)//g' > $(readginput_tmp)
             data $(readginput_tmp) read {ParamRMS 1.s}
         }
         if(readginput_key=='psf_map') { 
-            if($astroGalfit_pref_verbose){echo Read galfit psf map parameter as vectors ParamPSF}
+            if($verbose){echo Read galfit psf map parameter as vectors ParamPSF}
             !cat $(readginput_file) | grep 'D)' | sed 's/D)//g' > $(readginput_tmp)
             data $(readginput_tmp) read {ParamPSF 1.s}
         }
         if(readginput_key=='resample') { 
-            if($astroGalfit_pref_verbose){echo Read galfit resample parameter as vectors ParamSam}
+            if($verbose){echo Read galfit resample parameter as vectors ParamSam}
             !cat $(readginput_file) | grep 'E)' | sed 's/E)//g' > $(readginput_tmp)
             data $(readginput_tmp) read {ParamSam 1} # 1
         }
         if(readginput_key=='bad_pix') { 
-            if($astroGalfit_pref_verbose){echo Read galfit bad pixel mask parameter as vector ParamBad}
+            if($verbose){echo Read galfit bad pixel mask parameter as vector ParamBad}
             !cat $(readginput_file) | grep 'F)' | sed 's/F)//g' > $(readginput_tmp)
             data $(readginput_tmp) read {ParamBad 1.s} # none
         }
         if(readginput_key=='limit_file') { 
-            if($astroGalfit_pref_verbose){echo Read galfit limit file parameter as vector ParamLim}
+            if($verbose){echo Read galfit limit file parameter as vector ParamLim}
             !cat $(readginput_file) | grep 'G)' | sed 's/G)//g' > $(readginput_tmp)
             data $(readginput_tmp) read {ParamLim 1.s} # none
         }
         if(readginput_key=='image_box') { 
-            if($astroGalfit_pref_verbose){echo Read galfit image box parameter as vectors ParamLx1 ParamLx2 ParamLy1 ParamLy2}
+            if($verbose){echo Read galfit image box parameter as vectors ParamLx1 ParamLx2 ParamLy1 ParamLy2}
             !cat $(readginput_file) | grep 'H)' | sed 's/H)//g' > $(readginput_tmp)
             data $(readginput_tmp) read {ParamLx1 1 ParamLx2 2 ParamLy1 3 ParamLy2 4}
         }
         if(readginput_key=='convol_box') { 
-            if($astroGalfit_pref_verbose){echo Read galfit convolution box parameter as vectors ParamCoX ParamCoY ParamCoB}
+            if($verbose){echo Read galfit convolution box parameter as vectors ParamCoX ParamCoY ParamCoB}
             !cat $(readginput_file) | grep 'I)' | sed 's/I)//g' > $(readginput_tmp)
             data $(readginput_tmp) read {ParamCoX 1 ParamCoY 2}
             set ParamCoB = (0.5*(ParamCoX+ParamCoY))
         }
         if(readginput_key=='mag_zero') { 
-            if($astroGalfit_pref_verbose){echo Read galfit mag zeropoint parameter as vector ParamMaz}
+            if($verbose){echo Read galfit mag zeropoint parameter as vector ParamMaz}
             !cat $(readginput_file) | grep 'J)' | sed 's/J)//g' > $(readginput_tmp)
             data $(readginput_tmp) read {ParamMaz 1}
         }
         if(readginput_key=='pix_scale') { 
-            if($astroGalfit_pref_verbose){echo Read galfit pixel scale parameter as vectors ParamPsX ParamPsY PixScale}
+            if($verbose){echo Read galfit pixel scale parameter as vectors ParamPsX ParamPsY PixScale}
             !cat $(readginput_file) | grep 'K)' | sed 's/K)//g' > $(readginput_tmp)
             data $(readginput_tmp) read {ParamPsX 1 ParamPsY 2}
             set PixScale = (0.5*(ParamPsX+ParamPsY))
         }
         if(readginput_key=='regular') { 
-            if($astroGalfit_pref_verbose){echo Read galfit regular parameter as vector ParamReg}
+            if($verbose){echo Read galfit regular parameter as vector ParamReg}
             !cat $(readginput_file) | grep 'O)' | sed 's/O)//g' > $(readginput_tmp)
             data $(readginput_tmp) read {ParamReg 1.s} # regular
         }
         if(readginput_key=='normal') { 
-            if($astroGalfit_pref_verbose){echo Read galfit normal parameter as vector ParamNom}
+            if($verbose){echo Read galfit normal parameter as vector ParamNom}
             !cat $(readginput_file) | grep 'P)' | sed 's/P)//g' > $(readginput_tmp)
             data $(readginput_tmp) read {ParamNom 1} # 0
         }
@@ -244,6 +244,14 @@ loadGalfitInput 01
             set $loadginput_var[loadginput_i1] = loadginput_$loadginput_var
           }
         }
+        ## # <Added><20161028><dzliu> excluding sky in list
+        ## set TempCoo = (Type!='sky')
+        ## foreach TempVar {Type PosX PosY Mags ParamFitPosX ParamFitPosY ParamFitMags} {
+        ##     set $TempVar = $TempVar if(TempCoo)
+        ## }
+        ## foreach TempVar {Rads Sers Elli Roti ParamFitRads ParamFitSers ParamFitElli ParamFitRoti} {
+        ##     set $TempVar = $TempVar if(TempCoo)
+        ## }
         unset loadginput_i1 unset loadginput_nonsky unset loadginput_tmp
         unset loadginput_PosX unset loadginput_PosY unset loadginput_Mags
         unset loadginput_ParamFitPosX unset loadginput_ParamFitPosY unset loadginput_ParamFitMags
@@ -274,6 +282,11 @@ writeGalfitInput 06
         # echo writeGalfitLimitFile 1.0 1.0 -20 20
         # writeGalfitLimitFile 0.0 0.0 -20 20
         astroGalfitOnMute
+        if(!is_vector(ParamSci)){set ParamSci='sci.fits'} #<TODO># ParamSci
+        if(!is_vector(ParamOut)){set ParamOut='fit.fits'} #<TODO># ParamOut
+        if(!is_vector(ParamRMS)){set ParamRMS='rms.fits'} #<TODO># ParamRMS
+        if(!is_vector(ParamPSF)){set ParamPSF='psf.fits'} #<TODO># ParamPSF
+        if(!is_vector(ParamLim)){set ParamLim='fit.limit'} #<TODO># ParamLim
         if(!is_vector(ParamLx1)){set ParamLx1=0.0} #<TODO># ParamLx1
         if(!is_vector(ParamLx2)){set ParamLx2=0.0} #<TODO># ParamLx2
         if(!is_vector(ParamLy1)){set ParamLy1=0.0} #<TODO># ParamLy1
@@ -291,17 +304,17 @@ writeGalfitInput 06
             !\rm $(wginput_tmp)
         }
         if($?2) { print  $1 'A) $2 \n' {} } else {
-                  print  $1 'A) sci.fits \n' {} }
+                  print  $1 'A) %s \n' {ParamSci} }
         if($?3) { print +$1 'B) $3 \n' {} } else {
-                  print +$1 'B) fit.fits \n' {} }
+                  print +$1 'B) %s \n' {ParamOut} }
         if($?4) { print +$1 'C) $4 \n' {} } else {
-                  print +$1 'C) rms.fits \n' {} }
+                  print +$1 'C) %s \n' {ParamRMS} }
         if($?5) { print +$1 'D) $5 \n' {} } else {
-                  print +$1 'D) psf.fits \n' {} }
+                  print +$1 'D) %s \n' {ParamPSF} }
                   print +$1 'E) 1 \t\t\t\t\# PSF fine sampling factor relative to data\n' {}
                   print +$1 'F) none \t\t\t\# Bad pixel mask, can be FITS image or ASCII coord list\n' {}
         if($?6) { print +$1 'G) $6 \n' {} } else {
-                  print +$1 'G) fit.limit \n' {} }
+                  print +$1 'G) %s \n' {ParamLim} }
                   print +$1 'H) %0.0f %0.0f %0.0f %0.0f \t\t\# Image region to fit (xmin xmax ymin ymax)\n' {ParamLx1 ParamLx2 ParamLy1 ParamLy2}
                   print +$1 'I) %0.3f %0.3f \t\t\# convolution box size (x y)\n' {ParamCoB ParamCoB} # convolution box size 
                   print +$1 'J) 0 \t\t\t\t\# Magnitude photometric zeropoint\n' {}
@@ -673,9 +686,9 @@ readGalfitResult 01
             return
         }
         set readgresult_tmp = {"._.AstroGalfit._.ReadGalfitResult._."}
-        !CrabFitsHeader $1 |sed -n -e '/COMP_/,/COMMENT/p' > "fit.header"
+        !CrabFitsHeader $1 -ext 2 | sed -n -e '/COMP_/,/COMMENT/p' > "fit.header"
         !cat "fit.header" |cut -d\' -f2 |sed -E 's/\[(.*)\]/\1 0/g' |sed -e 's%+/-%%g' > $(readgresult_tmp) #'
-        !echo "\# ResultType ResultPosX ResultPoXErr ResultPosY ResultPosYErr ResultMags ResultMagsErr " > "fit.result"
+        !echo "\# ResultType ResultPosX ResultPosXErr ResultPosY ResultPosYErr ResultMags ResultMagsErr " > "fit.result"
         !echo "\# " >> "fit.result"
         !cat $(readgresult_tmp) |while read line;do if [[ "\$line" != "COMMENT"* ]];then echo -n "\$line\ ";else echo "";fi;done >> "fit.result"
         if(is_file("fit.result")) {
@@ -704,10 +717,17 @@ readGalfitResult 01
                     # Note that skip 2 header lines, add 1 because line number starts from 1. 
                     #!cat "fit.result" | head -n $($readgresi+2+1) | tail -n 1 #<TODO><DEBUG><20160714><dzliu>#
                     data "fit.result" lines $($readgresi+2+1) $($readgresi+2+1) 
-                    read {TempResultRads 8  TempResultRadsErr 9 }
-                    read {TempResultSers 10 TempResultSersErr 11}
-                    read {TempResultElli 12 TempResultElliErr 13}
-                    read {TempResultRoti 14 TempResultRotiErr 15}
+                    # <BUG><corrected><20161030> # for Gaussian model only 3 parameters are in "fit.result"
+                    if(ResultType[$readgresi]=='gaussian') {
+                        read {TempResultRads 8  TempResultRadsErr 9 }
+                        read {TempResultElli 10 TempResultElliErr 11}
+                        read {TempResultRoti 12 TempResultRotiErr 13}
+                    } else {
+                        read {TempResultRads 8  TempResultRadsErr 9 }
+                        read {TempResultSers 10 TempResultSersErr 11}
+                        read {TempResultElli 12 TempResultElliErr 13}
+                        read {TempResultRoti 14 TempResultRotiErr 15}
+                    }
                 }
                 set ResultRads    = ResultRads    concat TempResultRads   
                 set ResultRadsErr = ResultRadsErr concat TempResultRadsErr
@@ -730,8 +750,18 @@ readGalfitResult 01
             # <TODO><20150222><DzLIU> supermongo complains about "No lines read from fit.result" when the column does not exist.
             # <DONE><20160620><dzliu> now loop each source and read columns according to types
             # 
+            # <Added><20161028><dzliu> excluding sky in list
+            set TempCoo = (ResultType!='sky')
+            foreach TempVar {ResultType ResultPosX ResultPosXErr ResultPosY ResultPosYErr ResultMags ResultMagsErr} {
+                set $TempVar = $TempVar if(TempCoo)
+            }
+            foreach TempVar {ResultRads ResultRadsErr ResultSers ResultSersErr ResultElli ResultElliErr ResultRoti ResultRotiErr} {
+                set $TempVar = $TempVar if(TempCoo)
+            }
+            # 
             declare ResultResPix 0 #<TODO># 
             declare ResultRmsPix 0 #<TODO># 
+            # 
             astroGalfitUnMute
             # now print what have been read
             if($verbose){ print '\n' {}
@@ -795,9 +825,9 @@ readGalfitResult_Old_Before20150220 01
             #!CrabFitsHeader $(readgresult_file) | grep $(TempUid[0]+1)"_MAG *= " | cut -c 12-19 > ".tmp.iraf.imhead.txt"
             !\cp $(readgresult_file) ".tmp.iraf.1.fits"
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "COMP_[0-9]*" | sed "s/[\']/\ /g" | sed "s/=/\ =/g" > ".tmp.iraf.imhead.txt"
-            if($astroGalfit_pref_verbose){
+            if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
-            }
+            } }
             data ".tmp.iraf.imhead.txt" read ResultType 3.s
             !\cp ".tmp.iraf.imhead.txt" ".astroGalfit.readResults.Type.txt"
             !\rm ".tmp.iraf.1.fits"
@@ -806,9 +836,9 @@ readGalfitResult_Old_Before20150220 01
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_XC\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
-            if($astroGalfit_pref_verbose){
+            if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
-            }
+            } }
             data ".tmp.iraf.imhead.txt" read {ResultPosX 3 ResultPosXErr 5}
             !\cp ".tmp.iraf.imhead.txt" ".astroGalfit.readResults.PosX.txt"
             !\rm ".tmp.iraf.1.fits"
@@ -817,9 +847,9 @@ readGalfitResult_Old_Before20150220 01
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_YC\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
-            if($astroGalfit_pref_verbose){
+            if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
-            }
+            } }
             data ".tmp.iraf.imhead.txt" read {ResultPosY 3 ResultPosYErr 5}
             !\cp ".tmp.iraf.imhead.txt" ".astroGalfit.readResults.PosY.txt"
             !\rm ".tmp.iraf.1.fits"
@@ -828,9 +858,9 @@ readGalfitResult_Old_Before20150220 01
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_MAG\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
-            if($astroGalfit_pref_verbose){
+            if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
-            }
+            } }
             data ".tmp.iraf.imhead.txt" read {ResultMags 3 ResultMagsErr 5}
             !\cp ".tmp.iraf.imhead.txt" ".astroGalfit.readResults.Mags.txt"
             !\rm ".tmp.iraf.1.fits"
@@ -839,9 +869,9 @@ readGalfitResult_Old_Before20150220 01
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_RE\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
-            if($astroGalfit_pref_verbose){
+            if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
-            }
+            } }
             data ".tmp.iraf.imhead.txt" read {ResultRads 3 ResultRadsErr 5}
             !\rm ".tmp.iraf.1.fits"
             # now get sers from the galfit output fits header
@@ -849,9 +879,9 @@ readGalfitResult_Old_Before20150220 01
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_N\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
-            if($astroGalfit_pref_verbose){
+            if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
-            }
+            } }
             data ".tmp.iraf.imhead.txt" read {ResultSers 3 ResultSersErr 5}
             !\rm ".tmp.iraf.1.fits"
             # now get elli from the galfit output fits header
@@ -859,9 +889,9 @@ readGalfitResult_Old_Before20150220 01
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_AR\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
-            if($astroGalfit_pref_verbose){
+            if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
-            }
+            } }
             data ".tmp.iraf.imhead.txt" read {ResultElli 3 ResultElliErr 5}
             !\rm ".tmp.iraf.1.fits"
             # now get roti from the galfit output fits header
@@ -869,9 +899,9 @@ readGalfitResult_Old_Before20150220 01
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_PA\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
-            if($astroGalfit_pref_verbose){
+            if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
-            }
+            } }
             data ".tmp.iraf.imhead.txt" read {ResultRoti 3 ResultRotiErr 5}
             !\rm ".tmp.iraf.1.fits"
             # now get sky from the galfit output fits header
@@ -879,9 +909,9 @@ readGalfitResult_Old_Before20150220 01
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_SKY\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
-            if($astroGalfit_pref_verbose){
+            if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
-            }
+            } }
             data ".tmp.iraf.imhead.txt" read {SkyValue 3 SkyValueErr 5}
             !\rm ".tmp.iraf.1.fits"
             !\rm ".tmp.iraf.imhead.txt" 2>/dev/null

@@ -521,15 +521,13 @@ set_GOODSN_photometry_constants_20cm 00
     set_goodsn_photometry_constants_20cm
 
 set_goodsn_photometry_constants_20cm 00
-    set_goodsn_photometry_constants_20cm_Owen
-
-set_goodsn_photometry_constants_20cm_Owen 00
+    # same as set_goodsn_photometry_constants_20cm_Owen
     # set VLA 20cm photometry constants
     define h_20cm       $(1.00/37.5055*1e6)            # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio (here Dr. Daddi already divided the map by 4.404)
     define m_20cm         0.74                         # <TODO> # from comparison to Glenn (average source size ?) see goFine.sm
     define mJy_20cm       1e-3                         # converting pixel flux from uJy to mJy
     define mBias_20cm     0                            # <TODO> from Dr. Daddi's goFine.sm
-    define fBias_20cm    -0.05e-3                      # <TODO> mJy <-> -0.6uJy from Dr. Daddi's goFine.sm <TODO> from comparison to Simu <TODO>
+    define fBias_20cm     0.0                          # <TODO> mJy <-> -0.6uJy from Dr. Daddi's goFine.sm <TODO> from comparison to Simu <TODO>
     define rBeam_20cm     1.2                          # <TODO> FWHM of PSF in arcsec <-> 1.33256 by 1.10555 (arcsec) at pa 86.3055 (deg) in fits header
                                                        # <TODO> astrometry correction see goSimu.sm
     define xStep_20cm     100                          # <TODO> box x length, from Dr. Daddi's goFine.sm
@@ -549,6 +547,33 @@ set_goodsn_photometry_constants_20cm_Owen 00
     define RmsPhoto_20cm "VLA_Owen_2arcsec_big_rms"
     define PsfPhoto_20cm "VLA_Owen_Maurilio_beam2" # Dr. Daddi is using this one, before was using "VLA_Owen_2arcsec_PSF"
     define DirPhoto_20cm "/data/AstroDepth/GOODSN_Photo/VLA"
+
+set_goodsn_photometry_constants_20cm_Owen 00
+    # set VLA 20cm photometry constants
+    define h_20cm_Owen       $(1.00/37.5055*1e6)            # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio (here Dr. Daddi already divided the map by 4.404)
+    define m_20cm_Owen         1.00                         # <TODO> # 0.74 ? from comparison to Glenn (average source size ?) see goFine.sm
+    define mJy_20cm_Owen       1e-3                         # converting pixel flux from uJy to mJy
+    define mBias_20cm_Owen     0                            # <TODO> from Dr. Daddi's goFine.sm
+    define fBias_20cm_Owen     0.0                          # <TODO> mJy <-> -0.6uJy from Dr. Daddi's goFine.sm <TODO> from comparison to Simu <TODO>
+    define rBeam_20cm_Owen     1.2                          # <TODO> FWHM of PSF in arcsec <-> 1.33256 by 1.10555 (arcsec) at pa 86.3055 (deg) in fits header
+                                                            # <TODO> astrometry correction see goSimu.sm
+    define xStep_20cm_Owen     100                          # <TODO> box x length, from Dr. Daddi's goFine.sm
+    define yStep_20cm_Owen     100                          # <TODO> box x length, from Dr. Daddi's goFine.sm
+    define gBuff_20cm_Owen     20                           # <TODO> box buffer length g, from Dr. Daddi's goFine.sm
+    define fBuff_20cm_Owen     1                            # <TODO> box buffer length f, from Dr. Daddi's goFine.sm
+    set_default_telescope_constants 20cm_Owen
+    define SimMag0_20cm_Owen   6.70331                      # simulation brightest magnitude -- convert_flux2mag goodsn 20cm 0.075 0.001 -- 30-sigma
+    define SimMag1_20cm_Owen   10.3753                      # simulation faintest magnitude -- convert_flux2mag goodsn 20cm 0.0025 0.001 -- 1-sigma
+    define PixLim0_20cm_Owen  -1e-3                         # uJy/pixel -- pixel value range for display -- ds9 scale limits
+    define PixLim1_20cm_Owen   5e-3                         # uJy/pixel -- pixel value range for display -- ds9 scale limits
+    define PixScale_20cm_Owen  0.35                         # arcsec from Morrison's VLA image <TODO> Owen's PixScale ?
+    define Telescop_20cm_Owen  "VLA"                        # 
+    define BandName_20cm_Owen  "1.4GHz"                     # 
+    define BandWave_20cm_Owen  2e5                          # um
+    define SciPhoto_20cm_Owen "VLA_Owen_2arcsec_big_NOPBC"
+    define RmsPhoto_20cm_Owen "VLA_Owen_2arcsec_big_rms"
+    define PsfPhoto_20cm_Owen "VLA_Owen_Maurilio_beam2" # Dr. Daddi is using this one, before was using "VLA_Owen_2arcsec_PSF"
+    define DirPhoto_20cm_Owen "/data/AstroDepth/GOODSN_Photo/VLA"
 
 set_goodsn_photometry_constants_20cm_Glenn 00
     # set VLA 20cm photometry constants

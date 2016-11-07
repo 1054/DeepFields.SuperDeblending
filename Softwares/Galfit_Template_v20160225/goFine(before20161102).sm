@@ -633,30 +633,26 @@ Fit_XXX
 		###<DZLIU><Modified>### !\rm summary_run
 		###<DZLIU><Modified>### !\rm fit*log
 		###<DZLIU><Modified>### 
-		
+
 		define print_noheader 1
-		
+
 		xdo_sizes
 		macro read goSimu.sm gPriors
-		
-		
 		if('$imax' != '20cm' ) {noise_XXX} else {echo 20cm does not do noise}
-		
-		
 		#define aaa ?
 		if($fit_gaussian) {
 		set nxA = x$imax set nxB=y$imax
 		print URGtmp {raF deF nxA nxB m1392 WFC3_fwhm WFC3_axis_ratio WFC3_XPA}
 		}
-		
-		#if('$imax'=='24') {
+
+		#if($imax==24) {
 		##noise$imax
 		#noise_XXX
 		#} else {
 		#get_coordXXX             # gets x-y positions in the image to fit
 		#noise_XXX
 		#}
-		
+
 		if($use_prior_mags) {set m$imax  = xm$imax} else {set m$imax  = x$imax*0+$mag_start}
 		
 		
@@ -756,11 +752,11 @@ Fit_XXX
 		print HSO_$imax".CONSTRAINTS" '   %d   mag -10 to $mag_toofaint  \n' {oo}
 		if($vary_positions) {
 		define max_vary 1
-		if('$imax'=='16') {define max_vary 1}
-		if('$imax'=='24') {define max_vary 1}
-		if('$imax'=='100') {define max_vary 1}
-		if('$imax'=='160') {define max_vary 1}
-		if('$imax'== '20cm') {define max_vary 2}
+		if($imax==16) {define max_vary 1}
+		if($imax==24) {define max_vary 1}
+		if($imax==100) {define max_vary 1}
+		if($imax==160) {define max_vary 1}
+		if($imax== '20cm') {define max_vary 2}
 		print +HSO_$imax".CONSTRAINTS" '   %d   x -$max_vary $max_vary  \n' {oo}
 		print +HSO_$imax".CONSTRAINTS" '   %d   y -$max_vary $max_vary  \n' {oo}
 		} else {
@@ -917,14 +913,7 @@ Rebuild_XXX
 		if($?doPostParallel) { if($doPostParallel==1) { echo "boxgalfit/box"$var } }
 		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==0) { chdir "boxgalfit/box"$var } } }  ###<Added><DZLIU>### doPostParallel
 		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) { chdir "boxgalfit_vary/box"$var } } }  ###<Added><DZLIU>### doPostParallel
-		#if($?doPostParallel) { if($doPostParallel==1) { !cp fit.log fit$var".log" } } ###<DZLIU><Modified><20161028><for_Gaussian>###
-		if($?doPostParallel) { if($doPostParallel==1) { 
-			###<DZLIU><Modified><20161102><for_Gaussian>###
-			!grep -n -e"--" "fit.log" | cut -d ':' -f 1 | tail -n 2 | head -n 1 > fit$var".log.start.line.number"
-			!awk 'NR >= \$(cat fit$var".log.start.line.number")' "fit.log" > fit$var".log"
-			echo fit$var".log"
-		  }
-		} ###<DZLIU><Modified><20161102><for_Gaussian>###
+		if($?doPostParallel) { if($doPostParallel==1) { !cp fit.log fit$var".log" } } ###<DZLIU><Modified><20161028><for_Gaussian>###
 		###<DZLIU><Modified>### 
 		if(is_file("fit"$var".log")) {
 		!\rm aaa1 >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null

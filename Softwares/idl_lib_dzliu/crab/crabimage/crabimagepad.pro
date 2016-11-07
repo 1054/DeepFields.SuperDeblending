@@ -64,7 +64,11 @@ FUNCTION CrabImagePad, InputImage, PadLeft=PadLeft, PadRight=PadRight, PadTop=Pa
     IF IUX GE  InputWidth OR IUY GE  InputHeight THEN RETURN, []
     IF OUX GE OutputWidth OR OUY GE OutputHeight THEN RETURN, []
     
-    OutputImage = MAKE_ARRAY(OutputWidth,OutputHeight,/DOUBLE,VALUE=PadValue)
+    IF SIZE(InputImage,/TNAME) EQ 'FLOAT' THEN BEGIN
+        OutputImage = MAKE_ARRAY(OutputWidth,OutputHeight,/DOUBLE,VALUE=PadValue)
+    ENDIF ELSE BEGIN
+        OutputImage = MAKE_ARRAY(OutputWidth,OutputHeight,VALUE=PadValue)
+    ENDELSE
     OutputImage[OLX:OUX,OLY:OUY] = InputImage[ILX:IUX,ILY:IUY]
     
     RETURN, OutputImage

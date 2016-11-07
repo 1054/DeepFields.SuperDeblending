@@ -1507,10 +1507,13 @@ calc_nebular_lines 02
     #  for ds9: ds9 -title ds9 -tile mode row -lock frame image GN_15a_maskC1_K_RH_7966_eps.fits GN_15a_maskC1_K_RH_7966_snrs.fits
     #  
     #  
-    set _calc_nblines_nom = {"H-beta" "[OIII]4959" "[OIII]5007" "[NII]6548" "H-alpha" "[NII]6583" "[SII]" "[SII]" "Ly-alpha" "Lyman-break"}
-    set _calc_nblines_al1 = {"Hbeta" "OIII4959" "OIII5007" "NII6548" "Halpha" "NII6583" "SII6716" "SII6731" "Lyalpha" "Lymanbreak"}
-    set _calc_nblines_al2 = {"hbeta" "oiii4959" "oiii5007" "nii6548" "halpha" "nii6583" "sii6716" "sii6731" "lyalpha" "lymanbreak"}
-    set _calc_nblines_wav = {4861.363 4958.911 5006.843 6548.050 6562.801 6583.450 6716.440 6730.820 912.0 1216.0} # Angstrom
+    set _calc_nblines_nom = {"H-beta" "[OIII]4959" "[OIII]5007" "[NII]6548" "H-alpha" "[NII]6583" "[SII]"   "[SII]"   "[OII]"   "[OII]"   "[MgII]"   "Ly-alpha" "Lyman-break"}
+    set _calc_nblines_al1 = {"Hbeta"  "OIII4959"   "OIII5007"   "NII6548"   "Halpha"  "NII6583"   "SII6716" "SII6731" "OII3727" "OII3727" "MgII2798" "Lyalpha"  "Lymanbreak" }
+    set _calc_nblines_al2 = {"hbeta"  "oiii4959"   "oiii5007"   "nii6548"   "halpha"  "nii6583"   "sii6716" "sii6731" "oii3727" "oii3727" "mgii2798" "lyalpha"  "lymanbreak" }
+    set _calc_nblines_wav = {4861.363 4958.911     5006.843     6548.050    6562.801  6583.450    6716.440  6730.820  3726.03   3728.82   2798.      912.0      1216.0       } # Angstrom
+    # 
+    # -- see "Optical (nebular) spectral lines" --- http://www.star.ucl.ac.uk/~msw/lines.html
+    # 
     if($?1 && $?2) {
       do _calc_nblines_k=0,dimen(_calc_nblines_nom)-1 {
         set _calc_nblines_srt = sprintf('%s',_calc_nblines_nom[$_calc_nblines_k])

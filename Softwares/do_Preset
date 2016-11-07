@@ -30,6 +30,21 @@ if [ $# -lt 3 ]; then
     echo "       $1 500 201407 -postparallel"
     echo "       $1 500 201407 -sedpredict SED_predictions_100_201512.txt"
     echo "       $1 1160 201410 -parallel -fitexclude -fitsname spire500_ima_7p2_v0_100615_subfitDL"
+    if [[ "$1" == "Galfit" ]]; then
+      echo "       # "
+      echo "       # Example of do_Galfit at 20cm_Morrison map"
+      echo "       # First we need to make sure \"goFine.sm\" has \"xSet_20cm_Morrison\" subroutine"
+      echo "       # Second we need to make sure \"astroPhot.sm\" has \"set_goodsn_photometry_constants_20cm_Morrison\" subroutine"
+      echo "       # Then we need to make sure softwares \"Supermongo\", \"IRAF\", \"galfit\", \"CrabFitsHeader\", \"CrabPhotAperPhot\" are ready"
+      echo "       # Then we go"
+      echo "       do_$1 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -fitsname-sci GOODSN_1_4GHz_dzliu -fitsname-rms GOODSN_1_4GHz_rms_dzliu"
+      echo "       cd boxgalfit/; do_GalfitRunqsub; cd ../"
+      echo "       do_$1 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -fitsname-sci GOODSN_1_4GHz_dzliu -fitsname-rms GOODSN_1_4GHz_rms_dzliu -postparallel"
+      echo "       do_$1 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -fitsname-sci GOODSN_1_4GHz_dzliu -fitsname-rms GOODSN_1_4GHz_rms_dzliu -vary"
+      echo "       cd boxgalfit_vary/; do_GalfitRunqsub; cd ../"
+      echo "       do_$1 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -fitsname-sci GOODSN_1_4GHz_dzliu -fitsname-rms GOODSN_1_4GHz_rms_dzliu -vary -postparallel"
+      echo "       "
+    fi
     exit
 fi
 # 

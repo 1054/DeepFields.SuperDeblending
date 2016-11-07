@@ -633,30 +633,26 @@ Fit_XXX
 		###<DZLIU><Modified>### !\rm summary_run
 		###<DZLIU><Modified>### !\rm fit*log
 		###<DZLIU><Modified>### 
-		
+
 		define print_noheader 1
-		
+
 		xdo_sizes
 		macro read goSimu.sm gPriors
-		
-		
 		if('$imax' != '20cm' ) {noise_XXX} else {echo 20cm does not do noise}
-		
-		
 		#define aaa ?
 		if($fit_gaussian) {
 		set nxA = x$imax set nxB=y$imax
 		print URGtmp {raF deF nxA nxB m1392 WFC3_fwhm WFC3_axis_ratio WFC3_XPA}
 		}
-		
-		#if('$imax'=='24') {
+
+		#if($imax==24) {
 		##noise$imax
 		#noise_XXX
 		#} else {
 		#get_coordXXX             # gets x-y positions in the image to fit
 		#noise_XXX
 		#}
-		
+
 		if($use_prior_mags) {set m$imax  = xm$imax} else {set m$imax  = x$imax*0+$mag_start}
 		
 		
@@ -756,11 +752,11 @@ Fit_XXX
 		print HSO_$imax".CONSTRAINTS" '   %d   mag -10 to $mag_toofaint  \n' {oo}
 		if($vary_positions) {
 		define max_vary 1
-		if('$imax'=='16') {define max_vary 1}
-		if('$imax'=='24') {define max_vary 1}
-		if('$imax'=='100') {define max_vary 1}
-		if('$imax'=='160') {define max_vary 1}
-		if('$imax'== '20cm') {define max_vary 2}
+		if($imax==16) {define max_vary 1}
+		if($imax==24) {define max_vary 1}
+		if($imax==100) {define max_vary 1}
+		if($imax==160) {define max_vary 1}
+		if($imax== '20cm') {define max_vary 2}
 		print +HSO_$imax".CONSTRAINTS" '   %d   x -$max_vary $max_vary  \n' {oo}
 		print +HSO_$imax".CONSTRAINTS" '   %d   y -$max_vary $max_vary  \n' {oo}
 		} else {
@@ -917,14 +913,6 @@ Rebuild_XXX
 		if($?doPostParallel) { if($doPostParallel==1) { echo "boxgalfit/box"$var } }
 		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==0) { chdir "boxgalfit/box"$var } } }  ###<Added><DZLIU>### doPostParallel
 		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) { chdir "boxgalfit_vary/box"$var } } }  ###<Added><DZLIU>### doPostParallel
-		#if($?doPostParallel) { if($doPostParallel==1) { !cp fit.log fit$var".log" } } ###<DZLIU><Modified><20161028><for_Gaussian>###
-		if($?doPostParallel) { if($doPostParallel==1) { 
-			###<DZLIU><Modified><20161102><for_Gaussian>###
-			!grep -n -e"--" "fit.log" | cut -d ':' -f 1 | tail -n 2 | head -n 1 > fit$var".log.start.line.number"
-			!awk 'NR >= \$(cat fit$var".log.start.line.number")' "fit.log" > fit$var".log"
-			echo fit$var".log"
-		  }
-		} ###<DZLIU><Modified><20161102><for_Gaussian>###
 		###<DZLIU><Modified>### 
 		if(is_file("fit"$var".log")) {
 		!\rm aaa1 >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
@@ -934,20 +922,18 @@ Rebuild_XXX
 		#!more fit$var".log" | grep "'(0'" | grep "', 0'"  > aaa1    # old galfit 2.0
 		#!more fit$var".log" |grep "(   " |grep ")   "  > aaa1   # this version was for linux csh, doesn't work in bash
 		
-		###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### !sed -i -e's/\[//g' -e's/\]//g' -e's/,]//g' -e's/\,//g' -e's/)//g' -e's/(//g' fit$var".log"
-		###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### 
-		###<DZLIU><Modified><20161028><for_Gaussian>### !sed -e 's/\[//g' -e 's/\]//g' -e 's/,]//g' -e 's/\,//g' -e 's/)//g' -e 's/(//g' fit$var.log > fit$var.log.s
-		###<DZLIU><Modified><20161028><for_Gaussian>### !rm fit$var.log
-		###<DZLIU><Modified><20161028><for_Gaussian>### !mv fit$var.log.s fit$var.log
-		###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### sed got rename() error, see http://stackoverflow.com/questions/21441289/confusing-error-from-xargs-sed
-		###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### 
-		###<DZLIU><Modified><20161028><for_Gaussian>### 
-		###<DZLIU><Modified><20161028><for_Gaussian>### !grep -A1 psf fit$var".log" | grep -e"--" -v > aaa3
-		###<DZLIU><Modified><20161028><for_Gaussian>### !grep psf aaa3 > aaa2
-		###<DZLIU><Modified><20161028><for_Gaussian>### !grep psf -v aaa3 > aaa1
-		!grep -A1 "': ('" fit$var".log" | grep -e"--" -v > aaa3
-		!grep "': ('" aaa3 | sed -e 's/[][,()]//g' > aaa2
-		!grep "': ('" -v aaa3 | sed -e 's/[][,()]//g' > aaa1
+		###<DZLIU><Modified>### !sed -i -e's/\[//g' -e's/\]//g' -e's/,]//g' -e's/\,//g' -e's/)//g' -e's/(//g' fit$var".log"
+		###<DZLIU><Modified>### 
+		!sed -e 's/\[//g' -e 's/\]//g' -e 's/,]//g' -e 's/\,//g' -e 's/)//g' -e 's/(//g' fit$var.log > fit$var.log.s
+		!rm fit$var.log
+		!mv fit$var.log.s fit$var.log
+		###<DZLIU><Modified>### sed got rename() error, see http://stackoverflow.com/questions/21441289/confusing-error-from-xargs-sed
+		###<DZLIU><Modified>### 
+		
+		!grep -A1 psf fit$var".log" | grep -e"--" -v > aaa3
+		
+		!grep psf aaa3 > aaa2
+		!grep psf -v aaa3 > aaa1
 		
 		#print goB 'more fit$var".log" |grep \"0.00   0.00\"  > aaa1\n' {}
 		#        !bash < goB
@@ -955,24 +941,24 @@ Rebuild_XXX
 
 
 		if($fit_gaussian) {
-			!more fit$var".log" |grep gaussian > aaa2
+		!more fit$var".log" |grep gaussian > aaa2
 		} else {
-			#!more fit$var".log" |grep psf > aaa2
+		#!more fit$var".log" |grep psf > aaa2
 		}
 		if($fit_gaussian) {
-			data aaa1 read {_err 3.s _err_fw 4.s _err_ba 5.s}
-			set _err = atof(_err) set _err_fw=atof(_err_fw) set _err_ba=atof(_err_ba)
-			data aaa2 read ' %s %s (%f, %f) %f %f %f' {_aa _bb xg yg _mag _xxfw _xxba}
-			set yy =0,dimen(_mag)-1 foreach xar yy {
-				set inxi = x$imax  > x1[$var-1] && x$imax  <= x2[$var-1] && y$imax  > y1[$var-1] && y$imax  <= y2[$var-1]
-				set FW$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _xxfw[$xar] : FW$imax 
-				set ba$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _xxba[$xar] : ba$imax 
-				set eFW$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _err_fw[$xar] : eFW$imax 
-				set eba$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _err_ba[$xar] : eba$imax 
-			}
+		data aaa1 read {_err 3.s _err_fw 4.s _err_ba 5.s}
+		set _err = atof(_err) set _err_fw=atof(_err_fw) set _err_ba=atof(_err_ba)
+		data aaa2 read ' %s %s (%f, %f) %f %f %f' {_aa _bb xg yg _mag _xxfw _xxba}
+		set yy =0,dimen(_mag)-1 foreach xar yy {
+		set inxi = x$imax  > x1[$var-1] && x$imax  <= x2[$var-1] && y$imax  > y1[$var-1] && y$imax  <= y2[$var-1]
+		set FW$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _xxfw[$xar] : FW$imax 
+		set ba$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _xxba[$xar] : ba$imax 
+		set eFW$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _err_fw[$xar] : eFW$imax 
+		set eba$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _err_ba[$xar] : eba$imax 
+		}
 		} else {
-			data aaa1 read _err 3
-			data aaa2 read '%s %s %f %f %f'  {_aa _bb xg yg _mag}
+				data aaa1 read _err 3
+		data aaa2 read '%s %s %f %f %f'  {_aa _bb xg yg _mag}
 		}
 
 		if(dimen(_err)!=dimen(_mag)) {echo PROBLEMI DI LETTURA FILES GALFIT --> BREAK with ctrl-C
@@ -1732,35 +1718,6 @@ xFit_20cm_Owen  00
 xSet_20cm	00
 		###<DZLIU><Modified>### 
 		xSet_20cm_Owen
-		###<DZLIU><Modified>### 
-
-xSet_20cm_Morrison	00
-		###<DZLIU><Modified>### 
-		define imax 20cm
-		define imax_name "VLA_20cm_Glenn_May09"
-		define imax_name_rms "VLA_20cm_Glenn_May09_rms"
-		define imax_name_psf "VLA_beam_hdfn"
-		define psf_resampl   1
-		define xdate "201500"
-		
-		define mag_toofaint 20
-		define max_noise 4
-		define mag_start 6
-		define Xback  0
-		
-		define ystep 150
-		define xstep 150
-		define g_buff 21
-		define f_buff 1
-		define use_prior_mags 0      # if 1, define xm$imax to a meaningful guess start for the mag
-		define vary_positions 0      # if 1, allow positions of bright objects to vary
-		define fix_astrometry 1      # if 1, account for astrometry variation
-		define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
-		define fit_gaussian   0      # to switch only for resolved sources
-		define fit_sky 	      0      # test
-		
-		data "irac_mips_fluxes_hdfn.dat" read {raF 1 deF 2 idF 3 xf24 17}
-		set noi20cm = raF*0+2.75e-6
 		###<DZLIU><Modified>### 
 
 xSet_20cm_Glenn	00
@@ -3268,7 +3225,7 @@ R_MIPS20cm_Owen
 
 		set f20cm = f20cm-0.05  # from comparison to Simu
 		#PBA_Owen
-		data PBA_Owen.txt read {pbcor 1} #-------<BUG><20161030><dzliu>------- THIS IS BUGGY!
+		data PBA_Owen.txt read {pbcor 1}
 		foreach vax {f20cm df20cm} {set $vax = $vax*pbcor}
 		foreach vax {f20cm df20cm} {set $vax = $vax*10**0.01415850129}  # comparison to bright Owen sources
 		set df20cm = df20cm>2.6 ? df20cm : 2.6
@@ -3363,7 +3320,7 @@ R_MIPS20cm_Owen_dzliu	00
 		# set df20cm = df20cm>2.6 ? df20cm : 2.6
 		# 
 		#PBA_Owen
-		data PBA_Owen.txt read {pbcor 1} #-------<BUG><20161030><dzliu>------- THIS IS BUGGY!
+		data PBA_Owen.txt read {pbcor 1}
 		foreach vax {f20cm df20cm} {set $vax = $vax*pbcor}
 		foreach vax {f20cm df20cm} {set $vax = $vax*10**0.01415850129}  # comparison to bright Owen sources
 		# 
@@ -3373,38 +3330,6 @@ R_MIPS20cm_Owen_dzliu	00
 		###<DZLIU><Modified>### 
 		###<DZLIU><Modified>### -- 
 		print "results_20cm_201500_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
-
-
-R_MIPS20cm_Owen_dzliu_201610 00
-			define imax 20cm
-			define xdate 201500
-			define vary_positions 1
-			define rrrr_name "results_"$imax"_"$xdate"_vary"
-			data $rrrr_name read {x20cm 1 y20cm 2 m20cm 4 e20cm 5 noi20cm 3 ra20cm 6 de20cm 7 id20cm 8}
-			set e20cm = (e20cm==0.0) ? 0.01 : e20cm
-    		load astroPhot.sm
-    		convert_mag2flux goodsn 20cm_Owen m20cm e20cm
-    		set f20cm = f20cm_Owen
-    		set df20cm = df20cm_Owen
-			
-			define rBeam_20cm 1.7 #<TODO># PSF FWHM at each band
-		    if(is_file("run_simu_stats_v8.sm")) {
-		    	macro read run_simu_stats_v8.sm
-		    } else {
-		    	macro read run_simu_stats_v7.sm
-		    }
-			go_correct_three_step_recipes
-			
-    		set f20cm = f20cm * 1e3 # convert mJy to uJy
-    		set df20cm = df20cm * 1e3 # convert mJy to uJy
-    		
-			# 
-			#PBA_Owen
-			PBA_Owen
-			
-			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
-
-
 
 R_MIPS20cm_Morrison_dzliu	00
 		###<DZLIU><Modified>### 
@@ -3517,36 +3442,6 @@ R_MIPS20cm_Morrison_dzliu	00
 		###<DZLIU><Modified>### 
 		###<DZLIU><Modified>### -- 
 		print "results_20cm_201500_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
-
-
-R_MIPS20cm_Morrison_dzliu_201610 00
-			define imax 20cm
-			define xdate 201500
-			define vary_positions 1
-			define rrrr_name "results_"$imax"_"$xdate"_vary"
-			data $rrrr_name read {x20cm 1 y20cm 2 m20cm 4 e20cm 5 noi20cm 3 ra20cm 6 de20cm 7 id20cm 8}
-			set e20cm = (e20cm==0.0) ? 0.01 : e20cm
-    		load astroPhot.sm
-    		convert_mag2flux goodsn 20cm_Morrison m20cm e20cm
-    		set f20cm = f20cm_Morrison
-    		set df20cm = df20cm_Morrison
-			
-			define rBeam_20cm 1.7 #<TODO># PSF FWHM at each band
-		    if(is_file("run_simu_stats_v8.sm")) {
-		    	macro read run_simu_stats_v8.sm
-		    } else {
-		    	macro read run_simu_stats_v7.sm
-		    }
-			go_correct_three_step_recipes
-			
-    		set f20cm = f20cm * 1e3 # convert mJy to uJy
-    		set df20cm = df20cm * 1e3 # convert mJy to uJy
-    		
-			# 
-			#PBA_corr_radio
-			PBA_Morrison
-			
-			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
 
 
 PBA_corr_radio  set dis = 6*sqrt(((_ra-189.2058333)*cosd(62.2161111))**2+(_de-62.2161111)**2)
@@ -3696,42 +3591,13 @@ PBA_Owen
 		set y$xpp = y$xpp<$YL2 ? y$xpp : $YL2
 		}
 		print do.cl 'images\n imutil\n' {}
-		print +do.cl 'imstat VLA_Owen_2arcsec_big_PBC.fits[%.0f:%.0f,%.0f:%.0f] nclip=0 >> aaa_noise \n' {x1 x2 y1 y2} # this is Emanuele's original code
+		print +do.cl 'imstat VLA_Owen_2arcsec_big_PBC.fits[%.0f:%.0f,%.0f:%.0f] nclip=0 >> aaa_noise \n' {x1 x2 y1 y2}
 		print +do.cl 'logout\n' {}
 		#echo go run do.cl in IRAF
 		#define aaa ?
 		# go run do.cl in IRAF
 		!cl < do.cl
+
 		data aaa_noise read pbcor  6
 		set pbcor = pbcor>1 ? pbcor : 1
-		print "PBA_Owen.txt" '%15.0f%15.3f\n' {id20cm pbcor}
-		foreach vax {f20cm df20cm} {set $vax = $vax*pbcor}
-
-
-PBA_Morrison
-		# see https://www.cv.nrao.edu/vla/hhg2vla/node41.html
-		# pbcor = 9.920378e-1 
-		#       + 9.956885e-4 * (arcmin*GHz)**2 
-		#       + 3.814573e-6 * (arcmin*GHz)**4 
-		#       - 5.311695e-10 * (arcmin*GHz)**6 
-		#       + 3.9809630e-10 * (arcmin*GHz)**8 
-		# 
-		#-NRAO website equation-# 
-		set PBA_X = sqrt( ((ra20cm-189.203)*cosd(62.214))**2 + (de20cm-62.214)**2 ) * 60.0 * 1.40
-		set pbcor = 9.920378e-1 \
-		          + 9.956885e-4 * (PBA_X)**2 \
-		          + 3.814573e-6 * (PBA_X)**4 \
-		          - 5.311695e-10 * (PBA_X)**6 \
-		          + 3.9809630e-12 * (PBA_X)**8 
-		# 
-		# equation below is from Emanuele "PBA_corr_radio" subroutine
-		# set PBA_X = sqrt( ((ra20cm-189.203)*cosd(62.214))**2 + (de20cm-62.214)**2 ) * 6.0 * 1.40
-		# set pbcor = 1.0 \
-		#           - (1.343/10.**3) * (PBA_X)**2 \
-		#           + (6.579/10.**7) * (PBA_X)**4 \
-		#           - (1.186/10.**10) * (PBA_X)**6
-		set pbcor = pbcor>1 ? pbcor : 1
-		print "PBA_Morrison.txt" '%15.0f%15.3f\n' {id20cm pbcor}
-		foreach vax {f20cm df20cm} {set $vax = $vax*pbcor}
-
-
+		print PBA_Owen.txt '%.3f\n' {pbcor}

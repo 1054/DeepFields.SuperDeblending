@@ -437,6 +437,14 @@ crabPlotLegend 04
     }
 
 
+crabPlotLegendSpacing 01
+    # 
+    if($?1) {
+        if(is_vector(_crabPlot_legend_dy)) {set _crabPlot_legend_dy_backup = _crabPlot_legend_dy}
+        set _crabPlot_legend_dy = float($1)
+    }
+
+
 crabPlotLegendLineSpacing 01
     # 
     if($?1) {

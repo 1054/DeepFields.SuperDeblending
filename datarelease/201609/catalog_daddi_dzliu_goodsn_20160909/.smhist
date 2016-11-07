@@ -1,2 +1,21 @@
 macro read CatalogConvert.sm go
 QUIT
+macro read CatalogReader.sm go
+sort {z id}
+set coo = z<0.2
+echo $(sum(coo))/$(dimen(coo))
+set coo = z<0.2 && snrIR>=5
+echo $(sum(coo))/$(dimen(coo))
+print '%15.3f%15.0f\n' {z id}
+set z = z if(coo)
+set id = id if(coo)
+print '%15.3f%15.0f\n' {z id}
+macro read CatalogReader.sm go
+set coo = z<0.2 && snrIR>=5
+echo $(sum(coo))/$(dimen(coo))
+set id = id if(coo)
+set z = z if(coo)
+print '%15.3f%15.0f\n' {z id}
+sort {z id}
+print '%15.3f%15.0f\n' {z id}
+quit
