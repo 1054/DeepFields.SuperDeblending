@@ -205,9 +205,17 @@ crabPlotQuickPlot 04
     crabPlotDefaultPenForBox
     box
     crabPlotRestorePen
+    if($?4==0) {
+        crabPlotDefaultPenForTitle
+        xlabel $1
+        ylabel $2
+        crabPlotRestorePen
+    }
     if($verbose) {print 'crabPlotQuickPlot: Plotting $(dimen(__crabPlot__x)) data points.\n' {}}
+    crabPlotDefaultPenForPoints
     points __crabPlot__x __crabPlot__y
-    crabPlotResetPen
+    crabPlotRestorePen
+    #crabPlotResetPen
     # 
     if($?3==1&&$?4==0){crabPlotClosePS}
     if($?4==1){print 'crabPlotQuickPlot: Output file not closed yet, please call crabPlotClosePS later.\n' {}}

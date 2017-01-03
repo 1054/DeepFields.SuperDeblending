@@ -73,13 +73,22 @@ GetDirPathVector 01
     #  print {PWDDirPath}
     if($?1) {
         if('$1'=='__GetDirPathVector_arg1') {
-            !echo $(__GetDirPathVector_arg1) | sed -e 's@^/@\\\\"\\\\"@g' | sed -e 's@/@\\n@g' | sed -e '1s@^\\\\"\\\\"@/@g' > ".GetDirPathVector.tmp"
+            #<20161212><dzliu># -- for Mac
+            #<20161212><dzliu># !echo $(__GetDirPathVector_arg1) | sed -e 's@^/@\\\\"\\\\"@g' | sed -e 's@/@\\n@g' | sed -e '1s@^\\\\"\\\\"@/@g' > ".GetDirPathVector.tmp"
+            !echo $(__GetDirPathVector_arg1) | sed -e 's@^/@\\\\"\\\\"@g' | perl -p -e 's@/@\\n@g' | sed -e '1s@^\\\\"\\\\"@/@g' > ".GetDirPathVector.tmp"
         } else {
-            !echo $1 | sed -e 's@^/@\\\\"\\\\"@g' | sed -e 's@/@\\n@g' | sed -e '1s@^\\\\"\\\\"@/@g' > ".GetDirPathVector.tmp"
+            #<20161212><dzliu># -- for Mac
+            #<20161212><dzliu># !echo $1 | sed -e 's@^/@\\\\"\\\\"@g' | sed -e 's@/@\\n@g' | sed -e '1s@^\\\\"\\\\"@/@g' > ".GetDirPathVector.tmp"
+            !echo $1 | sed -e 's@^/@\\\\"\\\\"@g' | perl -p -e 's@/@\\n@g' | sed -e '1s@^\\\\"\\\\"@/@g' > ".GetDirPathVector.tmp"
         }
         
     } else {
-        !pwd | sed -e 's@^/@\\\\"\\\\"@g' | sed -e 's@/@\\n@g' | sed -e '1s@^\\\\"\\\\"@/@g' > ".GetDirPathVector.tmp"
+        #<20161212><dzliu># -- !pwd | sed -e 's@^/@\\\\"\\\\"@g'
+        #<20161212><dzliu># -- !pwd | sed -e 's@^/@\\\\"\\\\"@g' | perl -p -e 's@/@\\n@g'
+        #<20161212><dzliu># -- !pwd | sed -e 's@^/@\\\\"\\\\"@g' | perl -p -e 's@/@\\n@g' | sed -e '1s@^\\\\"\\\\"@/@g'
+        #<20161212><dzliu># -- for Mac
+        #<20161212><dzliu># !pwd | sed -e 's@^/@\\\\"\\\\"@g' | sed -e 's@/@\\n@g' | sed -e '1s@^\\\\"\\\\"@/@g' > ".GetDirPathVector.tmp"
+        !pwd | sed -e 's@^/@\\\\"\\\\"@g' | perl -p -e 's@/@\\n@g' | sed -e '1s@^\\\\"\\\\"@/@g' > ".GetDirPathVector.tmp"
     }
     #!cat ".GetDirPathVector.tmp"
     data ".GetDirPathVector.tmp"

@@ -7,8 +7,21 @@ LastUpdate:
 Usage: 
     Please use supermongo as follows to read this catalog
 
-sm
-chdir "catalog_daddi_dzliu_goodsn_201609”
-macro read CatalogReader.sm go
+Example:
+    bash
+    sm
+    chdir "catalog_daddi_dzliu_goodsn_201609”
+    macro read CatalogReader.sm go
 
+Example 2:
+    load crabDir.sm
+    set CurDir = GetDirPathVector()
+    set CatDir = GetDirPathVector("/home/dzliu/Cloud/Github/DeepFields.SuperDeblending/")
+    set CatDir = CatDir concat 'datarelease'
+    set CatDir = CatDir concat '201609'
+    set CatDir = CatDir concat 'catalog_daddi_dzliu_goodsn_20160909'
+    VisitDirPathVector CatDir
+    macro read CatalogReader.sm go
+    VisitDirPathVector CurDir
+    define hasReadData 1
 

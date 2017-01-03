@@ -1,0 +1,37 @@
+Following Mark Sargent’s comment, we use an evolving qIR. We use the evolution equation in  Magnelli et al. 2015 (http://adsabs.harvard.edu/abs/2015A%26A...573A..45M), which is
+
+qFIR (z) = (2.35±0.08)*(1+z)**(-0.12±0.04)
+
+Where qFIR is for rest-frame 42 to 122 μm, not the IR rest-frame 8 to 1000 μm range. To convert qFIR to qIR, they use
+
+qFIR = qIR − log(1.91)
+
+
+
+
+The implement of this redshift-evolving qIR in our supermongo SED fitting code is first subtracting an original qIR=2.5 radio SED then adding back a qIR=XXX radio SED. The slope of the radio SED is -0.8 (fv = (v/1.4)**(-0.8)). 
+Of course, a better way is to ask Georgios to make new SED templates with DL07 templates + radio power-law.
+
+
+
+What changed:
+
+fit_engine.sm go_Changing_qIR
+
+fit_engine.sm go_Changing_qIR_with_z
+
+
+
+Verification: 
+
+A test would be subtracting the original qIR=2.5 radio SED but adding back nothing, so that we can see the radio part of our SED is fully eliminated (Verification/Plot_SED_Templates_v20161229c_exact_subtraction_in_go_Change_qIR_with_z.pdf). 
+
+
+
+
+
+
+
+
+
+

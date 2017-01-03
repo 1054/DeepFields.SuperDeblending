@@ -65,6 +65,7 @@ go
     set name_SB = (coo_SED==-1) ? <"MS"> : name_SB
     set flag_SB = name_SB
     set flag_SB_name = name_SB
+    set SB = flag_SB
     #echo prepared data array: excessMS, MSIR, EMS, SB
     
     # 
@@ -97,6 +98,7 @@ go
     set eMdust       = lgMdust_err
     set SFR          = xfSFR
     set eSFR         = xeSFR
+    set SFR_err      = xeSFR
     
     ## 
     ## calc molecular gas mass from 1160um SED best-fit flux

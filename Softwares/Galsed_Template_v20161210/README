@@ -1,0 +1,25 @@
+# This is our SED fitting code. 
+
+# We have 3 steps to run. 
+
+# First is pre-analyses. See README_PreAnalyses for the details. Or just run these in terminal: 
+  
+  type sm
+  cd do_Type_FIR; sm <<< "macro read do_Type_FIR.sm do_Type_FIR"; cd ..
+  cp do_Type_FIR/coo_FIR.* .
+
+# Second is SED fitting. See README_SEDFitting for the details. Or just run these in terminal: 
+  
+  type sm
+  ./do_GalsedRunqsub
+  
+# Third is post-analyses. See README_PostAnalyses for the details. Or just run these in terminal: 
+  
+  cd do_Type_FIT; sm <<< "macro read do_Type_FIT.sm go 250"; cd ..
+    
+  cd do_Type_AGN; sm <<< "macro read do_Type_AGN.sm do_Type_AGN"; cd ..
+    
+  cd do_Type_SED; sm <<< "macro read do_Type_SED.sm do_Type_SED"; cd ..
+
+
+

@@ -1,0 +1,26 @@
+macro read CatalogConvert.sm go
+quit
+macro read CatalogConvert.sm go
+quit
+macro read CatalogConvert.sm go
+quit
+macro read CatalogConvert.sm go
+quit
+macro read CatalogConvert.sm go
+quit
+macro read CatalogConvert.sm go
+quit
+macro read CatalogConvert.sm go
+quit
+macro read CatalogConvert.sm go
+quit
+macro read CatalogConvert.sm go
+quit
+macro read CatalogConvert.sm go
+macro read CatalogReader.sm go
+print {SFR}
+macro read CatalogReader.sm go
+print {Mgas}
+quit
+macro read CatalogReader.sm go
+quit

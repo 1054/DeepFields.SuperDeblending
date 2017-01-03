@@ -1,0 +1,26 @@
+20161229
+
+Apply the new Owen's photometry to the big IRAC catalog. 
+
+Now I use topcat in Terminal:
+
+```
+topcat -f ASCII GOODS_N_IRAC_priors_all.txt
+```
+
+
+
+20161219
+
+Now applied a conversion factor of 
+calc 1.4**(-0.8) / 1.515**(-0.8)
+ = 1.065191464
+to Owen's catalog flux and uncertainty 
+because Owen's image frequency is
+1.515 GHz (as seen in fits header CRVAl3). 
+
+
+Run do_update_catalog.sm 
+to update the full catalog. 
+
+Note that the Owen's new radio catalog is somehow missing previously contained sources e.g. IRAC ID 255. 

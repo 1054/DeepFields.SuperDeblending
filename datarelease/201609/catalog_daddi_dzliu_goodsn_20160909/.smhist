@@ -19,3 +19,39 @@ print '%15.3f%15.0f\n' {z id}
 sort {z id}
 print '%15.3f%15.0f\n' {z id}
 quit
+macro read CatalogReader.sm go
+set coo = id==14914
+set c_Mdust = Mdust if(coo)
+set e_Mdust = eMdust if(coo)
+print {c_Mdust e_Mdust}
+set c_Mdust_err = Mdust_err if(coo)
+print {c_Mdust c_Mdust_err}
+set c_Umean = Umean if(coo)
+set c_Umean_err = Umean_err if(coo)
+print {c_Umean c_Umean_err}
+set c_z_op = z_op if(coo)
+print {c_z_op}
+quit
+set coo = id==14914
+macro read CatalogReader.sm go
+set coo = id==14914
+set c_Mstar = Mstar if(coo)
+print {c_Mstar}
+quit
+macro read CatalogReader.sm go
+set coo = (id==9710)
+set var = {Mdust Mstar Umean SFR}
+foreach vec var {set c_$vec = $vec if(coo)}
+foreach vec var {set c_$vec""_err = $vec""_err if(coo)}
+print {eSFR}
+set SFR_err = eSFR
+foreach vec var {set c_$vec""_err = $vec""_err if(coo)}
+print {c_Mstar c_Mstar_err c_Mdust c_Mdust_err c_SFR c_SFR_err c_Umean c_Umean_err}
+set coo = (id==12646)
+foreach vec var {set c_$vec""_err = $vec""_err if(coo)}
+print {c_Mstar c_Mstar_err c_Mdust c_Mdust_err c_SFR c_SFR_err c_Umean c_Umean_err}
+set coo = (id==12646)
+foreach vec var {set c_$vec""_err = $vec""_err if(coo)}
+foreach vec var {set c_$vec = $vec if(coo)}
+print {c_Mstar c_Mstar_err c_Mdust c_Mdust_err c_SFR c_SFR_err c_Umean c_Umean_err}
+quit
