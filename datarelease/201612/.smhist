@@ -24,3 +24,6 @@ print {Mgas}
 quit
 macro read CatalogReader.sm go
 quit
+macro read CatalogReader.sm go
+print {xf100 xe100 f100 df100}
+quit

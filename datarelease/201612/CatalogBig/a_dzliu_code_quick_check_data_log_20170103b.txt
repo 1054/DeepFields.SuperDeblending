@@ -1,0 +1,7 @@
+Count_Radio_SNR_GE_3 = 1334
+Count_Owen_SNR_GE_3 = 554
+Count_24um_SNR_GE_3 = 2983
+Count_Radio_SNR_GE_3_24um_SNR_LT_3 = 112
+Count_Radio_SNR_GE_2p5 = 1712
+Count_Radio_SNR_GE_2p5_24um_SNR_LT_3 = 242
+

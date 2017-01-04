@@ -1,0 +1,42 @@
+echo yes
+QUIT
+macro read do_Type_FIT.sm plot_number_count_against_cutting_flux
+calc ln(2)
+macro read do_Type_FIT.sm plot_number_count_against_cutting_flux
+echo $(PSFArea)
+echo $(PSFFWHM)
+echo $(pi/(4.0*ln(2))*PSFFWHM**2)
+echo $(pi/(4.0)*PSFFWHM**2)
+macro read do_Type_FIT.sm plot_number_count_against_cutting_flux
+1
+print {crow}
+print {_id crow}
+print {crow}
+1
+        echo "Total source number: "$(dimen(_ra))
+        echo "Fit source number: "$(sum(fit$band))
+        echo "Sub source number: "$(sum(exc$band))
+echo yes
+QUIT
+echo yes
+QUIT
+echo yes
+QUIT
+macro read do_Type_FIT.sm go
+define catalog "../RadioOwenMIPS24_priors_v5_20151201_BeforeBand100.txt"
+echo $catalog
+quit
+macro read do_Type_FIT.sm go
+quit
+macro read do_Type_FIT.sm go
+QUIT
+macro read do_Type_FIT.sm go 1000 2
+QUIT
+macro read do_Type_FIT.sm go 1000 2
+QUIT
+macro read do_Type_FIT.sm go 1000 2
+QUIT
+macro read do_Type_FIT.sm go 1000 2
+QUIT
+macro read do_Type_FIT.sm go 850 2.0
+QUIT
