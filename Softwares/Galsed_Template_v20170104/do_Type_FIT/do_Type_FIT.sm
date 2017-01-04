@@ -360,9 +360,9 @@ plot_number_count_versus_cutting_flux
         # pdfcrop #<20170103><dzliu><daddi>#
         # 
         if($usecrowdiness==1) {
-            !pdfcrop --bbox "10 460 610 720" "plot_cutting_flux_"$band"_with_crow.pdf" "plot_cutting_flux_"$band"_with_crow_crop.pdf"
+            !pdfcrop --bbox \\"10 460 610 720\\" "plot_cutting_flux_"$band"_with_crow.pdf" "plot_cutting_flux_"$band"_with_crow_crop.pdf"
         } else {
-            !pdfcrop --bbox "10 460 610 720" "plot_cutting_flux_"$band".pdf" "plot_cutting_flux_"$band"_crop.pdf"
+            !pdfcrop --bbox \\"10 460 610 720\\" "plot_cutting_flux_"$band".pdf" "plot_cutting_flux_"$band"_crop.pdf"
         }
     }
 

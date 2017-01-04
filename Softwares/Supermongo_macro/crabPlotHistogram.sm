@@ -375,7 +375,11 @@ crabPlotHistogram_xy 03
         crabPlotRestorePen
     }
     # do histogram plot
-    histogram _crabpl_vbase _crabpl_vnumb
+    if(crabPlotHistogram_ticksize=='0 0 -1 10') {
+        histogram _crabpl_vbase (lg(_crabpl_vnumb))
+    } else {
+        histogram _crabpl_vbase _crabpl_vnumb
+    }
     crabPlotResetPen
     # 
     echo index
