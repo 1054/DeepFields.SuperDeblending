@@ -262,8 +262,18 @@ crabPlotHistogramGaussianFit 05
     }
     set gaussian_x = _crabpl_min,_crabpl_max,_crabpl_itv
     set gaussian_y = gauss(gaussian_x,$gaussian_mean,$gaussian_sigma) * $gaussian_norma * (SQRT(2*PI)*$gaussian_sigma)
-    connect gaussian_x gaussian_y
-    rel $(gaussian_x[int(dimen(gaussian_x)*0.56)]) $(gaussian_y[int(dimen(gaussian_x)*0.56)])
+    if(is_vector(crabPlotHistogram_ticksize)) {
+        if(crabPlotHistogram_ticksize=='0 0 -1 10') {
+            connect gaussian_x (lg(gaussian_y))
+            rel $(gaussian_x[int(dimen(gaussian_x)*0.56)]) $(lg(gaussian_y[int(dimen(gaussian_x)*0.56)]))
+        } else {
+            connect gaussian_x gaussian_y
+            rel $(gaussian_x[int(dimen(gaussian_x)*0.56)]) $(gaussian_y[int(dimen(gaussian_x)*0.56)])
+        }
+    } else {
+        connect gaussian_x gaussian_y
+        rel $(gaussian_x[int(dimen(gaussian_x)*0.56)]) $(gaussian_y[int(dimen(gaussian_x)*0.56)])
+    }
     set gaussian_fwhm = 2*sqrt(2*ln(2))*$gaussian_sigma
     putlabel 9 "   Gauss.\,width="$(sprintf('%0.1f',float($gaussian_sigma)))
 
