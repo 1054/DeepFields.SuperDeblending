@@ -358,6 +358,7 @@ crabPlotHistogram_xy 03
         # usage: set crabPlotHistogram_ticksize = '-1 10 0 0'
         if(is_vector(crabPlotHistogram_ticksize)) {
             ticksize $(crabPlotHistogram_ticksize)
+            #unset crabPlotHistogram_ticksize
         }
         # plot box
         crabPlotSavePen
@@ -381,6 +382,7 @@ crabPlotHistogram_xy 03
         } else {
             histogram _crabpl_vbase _crabpl_vnumb
         }
+        unset crabPlotHistogram_ticksize
     } else {
         histogram _crabpl_vbase _crabpl_vnumb
     }
