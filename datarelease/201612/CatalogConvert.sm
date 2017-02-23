@@ -179,12 +179,15 @@ go
 
 
 
+
+
 go_make_latex_table
     # 
     #  echo "macro read CatalogConvert.sm go_make_latex_table" | sm
     # 
     load rfile.sm
     rfile "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_CPFmJy.txt"
+    set lgMstar = lg(Mstar)
     # 
     set coo = (z>=3.0 && SNR>=10.0)
     foreach var rfile_headers {
@@ -196,11 +199,31 @@ go_make_latex_table
         sort <coosort $var>
     }
     # 
-    set latex_headers = {id ra de z ez f500 df500 SNR Mstar SFR eSFR sSFR goodArea Type_AGN Type_SED Type_FIR}
-    set latex_header_i = 0,dimen(latex_headers)-2
-    set latex_header_1 = latex_headers[latex_header_i]
-    set latex_header_i = dimen(latex_headers)-1,dimen(latex_headers)-1
-    set latex_header_2 = latex_headers[latex_header_i]
+    set latex_headers = {id ra de z ez f500 df500 SNR lgMstar SFR eSFR goodArea Type_AGN Type_SED}
+    set latex_header_T = < \
+        "ID"                         \
+        "R.A."                       \
+        "Dec."                       \
+        "$z$"                        \
+        "$\sigma_{z}$"               \
+        "$f_{500}$"                  \
+        "$\sigma_{f_{500}}$"         \
+        "SNR"                        \
+        "$\log{M_{*}}$"              \
+        "SFR"                        \
+        "$\sigma_{\mathrm{SFR}}$"    \
+        "${\mathrm{goodArea}}$"      \
+        "T$_{\mathrm{20cm}}$"        \
+        "T$_{\mathrm{SED}}$"         \
+    > # header text
+    set latex_header_i1 = 0,dimen(latex_headers)-2
+    set latex_header_i2 = dimen(latex_headers)-1,dimen(latex_headers)-1
+    set latex_header_n1 = latex_header_i1+1
+    set latex_header_n2 = latex_header_i2+1
+    set latex_header_T1 = latex_header_T[latex_header_i1]
+    set latex_header_T2 = latex_header_T[latex_header_i2]
+    set latex_header_1 = latex_headers[latex_header_i1]
+    set latex_header_2 = latex_headers[latex_header_i2]
     set latex_header_c = 'c'
     foreach var latex_header_1 {
         set latex_header_c = latex_header_c + 'c'
@@ -212,7 +235,8 @@ go_make_latex_table
             set fmt_$var = '%12.7f &'
         }
         if('$var'=='z' || '$var'=='ez' || '$var'=='z_sp') {
-            set fmt_$var = '%7g &'
+            #set fmt_$var = '%7g &'
+            set fmt_$var = '%7.3f &'
         }
         if('$var'=='goodArea' || index('$var','Type')==0) {
             set fmt_$var = '%7g &'
@@ -220,22 +244,40 @@ go_make_latex_table
         if('$var'=='Mstar') {
             set fmt_$var = '%10.4g &'
         }
+        if('$var'=='lgMstar') {
+            set fmt_$var = '%8.2f &'
+        }
+        if('$var'=='SFR' || '$var'=='eSFR') {
+            set fmt_$var = '%10.4g &'
+        }
+        if('$var'=='SNR') {
+            set fmt_$var = '%8.1f &'
+        }
     }
     foreach var latex_header_2 {
         set fmt_$var = '%9g \\\\\\\\ \n'
     }
     # 
     define print_noheader 1
-    print  "aaa.tex" '\\begin{table*}\n\n' {}
+    print  "aaa.tex" '%see \n' {}
+    print +"aaa.tex" '%/home/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201612/CatalogConvert.sm \n' {}
+    print +"aaa.tex" '%go_make_latex_table \n' {}
+    print +"aaa.tex" '%set coo = (z>=3.0 && SNR>=10.0) \n' {}
+    print +"aaa.tex" '%/home/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201612/Table_2.tex \n' {}
+    print +"aaa.tex" '% \n' {}
+    print +"aaa.tex" '\\begin{table*}\n\n' {}
     print +"aaa.tex" '\\begin{center}\n\n' {}
     print +"aaa.tex" '\\caption{ %\n' {}
     print +"aaa.tex" '    GOODS-N Superdebleding Photometry Catalog (Example) %\n' {}
-    print +"aaa.tex" '    \\label{Table_3} %\n' {}
+    print +"aaa.tex" '    \\label{Table_2} %\n' {}
     print +"aaa.tex" '}\n\n' {}
     print +"aaa.tex" '\\begin{tabular}{ $(latex_header_c) }\n\n' {}
     print +"aaa.tex" '    \\hline\n\n' {}
-    print +"aaa.tex" '        %s & \n' {latex_header_1}
-    print +"aaa.tex" '        %s \\\\ \n' {latex_header_2}
+    print +"aaa.tex" '        %s & \n' {latex_header_T1}
+    print +"aaa.tex" '        %s \\\\ \n' {latex_header_T2}
+    print +"aaa.tex" '        \n' {}
+    print +"aaa.tex" '        (%d) & \n' {latex_header_n1}
+    print +"aaa.tex" '        (%d) \\\\ \n' {latex_header_n2}
     print +"aaa.tex" '    \n' {}
     print +"aaa.tex" '    \\hline\n\n' {}
     do sid=0,dimen(id)-1 {
@@ -248,19 +290,48 @@ go_make_latex_table
     }
     print +"aaa.tex" '    \n' {}
     print +"aaa.tex" '    \\hline\n\n' {}
+    print +"aaa.tex" '    \\vspace{-0.5ex}\n\n' {}
     print +"aaa.tex" '\n' {}
     print +"aaa.tex" '\\end{tabular}\n\n' {}
-    print +"aaa.tex" '\\begin{minipage}{0.85\\textwidth}\n' {}
+    print +"aaa.tex" '\\begin{minipage}{0.95\\textwidth}\n' {}
     print +"aaa.tex" '    \n' {}
-    print +"aaa.tex" '    Table \\ref{Table_3} is published in its entirety in the machine-readable format. \n' {}
+    print +"aaa.tex" '    Table~\\ref{Table_2} is published in its entirety in the machine-readable format. \n' {}
     print +"aaa.tex" '    A portion is shown here for guidance regarding its form and content. \n' {}
+    print +"aaa.tex" '    Here we show \$z \\ge 3\$ and \$S/N \\ge 10\$ sources sorting by the \$S/N\$. \n' {}
+    print +"aaa.tex" '    Column (1), (2) and (3) are the IRAC catalog from GOODS-\\textit{Spitzer} Legacy Program \n' {}
+    print +"aaa.tex" '    (see Section~\\ref{Section_Initial_IRAC_Catalog}). \n' {}
+    print +"aaa.tex" '    Column (4) is the spec-\$z\$ when available,  \n' {}
+    print +"aaa.tex" '    otherwise the FIR+mm SED fitting photo-\$z\$.  \n' {}
+    print +"aaa.tex" '    Column (5) is -1 when spec-\$z\$ is available,  \n' {}
+    print +"aaa.tex" '    or the uncertainty of photo-\$z\$.  \n' {}
+    print +"aaa.tex" '    Column (6) and (7) are flux and uncertainty in unit of mJy.  \n' {}
+    print +"aaa.tex" '    Column (8) is the FIR+mm combined \$S/N\$ in Equation~\\ref{Equation_SNR}.  \n' {}
+    print +"aaa.tex" '    Column (9) is the stellar mass from 3D-HST program or \\citet{Pannella2015},  \n' {}
+    print +"aaa.tex" '    converted to Chabrier IMF when needed.  \n' {}
+    print +"aaa.tex" '    Column (10) and (11) are the SFR and uncertainty from FIR+mm SED fitting  \n' {}
+    print +"aaa.tex" '    (see Figure~\\ref{Fig_CatalogAnalyze_diagram_z_phot_vs_SFR}  \n' {}
+    print +"aaa.tex" '    caption for deriving SFR from \$L_{\\mathrm{IR}}\$).  \n' {}
+    print +"aaa.tex" '    Column (12) is the \'\'goodArea\'\' parameter,  \n' {}
+    print +"aaa.tex" '    equals 1 if the source is in the inner lower r.m.s. area in 24\${\\mu}m\$  \n' {}
+    print +"aaa.tex" '    (has deeper prior catalog for surrounding sources),  \n' {}
+    print +"aaa.tex" '    otherwise 0 (has shallower or even incomplete prior catalog for surrounding sources).  \n' {}
+    print +"aaa.tex" '    Column (13) is the \'\'Type\\_AGN\'\' parameter,  \n' {}
+    print +"aaa.tex" '    equals 1 if the source is classified as radio excess and  \n' {}
+    print +"aaa.tex" '    its radio data point is not fitted in SED fitting, otherwise 0.  \n' {}
+    print +"aaa.tex" '    Column (14) is the \'\'Type\\_SED\'\' parameter,  \n' {}
+    print +"aaa.tex" '    equals 1 if the source is classified as starburst type  \n' {}
+    print +"aaa.tex" '    (its SED is fixed to using starburst templates),  \n' {}
+    print +"aaa.tex" '    or -1 if classified as main-sequence type  \n' {}
+    print +"aaa.tex" '    (its SED is fixed to using main-sequence templates), \n' {}
+    print +"aaa.tex" '    otherwise 0 (allowing fitting all SED templates). \n' {}
     print +"aaa.tex" '    \n' {}
     print +"aaa.tex" '\\end{minipage}\n\n' {}
     print +"aaa.tex" '\\end{center}\n\n' {}
     print +"aaa.tex" '\\end{table*}\n\n' {}
     define print_noheader 0
     
-    !cp "aaa.tex" "Table_3.tex"
+    !cp "aaa.tex" "Table_2.tex"
+
 
 
 

@@ -22,7 +22,8 @@ astroGalfit 00
         print '    set PosY = 572.97\n' {}
         print '    initGalfitParam PosX PosY [VaryX VaryY VaryMag]\n' {}
         print '    writeGalfitParam fit.param\n' {}
-        print '    writeGalfitInput fit.input [SciPhoto.fits OutPhoto.fits RmsPhoto.fits PsfPhoto.fits]\n' {}
+        print '    writeGalfitLimit fit.limit\n' {}
+        print '    writeGalfitInput fit.input [SciPhoto.fits OutPhoto.fits RmsPhoto.fits PsfPhoto.fits [fit.limit]]\n' {}
         print '    !vi fit.input\n' {}
         print '    !galfit fit.input\n' {}
         print '\n' {}
@@ -687,7 +688,7 @@ readGalfitResult 01
         }
         set readgresult_tmp = {"._.AstroGalfit._.ReadGalfitResult._."}
         !CrabFitsHeader $1 -ext 2 | sed -n -e '/COMP_/,/COMMENT/p' > "fit.header"
-        !cat "fit.header" |cut -d\' -f2 |sed -E 's/\[(.*)\]/\1 0/g' |sed -e 's%+/-%%g' > $(readgresult_tmp) #'
+        !cat "fit.header" |cut -d\' -f2 |sed -E 's/\[(.*)\]/\1 0/g' |sed -e 's%+/-%%g' |sed -e 's%*%%g' > $(readgresult_tmp) #' #<20170210># |sed -e 's%*%%g'
         !echo "\# ResultType ResultPosX ResultPosXErr ResultPosY ResultPosYErr ResultMags ResultMagsErr " > "fit.result"
         !echo "\# " >> "fit.result"
         !cat $(readgresult_tmp) |while read line;do if [[ "\$line" != "COMMENT"* ]];then echo -n "\$line\ ";else echo "";fi;done >> "fit.result"
@@ -835,7 +836,8 @@ readGalfitResult_Old_Before20150220 01
             !\cp $(readgresult_file) ".tmp.iraf.1.fits"
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_XC\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
-            !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
+            #<20170210># !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt" #<20170210># [*]*
+            !sed -i '.bak' -E 's@(.*)= *.?[*]*([0-9Ee.+-]*)[*]* \+\/\- [*]*([0-9Ee.+-]*)[*]*.?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
             if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
             } }
@@ -846,7 +848,7 @@ readGalfitResult_Old_Before20150220 01
             !\cp $(readgresult_file) ".tmp.iraf.1.fits"
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_YC\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
-            !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
+            !sed -i '.bak' -E 's@(.*)= *.?[*]*([0-9Ee.+-]*)[*]* \+\/\- [*]*([0-9Ee.+-]*)[*]*.?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt" #<20170210># [*]*
             if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
             } }
@@ -857,7 +859,7 @@ readGalfitResult_Old_Before20150220 01
             !\cp $(readgresult_file) ".tmp.iraf.1.fits"
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_MAG\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
-            !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
+            !sed -i '.bak' -E 's@(.*)= *.?[*]*([0-9Ee.+-]*)[*]* \+\/\- [*]*([0-9Ee.+-]*)[*]*.?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt" #<20170210># [*]*
             if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
             } }
@@ -868,7 +870,7 @@ readGalfitResult_Old_Before20150220 01
             !\cp $(readgresult_file) ".tmp.iraf.1.fits"
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_RE\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
-            !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
+            !sed -i '.bak' -E 's@(.*)= *.?[*]*([0-9Ee.+-]*)[*]* \+\/\- [*]*([0-9Ee.+-]*)[*]*.?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt" #<20170210># [*]*
             if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
             } }
@@ -878,7 +880,7 @@ readGalfitResult_Old_Before20150220 01
             !\cp $(readgresult_file) ".tmp.iraf.1.fits"
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_N\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
-            !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
+            !sed -i '.bak' -E 's@(.*)= *.?[*]*([0-9Ee.+-]*)[*]* \+\/\- [*]*([0-9Ee.+-]*)[*]*.?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt" #<20170210># [*]*
             if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
             } }
@@ -888,7 +890,7 @@ readGalfitResult_Old_Before20150220 01
             !\cp $(readgresult_file) ".tmp.iraf.1.fits"
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_AR\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
-            !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
+            !sed -i '.bak' -E 's@(.*)= *.?[*]*([0-9Ee.+-]*)[*]* \+\/\- [*]*([0-9Ee.+-]*)[*]*.?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt" #<20170210># [*]*
             if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
             } }
@@ -898,7 +900,7 @@ readGalfitResult_Old_Before20150220 01
             !\cp $(readgresult_file) ".tmp.iraf.1.fits"
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_PA\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
-            !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
+            !sed -i '.bak' -E 's@(.*)= *.?[*]*([0-9Ee.+-]*)[*]* \+\/\- [*]*([0-9Ee.+-]*)[*]*.?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt" #<20170210># [*]*
             if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
             } }
@@ -908,7 +910,7 @@ readGalfitResult_Old_Before20150220 01
             !\cp $(readgresult_file) ".tmp.iraf.1.fits"
             !echo imhead ".tmp.iraf.1.fits"[2] 'lo+;' logout | cl | grep "_SKY\ " > ".tmp.iraf.imhead.txt"
             !sed -i '.bak' -E 's@(.*)= *.?\[([0-9Ee.+-]*)\].?(.*)/.*@\1 = \3 \2 +/- 0@g' ".tmp.iraf.imhead.txt"
-            !sed -i '.bak' -E 's@(.*)= *.?([0-9Ee.+-]*) \+\/\- ([0-9Ee.+-]*).?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt"
+            !sed -i '.bak' -E 's@(.*)= *.?[*]*([0-9Ee.+-]*)[*]* \+\/\- [*]*([0-9Ee.+-]*)[*]*.?(.*)/.*@\1 = \4 \2 +/- \3@g' ".tmp.iraf.imhead.txt" #<20170210># [*]*
             if($?astroGalfit_pref_verbose){ if($astroGalfit_pref_verbose){
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
             } }

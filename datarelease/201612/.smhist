@@ -1,29 +1,103 @@
-macro read CatalogConvert.sm go
-quit
-macro read CatalogConvert.sm go
-quit
-macro read CatalogConvert.sm go
-quit
-macro read CatalogConvert.sm go
-quit
-macro read CatalogConvert.sm go
-quit
-macro read CatalogConvert.sm go
-quit
-macro read CatalogConvert.sm go
-quit
-macro read CatalogConvert.sm go
-quit
-macro read CatalogConvert.sm go
-quit
-macro read CatalogConvert.sm go
-macro read CatalogReader.sm go
-print {SFR}
-macro read CatalogReader.sm go
-print {Mgas}
+print '%15d\n' {_id}
+set _id = id if(SNR>=5 && z>=5 && goodArea==1)
+print '%15d\n' {_id}
+set _id = id if(SNR>=5 && z>=5 && goodArea)
+print '%15d\n' {_id}
+set _id = id if(snrIR>=5 && z>=5 && goodArea)
+print '%15d\n' {_id}
+set _id = id if(snrIR>=5 && z>=5 && goodArea)
+print '%15d\n' {_id}
 quit
 macro read CatalogReader.sm go
+set coo = (SNR>=5 && goodArea && Mstar>0)
+echo $(dimen(coo))
+echo $(sum(coo))
+set coo_2 = (SNR>=5 && goodArea)
+echo $(sum(coo_2))
+echo $(sum(coo))
+set coo = (SNR>=5 && goodArea && Mstar>1)
+echo $(sum(coo))
+856/862.
+calc 856/862.
+quit
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogConvert.sm go_make_latex_table
+QUIT
+macro read CatalogReader.sm go
+set coo = (z>=3.5 && snrIR>=5.0)
+echo $(sum(coo))
 quit
 macro read CatalogReader.sm go
-print {xf100 xe100 f100 df100}
+set coo = (z>=3.0 && snrIR>=5.0)
+echo $(sum(coo))
+quit
+macro read CatalogReader.sm go
+echo $(f20cm)
+echo $(df20cm)
+echo $(snr20cm)
+load vecSNR.sm
+set snr20cm = vecSNR(f20cm,df20cm)
+echo $(snr20cm)
+set coo = snr20cm>=3.0 && z<1.0
+echo $(sum(coo))
+echo $(sum(coo))/$(dimen(coo))
+set coo = snrIR>=3.0 && z<1.0
+set coo = snrIR>=5.0 && z<1.0
+set coo = snrIR>=5.0 && snr20cm>=3.0 && z<1.0
+echo $(sum(coo))/$(dimen(coo))
+set coo = snrIR>=5.0 && snr20cm>=3.0 && z<1.0 && Type_AGN==0
+echo $(sum(coo))/$(dimen(coo))
+set coo = snrIR>=5.0 && snr20cm>=3.0 && snr20cm<=5.0 && z<1.0 && Type_AGN==0
+echo $(sum(coo))/$(dimen(coo))
+print {snrIR Type_FIR}
+quit
+macro read CatalogReader.sm go
+echo $(snr500)
+set coo = (snr500>=3)
+set f500 = f500 if(coo)
+set df500 = df500 if(coo)
+set ra = ra if(coo)
+set dec = dec if(coo)
+set dec = de if(coo)
+set id = id if(coo)
+print "FIR+mm_500um.txt" '%12.0f %15.7f %15.7f %12g %12g\n' {id ra dec f500 df500}
+set z = z if(coo)
+set z_op = z_op if(coo)
+set z_sp = z_sp if(coo)
+print "FIR+mm_500um.txt" '%12.0f %15.7f %15.7f %12g %12g %12g %12g %12g\n' {id ra dec z z_op z_sp f500 df500}
 quit

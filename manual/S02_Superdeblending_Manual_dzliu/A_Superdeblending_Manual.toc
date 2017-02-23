@@ -20,7 +20,7 @@
 \contentsline {subsection}{\numberline {6.6}Monte-Carlo simulation at band 160}{24}{subsection.6.6}
 \contentsline {subsection}{\numberline {6.7}Flux bias and flux error analyses}{25}{subsection.6.7}
 \contentsline {subsection}{\numberline {6.8}Flux bias and flux uncertainty correction}{28}{subsection.6.8}
-\contentsline {subsection}{\numberline {6.9}Update catalog with the measurements of band 160}{29}{subsection.6.9}
+\contentsline {subsection}{\numberline {6.9}Update catalog with the measurements of band 160}{28}{subsection.6.9}
 \contentsline {section}{\numberline {7}Band 250}{30}{section.7}
 \contentsline {subsection}{\numberline {7.1}SED fitting before band 250}{30}{subsection.7.1}
 \contentsline {subsection}{\numberline {7.2}SED prediction for band 250}{30}{subsection.7.2}
@@ -30,7 +30,7 @@
 \contentsline {subsection}{\numberline {7.6}Monte-Carlo simulation at band 250}{32}{subsection.7.6}
 \contentsline {subsection}{\numberline {7.7}Flux bias and flux error analyses}{33}{subsection.7.7}
 \contentsline {subsection}{\numberline {7.8}Flux bias and flux uncertainty correction}{36}{subsection.7.8}
-\contentsline {subsection}{\numberline {7.9}Update catalog with new corrected measurements}{37}{subsection.7.9}
+\contentsline {subsection}{\numberline {7.9}Update catalog with new corrected measurements}{36}{subsection.7.9}
 \contentsline {section}{\numberline {8}Band 350}{38}{section.8}
 \contentsline {subsection}{\numberline {8.1}SED fitting before band 350}{38}{subsection.8.1}
 \contentsline {subsection}{\numberline {8.2}SED prediction for band 350}{38}{subsection.8.2}

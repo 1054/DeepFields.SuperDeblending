@@ -88,7 +88,8 @@ Hints: black text are our method and procedures, \textcolor{blue}{blue text are 
 \begin{figure}[H]
 	\caption{{Flow Chart of ''Super-deblending'' Processes at One FIR Band.}\newline The order of processes are: Initial Catalog $\to$ SED $\to$ predict $\to$ subtract $\to$ galfit $\to$ residual $\to$ simulation $\to$ statistical corrections $\to$ final catalog and SED.}
 	\centering
-	\includegraphics[width=1.05\textwidth]{FlowChartDiagram}
+	\includegraphics[width=0.29\textwidth]{FlowChart_AllBands}
+	\includegraphics[width=0.70\textwidth]{FlowChartDiagram}
 \end{figure}
 
 %*************************************************************************************
@@ -119,6 +120,9 @@ Hints: black text are our method and procedures, \textcolor{blue}{blue text are 
 		500 & [\ref{Band500_Galsed}] & [\ref{Band500_Galpre}] & [\ref{Band500_Galsub}] & [\ref{Band500_Galfit}] & [\ref{Band500_Galres}] & [\ref{Band500_Galsim}] & [\ref{Band500_dfcorr}] & [\ref{Band500_final}] \\
 		& \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} \\
 		1160 & [\ref{Band1160_Galsed}] & [\ref{Band1160_Galpre}] & [\ref{Band1160_Galsub}] & [\ref{Band1160_Galfit}] & [\ref{Band1160_Galres}] & [\ref{Band1160_Galsim}] & [\ref{Band1160_dfcorr}] & [\ref{Band1160_final}] \\
+		& \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} \\
+		\hline
+		850 & [\ref{Band850_Galsed}] & [\ref{Band850_Galpre}] & [\ref{Band850_Galsub}] & [\ref{Band850_Galfit}] & [\ref{Band850_Galres}] & [\ref{Band850_Galsim}] & [\ref{Band850_dfcorr}] & [\ref{Band850_final}] \\
 		& \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} & \textcolor{green!50!black}{[Done]} \\
 		\hline
 	\end{tabular}
@@ -152,6 +156,7 @@ Hints: black text are our method and procedures, \textcolor{blue}{blue text are 
 		\hline
 	\end{tabular}
 	\caption{ Current results. $N_{fit}$ is number of sources being fit at each band. $N^{fit}_{S/N>3}$ is the number of signal-to-noise larger than 3 (i.e. detected) catalog sources which are chosen to be fit at each band. $N^{add.}_{S/N>3}$ is the number of detected additional sources which are chosen from residual image rather than from our 24+radio catalog. $1\sigma^{sim}$ is the one sigma noise derived from Monte-Carlo simulation. $1\sigma^{det.}$ is the one sigma detection limit computed as the median of the flux error of detected sources at each band. 
+		\textcolor{red}{TODO: Maybe obsolete 2017-01-04.}
 		\label{CurrentResultsTable}}
 \end{table}
 
@@ -590,7 +595,7 @@ Now we apply the 3-step correction recipe to real measurements.
 
 \begin{lstlisting}[language=bash]
 sm
-macro read run_simu_stats_v7.sm run_simu_stats_v7 100
+macro read run_simu_stats_v8.sm run_simu_stats_v8 100
 \end{lstlisting}
 
 %*************************************************************************************
@@ -851,14 +856,14 @@ convert_flux2mag goodsn 160 12.0 1.0 # `$30\sigma$` 12mJy mag=5.2
 \label{Band160_dfcorr}
 
 \begin{lstlisting}[language=bash]
-macro read run_simu_stats_v7.sm run_simu_stats_v7 160
+macro read run_simu_stats_v8.sm run_simu_stats_v8 160
 \end{lstlisting}
 
 
 \subsection{Update catalog with the measurements of band 160}
 
 \begin{lstlisting}[language=bash]
-gedit run_simu_stats_v7.sm
+gedit run_simu_stats_v8.sm
 define imax 160
 define xdate_galsed 201512
 define xdate_galfit 201512
@@ -1084,9 +1089,9 @@ convert_flux2mag goodsn 250 57.0 1.0 # -> mag=-0.62
 \label{Band250_dfcorr}
 
 \begin{lstlisting}[language=bash]
-gedit run_simu_stats_v7.sm
+gedit run_simu_stats_v8.sm
 sm
-macro read run_simu_stats_v7.sm run_simu_stats_v7 250
+macro read run_simu_stats_v8.sm run_simu_stats_v8 250
 \end{lstlisting}
 
 
@@ -1306,9 +1311,9 @@ cd ..
 \label{Band350_dfcorr}
 
 \begin{lstlisting}[language=bash]
-gedit run_simu_stats_v7.sm
+gedit run_simu_stats_v8.sm
 sm
-macro read run_simu_stats_v7.sm run_simu_stats_v7 350
+macro read run_simu_stats_v8.sm run_simu_stats_v8 350
 \end{lstlisting}
 
 %*************************************************************************************
@@ -1502,9 +1507,9 @@ cd ..
 \label{Band500_dfcorr}
 
 \begin{lstlisting}[language=bash]
-gedit run_simu_stats_v7.sm
+gedit run_simu_stats_v8.sm
 sm
-macro read run_simu_stats_v7.sm run_simu_stats_v7 500
+macro read run_simu_stats_v8.sm run_simu_stats_v8 500
 \end{lstlisting}
 
 %*************************************************************************************
@@ -1720,9 +1725,9 @@ cd boxgalsim; do_GalsimRunqsub255; cd ..
 \label{Band1160_dfcorr}
 
 \begin{lstlisting}[language=bash]
-gedit run_simu_stats_v7.sm
+gedit run_simu_stats_v8.sm
 sm
-macro read run_simu_stats_v7.sm run_simu_stats_v7 1160
+macro read run_simu_stats_v8.sm run_simu_stats_v8 1160
 \end{lstlisting}
 
 %*************************************************************************************
@@ -1993,8 +1998,8 @@ do_Galsim 850 20160812 \
 \label{Band850_simanalyses}
 
 \begin{lstlisting}[language=bash]
-gedit run_simu_stats_v7.sm
-echo "macro read run_simu_stats_v7.sm run_simu_stats_v7 850 20160812" | sm
+gedit run_simu_stats_v8.sm
+echo "macro read run_simu_stats_v8.sm run_simu_stats_v8 850 20160812" | sm
 \end{lstlisting}
 
 \begin{figure}[H]
@@ -2038,7 +2043,7 @@ echo "macro read run_simu_stats_v7.sm run_simu_stats_v7 850 20160812" | sm
 \label{Band850_dfcorr}
 
 \begin{lstlisting}[language=bash]
-gedit run_simu_stats_v7.sm
+gedit run_simu_stats_v8.sm
 gedit goFine.sm
 echo "macro read goFine.sm R_MIPS850_E" | sm
 \end{lstlisting}

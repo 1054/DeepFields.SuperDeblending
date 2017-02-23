@@ -269,10 +269,12 @@ crabPlotHistogramGaussianFit 05
     }
     set gaussian_x = _crabpl_min,_crabpl_max,_crabpl_itv
     set gaussian_y = gauss(gaussian_x,$gaussian_mean,$gaussian_sigma) * $gaussian_norma * (SQRT(2*PI)*$gaussian_sigma)
+    set gaussian_ylog = (gaussian_y<=0) ? 1e-99 : gaussian_y
+    set gaussian_ylog = lg(gaussian_ylog)
     if(is_vector(crabPlotHistogram_ticksize)) {
         if(crabPlotHistogram_ticksize=='0 0 -1 10') {
-            connect gaussian_x (lg(gaussian_y))
-            rel $(gaussian_x[int(dimen(gaussian_x)*0.56)]) $(lg(gaussian_y[int(dimen(gaussian_x)*0.56)]))
+            connect gaussian_x gaussian_ylog
+            rel $(gaussian_x[int(dimen(gaussian_x)*0.56)]) $(gaussian_ylog[int(dimen(gaussian_x)*0.56)])
         } else {
             connect gaussian_x gaussian_y
             rel $(gaussian_x[int(dimen(gaussian_x)*0.56)]) $(gaussian_y[int(dimen(gaussian_x)*0.56)])
@@ -281,6 +283,12 @@ crabPlotHistogramGaussianFit 05
     } else {
         connect gaussian_x gaussian_y
         rel $(gaussian_x[int(dimen(gaussian_x)*0.56)]) $(gaussian_y[int(dimen(gaussian_x)*0.56)])
+    }
+    if(is_vector(crabPlotHistogram_labelpos)) {
+        if(dimen(crabPlotHistogram_labelpos)==2) {
+            rel $($fx1+($fx2-$fx1)*(crabPlotHistogram_labelpos[0])) $($fy1+($fy2-$fy1)*(crabPlotHistogram_labelpos[1]))
+        }
+        unset crabPlotHistogram_labelpos
     }
     set gaussian_fwhm = 2*sqrt(2*ln(2))*$gaussian_sigma
     putlabel 9 "   Gauss.\,width="$(sprintf('%0.1f',float($gaussian_sigma)))
@@ -396,7 +404,9 @@ crabPlotHistogram_xy 03
     # do histogram plot
     if(is_vector(crabPlotHistogram_ticksize)) {
         if(crabPlotHistogram_ticksize=='0 0 -1 10') {
-            histogram _crabpl_vbase (lg(_crabpl_vnumb))
+            set _crabpl_vnumb_ylog = (_crabpl_vnumb<=0.0) ? 1e-99 : _crabpl_vnumb
+            set _crabpl_vnumb_ylog = lg(_crabpl_vnumb_ylog)
+            histogram _crabpl_vbase _crabpl_vnumb_ylog
         } else {
             histogram _crabpl_vbase _crabpl_vnumb
         }

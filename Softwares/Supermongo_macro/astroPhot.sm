@@ -425,6 +425,7 @@ set_goodsn_photometry_constants_24 00
     define mBias_24    -0.2036      # <TODO>
     define fBias_24     0.0         # <NOTE> -0.553e-3 mJy before 20160115
     define rBeam_24     5.7 # 3.0   # <TODO> FWHM of PSF in arcsec
+    define fSigma_24    5.165e-3    # 1-sigma flux detection limit in mJy. 
     set_default_astrometry_constants 24
     define xBias_24     0.0507825188    # <TODO> astrometry correction -- set sky2xy_x=x*xDisX+xBiaX+y*xDisY+xBiaY+xBias # see goSimu.sm
     define xDisX_24    -0.000218459022  # <TODO> astrometry correction -- set sky2xy_x=x*xDisX+xBiaX+y*xDisY+xBiaY+xBias # see goSimu.sm
@@ -467,6 +468,7 @@ set_goodss_photometry_constants_24 00
     define mBias_24     0.0         # -0.112 from matching fluxes to Benj's catalog, -.2036 expected ap corr from Benj <Note> same as goodsn?
     define fBias_24     0.0         # 1.3954e-3 <TODO> from goFine_South.sm # mJy
     define rBeam_24     5.7         # FWHM of PSF in arcsec
+    define fSigma_24    0.0         # 1-sigma flux detection limit in mJy. 
     set_default_astrometry_constants 24
     define xStep_24     35          # box x length, from Dr. Daddi's goFine.sm
     define yStep_24     35          # box x length, from Dr. Daddi's goFine.sm
@@ -500,6 +502,7 @@ set_cosmos_photometry_constants_24 00
     define mBias_24     0.0         # <TODO> 
     define fBias_24     0.0         # <TODO> need to determine flux bias mJy
     define rBeam_24     5.7         # 5.7 same as GOODSN 24 -- 6.0 from Le Floch et al. 2009
+    define fSigma_24    0.0         # 1-sigma flux detection limit in mJy. 
     set_default_astrometry_constants 24
     define xStep_24     80          # <TODO> box x length, from Dr. Daddi's goFine.sm
     define yStep_24     80          # <TODO> box x length, from Dr. Daddi's goFine.sm
@@ -530,6 +533,7 @@ set_goodsn_photometry_constants_20cm 00
     define fBias_20cm     0.0                          # <TODO> mJy <-> -0.6uJy from Dr. Daddi's goFine.sm <TODO> from comparison to Simu <TODO>
     define rBeam_20cm     1.2                          # <TODO> FWHM of PSF in arcsec <-> 1.33256 by 1.10555 (arcsec) at pa 86.3055 (deg) in fits header
                                                        # <TODO> astrometry correction see goSimu.sm
+    define fSigma_20cm    2.744e-3                     # 1-sigma flux detection limit in mJy. 
     define xStep_20cm     100                          # <TODO> box x length, from Dr. Daddi's goFine.sm
     define yStep_20cm     100                          # <TODO> box x length, from Dr. Daddi's goFine.sm
     define gBuff_20cm     20                           # <TODO> box buffer length g, from Dr. Daddi's goFine.sm
@@ -550,84 +554,89 @@ set_goodsn_photometry_constants_20cm 00
 
 set_goodsn_photometry_constants_20cm_Owen 00
     # set VLA 20cm photometry constants
-    define h_20cm_Owen       $(1.00/37.5055*1e6)            # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio (here Dr. Daddi already divided the map by 4.404)
-    define m_20cm_Owen         1.00                         # <TODO> # 0.74 ? from comparison to Glenn (average source size ?) see goFine.sm
-    define mJy_20cm_Owen       1e-3                         # converting pixel flux from uJy to mJy
-    define mBias_20cm_Owen     0                            # <TODO> from Dr. Daddi's goFine.sm
-    define fBias_20cm_Owen     0.0                          # <TODO> mJy <-> -0.6uJy from Dr. Daddi's goFine.sm <TODO> from comparison to Simu <TODO>
-    define rBeam_20cm_Owen     1.2                          # <TODO> FWHM of PSF in arcsec <-> 1.33256 by 1.10555 (arcsec) at pa 86.3055 (deg) in fits header
-                                                            # <TODO> astrometry correction see goSimu.sm
-    define xStep_20cm_Owen     100                          # <TODO> box x length, from Dr. Daddi's goFine.sm
-    define yStep_20cm_Owen     100                          # <TODO> box x length, from Dr. Daddi's goFine.sm
-    define gBuff_20cm_Owen     20                           # <TODO> box buffer length g, from Dr. Daddi's goFine.sm
-    define fBuff_20cm_Owen     1                            # <TODO> box buffer length f, from Dr. Daddi's goFine.sm
+    define h_20cm_Owen       $(1.00/37.5055*1e6)  # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio (here Dr. Daddi already divided the map by 4.404)
+    define m_20cm_Owen         1.00               # <TODO> # 0.74 ? from comparison to Glenn (average source size ?) see goFine.sm
+    define mJy_20cm_Owen       1e-3               # converting pixel flux from uJy to mJy
+    define mBias_20cm_Owen     0                  # <TODO> from Dr. Daddi's goFine.sm
+    define fBias_20cm_Owen     0.0                # <TODO> mJy <-> -0.6uJy from Dr. Daddi's goFine.sm <TODO> from comparison to Simu <TODO>
+    define rBeam_20cm_Owen     1.2                # <TODO> FWHM of PSF in arcsec <-> 1.33256 by 1.10555 (arcsec) at pa 86.3055 (deg) in fits header
+                                                  # <TODO> astrometry correction see goSimu.sm
+    define fSigma_20cm_Owen    2.744e-3           # <TODO> 1-sigma flux detection limit in mJy. 
+    define xStep_20cm_Owen     100                # <TODO> box x length, from Dr. Daddi's goFine.sm
+    define yStep_20cm_Owen     100                # <TODO> box x length, from Dr. Daddi's goFine.sm
+    define gBuff_20cm_Owen     20                 # <TODO> box buffer length g, from Dr. Daddi's goFine.sm
+    define fBuff_20cm_Owen     1                  # <TODO> box buffer length f, from Dr. Daddi's goFine.sm
     set_default_telescope_constants 20cm_Owen
-    define SimMag0_20cm_Owen   6.70331                      # simulation brightest magnitude -- convert_flux2mag goodsn 20cm 0.075 0.001 -- 30-sigma
-    define SimMag1_20cm_Owen   10.3753                      # simulation faintest magnitude -- convert_flux2mag goodsn 20cm 0.0025 0.001 -- 1-sigma
-    define PixLim0_20cm_Owen  -1e-3                         # uJy/pixel -- pixel value range for display -- ds9 scale limits
-    define PixLim1_20cm_Owen   5e-3                         # uJy/pixel -- pixel value range for display -- ds9 scale limits
-    define PixScale_20cm_Owen  0.35                         # arcsec from Morrison's VLA image <TODO> Owen's PixScale ?
-    define Telescop_20cm_Owen  "VLA"                        # 
-    define BandName_20cm_Owen  "1.4GHz"                     # 
-    define BandWave_20cm_Owen  2e5                          # um
+    define SimMag0_20cm_Owen   6.70331            # simulation brightest magnitude -- convert_flux2mag goodsn 20cm 0.075 0.001 -- 30-sigma
+    define SimMag1_20cm_Owen   10.3753            # simulation faintest magnitude -- convert_flux2mag goodsn 20cm 0.0025 0.001 -- 1-sigma
+    define PixLim0_20cm_Owen  -1e-3               # uJy/pixel -- pixel value range for display -- ds9 scale limits
+    define PixLim1_20cm_Owen   5e-3               # uJy/pixel -- pixel value range for display -- ds9 scale limits
+    define PixScale_20cm_Owen  0.35               # arcsec from Morrison's VLA image <TODO> Owen's PixScale ?
+    define Telescop_20cm_Owen  "VLA"              # 
+    define BandName_20cm_Owen  "1.4GHz"           # 
+    define BandWave_20cm_Owen  2e5                # um
     define SciPhoto_20cm_Owen "VLA_Owen_2arcsec_big_NOPBC"
     define RmsPhoto_20cm_Owen "VLA_Owen_2arcsec_big_rms"
     define PsfPhoto_20cm_Owen "VLA_Owen_Maurilio_beam2" # Dr. Daddi is using this one, before was using "VLA_Owen_2arcsec_PSF"
     define DirPhoto_20cm_Owen "/data/AstroDepth/GOODSN_Photo/VLA"
 
 set_goodsn_photometry_constants_20cm_Glenn 00
-    # set VLA 20cm photometry constants
-    define h_20cm_Glenn       $(1.00/13.23*1e6) # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio (here Dr. Daddi already divided the map by 4.404)
-    define m_20cm_Glenn         1.00            # <TODO> # from comparison to Glenn (average source size ?) see goFine.sm
-    define mJy_20cm_Glenn       1e-3            # converting pixel flux from uJy to mJy
-    define mBias_20cm_Glenn     0               # <TODO> from Dr. Daddi's goFine.sm
-    define fBias_20cm_Glenn     0.0             # <TODO> mJy <-> -0.6uJy from Dr. Daddi's goFine.sm <TODO> from comparison to Simu <TODO>
-    define rBeam_20cm_Glenn     1.7             # <TODO> FWHM of PSF in arcsec <-> 1.6"x1.7" from Morrison et al. 2010
-                                                # <TODO> astrometry correction see goSimu.sm
-    define xStep_20cm_Glenn     150             # <TODO> box x length, from Dr. Daddi's goFine.sm
-    define yStep_20cm_Glenn     150             # <TODO> box x length, from Dr. Daddi's goFine.sm
-    define gBuff_20cm_Glenn     20              # <TODO> box buffer length g, from Dr. Daddi's goFine.sm
-    define fBuff_20cm_Glenn     1               # <TODO> box buffer length f, from Dr. Daddi's goFine.sm
-    set_default_telescope_constants 20cm_Glenn  
-    define SimMag0_20cm_Glenn   6.14621         # simulation brightest magnitude -- convert_flux2mag goodsn 20cm_Glenn 0.263 0.001 -- Glenn2010 catalog max f20cm 263uJy
-    define SimMag1_20cm_Glenn   9.6961          # simulation faintest magnitude -- convert_flux2mag goodsn 20cm_Glenn 0.010 0.001 -- Glenn2010 catalog min f20cm 21uJy
-    define PixLim0_20cm_Glenn  -1e-3            # uJy/pixel -- pixel value range for display -- ds9 scale limits
-    define PixLim1_20cm_Glenn   5e-3            # uJy/pixel -- pixel value range for display -- ds9 scale limits
-    define PixScale_20cm_Glenn  0.50            # arcsec from Glenn Morrison's VLA image
-    define Telescop_20cm_Glenn  "VLA"           # 
-    define BandName_20cm_Glenn  "1.4GHz"        # 
-    define BandWave_20cm_Glenn  2e5             # um
-    define SciPhoto_20cm_Glenn "VLA_20cm_Glenn_May09_dzliu"
-    define RmsPhoto_20cm_Glenn "VLA_20cm_Glenn_May09_rms_dzliu"
-    define PsfPhoto_20cm_Glenn "VLA_beam_hdfn"
-    define DirPhoto_20cm_Glenn "/data/AstroDepth/GOODSN_Photo/VLA"
+    # set VLA 20cm photometry constants, same as set_goodsn_photometry_constants_20cm_Morrison
+    define AsPtInBand                 20cm_Glenn
+    define h_$AsPtInBand             $(1.00/13.23*1e6)  # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio (here Dr. Daddi already divided the map by 4.404)
+    define m_$AsPtInBand              1.00              # <TODO> # from comparison to Glenn (average source size ?) see goFine.sm
+    define mJy_$AsPtInBand            1e-3              # converting pixel flux from uJy to mJy
+    define mBias_$AsPtInBand          0                 # <TODO> from Dr. Daddi's goFine.sm
+    define fBias_$AsPtInBand          0.0               # <TODO> mJy <-> -0.6uJy from Dr. Daddi's goFine.sm <TODO> from comparison to Simu <TODO>
+    define rBeam_$AsPtInBand          1.7               # <TODO> FWHM of PSF in arcsec <-> 1.6"x1.7" from Morrison et al. 2010
+    define fSigma_$AsPtInBand         2.744e-3          # <TODO> 1-sigma flux detection limit in mJy. 
+                                                        # <TODO> astrometry correction see goSimu.sm
+    define xStep_$AsPtInBand          150               # <TODO> box x length, from Dr. Daddi's goFine.sm
+    define yStep_$AsPtInBand          150               # <TODO> box x length, from Dr. Daddi's goFine.sm
+    define gBuff_$AsPtInBand          20                # <TODO> box buffer length g, from Dr. Daddi's goFine.sm
+    define fBuff_$AsPtInBand          1                 # <TODO> box buffer length f, from Dr. Daddi's goFine.sm
+    set_default_telescope_constants  $AsPtInBand  
+    define SimMag0_$AsPtInBand        6.14621           # simulation brightest magnitude -- convert_flux2mag goodsn 20cm_Glenn 0.263 0.001 -- Glenn2010 catalog max f20cm 263uJy
+    define SimMag1_$AsPtInBand        9.6961            # simulation faintest magnitude -- convert_flux2mag goodsn 20cm_Glenn 0.010 0.001 -- Glenn2010 catalog min f20cm 21uJy
+    define PixLim0_$AsPtInBand       -1e-3              # uJy/pixel -- pixel value range for display -- ds9 scale limits
+    define PixLim1_$AsPtInBand        5e-3              # uJy/pixel -- pixel value range for display -- ds9 scale limits
+    define PixScale_$AsPtInBand       0.50              # arcsec from Glenn Morrison's VLA image
+    define Telescop_$AsPtInBand      "VLA"              # 
+    define BandName_$AsPtInBand      "1.4GHz"           # 
+    define BandWave_$AsPtInBand       2e5               # um
+    define SciPhoto_$AsPtInBand      "VLA_20cm_Glenn_May09_dzliu"
+    define RmsPhoto_$AsPtInBand      "VLA_20cm_Glenn_May09_rms_dzliu"
+    define PsfPhoto_$AsPtInBand      "VLA_beam_hdfn"
+    define DirPhoto_$AsPtInBand      "/data/AstroDepth/GOODSN_Photo/VLA"
 
 set_goodsn_photometry_constants_20cm_Morrison 00
     # set VLA 20cm photometry constants
-    define h_20cm_Morrison       $(1.00/13.23*1e6) # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio (here Dr. Daddi already divided the map by 4.404)
-    define m_20cm_Morrison         1.00            # <TODO> # from comparison to Glenn (average source size ?) see goFine.sm
-    define mJy_20cm_Morrison       1e-3            # converting pixel flux from uJy to mJy
-    define mBias_20cm_Morrison     0               # <TODO> from Dr. Daddi's goFine.sm
-    define fBias_20cm_Morrison     0.0             # <TODO> mJy <-> -0.6uJy from Dr. Daddi's goFine.sm <TODO> from comparison to Simu <TODO>
-    define rBeam_20cm_Morrison     1.7             # <TODO> FWHM of PSF in arcsec <-> 1.6"x1.7" from Morrison et al. 2010
-                                                   # <TODO> astrometry correction see goSimu.sm
-    define xStep_20cm_Morrison     150             # <TODO> box x length, from Dr. Daddi's goFine.sm
-    define yStep_20cm_Morrison     150             # <TODO> box x length, from Dr. Daddi's goFine.sm
-    define gBuff_20cm_Morrison     20              # <TODO> box buffer length g, from Dr. Daddi's goFine.sm
-    define fBuff_20cm_Morrison     1               # <TODO> box buffer length f, from Dr. Daddi's goFine.sm
-    set_default_telescope_constants 20cm_Morrison  
-    define SimMag0_20cm_Morrison   6.14621         # simulation brightest magnitude -- convert_flux2mag goodsn 20cm_Morrison 0.263 0.001 -- Morrison2010 catalog max f20cm 263uJy
-    define SimMag1_20cm_Morrison   9.6961          # simulation faintest magnitude -- convert_flux2mag goodsn 20cm_Morrison 0.010 0.001 -- Morrison2010 catalog min f20cm 21uJy
-    define PixLim0_20cm_Morrison  -1e-3            # uJy/pixel -- pixel value range for display -- ds9 scale limits
-    define PixLim1_20cm_Morrison   5e-3            # uJy/pixel -- pixel value range for display -- ds9 scale limits
-    define PixScale_20cm_Morrison  0.50            # arcsec from Morrison's VLA image
-    define Telescop_20cm_Morrison  "VLA"           # 
-    define BandName_20cm_Morrison  "1.4GHz"        # 
-    define BandWave_20cm_Morrison  2e5             # um
-    define SciPhoto_20cm_Morrison "VLA_20cm_Glenn_May09_dzliu"
-    define RmsPhoto_20cm_Morrison "VLA_20cm_Glenn_May09_rms_dzliu"
-    define PsfPhoto_20cm_Morrison "VLA_beam_hdfn"
-    define DirPhoto_20cm_Morrison "/data/AstroDepth/GOODSN_Photo/VLA"
+    define AsPtInBand                 20cm_Morrison
+    define h_$AsPtInBand            $(1.00/13.23*1e6)   # photometry fudge factor from Jy/beam definition, derived from the PSF flux/peak ratio (here Dr. Daddi already divided the map by 4.404)
+    define m_$AsPtInBand              1.00              # <TODO> # from comparison to Glenn (average source size ?) see goFine.sm
+    define mJy_$AsPtInBand            1e-3              # converting pixel flux from uJy to mJy
+    define mBias_$AsPtInBand          0                 # <TODO> from Dr. Daddi's goFine.sm
+    define fBias_$AsPtInBand          0.0               # <TODO> mJy <-> -0.6uJy from Dr. Daddi's goFine.sm <TODO> from comparison to Simu <TODO>
+    define rBeam_$AsPtInBand          1.7               # <TODO> FWHM of PSF in arcsec <-> 1.6"x1.7" from Morrison et al. 2010
+    define fSigma_$AsPtInBand         2.744e-3          # <TODO> 1-sigma flux detection limit in mJy. 
+                                                        # <TODO> astrometry correction see goSimu.sm
+    define xStep_$AsPtInBand          150               # <TODO> box x length, from Dr. Daddi's goFine.sm
+    define yStep_$AsPtInBand          150               # <TODO> box x length, from Dr. Daddi's goFine.sm
+    define gBuff_$AsPtInBand          20                # <TODO> box buffer length g, from Dr. Daddi's goFine.sm
+    define fBuff_$AsPtInBand          1                 # <TODO> box buffer length f, from Dr. Daddi's goFine.sm
+    set_default_telescope_constants  $AsPtInBand  
+    define SimMag0_$AsPtInBand        6.14621           # simulation brightest magnitude -- convert_flux2mag goodsn 20cm_Morrison 0.263 0.001 -- Morrison2010 catalog max f20cm 263uJy
+    define SimMag1_$AsPtInBand        9.6961            # simulation faintest magnitude -- convert_flux2mag goodsn 20cm_Morrison 0.010 0.001 -- Morrison2010 catalog min f20cm 21uJy
+    define PixLim0_$AsPtInBand       -1e-3              # uJy/pixel -- pixel value range for display -- ds9 scale limits
+    define PixLim1_$AsPtInBand        5e-3              # uJy/pixel -- pixel value range for display -- ds9 scale limits
+    define PixScale_$AsPtInBand       0.50              # arcsec from Morrison's VLA image
+    define Telescop_$AsPtInBand      "VLA"              # 
+    define BandName_$AsPtInBand      "1.4GHz"           # 
+    define BandWave_$AsPtInBand       2e5               # um
+    define SciPhoto_$AsPtInBand      "VLA_20cm_Glenn_May09_dzliu"
+    define RmsPhoto_$AsPtInBand      "VLA_20cm_Glenn_May09_rms_dzliu"
+    define PsfPhoto_$AsPtInBand      "VLA_beam_hdfn"
+    define DirPhoto_$AsPtInBand      "/data/AstroDepth/GOODSN_Photo/VLA"
 
 set_GOODSS_photometry_constants_20cm 00
     set_goodss_photometry_constants_20cm
@@ -640,6 +649,7 @@ set_goodss_photometry_constants_20cm 00
     define mBias_20cm     0                    # 
     define fBias_20cm     0                    # <TODO> NEED TO COMPARE !
     define rBeam_20cm     1.7                  # FWHM of PSF in arcsec <-> 2.8"x1.6" from Miller et al. 2013 ApJS
+    define fSigma_20cm    0.0                  # 1-sigma flux detection limit in mJy. 
     set_default_astrometry_constants 20cm
     define xStep_20cm     80  # <TODO> box x length, from Dr. Daddi's goFine.sm
     define yStep_20cm     80  # <TODO> box x length, from Dr. Daddi's goFine.sm
@@ -668,6 +678,7 @@ set_cosmos_photometry_constants_20cm 00
     define mBias_20cm 0.0      # 
     define fBias_20cm 0.0      # <TODO> flux bias based on monte carlo simulation
     define rBeam_20cm 0.0      # <TODO> FWHM of PSF in arcsec
+    define fSigma_20cm 0.0     # <TODO> 1-sigma flux detection limit in mJy. 
     set_default_astrometry_constants 20cm
     define xStep_20cm 80
     define yStep_20cm 80

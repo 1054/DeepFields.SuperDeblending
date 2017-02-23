@@ -1,0 +1,462 @@
+#!/bin/bash
+# 
+# Aim:
+#    Generate BASH script which calls ds9 and make cutouts
+# 
+
+
+set -e
+
+
+function Galcut_Usage() {
+    echo ""
+    echo "Usgae: "
+    echo "    do_Galcut \\"
+    echo "              -RADec 12:36:27 62:20:17 \\"
+    echo "              -FoV 45arcsec \\"
+    echo "              1.fits -region 1.ds9.reg \\"
+    echo "              2.fits \\"
+    echo "              -RGB R.fits G.fits B.fits \\"
+    echo "              -EPS Saved.eps "
+    echo ""
+    echo "    do_Galcut \\"
+    echo "              1.fits -region 1.ds9.reg \\"
+    echo "              2.fits \\"
+    echo "              -RGB R.fits G.fits B.fits \\"
+    echo "              -Source 14914 -Catalog Catalog_Source_RA_Dec.txt -FoV 45 \\"
+    echo "              -EPS Saved.eps "
+    echo ""
+}
+
+function Is_Float_Number() {
+    # http://stackoverflow.com/questions/13790763/bash-regex-to-check-floating-point-numbers-from-user-input
+    #echo $1
+    if [[ $# -ge 1 ]]; then
+        #regExp='^[+-]?([0-9]+\.?|[0-9]*\.[0-9]+)$'
+        regExp='^([+-])?([0-9]+\.?|[0-9]*\.[0-9]+)([eE][+-]?[0-9]+)?$'
+        if [[ "$1" =~ $regExp ]]; then
+            #echo "That is a number!"
+            return 0
+        else
+            #echo "Damn! Not A Number!"
+            seq  -f "*" -s '' $(echo "${#1}+7+2+23" | bc); echo
+            echo "Error! \"$1\" is not a float number!"
+            seq  -f "*" -s '' $(echo "${#1}+7+2+23" | bc); echo
+            exit -1
+            return -1
+        fi
+    fi
+    return -1
+}
+
+function Is_File() {
+    if [[ $# -ge 1 ]]; then
+        if [[ -f "$1" ]]; then
+            return 0
+        else
+            seq  -f "*" -s '' $(echo "${#1}+24" | bc); echo
+            echo "Error! \"$1\" was not found!"
+            seq  -f "*" -s '' $(echo "${#1}+24" | bc); echo
+            exit -1
+            return -1
+        fi
+    fi
+    return -1
+}
+
+
+###############################
+# Check Software Dependencies #
+###############################
+
+Galcut_Software_Dependencies=(sky2xy xy2sky )
+
+echo "Checking software dependencies:"
+
+for TEMPNAME in ${Galcut_Software_Dependencies[@]}; do
+    type $TEMPNAME
+done
+
+
+
+########################
+# Read Input Arguments #
+########################
+
+Galcut_Input_ArgType="N/A" # CAT, SOU, IMG, FoV, RGB, REG, EPS
+Galcut_Input_CAT=""
+Galcut_Input_SOU=""
+Galcut_Input_RAE=""
+Galcut_Input_DEC=""
+Galcut_Input_IMG=()
+Galcut_Input_FoV=()
+Galcut_Input_RGB=()
+Galcut_Input_REG=()
+Galcut_Input_EPS=()
+
+while [[ $# -gt 0 ]]; do
+    
+    TempStr=$(echo "$1" | tr '[:lower:]' '[:upper:]')
+    
+    case "$TempStr" in
+                    
+        "-CATALOG") shift
+                    Galcut_Input_ArgType="CAT"
+                    ;;
+                    
+         "-SOURCE") shift
+                    Galcut_Input_ArgType="SOU"
+                    ;;
+                    
+             "-RA") shift
+                    Galcut_Input_ArgType="RAE"
+                    ;;
+                    
+            "-DEC") shift
+                    Galcut_Input_ArgType="DEC"
+                    ;;
+                    
+          "-RADEC") shift
+                    Galcut_Input_ArgType="RADEC"
+                    ;;
+                    
+            "-FOV") shift
+                    Galcut_Input_ArgType="FoV"
+                    ;;
+                    
+            "-RGB") shift
+                    Galcut_Input_ArgType="RGB"
+                    ;;
+                    
+            "-REG") shift
+                    Galcut_Input_ArgType="REG"
+                    ;;
+                    
+            "-EPS") shift
+                    Galcut_Input_ArgType="EPS"
+                    ;;
+                    
+            # "-"*) shift
+            #       Galcut_Input_ArgType="N/A"
+            #       echo "Unrecognized: $1"
+            #       ;;
+                    
+                 *) #echo "$1"
+                    #shift
+                    
+    esac
+    
+    #echo "$Galcut_Input_ArgType"
+    #echo $#
+    
+    case "$Galcut_Input_ArgType" in
+                                        
+                                 "CAT") 
+                                        # check followed argument
+                                        if [[ $# -ge 1 ]]; then
+                                            # check is file
+                                            if Is_File "$1"; then
+                                                Galcut_Input_CAT="$1"
+                                            fi
+                                        else
+                                            echo ""
+                                            echo "Error! Input argument -catalog should be followed with 1 argument!"
+                                            echo ""
+                                            exit 1
+                                        fi
+                                        Galcut_Input_ArgType="N/A"
+                                        shift
+                                        ;;
+                                        
+                                 "SOU") 
+                                        # check followed argument
+                                        if [[ $# -ge 1 ]]; then
+                                            Galcut_Input_SOU="$1"
+                                        else
+                                            echo ""
+                                            echo "Error! Input argument -catalog should be followed with 1 argument!"
+                                            echo ""
+                                            exit 1
+                                        fi
+                                        Galcut_Input_ArgType="N/A"
+                                        shift
+                                        ;;
+                                        
+                               "RADEC") 
+                                        # check followed argument
+                                        if [[ $# -ge 2 ]]; then
+                                            Galcut_Input_RAE="$1"
+                                            Galcut_Input_DEC="$2"
+                                        else
+                                            echo ""
+                                            echo "Error! Input argument -radec should be followed with 2 arguments!"
+                                            echo ""
+                                            exit 1
+                                        fi
+                                        Galcut_Input_ArgType="N/A"
+                                        shift
+                                        shift
+                                        ;;
+                                        
+                                 "FoV") 
+                                        # check followed argument
+                                        if [[ $# -ge 1 ]]; then
+                                            # check is float number
+                                            if Is_Float_Number "$1"; then
+                                                Galcut_Input_FoV+=("$1")
+                                            fi
+                                        else
+                                            echo ""
+                                            echo "Error! Input argument -FoV should be followed with at least 1 argument!"
+                                            echo ""
+                                            exit 1
+                                        fi
+                                        Galcut_Input_ArgType="N/A"
+                                        shift
+                                        ;;
+                                        
+                                 "N/A") 
+                                        # check followed argument
+                                        if [[ $# -ge 1 ]]; then
+                                            TempFileName=$(echo "$1" | tr '[:lower:]' '[:upper:]')
+                                            # check file extension, must be *.fits or *.FITS
+                                            if [[ "$TempFileName" == *".FITS" ]]; then
+                                                # check file existence
+                                                if Is_File "$1"; then
+                                                    Galcut_Input_IMG+=("$1")
+                                                fi
+                                            fi
+                                        fi
+                                        Galcut_Input_ArgType="N/A"
+                                        shift
+                                        ;;
+                                        
+                                     *) #echo "$1"
+                                        shift
+                                        
+    esac
+    
+done
+
+
+
+##################
+# Prepare Output #
+##################
+
+if [[ -d "do_Galcut_Output" ]]; then
+    mv "do_Galcut_Output" "do_Galcut_Output.Backup.$(date +'%Y-%m-%d-%Hh%Mm%Ss')"
+fi
+mkdir "do_Galcut_Output"
+
+
+
+
+
+##########################
+# Read Source in Catalog #
+##########################
+
+if [[ ! -z "$Galcut_Input_CAT" ]]; then
+    if [[ ! -z "$Galcut_Input_SOU" ]]; then
+        TempFileName=$(echo "$Galcut_Input_CAT" | tr '[:lower:]' '[:upper:]')
+        # check file extension
+        if [[ "$TempFileName" == *".FITS" ]]; then
+            # read fits data table file with python
+            TempPythonLibDir="$(dirname ${BASH_SOURCE[0]})/python_lib_dzliu"
+            echo "#!/usr/bin/env python2.7"                      >  "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "#"                                             >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "import os, sys"                                >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "import numpy, astropy"                         >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "from astropy import units as u"                >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "from astropy.coordinates import SkyCoord"      >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "sys.path.append(\"$TempPythonLibDir\")"        >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "from CrabFitsTable import CrabFitsTable"       >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "Galcut_Input_CAT = \"$Galcut_Input_CAT\""      >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "Galcut_Input_SOU = \"$Galcut_Input_SOU\""      >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "DataTable = CrabFitsTable(Galcut_Input_CAT)"   >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            #<TODO># determine 'ID' or 'id' or '_id' or 'source' or other column names
+            echo "FoundIndex = numpy.where(DataTable.getColumn('ID').astype(str)==\"$Galcut_Input_SOU\")" >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "if FoundIndex>=0:"                                                                      >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "    FoundID = DataTable.getColumn('ID')[FoundIndex].astype(str)"                        >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "    FoundRA = DataTable.getColumn('RA')[FoundIndex].astype(str)"                        >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "    FoundDec = DataTable.getColumn('Dec')[FoundIndex].astype(str)"                      >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "    with open('do_Galcut_Output/Catalog_Source_RA_Dec.txt', 'w') as fp:"                >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "        for i in range(len(FoundIndex)):"                                               >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "            TempID = str(FoundID[i])"                                                   >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "            if FoundRA[i].find(':')>0 and FoundDec[i].find(':')>0:"                     >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "                TempCoord = SkyCoord(str(FoundRA[i]), str(FoundDec[i]))"                >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "                TempRA = TempCoord.ra.degree"                                           >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "                TempDec = TempCoord.dec.degree"                                         >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "            elif FoundRA[i].find('h')>0 and FoundDec[i].find('d')>0:"                   >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "                TempCoord = SkyCoord(str(FoundRA[i]), str(FoundDec[i]))"                >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "                TempRA = TempCoord.ra.degree"                                           >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "                TempDec = TempCoord.dec.degree"                                         >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "            elif FoundRA[i].find('H')>0 and FoundDec[i].find('D')>0:"                   >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "                TempCoord = SkyCoord(str(FoundRA[i]), str(FoundDec[i]))"                >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "                TempRA = TempCoord.ra.degree"                                           >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "                TempDec = TempCoord.dec.degree"                                         >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "            else:"                                                                      >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "                TempRA = float(FoundRA[i])"                                             >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "                TempDec = float(FoundDec[i])"                                           >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "            fp.write('%-22s %17.10f %17.10f\n'%(TempID, TempRA, TempDec))"              >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo "    print('Output to text file: do_Galcut_Output/Catalog_Source_RA_Dec.txt')"           >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            echo ""                                                                                       >> "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            chmod +x "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            "do_Galcut_Output/do_Galcut_Read_Catalog_Source.py"
+            #cat "do_Galcut_Output/Catalog_Source_RA_Dec.txt"
+            # 
+            if [[ ! -f "do_Galcut_Output/Catalog_Source_RA_Dec.txt" ]]; then
+                echo ""
+                echo "Error! Failed to extract catalog source \"$Galcut_Input_SOU\" RA Dec from the catalog \"$Galcut_Input_CAT\"!"
+                echo ""
+                exit -1
+            fi
+            Galcut_Input_RAE=$(cat "do_Galcut_Output/Catalog_Source_RA_Dec.txt" | tr -s ' ' | cut -d ' ' -f 2)
+            Galcut_Input_DEC=$(cat "do_Galcut_Output/Catalog_Source_RA_Dec.txt" | tr -s ' ' | cut -d ' ' -f 3)
+        else
+            # read text file
+            # <TODO> assuming ID, RA, Dec are the 1st, 2nd and 3rd columns. 
+            TempColumnIDX=($(cat "$Galcut_Input_CAT" | grep -v "^#" | grep -v "^$" | sed -e 's/^[ ]*//g' | tr -s ' ' | cut -d ' ' -f 1))
+            TempColumnRAE=($(cat "$Galcut_Input_CAT" | grep -v "^#" | grep -v "^$" | sed -e 's/^[ ]*//g' | tr -s ' ' | cut -d ' ' -f 2))
+            TempColumnDEC=($(cat "$Galcut_Input_CAT" | grep -v "^#" | grep -v "^$" | sed -e 's/^[ ]*//g' | tr -s ' ' | cut -d ' ' -f 3))
+            for (( i=0; i<${#TempColumnIDX[@]}; i++ )); do
+                if [[ "${TempColumnIDX[i]}" == "$Galcut_Input_SOU" ]]; then
+                    if [[ "$TempColumnRAE" == *":"* && "$TempColumnDEC" == *":"* ]] || \
+                       [[ "$TempColumnRAE" == *"H"* && "$TempColumnDEC" == *"D"* ]] || \
+                       [[ "$TempColumnRAE" == *"h"* && "$TempColumnDEC" == *"d"* ]]; then
+                        type radec2degree >/dev/null
+                        TempStringRADEC=($(radec2degree ${TempColumnRAE[i]} ${TempColumnDEC[i]}))
+                        if [[ ${#TempStringRADEC[@]} -ge 2 ]]; then
+                            Galcut_Input_RAE=${TempStringRADEC[0]}
+                            Galcut_Input_DEC=${TempStringRADEC[1]}
+                        else
+                            echo ""
+                            echo "Error! Failed to run \"radec2degree $TempColumnRAE $TempColumnDEC\" for the catalog \"$Galcut_Input_CAT\"!"
+                            echo ""
+                            exit -1
+                        fi
+                    else
+                        Galcut_Input_RAE=${TempColumnRAE[i]}
+                        Galcut_Input_DEC=${TempColumnDEC[i]}
+                    fi
+                    break
+                fi
+            done
+            if [[ x"$Galcut_Input_RAE" == x || x"$Galcut_Input_DEC" == x ]]; then
+                echo ""
+                echo "Error! Could not find catalog source \"$Galcut_Input_SOU\" RA Dec from the catalog \"$Galcut_Input_CAT\"!"
+                echo ""
+                exit -1
+            fi
+        fi
+    fi
+fi
+
+
+
+#################################
+# Check All Necessary Variables #
+#################################
+
+if [[ ${#Galcut_Input_IMG[@]} -eq 0 ]] || \
+   [[ ${#Galcut_Input_FoV[@]} -eq 0 ]] || \
+   [[ -z "$Galcut_Input_RAE" ]] || \
+   [[ -z "$Galcut_Input_DEC" ]] ; then 
+    Galcut_Usage
+    exit
+fi
+
+echo "Checking input arguments:"
+echo "CAT = ${Galcut_Input_CAT}"
+echo "SOU = ${Galcut_Input_SOU}"
+echo "RAE = ${Galcut_Input_RAE}"
+echo "DEC = ${Galcut_Input_DEC}"
+echo "IMG = ${Galcut_Input_IMG[@]} (${#Galcut_Input_IMG[@]})"
+echo "FoV = ${Galcut_Input_FoV[@]}"
+
+
+
+####################################
+# Generate BASH script to call ds9 #
+####################################
+
+echo "#!/bin/bash"                                                  >  "do_Galcut_Output/do_Galcut_Run_ds9.bash"
+echo "#"                                                            >> "do_Galcut_Output/do_Galcut_Run_ds9.bash"
+echo "CurrentDir=\$(dirname \${BASH_SOURCE[0]})"                    >> "do_Galcut_Output/do_Galcut_Run_ds9.bash"
+echo "CurrentPath=\$(cd \"\$CurrentDir\" && echo \"\$(pwd -P)\")"   >> "do_Galcut_Output/do_Galcut_Run_ds9.bash"
+echo "ds9 \\"                                                       >> "do_Galcut_Output/do_Galcut_Run_ds9.bash"
+echo "    -title \"$Galcut_Input_SOU\" \\"                          >> "do_Galcut_Output/do_Galcut_Run_ds9.bash"
+echo "    -lock frame wcs \\"                                       >> "do_Galcut_Output/do_Galcut_Run_ds9.bash"
+
+for (( i=0; i<${#Galcut_Input_IMG[@]}; i++ )); do
+    # determine FoV
+    if [[ $i -ge ${#Galcut_Input_FoV[@]} ]]; then
+        Galcut_Input_FoV+=("${Galcut_Input_FoV[${#Galcut_Input_FoV[@]}-1]}")
+    fi
+    if [[ 1 == 1 ]]; then
+        # convert sky2xy
+        TempCenterRD=("$Galcut_Input_RAE" "$Galcut_Input_DEC")
+        TempCenterXY=($(sky2xy -j -n 3 "${Galcut_Input_IMG[$i]}" "${TempCenterRD[0]}" "${TempCenterRD[1]}" | tr -s ' ' | cut -d ' ' -f 5,6)) #<TODO># J2000
+        TempCornerXY=("1.000" "1.000")
+        TempCornerRD=($(xy2sky -d -n 10 "${Galcut_Input_IMG[$i]}" "${TempCornerXY[0]}" "${TempCornerXY[1]}" | tr -s ' ' | cut -d ' ' -f 1,2))
+        TempSeparRAE=$(echo "((${TempCornerRD[0]})-(${TempCenterRD[0]}))*3600.0*c(((${TempCornerRD[1]})+(${TempCenterRD[1]}))/2.0/180.0*3.1415926)" | bc -l | perl -p -e 's/^([+-]*)\./\10./g')
+        TempSeparDEC=$(echo "((${TempCornerRD[1]})-(${TempCenterRD[1]}))*3600.0"                                                                    | bc -l | sed -e 's/[^0-9.]+\./0./g')
+        TempSeparatX=$(echo "((${TempCornerXY[0]})-(${TempCenterXY[0]}))"                                                                           | bc -l | sed -e 's/[^0-9.]+\./0./g')
+        TempSeparatY=$(echo "((${TempCornerXY[1]})-(${TempCenterXY[1]}))"                                                                           | bc -l | sed -e 's/[^0-9.]+\./0./g')
+        TempSeparatS=$(echo "sqrt(($TempSeparRAE)*($TempSeparRAE)+($TempSeparDEC)*($TempSeparDEC))"                                                 | bc -l | sed -e 's/[^0-9.]+\./0./g')
+        TempSeparatP=$(echo "sqrt(($TempSeparatX)*($TempSeparatX)+($TempSeparatY)*($TempSeparatY))"                                                 | bc -l | sed -e 's/[^0-9.]+\./0./g')
+        TempPixScale=$(echo "$TempSeparatS/$TempSeparatP"                                                                                           | bc -l | sed -e 's/[^0-9.]+\./0./g')
+        TempPixFoV=$(echo "(${Galcut_Input_FoV[$i]})/($TempPixScale)"                                                                               | bc -l | sed -e 's/[^0-9.]+\./0./g')
+        echo "SourceXY = ${TempCenterXY[@]}"
+        echo "PixScale = $TempPixScale"
+        echo "PixFoV = $TempPixFoV"
+        # make cutouts
+        TempScriptDir="$(dirname ${BASH_SOURCE[0]})"
+        echo "#!/bin/bash"                                                                         >  "do_Galcut_Output/do_Galcut_Cut_Image_$i.bash"
+        echo "#"                                                                                   >> "do_Galcut_Output/do_Galcut_Cut_Image_$i.bash"
+        echo "pwd"                                                                                 >> "do_Galcut_Output/do_Galcut_Cut_Image_$i.bash"
+        echo "source \"$TempScriptDir/SETUP\""                                                     >> "do_Galcut_Output/do_Galcut_Cut_Image_$i.bash"
+        echo "CrabFitsImageCrop \"${Galcut_Input_IMG[$i]}\" \\"                                    >> "do_Galcut_Output/do_Galcut_Cut_Image_$i.bash"
+        echo "                  -cen ${TempCenterXY[0]} ${TempCenterXY[1]} $TempPixFoV \\"         >> "do_Galcut_Output/do_Galcut_Cut_Image_$i.bash"
+        echo "                  -out \"do_Galcut_Output/Image_cut_$i.fits\""                       >> "do_Galcut_Output/do_Galcut_Cut_Image_$i.bash"
+        echo ""                                                                                    >> "do_Galcut_Output/do_Galcut_Cut_Image_$i.bash"
+        echo "sethead \"do_Galcut_Output/Image_cut_$i.fits\" FITSFILE=\"${Galcut_Input_IMG[$i]}\"" >> "do_Galcut_Output/do_Galcut_Cut_Image_$i.bash"
+        echo ""                                                                                    >> "do_Galcut_Output/do_Galcut_Cut_Image_$i.bash"
+        chmod +x "do_Galcut_Output/do_Galcut_Cut_Image_$i.bash"
+        cat "do_Galcut_Output/do_Galcut_Cut_Image_$i.bash"
+        "do_Galcut_Output/do_Galcut_Cut_Image_$i.bash"
+        # 
+        
+        #
+        echo "    \"\$CurrentPath\"/Image_cut_$i.fits -scale mode 99.5 \\" >> "do_Galcut_Output/do_Galcut_Run_ds9.bash"
+    fi
+done
+
+echo "    -pan to $Galcut_Input_RAE $Galcut_Input_DEC fk5 \\" >> "do_Galcut_Output/do_Galcut_Run_ds9.bash"
+echo "    &" >> "do_Galcut_Output/do_Galcut_Run_ds9.bash"
+
+
+chmod +x "do_Galcut_Output/do_Galcut_Run_ds9.bash"
+
+echo ""
+echo "Prepared ds9 script \"do_Galcut_Output/do_Galcut_Run_ds9.bash\"!"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -25,9 +25,13 @@ go
     # alias
     set snrIR = SNR
     set snr = snrIR
+    set SNR_FIRMM = snrIR
     set zphot = z
     set zspec = z_sp
+    set z_opt = z_op
+    set z_spec = z_sp
     set ubestfit = ubest
+    set dec = de
     echo "Read these vectors: snrIR, z, zphot, zspec, ubestfit (z equals zphot, zphot equals zspec when available)"
     # 
     # recognize famous sources
@@ -50,6 +54,7 @@ go
     set SFR_of_MS   = (Mstar>1e-99) ? 10**(lgSFR_MS_Sargent) : 1e-99 # SFR of MS in Chabrier IMF
     set lgSFR_of_MS = (Mstar>1e-99) ? (lgSFR_MS_Sargent) : -99 # lgSFR of MS in Chabrier IMF
     set excessMS    = EMS
+    set lgExcessMS  = (Mstar>1e-99 && LTIR>1e-99) ? lg(excessMS) : -99 # lg of the excess ratio of SFR/SFR_MS, actually equals dis_to_MS
     set eMstar      = lgMstar_err
     if(1) {
         set coo_coo = (dis_to_MS<=0)

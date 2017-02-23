@@ -40,12 +40,14 @@ crabPlotOpenPS 01
     crabPlotUnMute
     # print {__crabPlot__PSFILE}
     device postencap $(__crabPlot__PSFILE)
+    # by checking lib/sm/graphcap file, we know that postencap has a bounding box of 18 144 592 718
     erase
     xtcolours
     define TeX_strings 1
     add_ctype gray 230 230 230
+    add_ctype darkgray 170 170 170
     if($gx1==3500 && $gx2==31000 && $gy1==3500 && $gy2==31000) {
-        location 5500 31500 5000 31500
+        location 5500 31500 9500 31500
     }
     define TeX_strings 1
     echo "crabPlotOpenPS: Opening "\"$(__crabPlot__PSFILE)\" # "
@@ -68,8 +70,45 @@ crabPlotClosePS 00
             # convert eps to pdf
             set __crabPlot__PFFILE = substr(__crabPlot__PSFILE,1,index(__crabPlot__PSFILE,'.eps')-1)
             set __crabPlot__PFFILE = {"}+__crabPlot__PFFILE+{.pdf"}
-            !ps2pdf -dEPSCrop $(__crabPlot__PSFILE) $(__crabPlot__PFFILE)
-            !pdfcrop --margins 15 $(__crabPlot__PFFILE) $(__crabPlot__PFFILE) >/dev/null
+            set __crabPlot__PDFMARKS = substr(__crabPlot__PSFILE,1,index(__crabPlot__PSFILE,'.eps')-1)
+            set __crabPlot__PDFMARKS = {"}+__crabPlot__PDFMARKS+{.pdfmarks"}
+            set __crabPlot__PDFCONVERTS = substr(__crabPlot__PSFILE,1,index(__crabPlot__PSFILE,'.eps')-1)
+            set __crabPlot__PDFCONVERTS = {"}+__crabPlot__PDFCONVERTS+{.pdfconverts"}
+            # 
+            # crop according to location $gx1 $gx2 $gy1 $gy2 #<20170105>#
+            set __crabPlot__EPSBOX = {0.0 0.0 0.0 0.0}
+            set __crabPlot__EPSBOX[0] = $gx1 / 32767.0 * float(592-18)  + 18   - 100 # margin 100
+            set __crabPlot__EPSBOX[1] = $gy1 / 32767.0 * float(718-144) + 144  -  80 # margin 80
+            set __crabPlot__EPSBOX[2] = $gx2 / 32767.0 * float(592-18)  + 18   +  80 # margin 80 (-60 if no Y2 axis)
+            set __crabPlot__EPSBOX[3] = $gy2 / 32767.0 * float(718-144) + 144  +  80 # margin 80 (-60 if no X2 axis)
+            if($gx2>28000) {
+                # detect if there are Y2 axis (if X boundary location is below 28000) or not #<TODO>#
+                set __crabPlot__EPSBOX[2] = __crabPlot__EPSBOX[2] - 60
+            }
+            if($gy2>28000) {
+                # detect if there are X2 axis (if Y boundary location is below 28000) or not #<TODO>#
+                set __crabPlot__EPSBOX[3] = __crabPlot__EPSBOX[3] - 60
+            }
+            #echo "crabPlotClosePS: TEST"
+            #echo "crabPlotClosePS: "$(__crabPlot__PDFMARKS)
+            #print '[ /CropBox [%.0f] /PAGES pdfmark' {__crabPlot__EPSBOX}
+            !echo -n "[ /CropBox ["                 >  $(__crabPlot__PDFMARKS)  
+            !echo -n $(__crabPlot__EPSBOX[0])' '    >> $(__crabPlot__PDFMARKS)
+            !echo -n $(__crabPlot__EPSBOX[1])' '    >> $(__crabPlot__PDFMARKS)
+            !echo -n $(__crabPlot__EPSBOX[2])' '    >> $(__crabPlot__PDFMARKS)
+            !echo -n $(__crabPlot__EPSBOX[3])       >> $(__crabPlot__PDFMARKS)
+            !echo    "] /PAGES pdfmark"             >> $(__crabPlot__PDFMARKS)
+            #<20170105>#!ps2pdf -dEPSCrop $(__crabPlot__PSFILE) $(__crabPlot__PFFILE)
+            #<20170105>#!pdfcrop --margins 15 $(__crabPlot__PFFILE) $(__crabPlot__PFFILE) >/dev/null
+            #<20170105>#!gs -q -dSAFER -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=$(__crabPlot__PFFILE) -dDOPDFMARKS $(__crabPlot__PSFILE) $(__crabPlot__PDFMARKS)
+            !echo "\#!/bin/bash"                                          >  $(__crabPlot__PDFCONVERTS)
+            #!echo "cd $(dirname "$(__crabPlot__PDFCONVERTS)")"            >> $(__crabPlot__PDFCONVERTS)
+            !echo "gs -q -dSAFER -dNOPAUSE -dBATCH -sDEVICE=pdfwrite '\'" >> $(__crabPlot__PDFCONVERTS)
+            !echo '   -sOutputFile='$(__crabPlot__PFFILE)" '\'"           >> $(__crabPlot__PDFCONVERTS)
+            !echo '                '$(__crabPlot__PSFILE)" '\'"           >> $(__crabPlot__PDFCONVERTS)
+            !echo '   -dDOPDFMARKS '$(__crabPlot__PDFMARKS)               >> $(__crabPlot__PDFCONVERTS)
+            !chmod +x $(__crabPlot__PDFCONVERTS)
+            !./$(__crabPlot__PDFCONVERTS)
         }
         echo "crabPlotClosePS: Output to "\"$(__crabPlot__PSFILE)\""!" # "
         unset __crabPlot__PSFILE
@@ -128,29 +167,29 @@ crabPlotDefaultLocation 00
     location 6500 30000 6500 30000
 
 crabPlotDefaultPenForBox 00
-    expand 1.4 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype default
+    expand 1.4 lweight 4.0 ltype 0 ltype expand 1.1 ptype 4 1 ctype default
 
 crabPlotDefaultPenForTitle 00
-    expand 1.5 lweight 4.0 ltype 0 ltype expand 1.5 ptype 4 1 ctype default
+    expand 1.5 lweight 4.0 ltype 0 ltype expand 1.7 ptype 4 1 ctype default
 
 crabPlotDefaultPenForLegend 00
-    expand 1.3 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype blue
+    expand 1.3 lweight 4.0 ltype 0 ltype expand 1.1 ptype 4 1 ctype blue
     crabPlotRelocate 0.725 0.875
 
 crabPlotDefaultPenForPoints 00
-    expand 1.2 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 0 ctype blue
+    expand 1.2 lweight 4.0 ltype 0 ltype expand 1.1 ptype 4 0 ctype blue
 
 crabPlotDefaultPenForConnect 00
-    expand 1.2 lweight 3.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype blue
+    expand 1.2 lweight 3.0 ltype 0 ltype expand 1.1 ptype 4 1 ctype blue
 
 crabPlotDefaultPenForCrossPoints 00
-    expand 1.2 lweight 2.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype blue
+    expand 1.2 lweight 2.0 ltype 0 ltype expand 1.1 ptype 4 1 ctype blue
 
 crabPlotDefaultPenForSquarePoints 00
-    expand 2.4 lweight 4.0 ltype 0 ltype expand 1.0 ptype 4 0 ctype blue
+    expand 2.4 lweight 4.0 ltype 0 ltype expand 1.1 ptype 4 0 ctype blue
 
 crabPlotResetPen 00
-    expand 1.5 lweight 3.0 ltype 0 ltype expand 1.0 ptype 4 1 ctype default 
+    expand 1.5 lweight 3.0 ltype 0 ltype expand 1.1 ptype 4 1 ctype default 
 
 crabPlotResetAll 00
     limits 0 1 0 1
@@ -163,6 +202,17 @@ crabPlotResetAll 00
     #define fy1 0
     #define fy2 1
     crabPlotResetPen
+    # 
+    if(is_vector(_crabPlot_legend_ws))    {unset _crabPlot_legend_ws}
+    if(is_vector(_crabPlot_legend_ws_ps)) {unset _crabPlot_legend_ws_ps}
+    if(is_vector(_crabPlot_legend_ws_pt)) {unset _crabPlot_legend_ws_pt}
+    if(is_vector(_crabPlot_legend_px)) {unset _crabPlot_legend_px}
+    if(is_vector(_crabPlot_legend_py)) {unset _crabPlot_legend_py}
+    if(is_vector(_crabPlot_legend_pt)) {unset _crabPlot_legend_pt}
+    if(is_vector(_crabPlot_legend_ps)) {unset _crabPlot_legend_ps}
+    if(is_vector(_crabPlot_legend_pa)) {unset _crabPlot_legend_pa} # position alignment
+    if(is_vector(_crabPlot_legend_dy)) {unset _crabPlot_legend_dy} # legend line spacing
+    if(is_vector(_crabPlot_legend_ws)) {unset _crabPlot_legend_ws} # whether plot with symbol
 
 crabPlotQuickPlot 04
     if($?2==0){
@@ -430,18 +480,154 @@ crabPlotLegend 04
     # when input 1 or 2 arguments, they are: text [alignment]
     if(is_vector(_crabPlot_legend_px)) {set _crabPlot_legend_px_backup = _crabPlot_legend_px}
     if(is_vector(_crabPlot_legend_py)) {set _crabPlot_legend_py_backup = _crabPlot_legend_py}
+    if(is_vector(_crabPlot_legend_pt)) {set _crabPlot_legend_pt_backup = _crabPlot_legend_pt}
+    if(is_vector(_crabPlot_legend_ps)) {set _crabPlot_legend_ps_backup = _crabPlot_legend_ps}
+    if(is_vector(_crabPlot_legend_pa)) {set _crabPlot_legend_pa_backup = _crabPlot_legend_pa} # position alignment
+    if(is_vector(_crabPlot_legend_dy)) {set _crabPlot_legend_dy_backup = _crabPlot_legend_dy}
+    if(is_vector(_crabPlot_legend_ws)) {set _crabPlot_legend_ws_backup = _crabPlot_legend_ws} # whether plot with symbol
+    if(!is_vector(_crabPlot_legend_px)) {set _crabPlot_legend_px = 0.05}
+    if(!is_vector(_crabPlot_legend_py)) {set _crabPlot_legend_py = 0.92}
+    if(!is_vector(_crabPlot_legend_pt)) {set _crabPlot_legend_pt = 2.4} # thick
+    if(!is_vector(_crabPlot_legend_ps)) {set _crabPlot_legend_ps = 1.2} # size
+    if(!is_vector(_crabPlot_legend_pa)) {set _crabPlot_legend_pa = 6} # 6 mean align left
+    if(!is_vector(_crabPlot_legend_dy)) {set _crabPlot_legend_dy = 0.055*_crabPlot_legend_ps**1.5} # line spacing
+    if(!is_vector(_crabPlot_legend_ws)) {set _crabPlot_legend_ws = 0} # with symbol
+    lweight $(_crabPlot_legend_pt)
+    # get input arguments
     if($?3) {
         set _crabPlot_legend_px = float($1)
         set _crabPlot_legend_py = float($2)
-        relocate $($fx1+($fx2-$fx1)*_crabPlot_legend_px) $($fy1+($fy2-$fy1)*_crabPlot_legend_py)
-        if($?4) { putlabel $4 $3 } else { puts $3 }
+        if(_crabPlot_legend_ws==0) {
+            if($?4) { set _crabPlot_legend_pa = int($4) }
+        } else {
+            set _crabPlot_legend_pa = 6 # when plot with symbol, position alignment must be 6 <TODO>
+        }
     } else {
-        if(!is_vector(_crabPlot_legend_px)) {set _crabPlot_legend_px = 0.15}
-        if(!is_vector(_crabPlot_legend_py)) {set _crabPlot_legend_py = 1.00}
-        if(!is_vector(_crabPlot_legend_dy)) {set _crabPlot_legend_dy = 0.05}
-        set _crabPlot_legend_py = _crabPlot_legend_py - _crabPlot_legend_dy
+        if(_crabPlot_legend_ws==0) {
+            if($?2) { set _crabPlot_legend_pa = int($2) }
+        } else {
+            set _crabPlot_legend_pa = 6 # when plot with symbol, position alignment must be 6 <TODO>
+        }
+    }
+    #<20170118># plot symbol with legend / legend with symbol <TODO> assuming the symbol has a size of +0.02*_crabPlot_legend_ps
+    if(_crabPlot_legend_ws<0) {
+        # if the symbol is a line (not actually a symbol)
+        set _temp_legend_x = $fx1+_crabPlot_legend_px*($fx2-$fx1)
+        set _temp_legend_x = (_temp_legend_x-($fx2-$fx1)*0.015*_crabPlot_legend_ps) concat (_temp_legend_x+($fx2-$fx1)*0.015*_crabPlot_legend_ps)
+        set _temp_legend_y = $fy1+_crabPlot_legend_py*($fy2-$fy1)
+        set _temp_legend_y = _temp_legend_y concat _temp_legend_y
+        if(is_vector(_crabPlot_legend_ws_ps)) {
+            ltype expand $(_crabPlot_legend_ps*float(_crabPlot_legend_ws_ps))
+        } else {
+            ltype expand $(_crabPlot_legend_ps*float(-_crabPlot_legend_ws))
+        }
+        if(is_vector(_crabPlot_legend_ws_pt)) {
+            lweight $(_crabPlot_legend_ws_pt)
+        } else {
+            lweight $(_crabPlot_legend_pt)
+        }
+        connect _temp_legend_x _temp_legend_y
+        ltype expand 1.0
+        relocate $($fx1+($fx2-$fx1)*(_crabPlot_legend_px+0.02*_crabPlot_legend_ps)) $($fy1+($fy2-$fy1)*_crabPlot_legend_py)
+    }
+    if(_crabPlot_legend_ws>0) {
+        # if the symbol is a symbol
+        set _temp_legend_x = $fx1+_crabPlot_legend_px*($fx2-$fx1)
+        set _temp_legend_y = $fy1+_crabPlot_legend_py*($fy2-$fy1)
+        if(is_vector(_crabPlot_legend_ws_ps)) {
+            expand $(_crabPlot_legend_ps*float(_crabPlot_legend_ws_ps))
+        } else {
+            expand $(_crabPlot_legend_ps*float(_crabPlot_legend_ws))
+        }
+        if(is_vector(_crabPlot_legend_ws_pt)) {
+            lweight $(_crabPlot_legend_ws_pt)
+        } else {
+            lweight $(_crabPlot_legend_pt)
+        }
+        points _temp_legend_x _temp_legend_y
+        expand 1.0
+        relocate $($fx1+($fx2-$fx1)*(_crabPlot_legend_px+0.02*_crabPlot_legend_ps)) $($fy1+($fy2-$fy1)*_crabPlot_legend_py)
+    }
+    if(_crabPlot_legend_ws==0) {
         relocate $($fx1+($fx2-$fx1)*_crabPlot_legend_px) $($fy1+($fy2-$fy1)*_crabPlot_legend_py)
-        if($?2) { putlabel $2 $1 } else { puts $1 }
+    }
+    # plot legend text
+    expand $(_crabPlot_legend_ps) lweight $(_crabPlot_legend_pt) angle 0
+    # check again input arguments, plot the string
+    if($?3) {
+        putlabel $(_crabPlot_legend_pa) $3
+    } else {
+        putlabel $(_crabPlot_legend_pa) $1
+    }
+    # move to next line
+    set _crabPlot_legend_py = _crabPlot_legend_py - _crabPlot_legend_dy
+
+
+crabPlotLegendWithSymbol 04
+    set _crabPlot_legend_ws = 2.0
+    if($?4) {
+        crabPlotLegend $1 $2 $3 $4
+    } else {
+        if($?3) {
+            crabPlotLegend $1 $2 $3
+        } else {
+            if($?2) {
+                crabPlotLegend $1 $2
+            } else {
+                if($?1) {
+                    crabPlotLegend $1
+                }
+            }
+        }
+    }
+    unset _crabPlot_legend_ws
+    if(is_vector(_crabPlot_legend_ws_ps)) {unset _crabPlot_legend_ws_ps}
+    if(is_vector(_crabPlot_legend_ws_pt)) {unset _crabPlot_legend_ws_pt}
+
+
+crabPlotLegendWithLine 04
+    set _crabPlot_legend_ws = -0.5
+    if($?4) {
+        crabPlotLegend $1 $2 $3 $4
+    } else {
+        if($?3) {
+            crabPlotLegend $1 $2 $3
+        } else {
+            if($?2) {
+                crabPlotLegend $1 $2
+            } else {
+                if($?1) {
+                    crabPlotLegend $1
+                }
+            }
+        }
+    }
+    unset _crabPlot_legend_ws
+    if(is_vector(_crabPlot_legend_ws_ps)) {unset _crabPlot_legend_ws_ps}
+    if(is_vector(_crabPlot_legend_ws_pt)) {unset _crabPlot_legend_ws_pt}
+
+
+crabPlotLegendThick 01
+    # 
+    if($?1) {
+        if(is_vector(_crabPlot_legend_pt)) {set _crabPlot_legend_pt_backup = _crabPlot_legend_pt}
+        set _crabPlot_legend_pt = float($1)
+    }
+
+
+crabPlotLegendWeight 01
+    # 
+    if($?1) {
+        if(is_vector(_crabPlot_legend_pt)) {set _crabPlot_legend_pt_backup = _crabPlot_legend_pt}
+        set _crabPlot_legend_pt = float($1)
+    }
+
+
+crabPlotLegendExpand 01
+    # 
+    if($?1) {
+        if(is_vector(_crabPlot_legend_ps)) {set _crabPlot_legend_ps_backup = _crabPlot_legend_ps}
+        set _crabPlot_legend_ps = float($1)
     }
 
 
@@ -459,6 +645,59 @@ crabPlotLegendLineSpacing 01
         if(is_vector(_crabPlot_legend_dy)) {set _crabPlot_legend_dy_backup = _crabPlot_legend_dy}
         set _crabPlot_legend_dy = float($1)
     }
+
+
+crabPlotLegendAlignment 01
+    # 
+    if($?1) {
+        if(is_vector(_crabPlot_legend_pa)) {set _crabPlot_legend_pa_backup = _crabPlot_legend_pa}
+        set _crabPlot_legend_pa = int($1)
+    }
+
+
+crabPlotLegendWithSymbolExpand 01
+    # 
+    if($?1) {
+        if(is_vector(_crabPlot_legend_ws_ps)) {set _crabPlot_legend_ws_ps_backup = _crabPlot_legend_ws_ps}
+        set _crabPlot_legend_ws_ps = float($1)
+    }
+
+
+crabPlotLegendWithSymbolSize 01
+    # 
+    if($?1) {
+        if(is_vector(_crabPlot_legend_ws_ps)) {set _crabPlot_legend_ws_ps_backup = _crabPlot_legend_ws_ps}
+        set _crabPlot_legend_ws_ps = float($1)
+    }
+
+
+crabPlotLegendWithSymbolThick 01
+    # 
+    if($?1) {
+        if(is_vector(_crabPlot_legend_ws_pt)) {set _crabPlot_legend_ws_pt_backup = _crabPlot_legend_ws_pt}
+        set _crabPlot_legend_ws_pt = float($1)
+    }
+
+
+crabPlotLegendWithLineExpand 01
+    # 
+    if($?1) {
+        if(is_vector(_crabPlot_legend_ws_ps)) {set _crabPlot_legend_ws_ps_backup = _crabPlot_legend_ws_ps}
+        set _crabPlot_legend_ws_ps = float($1)
+    }
+
+
+crabPlotLegendWithLineThick 01
+    # 
+    if($?1) {
+        if(is_vector(_crabPlot_legend_ws_pt)) {set _crabPlot_legend_ws_pt_backup = _crabPlot_legend_ws_pt}
+        set _crabPlot_legend_ws_pt = float($1)
+    }
+
+
+
+
+
 
 
 

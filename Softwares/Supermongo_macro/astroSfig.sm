@@ -1608,6 +1608,137 @@ calc_Calzetti2000
 
 
 
+calc_Metallicity_PP04 02
+    # Pettini & Pagel (2004, PP04) -- adsabs.harvard.edu/abs/2004MNRAS.348L..59P
+    # 12 + log(O/H) = 8.90 + 0.57 * N2
+    # Here, N2 is defined as the log of the emission line ratio between [Nii]λ6584 and Hα.
+    # The calibration is valid for −2.5 < N2 < −0.3 (Zahid 2014ApJ...792...75Z)
+    if(!$?2) {
+        print 'Usage: set output_var = calc_Metallicity_PP04(f_[Nii]λ6584, f_Halpha)\n' {}
+        print '       12 + log(O/H) = 8.90 + 0.57 * N2'
+        return
+    }
+    set _calc_metal_PP04_N2 = lg($1/$2)
+    set _calc_metal_PP04 = 8.90 + 0.57 * _calc_metal_PP04_N2
+    set $0 = _calc_metal_PP04
+    return
+
+calc_Metallicity_FMR_Zahid2014_z0 01
+    # Zahid 2014ApJ...792...75Z
+    # Eq.(6)
+    # 12 + log(O/H) = Z0 - lg(1.0 + (MStar/M0)**(-gamma)))
+    # based on z=0.08 SDSS sample
+    if(!$?1) {
+        print 'Usage: set output_var = calc_Metallicity_FMR_Zahid2014_z0(lgMStar)\n' {}
+        print '       12 + log(O/H) = Z0 - lg(1.0 + (MStar/M0)**(-gamma)))'
+        return
+    }
+    set _calc_metal_FMR_Z0 = 8.710
+    set _calc_metal_FMR_lgM0 = 8.76
+    set _calc_metal_FMR_gamma = 0.66
+    set _calc_metal_FMR = _calc_metal_FMR_Z0 - lg(1.0 + (10**(($1)-_calc_metal_FMR_lgM0))**(-_calc_metal_FMR_gamma))
+    set $0 = _calc_metal_FMR
+    return
+
+calc_Metallicity_FMR_Zahid2014_z1p5 01
+    # Zahid 2014ApJ...792...75Z
+    # Eq.(6)
+    # 12 + log(O/H) = Z0 - lg(1.0 + (MStar/M0)**(-gamma)))
+    # based on z=1.55 COSMOS sample
+    if(!$?1) {
+        print 'Usage: set output_var = calc_Metallicity_FMR_Zahid2014_z1p5(lgMStar)\n' {}
+        print '       12 + log(O/H) = Z0 - lg(1.0 + (MStar/M0)**(-gamma)))'
+        return
+    }
+    set _calc_metal_FMR_Z0 = 8.740
+    set _calc_metal_FMR_lgM0 = 9.93
+    set _calc_metal_FMR_gamma = 0.88
+    set _calc_metal_FMR = _calc_metal_FMR_Z0 - lg(1.0 + (10**(($1)-_calc_metal_FMR_lgM0))**(-_calc_metal_FMR_gamma))
+    set $0 = _calc_metal_FMR
+    return
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+calc_Popping_fH2 02
+    # 
+    # Input Sigma_gas and Sigma_star, output fH2 (the molecular to total cold gas fraction)
+    if(!$?2) {
+        print 'Usage: \n\tset fH2 = calc_Popping_fH2(Sigma_gas,Sigma_star) \# Sigma is surface density in Msun pc**(-2)\n' {}
+        print          '\tset fH2 = calc_Popping_fH2(10.0,10.0)\n' {}
+        return
+    }
+    # 
+    # Method 1 -- pressure-based
+    set Sigma_gas = ($1) * 1.98892e33 / (3.085677e18)**(2) # 1 [Msun pc**(-2)] = 1.98892e33 / (3.085677e18)**(2) [g cm**(-2)]
+    set Sigma_star = ($2) * 1.98892e33 / (3.085677e18)**(2) # 1 [Msun pc**(-2)] = 1.98892e33 / (3.085677e18)**(2) [g cm**(-2)]
+    set Constant_G = 6.67259e-8 # cm**(3) g**(-1) s**(-2)
+    set Constant_kB = 1.380658e-16 # erg K**(-1)
+    set ratio_scatter_gas_to_star = 0.1 # * sqrt(Mass_star / (2.0*pi*Radius_star**2) / Sigma_star) # empirical following Fu et al. (2010)
+    if(is_vector(Radius_star) and is_vector(Mass_star)) {
+        set Sigma_star_0 = Mass_star / (2.0*pi*Radius_star**2) # central stellar surface density of the exponential stellar disc
+        set ratio_scatter_gas_to_star = 0.1 * sqrt(Sigma_star_0 / Sigma_star) # empirical following Fu et al. (2010)
+    }
+    set Pressure_mid_plane = pi / 2.0 * Constant_G * Sigma_gas * (Sigma_gas + ratio_scatter_gas_to_star * Sigma_star) # g cm**(-1) s**(-2)
+    set Pressure_mid_plane_0 = 4.23e4 * Constant_kB # cm**(-3) * K * erg * K**(-1) = cm**(-3) * g * cm**(2) * s**(-2) = g cm**(-1) s**(-2)
+    # Leroy et al. 2008 -- Section 2.16 -- Pressure_mid_plane_0 = 4.3e4 [cm**(-3) K]
+    set ratio_mol_to_atom_gas = (Pressure_mid_plane / Pressure_mid_plane_0)**(0.8)
+    set ratio_mol_to_total_gas = ratio_mol_to_atom_gas / (1.0 + ratio_mol_to_atom_gas)
+    print {ratio_mol_to_total_gas ratio_mol_to_atom_gas Pressure_mid_plane Pressure_mid_plane_0}
+    set $0 = ratio_mol_to_total_gas
+    return
+
+
+calc_Popping_Metallicity_Based_fH2 03
+    # 
+    # Input Sigma_gas and Sigma_star, output fH2 (the molecular to total cold gas fraction)
+    if(!$?3) {
+        print 'Usage: \n\tset fH2 = calc_Popping_Metallicity_Based_fH2(Sigma_gas,Z,SFR) \# Sigma is surface density in Msun pc**(-2)\n' {}
+        print          '\tset fH2 = calc_Popping_Metallicity_Based_fH2(10.0,1.0,2.0) \# Z is metallicity in solar unit, SFR in solar unit\n' {}
+        return
+    }
+    # 
+    # Method 2 -- metallicity-ISRF-based
+    set Sigma_gas = $1 # Msun pc**(-2)
+    set Metallicity = $2 # Z/Zsun
+    set ISRF = $3 # SFR actually
+    set factor_Dstar = 1.5e-3 * ln(1+(3*ISRF)**(1.7))
+    set factor_a = (5.0*ISRF/2) / (1+(ISRF/2)**2)
+    set factor_s = 0.04 / (factor_Dstar + Metallicity)
+    set factor_g = 1.0 + factor_a * factor_s + (factor_s**2)/(1+factor_s)
+    set factor_Lambda = ln(1.0 + factor_g * Metallicity**(3.0/7.0) * (ISRF/15.0)**(4.0/7.0) )
+    set factor_Stilde = 20.0 * (factor_Lambda**(4.0/7.0) / Metallicity) / sqrt(1.0 + ISRF * Metallicity**2) # Msun pc**(-2)
+    set ratio_mol_to_total_gas = 1.0 / (1.0 + (factor_Stilde)/(Sigma_gas))**2
+    set ratio_mol_to_atom_gas = 1.0 / (1.0 / ratio_mol_to_total_gas - 1.0)
+    print {ratio_mol_to_total_gas ratio_mol_to_atom_gas}
+    set $0 = ratio_mol_to_total_gas
+    return
+    
+
+
+
+
+
+
+
+
 
 
 

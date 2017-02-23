@@ -1,0 +1,9 @@
+Among the 3306 24+radio sources, 
+1185 are detected with $\mathrm{S/N}_\mathrm{\,FIR+mm} \ge 5$, and 
+567 have very strong detections with $\mathrm{S/N}_\mathrm{\,FIR+mm} \ge 10$. 
+
+This ''goodArea'' contains 862 $\mathrm{S/N}_\mathrm{\,FIR+mm} \ge 5$ sources and 
+427 $\mathrm{S/N}_\mathrm{\,FIR+mm} \ge 5$ sources. 
+
+Sources in goodArea and has stellar mass: 855
+

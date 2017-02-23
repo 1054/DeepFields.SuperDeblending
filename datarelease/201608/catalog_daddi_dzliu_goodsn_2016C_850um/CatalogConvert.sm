@@ -214,7 +214,7 @@ go_make_latex_table
     print +"aaa.tex" '\\begin{center}\n\n' {}
     print +"aaa.tex" '\\caption{ %\n' {}
     print +"aaa.tex" '    GOODS-N Superdebleding Photometry Catalog (Example) %\n' {}
-    print +"aaa.tex" '    \\label{Table_3} %\n' {}
+    print +"aaa.tex" '    \\label{Table_2} %\n' {}
     print +"aaa.tex" '}\n\n' {}
     print +"aaa.tex" '\\begin{tabular}{ $(latex_header_c) }\n\n' {}
     print +"aaa.tex" '    \\hline\n\n' {}
@@ -236,7 +236,7 @@ go_make_latex_table
     print +"aaa.tex" '\\end{tabular}\n\n' {}
     print +"aaa.tex" '\\begin{minipage}{0.85\\textwidth}\n' {}
     print +"aaa.tex" '    \n' {}
-    print +"aaa.tex" '    Table \\ref{Table_3} is published in its entirety in the machine-readable format. \n' {}
+    print +"aaa.tex" '    Table~\\ref{Table_2} is published in its entirety in the machine-readable format. \n' {}
     print +"aaa.tex" '    A portion is shown here for guidance regarding its form and content. \n' {}
     print +"aaa.tex" '    \n' {}
     print +"aaa.tex" '\\end{minipage}\n\n' {}
@@ -244,7 +244,7 @@ go_make_latex_table
     print +"aaa.tex" '\\end{table*}\n\n' {}
     define print_noheader 0
     
-    !cp "aaa.tex" "Table_3.tex"
+    !cp "aaa.tex" "Table_2.tex"
 
 
 

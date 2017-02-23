@@ -18,7 +18,7 @@ type dirname > /dev/null
 SMPATH=$(dirname $(dirname $(readlink -f $0)))
 SMDATE=$(date +%s.$(date +%N|cut -b 1,2,3,4)) # SMDATE=$(date +%Y%m%d.%H%M%S.%N.%Z)
 
-mkdir                                            "/tmp/sm.$SMDATE" 2>/dev/null
+mkdir                                             "/tmp/sm.$SMDATE" 2>/dev/null
 echo "fonts		$SMPATH/lib/sm/fonts.bin"      >  "/tmp/sm.$SMDATE/.sm"
 echo "history_file	.smhist"                   >> "/tmp/sm.$SMDATE/.sm"
 echo "history		80"                        >> "/tmp/sm.$SMDATE/.sm"
@@ -39,6 +39,7 @@ cp -r "$SMPATH/lib/sm/macro" "/tmp/sm.$SMDATE/" 2>/dev/null
 cp "$SMPATH/../Supermongo_macro/"*.sm "/tmp/sm.$SMDATE/macro/" 2>/dev/null
 ln -fs "$SMPATH/lib/sm/help" "/tmp/sm.$SMDATE/help" 2>/dev/null
 if [[ -f $SMPATH/bin/sm ]]; then
+export LD_LIBRARY_PATH=$SMPATH/lib:"$LD_LIBRARY_PATH"
 $SMPATH/bin/sm -f "/tmp/sm.$SMDATE/.sm" $*
 else
 echo ""
