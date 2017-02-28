@@ -18,11 +18,16 @@ go_galfit_n1
     initGalfitParam px py
     set Note = id
     set Mags = float(id) * 0.0 + 8.0 #<20170228># 
+    set ParamMaxMags = ParamMaxMags*0.0 + 30.0
     writeGalfitParam fit_n1.param
     writeGalfitLimit fit_n1.limit
     writeGalfitInput fit_n1.input image_negative.fits fit_n1.fits image_rms.fits image_psf.fits fit_n1.limit
     !galfit fit_n1.input > fit_n1.out
     !mv fit.log fit_n1.log 2>/dev/null
+    if(is_file("fit_n1.fits")) {
+        readGalfitResult fit_n1.fits
+        print_result fit_n1.result
+    }
     
 
 go_galfit_0
@@ -30,6 +35,7 @@ go_galfit_0
     initGalfitParam px py
     set Note = id
     set Mags = float(id) * 0.0 + 8.0 #<20170228># 
+    set ParamMaxMags = float(id)*0.0 + 30.0
     writeGalfitParam fit_0.param
     writeGalfitLimit fit_0.limit
     writeGalfitInput fit_0.input image_sci.fits fit_0.fits image_rms.fits image_psf.fits fit_0.limit
@@ -46,6 +52,7 @@ go_galfit_1
     initGalfitParam px py Vary_X Vary_Y
     set Note = id
     set Mags = ResultMags # (ResultMagsErr<0.5) ? ResultMags : Mags
+    set ParamMaxMags = float(id)*0.0 + 30.0
     writeGalfitParam fit_1.param
     writeGalfitLimit fit_1.limit
     writeGalfitInput fit_1.input image_sci.fits fit_1.fits image_rms.fits image_psf.fits fit_1.limit
@@ -66,6 +73,7 @@ go_galfit_2
     set Mags = ResultMags # (ResultMagsErr<0.25) ? ResultMags : Mags
     set Type = (ResultMagsErr<0.25) ? 'gaussian' : Type
     set Rads = (ResultMagsErr<0.25) ?  1.0       : Rads
+    set ParamMaxMags = float(id)*0.0 + 30.0
     set ParamFitRads = (ResultMagsErr<0.25) ? 1     : ParamFitRads
     set ParamMinRads = (ResultMagsErr<0.25) ? 0.25  : ParamMinRads
     set ParamMaxRads = (ResultMagsErr<0.25) ? 10.0  : ParamMaxRads
