@@ -5,6 +5,7 @@
 usage() {
     echo "Usage: "
     echo "    astrodepth_prior_extraction_photometry -sci 1.cont.fits 2.cont.fits -psf 1.psf.fits 2.psf.fits -cat 1.fits"
+    echo "    astrodepth_prior_extraction_photometry -sci 1.cont.fits 2.cont.fits -psf 1.psf.fits 2.psf.fits -cat 1.fits -out "
     echo "    # if input multiple catalogs, then we will fit each catalog in each image."
     echo ""
 }
