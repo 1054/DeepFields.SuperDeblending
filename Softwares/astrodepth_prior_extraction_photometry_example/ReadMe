@@ -3,6 +3,6 @@ Here is an example of using "astrodepth_prior_extraction_photometry"
 
 bash
 source ../SETUP
-astrodepth_prior_extraction_photometry -sci sci.spw0_1_2_3.cont.I.image.fits -psf sci.spw0_1_2_3.cont.I.psf.fits -cat ../../data/COSMOS_Catalog/*.fits -out "output_dir" -outname "output_name"
+astrodepth_prior_extraction_photometry -sci sci.spw0_1_2_3.cont.I.image.fits -psf sci.spw0_1_2_3.cont.I.psf.fits -cat ../../data/COSMOS_Catalog/Catalog_Laigle_2016_ID_RA_Dec_Photo-z.txt -out "output_dir" -outname "output_name"
 
 

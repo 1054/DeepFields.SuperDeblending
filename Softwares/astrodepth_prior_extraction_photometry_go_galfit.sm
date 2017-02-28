@@ -12,12 +12,39 @@ read_data
     }
 
 
+read_pixscale
+    if(!is_file("image_sci_pixscale.txt")) {
+        !pixscale "image_sci.fits" > "image_sci_pixscale.txt"
+    }
+    if(!is_file("image_sci_pixscale.txt")) {
+        echo "Error! Failed to get pixscale from the image_sci.fits! Failed to read image_sci_pixscale.txt! Exit!"
+        exit
+    }
+    data "image_sci_pixscale.txt" read {pixscale 1}
+
+
+read_pixnoise
+    if(!is_file("image_sci_pixnoise.txt")) {
+        !CrabPhotImageStatistics "image_sci.fits" > "image_sci_pixstats.txt"
+        data "image_sci_pixstats.txt" read {pixstats 7}
+        define print_noheader 1
+        print "image_sci_pixnoise.txt" '%g\n' {pixstats}
+        define print_noheader 0
+    }
+    if(!is_file("image_sci_pixnoise.txt")) {
+        echo "Error! Failed to get pixnoise from the image_sci.fits! Failed to read image_sci_pixnoise.txt! Exit!"
+        exit
+    }
+    data "image_sci_pixnoise.txt" read {pixnoise 1}
+
+
 go_galfit_n1
     # negative image
     read_data
+    read_pixscale
     initGalfitParam px py
     set Note = id
-    set Mags = float(id) * 0.0 + 8.0 #<20170228># 
+    set Mags = float(id) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
     set ParamMaxMags = ParamMaxMags*0.0 + 30.0
     writeGalfitParam fit_n1.param
     writeGalfitLimit fit_n1.limit
@@ -32,9 +59,10 @@ go_galfit_n1
 
 go_galfit_0
     read_data
+    read_pixscale
     initGalfitParam px py
     set Note = id
-    set Mags = float(id) * 0.0 + 8.0 #<20170228># 
+    set Mags = float(id) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
     set ParamMaxMags = float(id)*0.0 + 30.0
     writeGalfitParam fit_0.param
     writeGalfitLimit fit_0.limit
@@ -45,10 +73,11 @@ go_galfit_0
 
 go_galfit_1
     read_data
+    read_pixscale
     readGalfitResult fit_0.fits
     print_result fit_0.result
-    set Vary_X = (ResultMagsErr<0.5) ? 1.5 : 0
-    set Vary_Y = (ResultMagsErr<0.5) ? 1.5 : 0
+    set Vary_X = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
+    set Vary_Y = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
     initGalfitParam px py Vary_X Vary_Y
     set Note = id
     set Mags = ResultMags # (ResultMagsErr<0.5) ? ResultMags : Mags
@@ -62,27 +91,28 @@ go_galfit_1
 
 go_galfit_2
     read_data
+    read_pixscale
     readGalfitResult fit_1.fits
     print_result fit_1.result
     set Pos_X = (ResultMagsErr<0.25) ? ResultPosX : px
     set Pos_Y = (ResultMagsErr<0.25) ? ResultPosY : py
-    set Vary_X = (ResultMagsErr<0.25) ? 1.5 : 0
-    set Vary_Y = (ResultMagsErr<0.25) ? 1.5 : 0
+    set Vary_X = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
+    set Vary_Y = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
     initGalfitParam Pos_X Pos_Y Vary_X Vary_Y
     set Note = id
     set Mags = ResultMags # (ResultMagsErr<0.25) ? ResultMags : Mags
     set Type = (ResultMagsErr<0.25) ? 'gaussian' : Type
-    set Rads = (ResultMagsErr<0.25) ?  1.0       : Rads
+    set Rads = (ResultMagsErr<0.25) ?  0.5/abs(pixscale) : Rads
     set ParamMaxMags = float(id)*0.0 + 30.0
-    set ParamFitRads = (ResultMagsErr<0.25) ? 1     : ParamFitRads
-    set ParamMinRads = (ResultMagsErr<0.25) ? 0.25  : ParamMinRads
-    set ParamMaxRads = (ResultMagsErr<0.25) ? 10.0  : ParamMaxRads
-    set ParamFitElli = (ResultMagsErr<0.25) ? 1     : ParamFitElli
-    set ParamMinElli = (ResultMagsErr<0.25) ? 0.10  : ParamMinElli
-    set ParamMaxElli = (ResultMagsErr<0.25) ? 10.0  : ParamMaxElli
-    set ParamFitRoti = (ResultMagsErr<0.25) ? 1     : ParamFitRoti
-    set ParamMinRoti = (ResultMagsErr<0.25) ? 0     : ParamMinRoti
-    set ParamMaxRoti = (ResultMagsErr<0.25) ? 360.0 : ParamMaxRoti
+    set ParamFitRads = (ResultMagsErr<0.25) ? 1                 : ParamFitRads
+    set ParamMinRads = (ResultMagsErr<0.25) ? 0.25              : ParamMinRads
+    set ParamMaxRads = (ResultMagsErr<0.25) ? 3.0/abs(pixscale) : ParamMaxRads # maximum 3.0 arcsec FWHM
+    set ParamFitElli = (ResultMagsErr<0.25) ? 1                 : ParamFitElli
+    set ParamMinElli = (ResultMagsErr<0.25) ? 0.10              : ParamMinElli
+    set ParamMaxElli = (ResultMagsErr<0.25) ? 10.0              : ParamMaxElli
+    set ParamFitRoti = (ResultMagsErr<0.25) ? 1                 : ParamFitRoti
+    set ParamMinRoti = (ResultMagsErr<0.25) ? 0                 : ParamMinRoti
+    set ParamMaxRoti = (ResultMagsErr<0.25) ? 360.0             : ParamMaxRoti
     writeGalfitParam fit_2.param
     writeGalfitLimit fit_2.limit
     writeGalfitInput fit_2.input image_sci.fits fit_2.fits image_rms.fits image_psf.fits fit_2.limit
@@ -103,8 +133,14 @@ print_result 01
 
 print_result_final 00
     load astroGalfit.sm
-    readGalfitResult fit_2.fits
-    print_result fit_2.result
+    if(is_file("fit_2.fits")) {
+        readGalfitResult fit_2.fits
+        print_result fit_2.result
+    }
+    if(is_file("fit_n1.fits")) {
+        readGalfitResult fit_n1.fits
+        print_result fit_n1.result
+    }
 
 
 

@@ -8,8 +8,8 @@ if [[ $(uname) == *"Darwin"* ]]; then
         if [[ -d "$DIR" ]]; then cd "$DIR" && echo "$(pwd -P)/$(basename ${1})"; 
         else echo "$(pwd -P)/$(basename ${1})"; fi
     }
-    readlinkdarwin $*
+    readlinkdarwin "$@"
 else
-    /usr/bin/readlink $*
+    /usr/bin/readlink "$@"
 fi
 
