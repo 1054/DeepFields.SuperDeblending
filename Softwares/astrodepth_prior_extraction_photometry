@@ -398,7 +398,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                 echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine print_result_final"
                 echo "macro read astrodepth_go_galfit.sm print_result_final" | "$AstroDepth_ScriptDir/sm" > "astrodepth_print_result_final.log"
                 # check output successful or not
-                if [[ -f "fit_2.result" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine print_result_final! Sorry!"; exit 1; fi
+                if [[ ! -f "fit_2.result" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine print_result_final! Sorry!"; exit 1; fi
             fi
         else
             echo "No catalog source within image! Skip and continue!"

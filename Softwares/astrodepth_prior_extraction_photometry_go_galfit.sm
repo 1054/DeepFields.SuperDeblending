@@ -94,6 +94,7 @@ print_result 01
 
 
 print_result_final 00
+    load astroGalfit.sm
     readGalfitResult fit_2.fits
     print_result fit_2.result
 
