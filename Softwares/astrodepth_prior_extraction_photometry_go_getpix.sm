@@ -41,6 +41,7 @@ read_pixnoise
 go_getpix
     read_data
     read_pixscale
+    read_pixnoise
     set radius = 1.5 / pixscale
     set rad = px * 0.0 + radius
     set id = float(id)
