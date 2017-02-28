@@ -159,6 +159,7 @@ for (( i=0; i<${#AstroDepth_INP_CATALOG[@]}; i++ )); do
             echo "echo Writing \$(dimen(id)) rows to \\\"$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt\\\""      >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
             echo "print \"astrodepth_catalog_${i}_ra_dec.txt\" '%18.7f %18.7f\n' {ra dec}"                                  >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
             echo "echo Writing \$(dimen(id)) rows to \\\"$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_mask.txt\\\""     >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
+            echo "set mask = int(mask)"                                                                                     >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
             echo "print \"astrodepth_catalog_${i}_id_mask.txt\" '%30s %18d\n' {id mask}"                                    >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
             
             echo "Extracting ID RA Dec from the input catalog \"${AstroDepth_INP_CATALOG[i]}\""
@@ -394,10 +395,10 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                 if [[ ! -f "fit_2.fits" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_2! Sorry!"; exit 1; fi
             fi
             if [[ -f "fit_2.fits" ]]; then
-                echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine print_result fit_2"
-                echo "macro read astrodepth_go_galfit.sm print_result fit_2" | "$AstroDepth_ScriptDir/sm" > "astrodepth_print_result.log"
+                echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine print_result_final"
+                echo "macro read astrodepth_go_galfit.sm print_result_final" | "$AstroDepth_ScriptDir/sm" > "astrodepth_print_result_final.log"
                 # check output successful or not
-                if [[ -f "fit_2.result" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine print_result! Sorry!"; exit 1; fi
+                if [[ -f "fit_2.result" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine print_result_final! Sorry!"; exit 1; fi
             fi
         else
             echo "No catalog source within image! Skip and continue!"

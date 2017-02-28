@@ -82,9 +82,13 @@ while [[ "$#" -gt 0 ]]; do
     "-catalog-ra") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="catalog-ra";;
    "-catalog-dec") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="catalog-dec";;
   "-catalog-mask") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="catalog-mask";;
+           "-out") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-dir";;
+        "-outdir") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-dir";;
         "-output") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-dir";;
     "-output-dir") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-dir";;
    "-output-name") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-name";;
+      "-out-name") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-name";;
+       "-outname") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-name";;
            "-yes") AstroDepth_CMD_TEXT="$1";        AstroDepth_CMD_TYPE="yes";;
             "-no") AstroDepth_CMD_TEXT="$1";        AstroDepth_CMD_TYPE="no";;
     esac

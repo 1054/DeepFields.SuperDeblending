@@ -1,19 +1,19 @@
-#!/bin/bash
+#!/bin/tcsh
 #
 #${BASH_SOURCE[0]}
 #
 #BASH_VERBOSE=0
 #
 # readlink for Mac (because Mac readlink does not accept "-f" option)
-if [[ $(uname) == *"Darwin"* ]]; then
-    function readlink() {
+if [[ (uname) == *"Darwin"* ]]; then
+    alias readlink 
         if [[ $# -gt 1 ]]; then if [[ "$1" == "-f" ]]; then shift; fi; fi
-        if [[ "$DIR" != *"/"* ]]; then DIR="./$DIR"; fi # 20170228: fixed bug: path without "/"
-        DIR=$(echo "${DIR%/*}") # 20160410: fixed bug: source SETUP just under the Softwares dir
+        DIR=$(echo "${1%/*}"); # 20160410: fixed bug: source SETUP just under the Softwares dir
         if [[ -d "$DIR" ]]; then cd "$DIR" && echo "$(pwd -P)/$(basename ${1})"; 
         else echo "$(pwd -P)/$(basename ${1})"; fi
     }
 fi
+exit
 SUPERDEBLENDDIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
 export SUPERDEBLENDDIR
 #
