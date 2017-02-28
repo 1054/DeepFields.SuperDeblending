@@ -1,0 +1,57 @@
+read_data
+    load astroGalfit.sm
+    data "prior_x_y.txt" read {_px 1 _py 2}
+    set _id = 0,dimen(_px)-1
+    set _se = (_px>0 && _py>0)
+    if(sum(_se) > 0) {
+        set id = _id if(_se)
+        set px = _px if(_se)
+        set py = _py if(_se)
+    } else {
+        print "No_catalog_source_within_image" 'No catalog source within image.\n' {}
+    }
+
+
+read_pixscale
+    data "image_sci_pixscale.txt" read {pixscale 1}
+
+
+go_getpix
+    read_data
+    read_pixscale
+    set radius = 1.5 / pixscale
+    set rad = px * 0.0 + radius
+    set fid = float(id)
+    print "getpix.input" '%15.3f %15.3f %15.3f %15.0f\n' {px py rad fid}
+    !CrabPhotAperPhot "image_sci.fits" "null" "getpix.input" > "getpix.output"
+    #!cat "getpix.input"
+    #!cat "getpix.output"
+    data "getpix.output" read {pix_num 4 pix_sum 5 pix_max 7}
+    if(dimen(pix_num)>0) {
+        # 
+        # print results
+        print "getpix.txt" '%15g %15g %15g %15.3f %15.3f %15.3f %15.0f\n' {pix_max pix_sum pix_num px py rad id}
+        # # 
+        # # prepare big array for output
+        # set pixel_max = float(_id)*0.0 -99
+        # set pixel_sum = float(_id)*0.0 -99
+        # set pixel_num = float(_id)*0.0 -99
+        # set pixel_x   = float(_id)*0.0 -99
+        # set pixel_y   = float(_id)*0.0 -99
+        # set pixel_rad = float(_id)*0.0 -99
+        # # 
+        # # store results into big array
+        # set pixel_max[id] = pix_max
+        # set pixel_sum[id] = pix_sum
+        # set pixel_num[id] = pix_num
+        # set pixel_x[id]   = px
+        # set pixel_y[id]   = py
+        # set pixel_rad[id] = rad
+        # set pixel_id      = _id
+        # # 
+        # # print results
+        # print "getpix.txt" '%15g %15g %15g %15.3f %15.3f %15.3f %15.0f\n' {pixel_max pixel_sum pixel_num pixel_x pixel_y pixel_rad pixel_id}
+        # #!cat "getpix.txt"
+    }
+
+

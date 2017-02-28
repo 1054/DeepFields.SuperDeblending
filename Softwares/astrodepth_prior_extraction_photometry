@@ -4,7 +4,8 @@
 # Prepare usage
 usage() {
     echo "Usage: "
-    echo "    astrodepth_prior_extraction_photometry -sci a.cont.fits -psf a.psf.fits -cat 1.fits"
+    echo "    astrodepth_prior_extraction_photometry -sci 1.cont.fits 2.cont.fits -psf 1.psf.fits 2.psf.fits -cat 1.fits"
+    echo "    # if input multiple catalogs, then we will fit each catalog in each image."
     echo ""
 }
 
@@ -14,7 +15,7 @@ AstroDepth_CurrrentDir=$(pwd -P)
 
 # Check necessary scripts
 if [[ ! -f "$AstroDepth_ScriptDir/sm" || ! -f "$AstroDepth_ScriptDir/astrodepth_command_line_arguments" ]]; then
-    echo "Error! $AstroDepth_ScriptDir/ does not contain necessary scripts! Please download all files again."
+    echo "Error! $AstroDepth_ScriptDir/ does not contain necessary scripts! Please contact dzliu@mpia-hd.mpg.de for the complete code!"
     exit 1
 fi
 
@@ -36,11 +37,10 @@ fi
 #fi
 
 # Check output directory
-AstroDepth_OutputDir=""
-if [[ ${#AstroDepth_INP_OUTPUT[@]} -eq 0 ]]; then
+if [[ ${#AstroDepth_INP_OUTPUT_DIR[@]} -eq 0 ]]; then
     AstroDepth_OutputDir="astrodepth_prior_extraction_photometry"
 else
-    AstroDepth_OutputDir=${AstroDepth_INP_OUTPUT[0]}
+    AstroDepth_OutputDir=${AstroDepth_INP_OUTPUT_DIR[0]}
 fi
 
 # Backup output directory
@@ -178,15 +178,27 @@ done
 
 # Loop input images
 for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
+    # 
+    # 
+    # Check output name
+    if [[ $j -ge ${#AstroDepth_INP_OUTPUT_NAME[@]} ]]; then
+        AstroDepth_OutputName="astrodepth_image_${j}_galfit"
+    else
+        AstroDepth_OutputName=${AstroDepth_INP_OUTPUT_NAME[j]}
+    fi
+    # 
+    # 
     # prepare output sub-directory
-    mkdir "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/" 2>/dev/null
+    mkdir "$AstroDepth_OutputDir/$AstroDepth_OutputName/" 2>/dev/null
+    # 
+    # 
     # check whether catalog sources at within the image area, convert RA Dec to X Y
-    echo "${AstroDepth_INP_IMAGE_SCI[j]}"
-    if [[ ! -f "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/prior_x_y.txt" ]]; then
+    if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_x_y.txt" ]]; then
         for (( i=0; i<${#AstroDepth_INP_CATALOG[@]}; i++ )); do
             if [[ ! -f "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" ]]; then
-                echo sky2xy -n 3 "${AstroDepth_INP_IMAGE_SCI[j]}" @"$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt"
-                sky2xy -n 3 "${AstroDepth_INP_IMAGE_SCI[j]}" @"$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" > "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt"
+                echo "Converting catalog RA Dec to pixel coordinates"
+                #echo sky2xy -n 3 "${AstroDepth_INP_IMAGE_SCI[j]}" @"$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt"
+                     sky2xy -n 3 "${AstroDepth_INP_IMAGE_SCI[j]}" @"$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" > "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt"
                 # check the output line count
                 if [[ $(cat "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" | wc -l) -ne $(cat "$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" | wc -l) ]]; then 
                     echo "Error! Seems failed to run sky2xy and convert RA Dec to X Y? Please check and re-try!"
@@ -197,7 +209,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             # extract x y from the output of sky2xy (x,y start from 1, not 0)
             if [[ ! -f "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt" ]]; then
                 cat "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" | sed -e 's/^ *//g' | grep -v "^#" \
-                    | perl -p -e 's/^([0-9.+-]+)[ ]+([0-9.+-]+)[ ]+J2000 ->[ ]*([0-9.+-]+)[ ]+([0-9.+-]+)[ ]+(\(off image\))$/-99 -99/g' \
+                    | perl -p -e 's/^([0-9.+-]+)[ ]+([0-9.+-]+)[ ]+J2000 ->[ ]*([0-9.+-]+)[ ]+([0-9.+-]+)[ ]+(\(off[a-z A-Z]*\))$/-99 -99/g' \
                     | perl -p -e 's/^([0-9.+-]+)[ ]+([0-9.+-]+)[ ]+J2000 ->[ ]*([0-9.+-]+)[ ]+([0-9.+-]+)$/${3} ${4}/g' \
                     > "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt"
                 # check the output line count
@@ -208,120 +220,180 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                 fi
             fi
             # merge into prior_x_y.txt
-            cat "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt" >> "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/prior_x_y.txt"
+            cat "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt" >> "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_x_y.txt"
         done
     fi
+    # 
+    # 
     # check SCI, PSF, RMS images, get full link by readlink command, and make links by ln command
     if [[ $j -lt ${#AstroDepth_INP_IMAGE_SCI[@]} ]]; then 
-        ln -fs $(readlink -f "${AstroDepth_INP_IMAGE_SCI[j]}") "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/image_sci.fits"
+        ln -fs $(readlink -f "${AstroDepth_INP_IMAGE_SCI[j]}") "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_sci_input.fits"
     fi
     if [[ $j -lt ${#AstroDepth_INP_IMAGE_PSF[@]} ]]; then 
-        ln -fs $(readlink -f "${AstroDepth_INP_IMAGE_PSF[j]}") "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/image_psf.fits"
+        ln -fs $(readlink -f "${AstroDepth_INP_IMAGE_PSF[j]}") "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_psf_input.fits"
     else 
         echo "Error! No PSF image was given for the SCI image \"${AstroDepth_INP_IMAGE_SCI[j]}\"!"
         exit 1
     fi
     if [[ $j -lt ${#AstroDepth_INP_IMAGE_RMS[@]} ]]; then 
-        ln -fs $(readlink -f "${AstroDepth_INP_IMAGE_RMS[j]}") "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/image_rms.fits"
+        ln -fs $(readlink -f "${AstroDepth_INP_IMAGE_RMS[j]}") "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_rms_input.fits"
     else 
-        echo "Warning! No RMS image was given for the SCI image \"${AstroDepth_INP_IMAGE_SCI[j]}\"! We will generate an uniform RMS image!"
+        echo -n "Warning! No RMS image was given! " # for the SCI image \"${AstroDepth_INP_IMAGE_SCI[j]}\"! "
+        if [[ $j -lt ${#AstroDepth_INP_VALUE_RMS[@]} ]]; then 
+            if [[ $(awk "BEGIN { if(${AstroDepth_INP_VALUE_RMS[j]}>0) print 1; else print 0;}") -eq 1 ]]; then
+                echo "We will generate an uniform RMS image with value ${AstroDepth_INP_VALUE_RMS[j]}!"
+                echo "${AstroDepth_INP_VALUE_RMS[j]}" > "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_rms_input.txt"
+            else
+                echo "We will generate an uniform RMS image with value 1.0!"
+                echo "1.0" > "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_rms_input.txt"
+            fi
+        else
+            echo "We will generate an uniform RMS image with value 1.0!"
+            echo "1.0" > "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_rms_input.txt"
+        fi
     fi
+    # 
+    # 
     # now prepare supermongo code to run galfit
     if [[ 1 == 1 ]]; then
-        cd "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/"
+        # 
+        cd "$AstroDepth_OutputDir/$AstroDepth_OutputName/"
+        # 
+        # make sure images do not contain NaN -- <20170226><dzliu> -- use CrabFitsImageArithmetic
+        # and create negative image and rms image if not given -- <20170226><dzliu> -- use CrabFitsImageArithmetic
+        if [[ ! -f "image_check.sh" ]]; then
+            echo "#!/bin/bash" > "image_check.sh"
+            echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_sci_input.fits '*' '+1.0' image_sci.fits      -remove-nan" >> "image_check.sh"
+            echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_sci_input.fits '*' '-1.0' image_negative.fits -remove-nan" >> "image_check.sh"
+            # 
+            if [[ ! -f "image_rms_input.fits" ]]; then
+                echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_sci.fits '*' 0.0 image_zero.fits -remove-nan"  >> "image_check.sh"
+                if [[ ! -f "image_rms_input.txt" ]]; then
+                    echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_zero.fits '+' 1.0 image_rms.fits -remove-nan" >> "image_check.sh"
+                else
+                    echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_zero.fits '+' $(head -n 1 image_rms_input.txt) image_rms.fits -remove-nan" >> "image_check.sh"
+                fi
+            else
+                echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_rms_input.fits '*' 1.0 image_rms.fits -remove-nan" >> "image_check.sh"
+            fi
+            # 
+            echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_psf_input.fits '*' 1.0 image_psf.fits -remove-nan" >> "image_check.sh"
+            echo "" >> "image_check.sh"
+            chmod +x "image_check.sh"
+            ./"image_check.sh" > "image_check.log"
+        fi
+        # 
+        if [[ ! -f "image_sci.fits" ]]; then
+            echo "***************************************************************************"
+            echo "Error! Failed to run CrabFitsImageArithmetic and create \"image_sci.fits\"!"
+            echo "***************************************************************************"
+            exit 1
+        fi
         # 
         if [[ ! -f "image_rms.fits" ]]; then
-            # if no RMS image is given, we generate an uniform RMS image from the SCI image using IRAF <TODO> Make sure user have IRAF
-            echo "images"                                        >  "image_rms.cl"
-            echo "imarith image_sci.fits * 0.0 image_zero.fits"  >> "image_rms.cl"
-            echo "imarith image_zero.fits + 1.0 image_rms.fits"  >> "image_rms.cl"
-            echo "logout"                                        >> "image_rms.cl"
-            echo ""                                              >> "image_rms.cl"
-            cl < "image_rms.cl" > "image_rms.cl.log"
+            echo "***************************************************************************"
+            echo "Error! Failed to run CrabFitsImageArithmetic and create \"image_rms.fits\"!"
+            echo "***************************************************************************"
+            exit 1
         fi
-        echo "Preparing Supermongo script \"astrodepth_go_galfit.sm\" and necessary files for running galfit"
-        echo "read_data"                                                                                                >  "astrodepth_go_galfit.sm"
-        echo "    load astroGalfit.sm"                                                                                  >> "astrodepth_go_galfit.sm"
-        echo "    data \"prior_x_y.txt\" read {_px 1 _py 2}"                                                            >> "astrodepth_go_galfit.sm"
-        echo "    set _id = 0,dimen(_px)-1"                                                                             >> "astrodepth_go_galfit.sm"
-        echo "    set id = _id if(_px>0 && _py>0)"                                                                      >> "astrodepth_go_galfit.sm"
-        echo "    set px = _px if(_px>0 && _py>0)"                                                                      >> "astrodepth_go_galfit.sm"
-        echo "    set py = _py if(_px>0 && _py>0)"                                                                      >> "astrodepth_go_galfit.sm"
-        echo ""                                                                                                         >> "astrodepth_go_galfit.sm"
-        echo "go_galfit_0"                                                                                              >> "astrodepth_go_galfit.sm"
-        echo "    read_data"                                                                                            >> "astrodepth_go_galfit.sm"
-        echo "    initGalfitParam px py"                                                                                >> "astrodepth_go_galfit.sm"
-        echo "    set Note = id"                                                                                        >> "astrodepth_go_galfit.sm"
-        echo "    writeGalfitParam fit_0.param"                                                                         >> "astrodepth_go_galfit.sm"
-        echo "    writeGalfitLimit fit_0.limit"                                                                         >> "astrodepth_go_galfit.sm"
-        echo "    writeGalfitInput fit_0.input image_sci.fits fit_0.fits image_rms.fits image_psf.fits fit_0.limit"     >> "astrodepth_go_galfit.sm"
-        echo "    !'$AstroDepth_ScriptDir/galfit' fit_0.input > fit_0.out"                                              >> "astrodepth_go_galfit.sm"
-        echo "    !mv fit.log fit_0.log 2>/dev/null"                                                                    >> "astrodepth_go_galfit.sm"
-        echo "    "                                                                                                     >> "astrodepth_go_galfit.sm"
-        echo ""                                                                                                         >> "astrodepth_go_galfit.sm"
-        echo "go_galfit_1"                                                                                              >> "astrodepth_go_galfit.sm"
-        echo "    read_data"                                                                                            >> "astrodepth_go_galfit.sm"
-        echo "    readGalfitResult fit_0.fits"                                                                          >> "astrodepth_go_galfit.sm"
-        echo "    set Vary_X = (ResultMagsErr<0.5) ? 1.5 : 0"                                                           >> "astrodepth_go_galfit.sm"
-        echo "    set Vary_Y = (ResultMagsErr<0.5) ? 1.5 : 0"                                                           >> "astrodepth_go_galfit.sm"
-        echo "    initGalfitParam px py Vary_X Vary_Y"                                                                  >> "astrodepth_go_galfit.sm"
-        echo "    set Note = id"                                                                                        >> "astrodepth_go_galfit.sm"
-        echo "    set Mags = (ResultMagsErr<0.5) ? ResultMags : Mags"                                                   >> "astrodepth_go_galfit.sm"
-        echo "    writeGalfitParam fit_1.param"                                                                         >> "astrodepth_go_galfit.sm"
-        echo "    writeGalfitLimit fit_1.limit"                                                                         >> "astrodepth_go_galfit.sm"
-        echo "    writeGalfitInput fit_1.input image_sci.fits fit_1.fits image_rms.fits image_psf.fits fit_1.limit"     >> "astrodepth_go_galfit.sm"
-        echo "    !'$AstroDepth_ScriptDir/galfit' fit_1.input > fit_1.out"                                              >> "astrodepth_go_galfit.sm"
-        echo "    !mv fit.log fit_1.log 2>/dev/null"                                                                    >> "astrodepth_go_galfit.sm"
-        echo "    "                                                                                                     >> "astrodepth_go_galfit.sm"
-        echo ""                                                                                                         >> "astrodepth_go_galfit.sm"
-        echo "go_galfit_2"                                                                                              >> "astrodepth_go_galfit.sm"
-        echo "    read_data"                                                                                            >> "astrodepth_go_galfit.sm"
-        echo "    readGalfitResult fit_1.fits"                                                                          >> "astrodepth_go_galfit.sm"
-        echo "    set Pos_X = (ResultMagsErr<0.25) ? ResultPosX : px"                                                   >> "astrodepth_go_galfit.sm"
-        echo "    set Pos_Y = (ResultMagsErr<0.25) ? ResultPosY : py"                                                   >> "astrodepth_go_galfit.sm"
-        echo "    set Vary_X = (ResultMagsErr<0.25) ? 1.5 : 0"                                                          >> "astrodepth_go_galfit.sm"
-        echo "    set Vary_Y = (ResultMagsErr<0.25) ? 1.5 : 0"                                                          >> "astrodepth_go_galfit.sm"
-        echo "    initGalfitParam Pos_X Pos_Y Vary_X Vary_Y"                                                            >> "astrodepth_go_galfit.sm"
-        echo "    set Note = id"                                                                                        >> "astrodepth_go_galfit.sm"
-        echo "    set Mags = (ResultMagsErr<0.25) ? ResultMags : Mags"                                                  >> "astrodepth_go_galfit.sm"
-        echo "    set Type = (ResultMagsErr<0.25) ? 'gaussian' : Type"                                                  >> "astrodepth_go_galfit.sm"
-        echo "    set Rads = (ResultMagsErr<0.25) ?  1.0       : Rads"                                                  >> "astrodepth_go_galfit.sm"
-        echo "    set ParamFitRads = (ResultMagsErr<0.25) ? 1     : ParamFitRads"                                       >> "astrodepth_go_galfit.sm"
-        echo "    set ParamMinRads = (ResultMagsErr<0.25) ? 0.25  : ParamMinRads"                                       >> "astrodepth_go_galfit.sm"
-        echo "    set ParamMaxRads = (ResultMagsErr<0.25) ? 10.0  : ParamMaxRads"                                       >> "astrodepth_go_galfit.sm"
-        echo "    set ParamFitElli = (ResultMagsErr<0.25) ? 1     : ParamFitElli"                                       >> "astrodepth_go_galfit.sm"
-        echo "    set ParamMinElli = (ResultMagsErr<0.25) ? 0.10  : ParamMinElli"                                       >> "astrodepth_go_galfit.sm"
-        echo "    set ParamMaxElli = (ResultMagsErr<0.25) ? 10.0  : ParamMaxElli"                                       >> "astrodepth_go_galfit.sm"
-        echo "    set ParamFitRoti = (ResultMagsErr<0.25) ? 1     : ParamFitRoti"                                       >> "astrodepth_go_galfit.sm"
-        echo "    set ParamMinRoti = (ResultMagsErr<0.25) ? 0     : ParamMinRoti"                                       >> "astrodepth_go_galfit.sm"
-        echo "    set ParamMaxRoti = (ResultMagsErr<0.25) ? 360.0 : ParamMaxRoti"                                       >> "astrodepth_go_galfit.sm"
-        echo "    writeGalfitParam fit_2.param"                                                                         >> "astrodepth_go_galfit.sm"
-        echo "    writeGalfitLimit fit_2.limit"                                                                         >> "astrodepth_go_galfit.sm"
-        echo "    writeGalfitInput fit_2.input image_sci.fits fit_2.fits image_rms.fits image_psf.fits fit_2.limit"     >> "astrodepth_go_galfit.sm"
-        echo "    !'$AstroDepth_ScriptDir/galfit' fit_2.input > fit_2.out"                                              >> "astrodepth_go_galfit.sm"
-        echo "    !mv fit.log fit_2.log 2>/dev/null"                                                                    >> "astrodepth_go_galfit.sm"
-        echo "    "                                                                                                     >> "astrodepth_go_galfit.sm"
-        echo ""                                                                                                         >> "astrodepth_go_galfit.sm"
-        echo "" >> "astrodepth_go_galfit.sm"
-        echo "" >> "astrodepth_go_galfit.sm"
         # 
-        if [[ ! -f "fit_0.fits" ]]; then
-            echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_0"
-            echo "macro read astrodepth_go_galfit.sm go_galfit_0" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_0.log"
-            # check output successful or not
-            if [[ ! -f "fit_0.fits" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_0! Sorry!"; exit 1; fi
+        # compute PSF peak/total ratio
+        if [[ ! -f "image_psf_peak2total.txt" ]]; then
+            # compute psf peak to toal ratio
+            echo "#!/bin/bash " > "image_psf_peak2total.sh"
+            echo "\"$AstroDepth_ScriptDir\"/CrabPhotImageStatistics image_psf.fits" >> "image_psf_peak2total.sh"
+            echo "" >> "image_psf_peak2total.sh"
+            chmod +x "image_psf_peak2total.sh"
+            ./"image_psf_peak2total.sh" > "image_psf_peak2total.log"
+            tmp_psf_peak=$(cat "image_psf_peak2total.log" | grep -v "^#" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 5) # Column 5: MAX
+            tmp_psf_total=$(cat "image_psf_peak2total.log" | grep -v "^#" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 6) # Column 6: SUM
+            awk "BEGIN {print (($tmp_psf_peak)/($tmp_psf_total));}" > "image_psf_peak2total.txt"
         fi
-        if [[ ! -f "fit_1.fits" ]]; then
-            echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_1"
-            echo "macro read astrodepth_go_galfit.sm go_galfit_1" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_1.log"
-            # check output successful or not
-            if [[ ! -f "fit_1.fits" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_1! Sorry!"; exit 1; fi
+        # 
+        if [[ ! -f "image_psf_peak2total.txt" ]]; then
+            echo "**************************************************************************************"
+            echo "Error! Failed to run CrabPhotImageStatistics and compute \"image_psf_peak2total.txt\"!"
+            echo "**************************************************************************************"
+            exit 1
         fi
-        if [[ ! -f "fit_2.fits" ]]; then
-            echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_2"
-            echo "macro read astrodepth_go_galfit.sm go_galfit_2" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_2.log"
-            # check output successful or not
-            if [[ ! -f "fit_2.fits" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_2! Sorry!"; exit 1; fi
+        # 
+        # get pixscale
+        if [[ ! -f "image_sci_pixscale.txt" ]]; then
+            tmp_naxis1=$(gethead "image_sci.fits" NAXIS1)
+            tmp_naxis2=$(gethead "image_sci.fits" NAXIS2)
+            tmp_radec1=($(xy2sky -d -n 7 "image_sci.fits" 1 1                     | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 1,2))
+            tmp_radec2=($(xy2sky -d -n 7 "image_sci.fits" $tmp_naxis1 $tmp_naxis2 | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 1,2))
+            tmp_pixsc2=$(awk "BEGIN { print ((${tmp_radec2[1]})-(${tmp_radec1[1]}))/($tmp_naxis2)*3600.0 }")
+            if [[ x"$tmp_pixsc2" != x ]]; then
+                echo "$tmp_pixsc2" | sed -e 's/^-//g' > "image_sci_pixscale.txt"
+            fi
+        fi
+        # 
+        if [[ ! -f "image_sci_pixscale.txt" ]]; then
+            echo "****************************************************"
+            echo "Error! Failed to compute \"image_sci_pixscale.txt\"!"
+            echo "tmp_naxis1 = $tmp_naxis1"
+            echo "tmp_naxis2 = $tmp_naxis2"
+            echo "tmp_radec1 = ${tmp_radec1[@]}   "$(xy2sky -d -n 7 "image_sci.fits" 1 1                     | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 1,2)
+            echo "tmp_radec2 = ${tmp_radec2[@]}   "$(xy2sky -d -n 7 "image_sci.fits" $tmp_naxis1 $tmp_naxis2 | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 1,2)
+            echo "tmp_pixsc2 = $tmp_pixsc2"
+            echo "****************************************************"
+            exit 1
+        fi
+        # 
+        # now we run photometry in Scoville way, i.e. measure peak and total flux within a radius=1.5 arcsec circle for each prior source
+        if [[ ! -f "astrodepth_go_getpix.sm" ]]; then
+            echo "Preparing Supermongo script \"astrodepth_go_getpix.sm\" and necessary files for running getpix"
+            cp "$AstroDepth_ScriptDir/astrodepth_prior_extraction_photometry_go_getpix.sm" "astrodepth_go_getpix.sm"
+        fi
+        # 
+        # now we run photometry in Scoville way, i.e. measure peak and total flux within a radius=1.5 arcsec circle for each prior source
+        if [[ ! -f "astrodepth_go_getpix.sm" ]]; then
+            echo "***************************************************"
+            echo "Error! Failed to write \"astrodepth_go_getpix.sm\"!"
+            echo "***************************************************"
+            exit 1
+        fi
+        # 
+        # make supermongo script and execute galfit
+        if [[ ! -f "astrodepth_go_galfit.sm" ]]; then
+            echo "Preparing Supermongo script \"astrodepth_go_galfit.sm\" and necessary files for running galfit"
+            cp "$AstroDepth_ScriptDir/astrodepth_prior_extraction_photometry_go_galfit.sm" "astrodepth_go_galfit.sm"
+        fi
+        # 
+        if [[ ! -f "No_catalog_source_within_image" ]]; then
+            if [[ ! -f "getpix.txt" ]]; then
+                echo "Running Supermongo script \"astrodepth_go_getpix.sm\" subroutine go_getpix"
+                echo "macro read astrodepth_go_getpix.sm go_getpix" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_getpix.log"
+                # check output successful or not
+                if [[ ! -f "No_catalog_source_within_image" && ! -f "getpix.txt" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_getpix.sm\" subroutine go_getpix! Sorry!"; exit 1; fi
+            fi
+            if [[ ! -f "fit_n1.fits" ]]; then
+                echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_n1"
+                echo "macro read astrodepth_go_galfit.sm go_galfit_n1" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_n1.log"
+                # check output successful or not
+                if [[ ! -f "No_catalog_source_within_image" && ! -f "fit_n1.fits" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_n1! Sorry!"; exit 1; fi
+            fi
+            if [[ ! -f "fit_0.fits" ]]; then
+                echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_0"
+                echo "macro read astrodepth_go_galfit.sm go_galfit_0" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_0.log"
+                # check output successful or not
+                if [[ ! -f "No_catalog_source_within_image" && ! -f "fit_0.fits" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_0! Sorry!"; exit 1; fi
+            fi
+            #if [[ ! -f "fit_1.fits" ]]; then
+            #    echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_1"
+            #    echo "macro read astrodepth_go_galfit.sm go_galfit_1" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_1.log"
+            #    # check output successful or not
+            #    if [[ ! -f "fit_1.fits" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_1! Sorry!"; exit 1; fi
+            #fi
+            #if [[ ! -f "fit_2.fits" ]]; then
+            #    echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_2"
+            #    echo "macro read astrodepth_go_galfit.sm go_galfit_2" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_2.log"
+            #    # check output successful or not
+            #    if [[ ! -f "fit_2.fits" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_2! Sorry!"; exit 1; fi
+            #fi
+        else
+            echo "No catalog source within image! Skip and continue!"
         fi
         # 
         cd "$AstroDepth_CurrrentDir"

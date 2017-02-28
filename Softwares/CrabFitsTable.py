@@ -12,6 +12,9 @@
 #   Example: 
 #            Cat = Highz_Catalogue('.fits')
 # 
+#   Last update: 
+#            20170226 02h30m -- Fixed getColumn(number), number starts from 1. 
+# 
 ################################
 
 try:
@@ -83,11 +86,12 @@ class CrabFitsTable(object):
                 print("Error! Column name \"%s\" was not found in the data table!"%(ColNameOrNumb))
                 return []
         else:
-            if ColNameOrNumb >= 0 and ColNameOrNumb < len(self.TableHeaders):
+            if ColNameOrNumb >= 1 and ColNameOrNumb <= len(self.TableHeaders):
                 #<BUGGY><FIXED><20170210># return self.TableData[int(ColNameOrNumb)]
-                return self.TableData.field(self.TableHeaders[int(ColNameOrNumb)])
+                #<BUGGY><FIXED><20170226># [int(ColNameOrNumb)] --> [int(ColNameOrNumb)-1]
+                return self.TableData.field(self.TableHeaders[int(ColNameOrNumb)-1])
             else:
-                print("Error! Column number %d is out of allowed range (0 - %d)!"%(int(ColNameOrNumb),len(self.TableHeaders)-1))
+                print("Error! Column number %d is out of allowed range (1 - %d)!"%(int(ColNameOrNumb),len(self.TableHeaders)))
                 return []
     # 
     def setColumn(self, ColNameOrNumb, DataArray):
@@ -98,11 +102,12 @@ class CrabFitsTable(object):
                 print("Error! Column name \"%s\" was not found in the data table!"%(ColNameOrNumb))
                 return
         else:
-            if ColNameOrNumb >= 0 and ColNameOrNumb < len(self.TableHeaders):
+            if ColNameOrNumb >= 1 and ColNameOrNumb <= len(self.TableHeaders):
                 #<BUGGY><FIXED><20170210># self.TableData[int(ColNameOrNumb)] = DataArray
-                self.TableData[self.TableHeaders[int(ColNameOrNumb)]] = DataArray
+                #<BUGGY><FIXED><20170226># [int(ColNameOrNumb)] --> [int(ColNameOrNumb)-1]
+                self.TableData[self.TableHeaders[int(ColNameOrNumb)-1]] = DataArray
             else:
-                print("Error! Column number %d is out of allowed range (0 - %d)!"%(int(ColNameOrNumb),len(self.TableHeaders)-1))
+                print("Error! Column number %d is out of allowed range (1 - %d)!"%(int(ColNameOrNumb),len(self.TableHeaders)))
                 return
     # 
     def saveAs(self, OutputFilePath, OverWrite = False):

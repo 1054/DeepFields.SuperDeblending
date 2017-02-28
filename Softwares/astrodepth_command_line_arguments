@@ -46,7 +46,9 @@ AstroDepth_INP_NO=0
 AstroDepth_INP_IMAGE_SCI=()
 AstroDepth_INP_IMAGE_PSF=()
 AstroDepth_INP_IMAGE_RMS=()
-AstroDepth_INP_OUTPUT=()
+AstroDepth_INP_VALUE_RMS=()
+AstroDepth_INP_OUTPUT_DIR=()
+AstroDepth_INP_OUTPUT_NAME=()
 AstroDepth_INP_CATALOG=()
 AstroDepth_INP_CATALOG_ID=() # the column number (starting from 1)
 AstroDepth_INP_CATALOG_RA=() # the column number (starting from 1)
@@ -70,6 +72,7 @@ while [[ "$#" -gt 0 ]]; do
      "-image-psf") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="image-psf";;
            "-rms") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="image-rms";;
      "-image-rms") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="image-rms";;
+     "-rms-value") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="value-rms";;
          "-prior") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="catalog";;
            "-cat") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="catalog";;
        "-catalog") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="catalog";;
@@ -77,7 +80,9 @@ while [[ "$#" -gt 0 ]]; do
     "-catalog-ra") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="catalog-ra";;
    "-catalog-dec") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="catalog-dec";;
   "-catalog-mask") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="catalog-mask";;
-        "-output") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output";;
+        "-output") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-dir";;
+    "-output-dir") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-dir";;
+   "-output-name") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-name";;
            "-yes") AstroDepth_CMD_TEXT="$1";        AstroDepth_CMD_TYPE="yes";;
             "-no") AstroDepth_CMD_TEXT="$1";        AstroDepth_CMD_TYPE="no";;
     esac
@@ -86,11 +91,13 @@ while [[ "$#" -gt 0 ]]; do
       "image-sci") if [[ $# -gt 0 ]]; then AstroDepth_INP_IMAGE_SCI+=("$1"); fi;;
       "image-psf") if [[ $# -gt 0 ]]; then AstroDepth_INP_IMAGE_PSF+=("$1"); fi;;
       "image-rms") if [[ $# -gt 0 ]]; then AstroDepth_INP_IMAGE_RMS+=("$1"); fi;;
+      "value-rms") if [[ $# -gt 0 ]]; then AstroDepth_INP_VALUE_RMS+=("$1"); fi;;
         "catalog") if [[ $# -gt 0 ]]; then AstroDepth_INP_CATALOG+=("$1"); fi;;
      "catalog-ra") if [[ $# -gt 0 ]]; then AstroDepth_INP_CATALOG_RA+=("$1"); fi;;
     "catalog-dec") if [[ $# -gt 0 ]]; then AstroDepth_INP_CATALOG_DEC+=("$1"); fi;;
    "catalog-mask") if [[ $# -gt 0 ]]; then AstroDepth_INP_CATALOG_MASK+=("$1"); fi;;
-         "output") if [[ $# -gt 0 ]]; then AstroDepth_INP_OUTPUT+=("$1"); fi;;
+     "output-dir") if [[ $# -gt 0 ]]; then AstroDepth_INP_OUTPUT_DIR+=("$1"); fi;;
+    "output-name") if [[ $# -gt 0 ]]; then AstroDepth_INP_OUTPUT_NAME+=("$1"); fi;;
             "yes")                         AstroDepth_INP_YES=1;;
              "no")                         AstroDepth_INP_NO=1;;
     esac
