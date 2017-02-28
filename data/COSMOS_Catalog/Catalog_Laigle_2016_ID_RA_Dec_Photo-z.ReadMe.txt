@@ -1,0 +1,1 @@
+Extracted the ID, RA, Dec and PHOTOZ columns from the public Laigle 2016 catalog. The catalog is also known as the COSMOS2015 catalog, version 1.1. 
