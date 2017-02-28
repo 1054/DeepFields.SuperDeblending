@@ -83,11 +83,12 @@ go_galfit_2
 
 
 print_result 01
+    readGalfitResult $1.fits
     if(is_file("image_psf_peak2total.txt") && is_vector(ResultMags) && is_vector(ResultMagsErr) && is_vector(ResultPosX) && is_vector(ResultPosY) && $?1) {
         data "image_psf_peak2total.txt" read {peak2total 1.f}
         set ResultFlux = (10**(ResultMags/(-2.5)))
         set ResultFluxErr = ResultMagsErr*ResultFlux/1.08
-        print $1 '%12.3f %12.3f %15g %15g %15.3f %15.3f\n' {ResultPosX ResultPosY ResultFlux ResultFluxErr ResultMags ResultMagsErr}
+        print $1.result '%12.3f %12.3f %15g %15g %15.3f %15.3f\n' {ResultPosX ResultPosY ResultFlux ResultFluxErr ResultMags ResultMagsErr}
     }
 
 
