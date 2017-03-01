@@ -13,6 +13,11 @@ read_data
 
 
 read_pixscale
+    if(is_file("image_sci_pixscale.txt")) {
+        if(is_vector(pixscale)) {unset pixscale}
+        data "image_sci_pixscale.txt" read {pixscale 1}
+        if(!is_vector(pixscale)) {!rm "image_sci_pixscale.txt"} # added a check here
+    }
     if(!is_file("image_sci_pixscale.txt")) {
         !pixscale "image_sci.fits" > "image_sci_pixscale.txt"
     }
@@ -24,6 +29,11 @@ read_pixscale
 
 
 read_pixnoise
+    if(is_file("image_sci_pixnoise.txt")) {
+        if(is_vector(pixnoise)) {unset pixnoise}
+        data "image_sci_pixnoise.txt" read {pixnoise 1}
+        if(!is_vector(pixnoise)) {!rm "image_sci_pixnoise.txt"} # added a check here
+    }
     if(!is_file("image_sci_pixnoise.txt")) {
         !CrabPhotImageStatistics "image_sci.fits" > "image_sci_pixstats.txt"
         data "image_sci_pixstats.txt" read {pixstats 7}

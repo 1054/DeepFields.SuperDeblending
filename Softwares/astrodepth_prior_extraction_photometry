@@ -202,7 +202,32 @@ for (( i=0; i<${#AstroDepth_INP_CATALOG[@]}; i++ )); do
 done
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 
+# 
 # Loop input images
+# 
+# 
 for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # 
     # 
@@ -408,6 +433,54 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     exit 1
                 fi
             fi
+            # 
+            echo "Done!"
+        else
+            echo "No catalog source within image! Skip and continue!"
+        fi
+        # 
+        cd "$AstroDepth_CurrrentDir"
+    fi
+    
+done
+
+
+
+
+
+
+
+# 
+# 
+# Loop again for further steps
+# 
+# 
+if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "galfit"; then
+    echo ""; echo ""; echo ""
+    echo "Continue further steps: galfit"
+    echo ""; echo ""; echo ""
+else
+    exit
+fi
+# 
+# 
+for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
+    # 
+    # 
+    # Check output name
+    if [[ $j -ge ${#AstroDepth_INP_OUTPUT_NAME[@]} ]]; then
+        AstroDepth_OutputName="astrodepth_image_${j}_galfit"
+    else
+        AstroDepth_OutputName=${AstroDepth_INP_OUTPUT_NAME[j]}
+    fi
+    # 
+    # 
+    # cd 
+    if [[ 1 == 1 ]]; then
+        # 
+        cd "$AstroDepth_OutputDir/$AstroDepth_OutputName/"
+        # 
+        if [[ ! -f "No_catalog_source_within_image" ]]; then
             if [[ ! -f "fit_n1.fits" ]]; then
                 echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_n1"
                 echo "macro read astrodepth_go_galfit.sm go_galfit_n1" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_n1.log"
@@ -428,24 +501,16 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     exit 1
                 fi
             fi
-            #if [[ ! -f "fit_1.fits" ]]; then
-            #    echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_1"
-            #    echo "macro read astrodepth_go_galfit.sm go_galfit_1" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_1.log"
-            #    # check output successful or not
-            #    if [[ ! -f "fit_1.fits" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_1! Sorry!"; exit 1; fi
-            #fi
-            #if [[ ! -f "fit_2.fits" ]]; then
-            #    echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_2"
-            #    echo "macro read astrodepth_go_galfit.sm go_galfit_2" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_2.log"
-            #    # check output successful or not
-            #    if [[ ! -f "fit_2.fits" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_2! Sorry!"; exit 1; fi
-            #fi
-            #if [[ -f "fit_2.fits" ]]; then
-            #    echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine print_result_final"
-            #    echo "macro read astrodepth_go_galfit.sm print_result_final" | "$AstroDepth_ScriptDir/sm" > "astrodepth_print_result_final.log"
-            #    # check output successful or not
-            #    if [[ ! -f "fit_2.result" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine print_result_final! Sorry!"; exit 1; fi
-            #fi
+            if [[ ! -f "fit_1.fits" ]]; then
+                echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_1"
+                echo "macro read astrodepth_go_galfit.sm go_galfit_1" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_1.log"
+                # check output successful or not
+                if [[ ! -f "fit_1.fits" ]]; then 
+                    echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_1! Sorry!"
+                    echo "Log file: \"astrodepth_go_galfit_1.log\""; cat "astrodepth_go_galfit_1.log"
+                    exit 1
+                fi
+            fi
             # 
             echo "Done!"
         else
@@ -463,11 +528,20 @@ done
 
 
 
-exit
-
-
-
+# 
+# 
 # Loop again for further steps
+# 
+# 
+if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "gaussian"; then
+    echo ""; echo ""; echo ""
+    echo "Continue further steps: gaussian"
+    echo ""; echo ""; echo ""
+else
+    exit
+fi
+# 
+# 
 for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # 
     # 
@@ -485,16 +559,6 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
         cd "$AstroDepth_OutputDir/$AstroDepth_OutputName/"
         # 
         if [[ ! -f "No_catalog_source_within_image" ]]; then
-            if [[ ! -f "fit_1.fits" ]]; then
-                echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_1"
-                echo "macro read astrodepth_go_galfit.sm go_galfit_1" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_1.log"
-                # check output successful or not
-                if [[ ! -f "fit_1.fits" ]]; then 
-                    echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_1! Sorry!"
-                    echo "Log file: \"astrodepth_go_galfit_1.log\""; cat "astrodepth_go_galfit_1.log"
-                    exit 1
-                fi
-            fi
             if [[ ! -f "fit_2.fits" ]]; then
                 echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_2"
                 echo "macro read astrodepth_go_galfit.sm go_galfit_2" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_2.log"
@@ -525,10 +589,6 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     fi
     
 done
-
-
-
-
 
 
 

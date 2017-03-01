@@ -45,6 +45,7 @@ AstroDepth_INP_DEBUG=0
 AstroDepth_INP_GOOD=1
 AstroDepth_INP_YES=0
 AstroDepth_INP_NO=0
+AstroDepth_INP_STEPS=()
 AstroDepth_INP_IMAGE_SCI=()
 AstroDepth_INP_IMAGE_PSF=()
 AstroDepth_INP_IMAGE_RMS=()
@@ -89,6 +90,8 @@ while [[ "$#" -gt 0 ]]; do
    "-output-name") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-name";;
       "-out-name") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-name";;
        "-outname") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-name";;
+          "-step") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="steps";;
+         "-steps") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="steps";;
            "-yes") AstroDepth_CMD_TEXT="$1";        AstroDepth_CMD_TYPE="yes";;
             "-no") AstroDepth_CMD_TEXT="$1";        AstroDepth_CMD_TYPE="no";;
     esac
@@ -104,6 +107,7 @@ while [[ "$#" -gt 0 ]]; do
    "catalog-mask") if [[ $# -gt 0 ]]; then AstroDepth_INP_CATALOG_MASK+=("$1"); fi;;
      "output-dir") if [[ $# -gt 0 ]]; then AstroDepth_INP_OUTPUT_DIR+=("$1"); fi;;
     "output-name") if [[ $# -gt 0 ]]; then AstroDepth_INP_OUTPUT_NAME+=("$1"); fi;;
+          "steps") if [[ $# -gt 0 ]]; then AstroDepth_INP_STEPS+=("$1"); fi;;
             "yes")                         AstroDepth_INP_YES=1;;
              "no")                         AstroDepth_INP_NO=1;;
     esac
