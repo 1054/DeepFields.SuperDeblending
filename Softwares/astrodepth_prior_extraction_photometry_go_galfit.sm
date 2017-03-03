@@ -69,7 +69,7 @@ go_galfit_n1
     if(is_file("fit.log")) {!mv "fit.log" "fit_n1.log"}
     if(is_file("fit_n1.fits")) {
         readGalfitResult "fit_n1.fits"
-        print_result "fit_n1.result"
+        print_result "fit_n1"
     }
     
 
@@ -90,7 +90,7 @@ go_galfit_0
     if(is_file("fit.log")) {!mv "fit.log" "fit_0.log"}
     if(is_file("fit_0.fits")) {
         readGalfitResult "fit_0.fits"
-        print_result "fit_0.result"
+        print_result "fit_0"
     }
     
 
@@ -102,7 +102,7 @@ go_galfit_1
         data "fit_0.result" read {ResultPosX 1.f ResultPosY 2.f ResultMags 5.f ResultMagsErr 6.f}
     } else {
         readGalfitResult "fit_0.fits"
-        print_result "fit_0.result"
+        print_result "fit_0"
     }
     set Vary_X = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
     set Vary_Y = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
@@ -118,7 +118,7 @@ go_galfit_1
     if(is_file("fit.log")) {!mv "fit.log" "fit_1.log"}
     if(is_file("fit_1.fits")) {
         readGalfitResult "fit_1.fits"
-        print_result "fit_1.result"
+        print_result "fit_1"
     }
     
 
@@ -130,7 +130,7 @@ go_galfit_2
         data "fit_1.result" read {ResultPosX 1.f ResultPosY 2.f ResultMags 5.f ResultMagsErr 6.f}
     } else {
         readGalfitResult "fit_1.fits"
-        print_result "fit_1.result"
+        print_result "fit_1"
     }
     set Pos_X = (ResultMagsErr<0.25) ? ResultPosX : px
     set Pos_Y = (ResultMagsErr<0.25) ? ResultPosY : py
@@ -159,7 +159,7 @@ go_galfit_2
     if(is_file("fit.log")) {!mv "fit.log" "fit_2.log"}
     if(is_file("fit_2.fits")) {
         readGalfitResult "fit_2.fits"
-        print_result "fit_2.result"
+        print_result "fit_2"
     }
 
 
@@ -169,10 +169,13 @@ print_result 01
     if(!is_file("No_catalog_source_within_image")) {
         if(is_file("image_psf_peak2total.txt") && is_vector(ResultMags) && is_vector(ResultMagsErr) && is_vector(ResultPosX) && is_vector(ResultPosY) && $?1) {
             data "image_psf_peak2total.txt" read {peak2total 1.f}
-            set ResultFlux = (10**(ResultMags/(-2.5))) * peak2total
+            set ResultFlux = (10**(ResultMags/(-2.5))) # * peak2total
             set ResultFluxErr = ResultMagsErr*ResultFlux/1.08
             set ResultFlux = (ResultMags<30) ? ResultFlux : 1e-99 #<20170303><dzliu># 
-            print $1 '%12.3f %12.3f %15g %15g %15.3f %15.3f\n' {ResultPosX ResultPosY ResultFlux ResultFluxErr ResultMags ResultMagsErr}
+            if(is_file($1.param)) {
+                data $1.param read {id 31.f}
+            }
+            print $1.result '%12.3f %12.3f %15g %15g %15.3f %15.3f %15.0f\n' {ResultPosX ResultPosY ResultFlux ResultFluxErr ResultMags ResultMagsErr id}
         }
     }
 
@@ -182,11 +185,11 @@ print_result_final 00
         load astroGalfit.sm
         if(is_file("fit_2.fits")) {
             readGalfitResult fit_2.fits
-            print_result fit_2.result
+            print_result fit_2
         }
         if(is_file("fit_n1.fits")) {
             readGalfitResult fit_n1.fits
-            print_result fit_n1.result
+            print_result fit_n1
         }
     }
 
