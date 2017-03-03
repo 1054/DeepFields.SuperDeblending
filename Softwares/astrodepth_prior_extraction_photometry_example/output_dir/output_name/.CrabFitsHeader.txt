@@ -1,0 +1,231 @@
+SIMPLE  =                    T / file does conform to FITS standard             
+BITPIX  =                  -32 / number of bits per data pixel                  
+NAXIS   =                    2 / number of data axes                            
+NAXIS1  =                  378 / length of data axis 1                          
+NAXIS2  =                  350 / length of data axis 2                          
+EXTEND  =                    T / FITS dataset may contain extensions            
+COMMENT   FITS (Flexible Image Transport System) format is defined in 'Astronomy
+COMMENT   and Astrophysics', volume 376, page 359; bibcode: 2001A&A...376..359H 
+END                                                                             
+
+XTENSION= 'IMAGE   '           / IMAGE extension                                
+BITPIX  =                  -64 /Floating point (32 bit)                         
+NAXIS   =                    4                                                  
+NAXIS1  =                  378 / Length of data axis 1                          
+NAXIS2  =                  350 / Length of data axis 2                          
+NAXIS3  =                    1                                                  
+NAXIS4  =                    1                                                  
+PCOUNT  =                    0 / number of random group parameters              
+GCOUNT  =                    1 / number of random groups                        
+BSCALE  =   1.000000000000E+00 /PHYSICAL = PIXEL*BSCALE + BZERO                 
+BZERO   =   0.000000000000E+00                                                  
+BMAJ    =   1.633688641919E-04                                                  
+BMIN    =   1.244146625201E-04                                                  
+BPA     =  -6.065086364746E+01                                                  
+BTYPE   = 'Intensity'                                                           
+OBJECT  = 'AzTEC-3[1:378,1:350]' / Component type                               
+BUNIT   = 'Jy/beam '           /Brightness (pixel) unit                         
+RADESYS = 'ICRS    '                                                            
+LONPOLE =   1.800000000000E+02                                                  
+LATPOLE =   2.587677500000E+00                                                  
+PC01_01 =   1.000000000000E+00                                                  
+PC02_01 =   0.000000000000E+00                                                  
+PC03_01 =   0.000000000000E+00                                                  
+PC04_01 =   0.000000000000E+00                                                  
+PC01_02 =   0.000000000000E+00                                                  
+PC02_02 =   1.000000000000E+00                                                  
+PC03_02 =   0.000000000000E+00                                                  
+PC04_02 =   0.000000000000E+00                                                  
+PC01_03 =   0.000000000000E+00                                                  
+PC02_03 =   0.000000000000E+00                                                  
+PC03_03 =   1.000000000000E+00                                                  
+PC04_03 =   0.000000000000E+00                                                  
+PC01_04 =   0.000000000000E+00                                                  
+PC02_04 =   0.000000000000E+00                                                  
+PC03_04 =   0.000000000000E+00                                                  
+PC04_04 =   1.000000000000E+00                                                  
+CTYPE1  = 'RA---SIN'                                                            
+CRVAL1  =   1.500879337500E+02                                                  
+CDELT1  =  -3.055555555556E-05                                                  
+CRPIX1  =   1.900000000000E+02                                                  
+CUNIT1  = 'deg     '                                                            
+CTYPE2  = 'DEC--SIN'                                                            
+CRVAL2  =   2.587677500000E+00                                                  
+CDELT2  =   3.055555555556E-05                                                  
+CRPIX2  =   1.760000000000E+02                                                  
+CUNIT2  = 'deg     '                                                            
+CTYPE3  = 'FREQ    '                                                            
+CRVAL3  =   2.967738026303E+11                                                  
+CDELT3  =   1.562652259750E+10                                                  
+CRPIX3  =   1.000000000000E+00                                                  
+CUNIT3  = 'Hz      '                                                            
+CTYPE4  = 'STOKES  '                                                            
+CRVAL4  =   1.000000000000E+00                                                  
+CDELT4  =   1.000000000000E+00                                                  
+CRPIX4  =   1.000000000000E+00                                                  
+CUNIT4  = '        '                                                            
+PV2_1   =   0.000000000000E+00                                                  
+PV2_2   =   0.000000000000E+00                                                  
+RESTFRQ =   2.967738026303E+11 /Rest Frequency (Hz)                             
+SPECSYS = 'LSRK    '           /Spectral reference frame                        
+ALTRVAL =  -0.000000000000E+00 /Alternate frequency reference value             
+ALTRPIX =   1.000000000000E+00 /Alternate frequency reference pixel             
+VELREF  =                  257 /1 LSR, 2 HEL, 3 OBS, +256 Radio                 
+COMMENT casacore non-standard usage: 4 LSD, 5 GEO, 6 SOU, 7 GAL                 
+TELESCOP= 'ALMA    '                                                            
+OBSERVER= 'riechers'                                                            
+DATE-OBS= '2012-04-22T22:59:09.648000'                                          
+TIMESYS = 'UTC     '                                                            
+OBSRA   =   1.500879337500E+02                                                  
+OBSDEC  =   2.587677500000E+00                                                  
+OBSGEO-X=   2.225142180269E+06                                                  
+OBSGEO-Y=  -5.440307370349E+06                                                  
+OBSGEO-Z=  -2.481029851874E+06                                                  
+INSTRUME= 'ALMA    '                                                            
+OBJECT  = 'AzTEC-3 '                                                            
+TELESCOP= 'ALMA    '                                                            
+DISTANCE=   0.000000000000E+00                                                  
+FIELD   = 'AzTEC-3 '                                                            
+ITER    =                    1                                                  
+SPW     = '0,1,2,3 '                                                            
+TYPE    = 'image   '                                                            
+DATE    = '2017-02-18T17:25:34.436000' /Date FITS file was written              
+ORIGIN  = 'CASA 4.7.38335-REL (r38335)'                                         
+HISTORY CASA START LOGTABLE                                                     
+HISTORY 2017-02-18T17:24:40 INFO SRCCODE='::setmiscinfo'                        
+HISTORY Ran ia.setmiscinfo                                                      
+HISTORY 2017-02-18T17:24:40 INFO SRCCODE='::setmiscinfo'                        
+HISTORY ia.setmiscinfo(info={...})                                              
+HISTORY CASA END LOGTABLE                                                       
+LOGFILE = 'galfit.03'          / GALFIT best-fit menu file                      
+END                                                                             
+
+XTENSION= 'IMAGE   '           / IMAGE extension                                
+BITPIX  =                  -32 / Bits per pixel                                 
+NAXIS   =                    2 / Number of axes                                 
+NAXIS1  =                  378 / Length of data axis 1                          
+NAXIS2  =                  350 / Length of data axis 2                          
+OBJECT  = 'model   '           / Component type                                 
+COMMENT ========== GALFIT Input Parameters ==========                           
+INITFILE= 'fit_2.input'        / GALFIT input file                              
+DATAIN  = 'image_sci.fits'     / Input data image                               
+SIGMA   = 'image_rms.fits'     / Input sigma image                              
+PSF     = 'image_psf.fits '    / Convolution PSF and kernel                     
+CONSTRNT= 'fit_2.limit'        / Parameter constraint file                      
+MASK    = 'none    '           / Input mask image                               
+FITSECT = '[1:378,1:350]'      / Image section fitted                           
+CONVBOX = '378, 350'           / Convolution box size                           
+MAGZPT  =                   0. / Magnitude zeropoint                            
+COMMENT ========== GALFIT Final Parameters ==========                           
+COMP_1  = 'psf     '           / Component type                                 
+1_XC    = '[240.0790]'         / X center [pixel]                               
+1_YC    = '[91.2950]'          / Y center [pixel]                               
+1_MAG   = '30.0000 +/- 648938.4375' / Integrated magnitude                      
+COMMENT ------------------------------------------------------------------------
+COMP_2  = 'gaussian '          / Component type                                 
+2_XC    = '62.3760 +/- 0.3278' / X center [pixel]                               
+2_YC    = '104.4005 +/- 0.2727' / Y center [pixel]                              
+2_MAG   = '11.0259 +/- 0.0847' / Integrated magnitude                           
+2_FWHM  = '8.1617 +/- 0.7546'  / FWHM [pixels]                                  
+2_AR    = '0.9964 +/- 0.0942'  / Axis ratio (b/a)                               
+2_PA    = '45.7381 +/- 996.5144' / Position Angle (PA) [degrees: Up=0, Left=90] 
+COMMENT ------------------------------------------------------------------------
+COMP_3  = 'gaussian '          / Component type                                 
+3_XC    = '145.2007 +/- 1.8762' / X center [pixel]                              
+3_YC    = '103.4050 +/- 8.0726' / Y center [pixel]                              
+3_MAG   = '12.9023 +/- 0.6676' / Integrated magnitude                           
+3_FWHM  = '25.3604 +/- 19.7859' / FWHM [pixels]                                 
+3_AR    = '0.1000 +/- 0.1537'  / Axis ratio (b/a)                               
+3_PA    = '12.8339 +/- 11.7055' / Position Angle (PA) [degrees: Up=0, Left=90]  
+COMMENT ------------------------------------------------------------------------
+COMP_4  = 'gaussian '          / Component type                                 
+4_XC    = '239.7026 +/- 0.1523' / X center [pixel]                              
+4_YC    = '143.9507 +/- 0.2054' / Y center [pixel]                              
+4_MAG   = '11.5899 +/- 0.0622' / Integrated magnitude                           
+4_FWHM  = '6.4588 +/- 0.5631'  / FWHM [pixels]                                  
+4_AR    = '0.5041 +/- 0.0871'  / Axis ratio (b/a)                               
+4_PA    = '0.000e+00 +/- 7.026e+00' / Position Angle (PA) [degrees: Up=0, Left=9
+COMMENT ------------------------------------------------------------------------
+COMP_5  = 'psf     '           / Component type                                 
+5_XC    = '[143.9100]'         / X center [pixel]                               
+5_YC    = '[151.9980]'         / Y center [pixel]                               
+5_MAG   = '30.0000 +/- 826790.5625' / Integrated magnitude                      
+COMMENT ------------------------------------------------------------------------
+COMP_6  = 'gaussian '          / Component type                                 
+6_XC    = '145.4949 +/- 0.1024' / X center [pixel]                              
+6_YC    = '163.6408 +/- 0.2327' / Y center [pixel]                              
+6_MAG   = '10.5497 +/- 0.0506' / Integrated magnitude                           
+6_FWHM  = '11.5056 +/- 0.5461' / FWHM [pixels]                                  
+6_AR    = '0.2954 +/- 0.0260'  / Axis ratio (b/a)                               
+6_PA    = '0.000e+00 +/- 1.845e+00' / Position Angle (PA) [degrees: Up=0, Left=9
+COMMENT ------------------------------------------------------------------------
+COMP_7  = 'psf     '           / Component type                                 
+7_XC    = '[234.6610]'         / X center [pixel]                               
+7_YC    = '[229.9250]'         / Y center [pixel]                               
+7_MAG   = '30.0000 +/- 532779.7500' / Integrated magnitude                      
+COMMENT ------------------------------------------------------------------------
+COMP_8  = 'psf     '           / Component type                                 
+8_XC    = '[63.9540]'          / X center [pixel]                               
+8_YC    = '[229.4310]'         / Y center [pixel]                               
+8_MAG   = '30.0000 +/- 501821.0312' / Integrated magnitude                      
+COMMENT ------------------------------------------------------------------------
+COMP_9  = 'gaussian '          / Component type                                 
+9_XC    = '244.6216 +/- 0.0152' / X center [pixel]                              
+9_YC    = '218.8602 +/- 0.0132' / Y center [pixel]                              
+9_MAG   = '8.9072 +/- 0.0048'  / Integrated magnitude                           
+9_FWHM  = '4.8537 +/- 0.0397'  / FWHM [pixels]                                  
+9_AR    = '0.8652 +/- 0.0110'  / Axis ratio (b/a)                               
+9_PA    = '33.1361 +/- 2.7042' / Position Angle (PA) [degrees: Up=0, Left=90]   
+COMMENT ------------------------------------------------------------------------
+COMP_10 = 'psf     '           / Component type                                 
+10_XC   = '[358.7280]'         / X center [pixel]                               
+10_YC   = '[195.2800]'         / Y center [pixel]                               
+10_MAG  = '30.0000 +/- 844670.5625' / Integrated magnitude                      
+COMMENT ------------------------------------------------------------------------
+COMP_11 = 'psf     '           / Component type                                 
+11_XC   = '[127.7460]'         / X center [pixel]                               
+11_YC   = '[290.6930]'         / Y center [pixel]                               
+11_MAG  = '30.0000 +/- 711863.9375' / Integrated magnitude                      
+COMMENT ------------------------------------------------------------------------
+COMP_12 = 'psf     '           / Component type                                 
+12_XC   = '[329.9210]'         / X center [pixel]                               
+12_YC   = '[277.9230]'         / Y center [pixel]                               
+12_MAG  = '14.6298 +/- 0.5901' / Integrated magnitude                           
+COMMENT ------------------------------------------------------------------------
+COMP_13 = 'psf     '           / Component type                                 
+13_XC   = '[116.5680]'         / X center [pixel]                               
+13_YC   = '[235.3800]'         / Y center [pixel]                               
+13_MAG  = '30.0000 +/- 645511.1250' / Integrated magnitude                      
+COMMENT ------------------------------------------------------------------------
+COMP_14 = 'psf     '           / Component type                                 
+14_XC   = '[180.6320]'         / X center [pixel]                               
+14_YC   = '[238.7940]'         / Y center [pixel]                               
+14_MAG  = '30.0000 +/- 488300.1875' / Integrated magnitude                      
+COMMENT ------------------------------------------------------------------------
+COMP_15 = 'sky     '           / Component type                                 
+15_XC   = '[189.5000]'         / X center [pixel]                               
+15_YC   = '[175.5000]'         / Y center [pixel]                               
+15_SKY  = '[0.000e+00]'        / Sky background [ADUs]                          
+15_DSDX = '[0.000e+00]'        / x sky gradient [ADUs]                          
+15_DSDY = '[0.000e+00]'        / y sky gradient [ADUs]                          
+COMMENT ------------------------------------------------------------------------
+FLAGS   = 'H-3 H-4 H-1 A-3 A-4 2 ' / See `galfit -help' for details.            
+COMMENT ------------------------------------------------------------------------
+CHISQ   = 0.000413407804086206 / Chi^2 of fit                                   
+NDOF    =               132261 / Degrees of freedom                             
+NFREE   =                   39 / Number of free parameters                      
+NFIX    =                   21 / Number of fixed parameters                     
+CHI2NU  =         3.125697E-09 / Reduced Chi^2                                  
+LOGFILE = 'galfit.03'          / Output logfile                                 
+COMMENT =============================================                           
+COMMENT                                                                         
+END                                                                             
+
+XTENSION= 'IMAGE   '           / IMAGE extension                                
+BITPIX  =                  -32 / Bits per pixel                                 
+NAXIS   =                    2 / Number of axes                                 
+NAXIS1  =                  378 / Length of data axis 1                          
+NAXIS2  =                  350 / Length of data axis 2                          
+OBJECT  = 'residual map'       / Component type                                 
+END                                                                             
+

@@ -294,8 +294,8 @@ writeGalfitInput 06
         if(!is_vector(ParamLy2)){set ParamLy2=0.0} #<TODO># ParamLy2
         if(!is_vector(PixScale)){set PixScale=1.0} #<TODO># PixScale
         if(!is_vector(SkyValue)){set SkyValue=0.0} #<TODO># SkyValue
-        if(!is_vector(ParamCoB)){set ParamCoB=(ParamLx2-ParamLx1)*0.75} #<TODO># convolution box size 
         if(!is_vector(ParamFitSkyValue)){set ParamFitSkyValue=0} #<TODO># fit SkyValue or not
+        # Image region to fit (xmin xmax ymin ymax)
         if(ParamLx2<=ParamLx1 || ParamLy2<=ParamLy1) { #<added><20150717><dzliu>#
             if($?2) { !gethead $2       NAXIS1 NAXIS2 > $(wginput_tmp) } else {
                       !gethead sci.fits NAXIS1 NAXIS2 > $(wginput_tmp) }
@@ -304,6 +304,24 @@ writeGalfitInput 06
             data $(wginput_tmp) read {ParamLx2 1 ParamLy2 2}
             !\rm $(wginput_tmp)
         }
+        # convolution box size (x y)
+        #if(!is_vector(ParamCoB)){set ParamCoB=(ParamLx2-ParamLx1)*0.75} #<20170303><dzliu><plang># moved after get image NAXIS, changed *0.75 to *0.99
+        if(!is_vector(ParamCoB)) { #<added><20170303><dzliu><plang>#
+            if($?5) { !gethead $5       NAXIS1 NAXIS2 > $(wginput_tmp) } else {
+                      !gethead psf.fits NAXIS1 NAXIS2 > $(wginput_tmp) }
+            set PSF_Lx1 = 1 set PSF_Ly1 = 1
+            if(!is_file($(wginput_tmp))) {print '\n\n\nError! failed to get psf image NAXIS!\n\n\n' {} define break ?}
+            data $(wginput_tmp) read {PSF_Lx2 1 PSF_Ly2 2}
+            !\rm $(wginput_tmp)
+            # 
+            set ParamCoB = ((PSF_Lx2-PSF_Lx1+1)) concat ((PSF_Ly2-PSF_Ly1+1))
+        }
+        if(dimen(ParamCoB)==1) {
+            set ParamCoB = ParamCoB concat ParamCoB
+        }
+        set ParamCoB_x = ParamCoB[0]
+        set ParamCoB_y = ParamCoB[1]
+        # 
         if($?2) { print  $1 'A) $2 \n' {} } else {
                   print  $1 'A) %s \n' {ParamSci} }
         if($?3) { print +$1 'B) $3 \n' {} } else {
@@ -317,7 +335,7 @@ writeGalfitInput 06
         if($?6) { print +$1 'G) $6 \n' {} } else {
                   print +$1 'G) %s \n' {ParamLim} }
                   print +$1 'H) %0.0f %0.0f %0.0f %0.0f \t\t\# Image region to fit (xmin xmax ymin ymax)\n' {ParamLx1 ParamLx2 ParamLy1 ParamLy2}
-                  print +$1 'I) %0.3f %0.3f \t\t\# convolution box size (x y)\n' {ParamCoB ParamCoB} # convolution box size 
+                  print +$1 'I) %0.3f %0.3f \t\t\# convolution box size (x y)\n' {ParamCoB_x ParamCoB_y} # convolution box size 
                   print +$1 'J) 0 \t\t\t\t\# Magnitude photometric zeropoint\n' {}
                   print +$1 'K) %0.3f %0.3f \t\t\# Pixel scale in arcsec (dx dy)\n' {PixScale PixScale}
                   print +$1 'O) regular \t\t\t\# Display type (regular, curses, both)\n' {}

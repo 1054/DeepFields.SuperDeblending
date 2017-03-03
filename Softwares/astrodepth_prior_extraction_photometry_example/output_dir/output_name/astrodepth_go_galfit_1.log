@@ -1,0 +1,36 @@
+Read lines 1 to 91 from prior_x_y.txt
+Read lines 1 to 1 from image_sci_pixscale.txt
+Read lines 1 to 59 from getpix.result
+Read lines 1 to 16 from fit_0.result
+
+Initialized value vectors with 14 objects:
+       IObj        PosX        PosY        Type        Mags        Rads        Sers        Elli        Roti        Note
+
+           1       240.1        91.3         psf           5           0           1           1           0           _
+           2       70.39       105.4         psf           5           0           1           1           0           _
+           3       142.6       105.3         psf           5           0           1           1           0           _
+           4       240.9       148.3         psf           5           0           1           1           0           _
+           5       143.9         152         psf           5           0           1           1           0           _
+           6         143       162.9         psf           5           0           1           1           0           _
+           7       234.7       229.9         psf           5           0           1           1           0           _
+           8       63.95       229.4         psf           5           0           1           1           0           _
+           9       246.4       216.8         psf           5           0           1           1           0           _
+          10       358.7       195.3         psf           5           0           1           1           0           _
+          11       127.7       290.7         psf           5           0           1           1           0           _
+          12       329.9       277.9         psf           5           0           1           1           0           _
+          13       116.6       235.4         psf           5           0           1           1           0           _
+          14       180.6       238.8         psf           5           0           1           1           0           _
+
+Initialized paramter vectors with 14 objects:
+    ParamMinPosX ParamMaxPosX ParamFitPosX ParamMinPosY ParamMaxPosY ParamFitPosY ParamMinMags ParamMaxMags ParamFitMags
+    ParamMinRads ParamMaxRads ParamFitRads ParamMinSers ParamMaxSers ParamFitSers
+    ParamMinElli ParamMaxElli ParamFitElli ParamMinRoti ParamMaxRoti ParamFitRoti
+Initialized paramter vectors for sky background:
+    SkyValue ParamFitSkyValue
+
+astroGalfit::writeGalfitParam: Checked vector IObj PosX PosY Mags Rads Sers Elli Roti Type ParamFitPosX ParamMinPosX ParamMaxPosX ParamFitPosY ParamMinPosY ParamMaxPosY ParamFitMags ParamMinMags ParamMaxMags ParamFitRads ParamMinRads ParamMaxRads ParamFitSers ParamMinSers ParamMaxSers ParamFitElli ParamMinElli ParamMaxElli ParamFitRoti ParamMinRoti ParamMaxRoti Note
+astroGalfit::writeGalfitParam: Galfit parameters has been written into fit_1.param
+
+Read these vectors: ResultType ResultPosX ResultPosXErr ResultPosY ResultPosYErr ResultMags ResultMagsErr ResultRads ResultRadsErr ResultSers ResultSersErr ResultElli ResultElliErr ResultRoti ResultRotiErr 
+
+Read lines 1 to 1 from image_psf_peak2total.txt
