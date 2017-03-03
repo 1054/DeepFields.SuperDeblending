@@ -1,9 +1,0 @@
-# CrabPhotAperPhot: readFitsHeader image_psf.fits extension=0 headersize=8640 errStatus=0
-# 
-# image_psf.fits
-# 
-#          NPIX            MIN           MEAN         MEDIAN            MAX            SUM         STDDEV       -3STDDEV       +6STDDEV
-# 
-         131573       -0.11919    6.82338e-07   -6.38732e-05              1      0.0897772      0.0128337     -0.0385004      0.0770028
-
-
