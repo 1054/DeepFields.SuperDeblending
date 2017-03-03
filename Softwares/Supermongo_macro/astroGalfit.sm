@@ -687,7 +687,7 @@ readGalfitResult 01
             return
         }
         set readgresult_tmp = {"._.AstroGalfit._.ReadGalfitResult._."}
-        !mv "fit.result" "fit.result.backup"
+        if(is_file("fit.result")) {!mv "fit.result" "fit.result.backup"}
         !read_galfit_output_fits_result $1
         #!CrabFitsHeader $1 -ext 2 | sed -n -e '/COMP_/,/COMMENT/p' > "fit.header"
         #!cat "fit.header" |cut -d\' -f2 |sed -E 's/\[(.*)\]/\1 0/g' |sed -e 's%+/-%%g' |sed -e 's%*%%g' > $(readgresult_tmp) #' #<20170210># |sed -e 's%*%%g'

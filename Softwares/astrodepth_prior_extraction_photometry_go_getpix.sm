@@ -7,8 +7,10 @@ read_data
         set id = _id if(_se)
         set px = _px if(_se)
         set py = _py if(_se)
+        if(is_file("No_catalog_source_within_image")) {!rm "No_catalog_source_within_image"}
     } else {
         print "No_catalog_source_within_image" 'No catalog source within image.\n' {}
+        exit
     }
 
 
@@ -48,10 +50,32 @@ read_pixnoise
     data "image_sci_pixnoise.txt" read {pixnoise 1}
 
 
+calc_beamarea
+    if(is_file("image_sci_beamarea.txt")) {
+        !mv "image_sci_beamarea.txt" "image_sci_beamarea.txt.backup"
+    }
+    if(is_vector(beamarea)) {
+        unset beamarea
+    }
+    if(is_file("image_sci.fits")) {
+        !gethead "image_sci.fits" "BMAJ" "BMIN" "BPA" > "image_sci_beamarea.tmp"
+        verbose 0
+        if(is_vector(tmp_bmaj)) {unset tmp_bmaj}
+        if(is_vector(tmp_bmin)) {unset tmp_bmin}
+        if(is_vector(tmp_bpa)) {unset tmp_bpa}
+        data "image_sci_beamarea.tmp" read {tmp_bmaj 1 tmp_bmin 2 tmp_bpa 3}
+        if(is_vector(tmp_bmaj) && is_vector(tmp_bmin) && is_vector(tmp_bpa)) {
+            set beamarea = pi/(4.0*ln(2)) * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
+        }
+        verbose 1
+    }
+
+
 go_getpix
     read_data
     read_pixscale
     read_pixnoise
+    # 
     set radius = 1.5 / pixscale
     set rad = px * 0.0 + radius
     set id = float(id)
@@ -64,6 +88,7 @@ go_getpix
         # 
         # print results
         print "getpix.txt" '%15g %15g %15g %15.3f %15.3f %15.3f %15.0f\n' {pix_max pix_sum pix_num px py rad id}
+        # 
         # # 
         # # prepare big array for output
         # set pixel_max = float(_id)*0.0 -99
@@ -86,5 +111,43 @@ go_getpix
         # print "getpix.txt" '%15g %15g %15g %15.3f %15.3f %15.3f %15.0f\n' {pixel_max pixel_sum pixel_num pixel_x pixel_y pixel_rad pixel_id}
         # #!cat "getpix.txt"
     }
+
+
+print_result
+    if(!is_file("No_catalog_source_within_image")) {
+        read_pixscale
+        read_pixnoise
+        calc_beamarea
+        # 
+        if(is_file("getpix.result")) {
+            !mv "getpix.result" "getpix.result.backup"
+        }
+        # 
+        if(is_file("getpix.txt")) {
+            data "getpix.txt" read {pix_max 1.f pix_sum 2.f pix_num 3.f id 7.f}
+            # 
+            # print further results with flux unit Jy/beam (f_peak) or Jy (f_int)
+            if(is_vector(pixscale) && is_vector(beamarea)) {
+                if(pixscale>0 && beamarea>0) {
+                    set f_peak = pix_max
+                    set f_int = pix_sum / beamarea * (pixscale*pixscale)
+                    set err_peak = pixnoise
+                    set err_int = pixnoise * sqrt(pix_num) / beamarea * (pixscale*pixscale)
+                    set snr_peak = (f_peak>0) ? (f_peak / err_peak) : 0.0
+                    set snr_int = (f_int>0) ? (f_int / err_int) : 0.0
+                    print "getpix.result" '%15g %15g %15g %15g %15.0f\n' {f_peak f_int snr_peak snr_int id}
+                } else {
+                    print 'Error! Negative pixscale or beamarea value! Failed to run \"go_getpix.sm\" subroutine \"print_result\"!\n' {}
+                }
+            } else {
+                print 'Error! Failed to read pixscale and beamarea! Failed to run \"go_getpix.sm\" subroutine \"print_result\"!\n' {}
+            }
+        } else {
+            print 'Error! \"getpix.txt\" was not found under current directory! Failed to run \"go_getpix.sm\" subroutine \"print_result\"!\n' {}
+        }
+    }
+
+
+
 
 

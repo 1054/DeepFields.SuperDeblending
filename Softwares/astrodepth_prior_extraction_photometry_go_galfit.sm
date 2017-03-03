@@ -7,8 +7,10 @@ read_data
         set id = _id if(_se)
         set px = _px if(_se)
         set py = _py if(_se)
+        if(is_file("No_catalog_source_within_image")) {!rm "No_catalog_source_within_image"}
     } else {
         print "No_catalog_source_within_image" 'No catalog source within image.\n' {}
+        exit
     }
 
 
@@ -38,8 +40,21 @@ read_pixnoise
     data "image_sci_pixnoise.txt" read {pixnoise 1}
 
 
+mask_prior_sources
+    if(is_file("getpix.result") && is_vector(px) && is_vector(py)) {
+        data "getpix.result" read {f_peak 1.f f_int 2.f snr_peak 3.f snr_int 4.f id 5.f}
+        set mask = (snr_int>=1.0 && snr_peak>=2.0)
+        set px = px if(mask)
+        set py = py if(mask)
+        set id = id if(mask)
+    } else {
+        print 'Warning! \"getpix.result\" was not found! We will not mask the prior sources!\n' {}
+    }
+
+
 go_galfit_n1
     # negative image
+    # no mask_prior_sources
     read_data
     read_pixscale
     initGalfitParam px py
@@ -52,30 +67,41 @@ go_galfit_n1
     !galfit fit_n1.input > fit_n1.out
     !mv fit.log fit_n1.log 2>/dev/null
     if(is_file("fit_n1.fits")) {
-        readGalfitResult fit_n1.fits
-        print_result fit_n1.result
+        readGalfitResult "fit_n1.fits"
+        print_result "fit_n1.result"
     }
     
 
 go_galfit_0
     read_data
     read_pixscale
+    mask_prior_sources
     initGalfitParam px py
     set Note = id
     set Mags = float(id) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
     set ParamMaxMags = float(id)*0.0 + 30.0
+    !rm galfit.* 2>/dev/null
     writeGalfitParam fit_0.param
     writeGalfitLimit fit_0.limit
     writeGalfitInput fit_0.input image_sci.fits fit_0.fits image_rms.fits image_psf.fits fit_0.limit
     !galfit fit_0.input > fit_0.out
     !mv fit.log fit_0.log 2>/dev/null
+    if(is_file("fit_0.fits")) {
+        readGalfitResult "fit_0.fits"
+        print_result "fit_0.result"
+    }
     
 
 go_galfit_1
     read_data
     read_pixscale
-    readGalfitResult fit_0.fits
-    print_result fit_0.result
+    mask_prior_sources
+    if(is_file("fit_0.result")) {
+        data "fit_0.result" read {ResultPosX 1.f ResultPosY 2.f ResultMags 5.f ResultMagsErr 6.f}
+    } else {
+        readGalfitResult "fit_0.fits"
+        print_result "fit_0.result"
+    }
     set Vary_X = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
     set Vary_Y = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
     initGalfitParam px py Vary_X Vary_Y
@@ -87,13 +113,22 @@ go_galfit_1
     writeGalfitInput fit_1.input image_sci.fits fit_1.fits image_rms.fits image_psf.fits fit_1.limit
     !galfit fit_1.input > fit_1.out
     !mv fit.log fit_1.log 2>/dev/null
+    if(is_file("fit_1.fits")) {
+        readGalfitResult "fit_1.fits"
+        print_result "fit_1.result"
+    }
     
 
 go_galfit_2
     read_data
     read_pixscale
-    readGalfitResult fit_1.fits
-    print_result fit_1.result
+    mask_prior_sources
+    if(is_file("fit_1.result")) {
+        data "fit_1.result" read {ResultPosX 1.f ResultPosY 2.f ResultMags 5.f ResultMagsErr 6.f}
+    } else {
+        readGalfitResult "fit_1.fits"
+        print_result "fit_1.result"
+    }
     set Pos_X = (ResultMagsErr<0.25) ? ResultPosX : px
     set Pos_Y = (ResultMagsErr<0.25) ? ResultPosY : py
     set Vary_X = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
@@ -118,28 +153,36 @@ go_galfit_2
     writeGalfitInput fit_2.input image_sci.fits fit_2.fits image_rms.fits image_psf.fits fit_2.limit
     !galfit fit_2.input > fit_2.out
     !mv fit.log fit_2.log 2>/dev/null
+    if(is_file("fit_2.fits")) {
+        readGalfitResult "fit_2.fits"
+        print_result "fit_2.result"
+    }
 
 
 
 
 print_result 01
-    if(is_file("image_psf_peak2total.txt") && is_vector(ResultMags) && is_vector(ResultMagsErr) && is_vector(ResultPosX) && is_vector(ResultPosY) && $?1) {
-        data "image_psf_peak2total.txt" read {peak2total 1.f}
-        set ResultFlux = (10**(ResultMags/(-2.5)))
-        set ResultFluxErr = ResultMagsErr*ResultFlux/1.08
-        print $1 '%12.3f %12.3f %15g %15g %15.3f %15.3f\n' {ResultPosX ResultPosY ResultFlux ResultFluxErr ResultMags ResultMagsErr}
+    if(!is_file("No_catalog_source_within_image")) {
+        if(is_file("image_psf_peak2total.txt") && is_vector(ResultMags) && is_vector(ResultMagsErr) && is_vector(ResultPosX) && is_vector(ResultPosY) && $?1) {
+            data "image_psf_peak2total.txt" read {peak2total 1.f}
+            set ResultFlux = (10**(ResultMags/(-2.5)))
+            set ResultFluxErr = ResultMagsErr*ResultFlux/1.08
+            print $1 '%12.3f %12.3f %15g %15g %15.3f %15.3f\n' {ResultPosX ResultPosY ResultFlux ResultFluxErr ResultMags ResultMagsErr}
+        }
     }
 
 
 print_result_final 00
-    load astroGalfit.sm
-    if(is_file("fit_2.fits")) {
-        readGalfitResult fit_2.fits
-        print_result fit_2.result
-    }
-    if(is_file("fit_n1.fits")) {
-        readGalfitResult fit_n1.fits
-        print_result fit_n1.result
+    if(!is_file("No_catalog_source_within_image")) {
+        load astroGalfit.sm
+        if(is_file("fit_2.fits")) {
+            readGalfitResult fit_2.fits
+            print_result fit_2.result
+        }
+        if(is_file("fit_n1.fits")) {
+            readGalfitResult fit_n1.fits
+            print_result fit_n1.result
+        }
     }
 
 
