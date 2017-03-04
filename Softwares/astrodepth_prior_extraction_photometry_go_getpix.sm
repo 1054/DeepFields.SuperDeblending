@@ -66,9 +66,16 @@ calc_beamarea
         data "image_sci_beamarea.tmp" read {tmp_bmaj 1 tmp_bmin 2 tmp_bpa 3}
         if(is_vector(tmp_bmaj) && is_vector(tmp_bmin) && is_vector(tmp_bpa)) {
             set beamarea = pi/(4.0*ln(2)) * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
+            define print_noheader 1
+            print "image_sci_beamarea.txt" '%g\n' {beamarea}
+            define print_noheader 0
         }
         verbose 1
     }
+
+
+
+
 
 
 go_getpix
@@ -111,6 +118,10 @@ go_getpix
         # print "getpix.txt" '%15g %15g %15g %15.3f %15.3f %15.3f %15.0f\n' {pixel_max pixel_sum pixel_num pixel_x pixel_y pixel_rad pixel_id}
         # #!cat "getpix.txt"
     }
+
+
+
+
 
 
 print_result

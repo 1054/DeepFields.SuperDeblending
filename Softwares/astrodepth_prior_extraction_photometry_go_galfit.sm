@@ -15,6 +15,11 @@ read_data
 
 
 read_pixscale
+    if(is_file("image_sci_pixscale.txt")) {
+        if(is_vector(pixscale)) {unset pixscale}
+        data "image_sci_pixscale.txt" read {pixscale 1}
+        if(!is_vector(pixscale)) {!rm "image_sci_pixscale.txt"} # added a check here
+    }
     if(!is_file("image_sci_pixscale.txt")) {
         !pixscale "image_sci.fits" > "image_sci_pixscale.txt"
     }
@@ -26,6 +31,11 @@ read_pixscale
 
 
 read_pixnoise
+    if(is_file("image_sci_pixnoise.txt")) {
+        if(is_vector(pixnoise)) {unset pixnoise}
+        data "image_sci_pixnoise.txt" read {pixnoise 1}
+        if(!is_vector(pixnoise)) {!rm "image_sci_pixnoise.txt"} # added a check here
+    }
     if(!is_file("image_sci_pixnoise.txt")) {
         !CrabPhotImageStatistics "image_sci.fits" > "image_sci_pixstats.txt"
         data "image_sci_pixstats.txt" read {pixstats 7}
@@ -40,6 +50,34 @@ read_pixnoise
     data "image_sci_pixnoise.txt" read {pixnoise 1}
 
 
+calc_beamarea
+    if(is_file("image_sci_beamarea.txt")) {
+        !mv "image_sci_beamarea.txt" "image_sci_beamarea.txt.backup"
+    }
+    if(is_vector(beamarea)) {
+        unset beamarea
+    }
+    if(is_file("image_sci.fits")) {
+        !gethead "image_sci.fits" "BMAJ" "BMIN" "BPA" > "image_sci_beamarea.tmp"
+        verbose 0
+        if(is_vector(tmp_bmaj)) {unset tmp_bmaj}
+        if(is_vector(tmp_bmin)) {unset tmp_bmin}
+        if(is_vector(tmp_bpa)) {unset tmp_bpa}
+        data "image_sci_beamarea.tmp" read {tmp_bmaj 1 tmp_bmin 2 tmp_bpa 3}
+        if(is_vector(tmp_bmaj) && is_vector(tmp_bmin) && is_vector(tmp_bpa)) {
+            set beamarea = pi/(4.0*ln(2)) * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
+            define print_noheader 1
+            print "image_sci_beamarea.txt" '%g\n' {beamarea}
+            define print_noheader 0
+        }
+        verbose 1
+    }
+
+
+
+
+
+
 mask_prior_sources
     if(is_file("getpix.result") && is_vector(px) && is_vector(py)) {
         data "getpix.result" read {f_peak 1.f f_int 2.f snr_peak 3.f snr_int 4.f id 5.f}
@@ -52,6 +90,10 @@ mask_prior_sources
     }
 
 
+
+
+
+
 go_galfit_n1
     # negative image
     # no mask_prior_sources
@@ -61,7 +103,7 @@ go_galfit_n1
     set Note = id
     set Mags = float(id) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
     set ParamMaxMags = ParamMaxMags*0.0 + 30.0
-    set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+    #set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
     writeGalfitParam fit_n1.param
     writeGalfitLimit fit_n1.limit
     writeGalfitInput fit_n1.input image_negative.fits fit_n1.fits image_rms.fits image_psf.fits fit_n1.limit
@@ -81,7 +123,7 @@ go_galfit_0
     set Note = id
     set Mags = float(id) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
     set ParamMaxMags = float(id)*0.0 + 30.0
-    set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+    #set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
     if(is_file("galfit.01")) {!rm galfit.*}
     writeGalfitParam fit_0.param
     writeGalfitLimit fit_0.limit
@@ -110,7 +152,7 @@ go_galfit_1
     set Note = id
     set Mags = ResultMags # (ResultMagsErr<0.5) ? ResultMags : Mags
     set ParamMaxMags = float(id)*0.0 + 30.0
-    set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+    #set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
     writeGalfitParam fit_1.param
     writeGalfitLimit fit_1.limit
     writeGalfitInput fit_1.input image_sci.fits fit_1.fits image_rms.fits image_psf.fits fit_1.limit
@@ -151,7 +193,7 @@ go_galfit_2
     set ParamFitRoti = (ResultMagsErr<0.25) ? 1                 : ParamFitRoti
     set ParamMinRoti = (ResultMagsErr<0.25) ? 0                 : ParamMinRoti
     set ParamMaxRoti = (ResultMagsErr<0.25) ? 360.0             : ParamMaxRoti
-    set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+    #set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
     writeGalfitParam fit_2.param
     writeGalfitLimit fit_2.limit
     writeGalfitInput fit_2.input image_sci.fits fit_2.fits image_rms.fits image_psf.fits fit_2.limit
@@ -165,13 +207,50 @@ go_galfit_2
 
 
 
+
+
 print_result 01
+    #<before><20170304># if(!is_file("No_catalog_source_within_image")) {
+    #<before><20170304>#     if(is_file($1.result)) {!mv $1.result $1.result.backup}
+    #<before><20170304>#     if(is_file("image_psf_peak2total.txt") && is_vector(ResultMags) && is_vector(ResultMagsErr) && is_vector(ResultPosX) && is_vector(ResultPosY) && $?1) {
+    #<before><20170304>#         data "image_psf_peak2total.txt" read {peak2total 1.f}
+    #<before><20170304>#         set ResultFlux = (10**(ResultMags/(-2.5))) * peak2total
+    #<before><20170304>#         set ResultFluxErr = ResultMagsErr*ResultFlux/1.08
+    #<before><20170304>#         set ResultFlux = (ResultMags<30) ? ResultFlux : 1e-99 #<20170303><dzliu># 
+    #<before><20170304>#         if(is_file($1.param)) {
+    #<before><20170304>#             data $1.param read {id 31.f}
+    #<before><20170304>#         }
+    #<before><20170304>#         print $1.result '%12.3f %12.3f %15g %15g %15.3f %15.3f %15.0f\n' {ResultPosX ResultPosY ResultFlux ResultFluxErr ResultMags ResultMagsErr id}
+    #<before><20170304>#     }
+    #<before><20170304># }
     if(!is_file("No_catalog_source_within_image")) {
+        read_pixscale
+        read_pixnoise
+        calc_beamarea
+        # 
+        if(is_file($1.result)) {
+            !mv $1.result $1.result.backup
+        }
+        # 
         if(is_file("image_psf_peak2total.txt") && is_vector(ResultMags) && is_vector(ResultMagsErr) && is_vector(ResultPosX) && is_vector(ResultPosY) && $?1) {
             data "image_psf_peak2total.txt" read {peak2total 1.f}
-            set ResultFlux = (10**(ResultMags/(-2.5))) # * peak2total
-            set ResultFluxErr = ResultMagsErr*ResultFlux/1.08
-            set ResultFlux = (ResultMags<30) ? ResultFlux : 1e-99 #<20170303><dzliu># 
+            set ResultFlux = ResultMags*0.0 + 1e-99
+            set ResultFluxErr = ResultMags*0.0 + 1e+99
+            do i=0,dimen(ResultMags)-1 {
+                if(ResultType[$i]=='psf') {
+                    # In this case (10**(ResultMags/(-2.5))) equals the (pix_max / peak2total)
+                    set ResultFlux[$i] = (10**(ResultMags[$i]/(-2.5))) * peak2total
+                    set ResultFluxErr[$i] = ResultMagsErr[$i]*ResultFlux[$i]/1.08
+                }
+                if(ResultType[$i]=='gaussian') {
+                    # In this case (10**(ResultMags/(-2.5))) equals the (pix_sum)
+                    set ResultFlux[$i] = (10**(ResultMags[$i]/(-2.5))) / beamarea * (pixscale*pixscale) # * (pi/(4*ln(2))*ResultRads[$i]*ResultRads[$i]*ResultElli[$i]) #<20170303><dzliu># must correct Jy/beam -> Jy/pixel for Gaussian fitting
+                    set ResultFluxErr[$i] = ResultMagsErr[$i]*ResultFlux[$i]/1.08
+                }
+                if(ResultMags[$i]<30) {
+                    set ResultFlux[$i] = (ResultMags[$i]<30) ? ResultFlux[$i] : 1e-99 #<20170303><dzliu># 
+                }
+            }
             if(is_file($1.param)) {
                 data $1.param read {id 31.f}
             }
