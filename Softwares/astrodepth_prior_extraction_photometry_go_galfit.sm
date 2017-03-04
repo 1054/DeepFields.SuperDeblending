@@ -127,7 +127,7 @@ go_galfit_n1
     set Note = id
     set Mags = float(id) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
     set ParamMaxMags = ParamMaxMags*0.0 + 30.0
-    #set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+    set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
     writeGalfitParam fit_n1.param
     writeGalfitLimit fit_n1.limit
     writeGalfitInput fit_n1.input image_negative.fits fit_n1.fits image_rms.fits image_psf.fits fit_n1.limit
@@ -147,7 +147,7 @@ go_galfit_0
     set Note = id
     set Mags = float(id) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
     set ParamMaxMags = float(id)*0.0 + 30.0
-    #set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+    set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
     if(is_file("galfit.01")) {!rm galfit.*}
     writeGalfitParam fit_0.param
     writeGalfitLimit fit_0.limit
@@ -176,7 +176,7 @@ go_galfit_1
     set Note = id
     set Mags = ResultMags # (ResultMagsErr<0.5) ? ResultMags : Mags
     set ParamMaxMags = float(id)*0.0 + 30.0
-    #set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+    set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
     writeGalfitParam fit_1.param
     writeGalfitLimit fit_1.limit
     writeGalfitInput fit_1.input image_sci.fits fit_1.fits image_rms.fits image_psf.fits fit_1.limit
@@ -217,7 +217,7 @@ go_galfit_2
     set ParamFitRoti = (ResultMagsErr<0.25) ? 1                 : ParamFitRoti
     set ParamMinRoti = (ResultMagsErr<0.25) ? 0                 : ParamMinRoti
     set ParamMaxRoti = (ResultMagsErr<0.25) ? 360.0             : ParamMaxRoti
-    #set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+    set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
     writeGalfitParam fit_2.param
     writeGalfitLimit fit_2.limit
     writeGalfitInput fit_2.input image_sci.fits fit_2.fits image_rms.fits image_psf.fits fit_2.limit
@@ -294,7 +294,7 @@ print_result 01
             set min_err = maj*ResultElliErr
             set pa = ResultRoti
             set pa_err = ResultRotiErr
-            print $1.result '%12.4f %12.4f %14g %14g %12.4f %12g %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %12.0f %12.0f\n' \
+            print $1.result '%12.4f %12.4f %14g %14g %10.4f %12g %10.4f %12g %10.4f %12g %10.4f %12g %12.0f %12.0f\n' \
                 {x y f f_err mag mag_err maj maj_err min min_err pa pa_err cat_index id}
         }
     }
