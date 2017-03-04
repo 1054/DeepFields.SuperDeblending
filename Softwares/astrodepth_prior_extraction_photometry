@@ -243,6 +243,12 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     mkdir "$AstroDepth_OutputDir/$AstroDepth_OutputName/" 2>/dev/null
     # 
     # 
+    # copy prior id
+    if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_id.txt" ]]; then
+        cat "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_mask.txt" | sed -e 's/^ *//g' | grep -v "^#" | cut -d ' ' -f 1 > "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_id.txt"
+    fi
+    # 
+    # 
     # check whether catalog sources at within the image area, convert RA Dec to X Y
     if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_x_y.txt" ]]; then
         for (( i=0; i<${#AstroDepth_INP_CATALOG[@]}; i++ )); do

@@ -276,7 +276,7 @@ print_result 01
                 }
             }
             if(is_file($1.param)) {
-                data $1.param read {id 31.f}
+                data $1.param read {cat_index 31.f}
             }
             set x = ResultPosX
             set y = ResultPosY
@@ -291,7 +291,7 @@ print_result 01
             set pa = ResultRoti
             set pa_err = ResultRotiErr
             print $1.result '%12.4f %12.4f %14g %14g %12.4f %12g %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %12.0f\n' \
-                {x y f f_err mag mag_err maj maj_err min min_err pa pa_err id}
+                {x y f f_err mag mag_err maj maj_err min min_err pa pa_err cat_index}
         }
     }
 
