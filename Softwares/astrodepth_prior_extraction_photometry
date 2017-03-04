@@ -347,50 +347,50 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             echo "***************************************************************************"
             exit 1
         fi
-        # 
-        # compute PSF peak/total ratio
-        if [[ ! -f "image_psf_peak2total.txt" ]]; then
-            # compute psf peak to toal ratio
-            echo "#!/bin/bash " > "image_psf_peak2total.sh"
-            echo "\"$AstroDepth_ScriptDir\"/CrabPhotImageStatistics image_psf.fits" >> "image_psf_peak2total.sh"
-            echo "" >> "image_psf_peak2total.sh"
-            chmod +x "image_psf_peak2total.sh"
-            ./"image_psf_peak2total.sh" > "image_psf_peak2total.log"
-            tmp_psf_peak=$(cat "image_psf_peak2total.log" | grep -v "^#" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 5) # Column 5: MAX
-            tmp_psf_total=$(cat "image_psf_peak2total.log" | grep -v "^#" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 6) # Column 6: SUM
-            awk "BEGIN {print (($tmp_psf_peak)/($tmp_psf_total));}" > "image_psf_peak2total.txt"
-        fi
-        # 
-        if [[ ! -f "image_psf_peak2total.txt" ]]; then
-            echo "**************************************************************************************"
-            echo "Error! Failed to run CrabPhotImageStatistics and compute \"image_psf_peak2total.txt\"!"
-            echo "**************************************************************************************"
-            exit 1
-        fi
-        # 
-        # get pixscale
-        if [[ ! -f "image_sci_pixscale.txt" ]]; then
-            tmp_naxis1=$(gethead "image_sci.fits" NAXIS1)
-            tmp_naxis2=$(gethead "image_sci.fits" NAXIS2)
-            tmp_radec1=($(xy2sky -d -n 7 "image_sci.fits" 1 1                     | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 1,2))
-            tmp_radec2=($(xy2sky -d -n 7 "image_sci.fits" $tmp_naxis1 $tmp_naxis2 | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 1,2))
-            tmp_pixsc2=$(awk "BEGIN { print ((${tmp_radec2[1]})-(${tmp_radec1[1]}))/($tmp_naxis2)*3600.0 }")
-            if [[ x"$tmp_pixsc2" != x ]]; then
-                echo "$tmp_pixsc2" | sed -e 's/^-//g' > "image_sci_pixscale.txt"
-            fi
-        fi
-        # 
-        if [[ ! -f "image_sci_pixscale.txt" ]]; then
-            echo "****************************************************"
-            echo "Error! Failed to compute \"image_sci_pixscale.txt\"!"
-            echo "tmp_naxis1 = $tmp_naxis1"
-            echo "tmp_naxis2 = $tmp_naxis2"
-            echo "tmp_radec1 = ${tmp_radec1[@]}   "$(xy2sky -d -n 7 "image_sci.fits" 1 1                     | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 1,2)
-            echo "tmp_radec2 = ${tmp_radec2[@]}   "$(xy2sky -d -n 7 "image_sci.fits" $tmp_naxis1 $tmp_naxis2 | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 1,2)
-            echo "tmp_pixsc2 = $tmp_pixsc2"
-            echo "****************************************************"
-            exit 1
-        fi
+        # # 
+        # # compute PSF peak/total ratio
+        # if [[ ! -f "image_psf_peak2total.txt" ]]; then
+        #     # compute psf peak to toal ratio
+        #     echo "#!/bin/bash " > "image_psf_peak2total.sh"
+        #     echo "\"$AstroDepth_ScriptDir\"/CrabPhotImageStatistics image_psf.fits" >> "image_psf_peak2total.sh"
+        #     echo "" >> "image_psf_peak2total.sh"
+        #     chmod +x "image_psf_peak2total.sh"
+        #     ./"image_psf_peak2total.sh" > "image_psf_peak2total.log"
+        #     tmp_psf_peak=$(cat "image_psf_peak2total.log" | grep -v "^#" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 5) # Column 5: MAX
+        #     tmp_psf_total=$(cat "image_psf_peak2total.log" | grep -v "^#" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 6) # Column 6: SUM
+        #     awk "BEGIN {print (($tmp_psf_peak)/($tmp_psf_total));}" > "image_psf_peak2total.txt"
+        # fi
+        # # 
+        # if [[ ! -f "image_psf_peak2total.txt" ]]; then
+        #     echo "**************************************************************************************"
+        #     echo "Error! Failed to run CrabPhotImageStatistics and compute \"image_psf_peak2total.txt\"!"
+        #     echo "**************************************************************************************"
+        #     exit 1
+        # fi
+        # # 
+        # # get pixscale
+        # if [[ ! -f "image_sci_pixscale.txt" ]]; then
+        #     tmp_naxis1=$(gethead "image_sci.fits" NAXIS1)
+        #     tmp_naxis2=$(gethead "image_sci.fits" NAXIS2)
+        #     tmp_radec1=($(xy2sky -d -n 7 "image_sci.fits" 1 1                     | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 1,2))
+        #     tmp_radec2=($(xy2sky -d -n 7 "image_sci.fits" $tmp_naxis1 $tmp_naxis2 | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 1,2))
+        #     tmp_pixsc2=$(awk "BEGIN { print ((${tmp_radec2[1]})-(${tmp_radec1[1]}))/($tmp_naxis2)*3600.0 }")
+        #     if [[ x"$tmp_pixsc2" != x ]]; then
+        #         echo "$tmp_pixsc2" | sed -e 's/^-//g' > "image_sci_pixscale.txt"
+        #     fi
+        # fi
+        # # 
+        # if [[ ! -f "image_sci_pixscale.txt" ]]; then
+        #     echo "****************************************************"
+        #     echo "Error! Failed to compute \"image_sci_pixscale.txt\"!"
+        #     echo "tmp_naxis1 = $tmp_naxis1"
+        #     echo "tmp_naxis2 = $tmp_naxis2"
+        #     echo "tmp_radec1 = ${tmp_radec1[@]}   "$(xy2sky -d -n 7 "image_sci.fits" 1 1                     | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 1,2)
+        #     echo "tmp_radec2 = ${tmp_radec2[@]}   "$(xy2sky -d -n 7 "image_sci.fits" $tmp_naxis1 $tmp_naxis2 | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 1,2)
+        #     echo "tmp_pixsc2 = $tmp_pixsc2"
+        #     echo "****************************************************"
+        #     exit 1
+        # fi
         # 
         # get pixnoise
         if [[ ! -f "image_sci_pixnoise.txt" ]]; then

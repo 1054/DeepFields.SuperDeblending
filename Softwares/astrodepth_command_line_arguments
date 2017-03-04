@@ -86,6 +86,7 @@ while [[ "$#" -gt 0 ]]; do
   "-catalog-mask") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="catalog-mask";;
            "-out") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-dir";;
         "-outdir") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-dir";;
+       "-out-dir") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-dir";;
         "-output") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-dir";;
     "-output-dir") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-dir";;
    "-output-name") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="output-name";;

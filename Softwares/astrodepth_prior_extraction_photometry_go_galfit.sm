@@ -66,13 +66,37 @@ calc_beamarea
         data "image_sci_beamarea.tmp" read {tmp_bmaj 1 tmp_bmin 2 tmp_bpa 3}
         if(is_vector(tmp_bmaj) && is_vector(tmp_bmin) && is_vector(tmp_bpa)) {
             set beamarea = pi/(4.0*ln(2)) * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
+            set beamarea_sinc = pi * (tmp_bmaj/1.89549*3600.0 * tmp_bmin/1.89549*3600.0) # arcsec-square
             define print_noheader 1
             print "image_sci_beamarea.txt" '%g\n' {beamarea}
+            print "image_sci_beamarea_sinc.txt" '%g\n' {beamarea_sinc}
             define print_noheader 0
         }
         verbose 1
     }
 
+
+calc_peak2total
+    if(is_file("image_psf_peak2total.txt")) {
+        !mv "image_psf_peak2total.txt" "image_psf_peak2total.txt.backup"
+    }
+    if(is_vector(peak2total)) {
+        unset peak2total
+    }
+    if(is_file("image_psf.fits")) {
+        !CrabPhotImageStatistics -header-in-comment image_psf.fits > "image_psf_peak2total.tmp"
+        verbose 0
+        if(is_vector(tmp_pix_max)) {unset tmp_pix_max}
+        if(is_vector(tmp_pix_sum)) {unset tmp_pix_sum}
+        data "image_psf_peak2total.tmp" read {tmp_pix_max 5 tmp_pix_sum 6}
+        if(is_vector(tmp_pix_max) && is_vector(tmp_pix_sum)) {
+            set peak2total = tmp_pix_max / tmp_pix_sum
+            define print_noheader 1
+            print "image_psf_peak2total.txt" '%g\n' {peak2total}
+            define print_noheader 0
+        }
+        verbose 1
+    }
 
 
 
@@ -227,19 +251,19 @@ print_result 01
         read_pixscale
         read_pixnoise
         calc_beamarea
+        calc_peak2total
         # 
         if(is_file($1.result)) {
             !mv $1.result $1.result.backup
         }
         # 
-        if(is_file("image_psf_peak2total.txt") && is_vector(ResultMags) && is_vector(ResultMagsErr) && is_vector(ResultPosX) && is_vector(ResultPosY) && $?1) {
-            data "image_psf_peak2total.txt" read {peak2total 1.f}
+        if(is_vector(ResultMags) && is_vector(ResultMagsErr) && is_vector(ResultPosX) && is_vector(ResultPosY) && $?1) {
             set ResultFlux = ResultMags*0.0 + 1e-99
             set ResultFluxErr = ResultMags*0.0 + 1e+99
             do i=0,dimen(ResultMags)-1 {
                 if(ResultType[$i]=='psf') {
                     # In this case (10**(ResultMags/(-2.5))) equals the (pix_max / peak2total)
-                    set ResultFlux[$i] = (10**(ResultMags[$i]/(-2.5))) * peak2total
+                    set ResultFlux[$i] = (10**(ResultMags[$i]/(-2.5))) / beamarea * (pixscale*pixscale) # * peak2total
                     set ResultFluxErr[$i] = ResultMagsErr[$i]*ResultFlux[$i]/1.08
                 }
                 if(ResultType[$i]=='gaussian') {
@@ -254,7 +278,20 @@ print_result 01
             if(is_file($1.param)) {
                 data $1.param read {id 31.f}
             }
-            print $1.result '%12.3f %12.3f %15g %15g %15.3f %15.3f %15.0f\n' {ResultPosX ResultPosY ResultFlux ResultFluxErr ResultMags ResultMagsErr id}
+            set x = ResultPosX
+            set y = ResultPosY
+            set f = ResultFlux
+            set f_err = ResultFluxErr
+            set mag = ResultMags
+            set mag_err = ResultMagsErr
+            set maj = ResultRads * pixscale
+            set maj_err = ResultRadsErr * pixscale
+            set min = maj*ResultElli
+            set min_err = maj*ResultElliErr
+            set pa = ResultRoti
+            set pa_err = ResultRotiErr
+            print $1.result '%12.4f %12.4f %14g %14g %10.4f %10g %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %12.0f\n' \
+                {x y f f_err mag mag_err maj maj_err min min_err pa pa_err id}
         }
     }
 
