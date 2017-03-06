@@ -9,14 +9,24 @@
 
 
 FUNCTION RecognizeInstrument, InputText
-    S_Instrument = ""
+    
+    ;PRINT, 'DEBUG: RecognizeInstrument SIZE(InputText,/N_DIM)='+STRING(FORMAT='(I0)',SIZE(InputText,/N_DIM))
+    IF SIZE(InputText,/N_DIM) EQ 0 THEN InputTextList = [InputText] ELSE InputTextList = InputText
+    IF SIZE(InputTextList,/TNAME) NE 'STRING' THEN InputTextList = STR(InputTextList)
+    
     SearchList = []
     
-    IF STRPOS(InputText,'/') GE 0 AND STRPOS(InputText,'/',/REVERSE_SEARCH) LT STRLEN(InputText)-1 THEN BEGIN
-        SearchList = [STRMID(InputText,STRPOS(InputText,'/',/REVERSE_SEARCH)), InputText] ; search by file or folder base name first, then by the full path
-    ENDIF ELSE BEGIN
-        SearchList = [InputText]
-    ENDELSE
+    FOREACH InputTextItem, InputTextList DO BEGIN
+        IF STRPOS(InputTextItem,'/') GE 0 AND STRPOS(InputTextItem,'/',/REVERSE_SEARCH) LT STRLEN(InputTextItem)-1 THEN BEGIN
+            SearchList = [SearchList, STRMID(InputTextItem,STRPOS(InputTextItem,'/',/REVERSE_SEARCH)), InputTextItem] ; search by file or folder base name first, then by the full path
+        ENDIF ELSE BEGIN
+            SearchList = [SearchList, InputTextItem]
+        ENDELSE
+    ENDFOREACH
+    
+    ;PRINT, 'DEBUG: RecognizeInstrument SIZE(SearchList,/DIM)='+STRING(FORMAT='(I0)',SIZE(SearchList,/DIM))
+    
+    S_Instrument = ""
     
     FOREACH SearchText, SearchList DO BEGIN
         

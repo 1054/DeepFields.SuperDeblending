@@ -9,16 +9,23 @@
 
 
 FUNCTION RecognizeFilter, InputText, Wavelength=S_Wavelength, Frequency=S_Frequency
+    
+    IF SIZE(InputText,/N_DIM) EQ 0 THEN InputTextList = [InputText] ELSE InputTextList = InputText
+    IF SIZE(InputTextList,/TNAME) NE 'STRING' THEN InputTextList = STR(InputTextList)
+    
+    SearchList = []
+    
+    FOREACH InputTextItem, InputTextList DO BEGIN
+        IF STRPOS(InputTextItem,'/') GE 0 AND STRPOS(InputTextItem,'/',/REVERSE_SEARCH) LT STRLEN(InputTextItem)-1 THEN BEGIN
+            SearchList = [SearchList, STRMID(InputTextItem,STRPOS(InputTextItem,'/',/REVERSE_SEARCH)), InputTextItem] ; search by file or folder base name first, then by the full path
+        ENDIF ELSE BEGIN
+            SearchList = [SearchList, InputTextItem]
+        ENDELSE
+    ENDFOREACH
+    
     S_Filter = ''
     S_Wavelength = 0.0D
     S_Frequency = 0.0D
-    SearchList = []
-    
-    IF STRPOS(InputText,'/') GE 0 AND STRPOS(InputText,'/',/REVERSE_SEARCH) LT STRLEN(InputText)-1 THEN BEGIN
-        SearchList = [STRMID(InputText,STRPOS(InputText,'/',/REVERSE_SEARCH)), InputText] ; search by file or folder base name first, then by the full path
-    ENDIF ELSE BEGIN
-        SearchList = [InputText]
-    ENDELSE
     
     FOREACH SearchText, SearchList DO BEGIN
         
@@ -31,6 +38,7 @@ FUNCTION RecognizeFilter, InputText, Wavelength=S_Wavelength, Frequency=S_Freque
         
         IF S_Filter EQ '' THEN IF STRMATCH(CleanText,'*F105W*'        ,/FOLD_CASE) THEN BEGIN & S_Filter='F105W' & S_Wavelength=1.05D-6  & ENDIF
         IF S_Filter EQ '' THEN IF STRMATCH(CleanText,'*F125W*'        ,/FOLD_CASE) THEN BEGIN & S_Filter='F125W' & S_Wavelength=1.25D-6  & ENDIF
+        IF S_Filter EQ '' THEN IF STRMATCH(CleanText,'*F140W*'        ,/FOLD_CASE) THEN BEGIN & S_Filter='F140W' & S_Wavelength=1.40D-6  & ENDIF
         IF S_Filter EQ '' THEN IF STRMATCH(CleanText,'*F160W*'        ,/FOLD_CASE) THEN BEGIN & S_Filter='F160W' & S_Wavelength=1.60D-6  & ENDIF
         
         IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*IRAC3.6*'      ,/FOLD_CASE)   THEN BEGIN & S_Filter='3.6' & S_Wavelength=3.6D-6 & ENDIF

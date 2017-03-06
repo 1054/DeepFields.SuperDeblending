@@ -240,7 +240,9 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # 
     # 
     # prepare output sub-directory
-    mkdir "$AstroDepth_OutputDir/$AstroDepth_OutputName/" 2>/dev/null
+    if [[ ! -d "$AstroDepth_OutputDir/$AstroDepth_OutputName/" ]]; then
+        mkdir "$AstroDepth_OutputDir/$AstroDepth_OutputName/"
+    fi
     # 
     # 
     # check whether catalog sources at within the image area, convert RA Dec to X Y
@@ -315,7 +317,9 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # 
     # 
     # now prepare supermongo code to run galfit
-    if [[ 1 == 1 ]]; then
+    if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_getpix" ]]; then
+        # 
+        touch "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_getpix"
         # 
         cd "$AstroDepth_OutputDir/$AstroDepth_OutputName/"
         # 
@@ -468,6 +472,8 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
         fi
         # 
         cd "$AstroDepth_CurrrentDir"
+        # 
+        rm "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_getpix"
     fi
     
 done
@@ -501,7 +507,9 @@ if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "negative"; then
         # 
         # 
         # cd 
-        if [[ 1 == 1 ]]; then
+        if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_negative" ]]; then
+            # 
+            touch "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_negative"
             # 
             cd "$AstroDepth_OutputDir/$AstroDepth_OutputName/"
             # 
@@ -524,6 +532,8 @@ if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "negative"; then
             fi
             # 
             cd "$AstroDepth_CurrrentDir"
+            # 
+            rm "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_negative"
         fi
         
     done
@@ -559,7 +569,9 @@ if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "galfit"; then
         # 
         # 
         # cd 
-        if [[ 1 == 1 ]]; then
+        if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_galfit" ]]; then
+            # 
+            touch "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_galfit"
             # 
             cd "$AstroDepth_OutputDir/$AstroDepth_OutputName/"
             # 
@@ -592,6 +604,8 @@ if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "galfit"; then
             fi
             # 
             cd "$AstroDepth_CurrrentDir"
+            # 
+            rm "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_galfit"
         fi
         
     done
@@ -627,7 +641,9 @@ if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "gaussian"; then
         # 
         # 
         # cd 
-        if [[ 1 == 1 ]]; then
+        if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_gaussian" ]]; then
+            # 
+            touch "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_gaussian"
             # 
             cd "$AstroDepth_OutputDir/$AstroDepth_OutputName/"
             # 
@@ -660,6 +676,8 @@ if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "gaussian"; then
             fi
             # 
             cd "$AstroDepth_CurrrentDir"
+            # 
+            rm "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_gaussian"
         fi
         
     done

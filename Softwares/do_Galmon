@@ -1,0 +1,541 @@
+#!/bin/bash
+# 
+# Aim:
+#    Input FitsImage, FoV, 
+#    output cutouts
+# 
+
+
+set -e
+
+if [[ $(uname) == *"Darwin"* ]]; then
+    function readlink() {
+        if [[ $# -gt 1 ]]; then if [[ "$1" == "-f" ]]; then shift; fi; fi
+        DIR="$1"; if [[ "$DIR" != *"/"* ]]; then DIR="./$DIR"; fi # 20170228: fixed bug: path without "/"
+        DIR=$(echo "${DIR%/*}") # 20160410: fixed bug: source SETUP just under the Softwares dir
+        if [[ -d "$DIR" ]]; then cd "$DIR" && echo "$(pwd -P)/$(basename ${1})"; 
+        else echo "$(pwd -P)/$(basename ${1})"; fi
+    }
+fi
+
+function Galmon_Usage() {
+    echo ""
+    echo "Usgae: "
+    echo "    do_Galmon \\"
+    echo "              -id 14914 \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_0.fits -region 1.ds9.reg -FoV 45 \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_1.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_2.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_3.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_4.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_5.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_6.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_7.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_8.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_9.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_10.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_11.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_12.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_13.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_14.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_15.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_16.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_17.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_18.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_19.fits \\"
+    echo "              -fits do_Galcut_Output_ID14914/Image_cut_20.fits \\"
+    echo "              -out \"do_Galmon_Output\" "
+    echo ""
+    echo "    do_Galmon \\"
+    echo "              -catalog cat.txt -source 14914 \\"
+    echo "              -fits Image_cut_0.fits -region 1.ds9.reg -FoV 45 \\"
+    echo "              -fits Image_cut_1.fits \\"
+    echo "              -out \"../do_Galmon_Output\" "
+    echo ""
+    echo "    do_Galmon \\"
+    echo "              -radec 12:36:28 62:02:02 \\"
+    echo "              -fits Image_cut_0.fits -region 1.ds9.reg -FoV 45 \\"
+    echo "              -fits Image_cut_1.fits \\"
+    echo "              -out \"../do_Galmon_Output\" "
+    echo ""
+    echo ""
+}
+
+function Is_Float_Number() {
+    # http://stackoverflow.com/questions/13790763/bash-regex-to-check-floating-point-numbers-from-user-input
+    #echo $1
+    if [[ $# -ge 1 ]]; then
+        #regExp='^[+-]?([0-9]+\.?|[0-9]*\.[0-9]+)$'
+        regExp='^([+-])?([0-9]+\.?|[0-9]*\.[0-9]+)([eE][+-]?[0-9]+)?$'
+        if [[ "$1" =~ $regExp ]]; then
+            #echo "That is a number!"
+            return 0
+        else
+            #echo "Damn! Not A Number!"
+            seq  -f "*" -s '' $(echo "${#1}+7+2+23" | bc); echo
+            echo "Error! \"$1\" is not a float number!"
+            seq  -f "*" -s '' $(echo "${#1}+7+2+23" | bc); echo
+            exit -1
+            return -1
+        fi
+    fi
+    return -1
+}
+
+function Is_File() {
+    if [[ $# -ge 1 ]]; then
+        if [[ -f "$1" ]]; then
+            return 0
+        else
+            seq  -f "*" -s '' $(echo "${#1}+24" | bc); echo
+            echo "Error! \"$1\" was not found!"
+            seq  -f "*" -s '' $(echo "${#1}+24" | bc); echo
+            exit -1
+            return -1
+        fi
+    fi
+    return -1
+}
+
+function Is_Fits_File() {
+    if [[ $# -ge 1 ]]; then
+        if [[ -f "$1" ]]; then
+            # check file extension, must be *.fits or *.FITS
+            if [[ $(echo "$1" | tr '[:lower:]' '[:upper:]') == *".FITS" ]]; then 
+                return 0
+            else 
+                return -1
+            fi
+        fi
+    fi
+    return -1
+}
+
+
+###############################
+# Check Software Dependencies #
+###############################
+
+Galmon_Software_Dependencies=(sky2xy xy2sky )
+
+echo "Checking software dependencies:"
+
+for TEMPNAME in ${Galmon_Software_Dependencies[@]}; do
+    type $TEMPNAME
+done
+
+
+
+########################
+# Read Input Arguments #
+########################
+
+Galmon_Input_ArgType="N/A" # IMG, REG, FoV, EPS
+Galmon_Input_IMG=()
+Galmon_Input_REG=()
+Galmon_Input_FoV=()
+Galmon_Input_RAE=()
+Galmon_Input_DEC=()
+Galmon_Input_CAT=""
+Galmon_Input_SOU=()
+Galmon_Input_EPS="Galmon.eps"
+Galmon_Input_OUT="do_Galmon_Output" # output directory containing intermediate files
+Galmon_Input_LABEL=()
+
+while [[ $# -gt 0 ]]; do
+    
+    TempStr=$(echo "$1" | tr '[:lower:]' '[:upper:]')
+    
+    case "$TempStr" in
+                    
+                 "-FITS") Galmon_Input_ArgType="IMG"
+                          ;;
+                    
+                "-IMAGE") Galmon_Input_ArgType="IMG"
+                          ;;
+                          
+                  "-IMG") Galmon_Input_ArgType="IMG"
+                          ;;
+                          
+               "-REGION") Galmon_Input_ArgType="REG"
+                          ;;
+                          
+                  "-REG") Galmon_Input_ArgType="REG"
+                          ;;
+                          
+                  "-FOV") Galmon_Input_ArgType="FoV"
+                          ;;
+                          
+                  "-EPS") Galmon_Input_ArgType="EPS"
+                          ;;
+                          
+                 "-SAVE") Galmon_Input_ArgType="EPS"
+                          ;;
+                          
+                  "-OUT") Galmon_Input_ArgType="OUT"
+                          ;;
+                          
+     "-OUTPUT-DIRECTORY") Galmon_Input_ArgType="OUT"
+                          ;;
+                          
+                "-RADEC") Galmon_Input_ArgType="RADEC"
+                          ;;
+                          
+                          
+                  "-CAT") Galmon_Input_ArgType="CAT"
+                          ;;
+                          
+                          
+              "-CATALOG") Galmon_Input_ArgType="CAT"
+                          ;;
+                          
+                  "-SOU") Galmon_Input_ArgType="SOU"
+                          ;;
+                          
+               "-SOURCE") Galmon_Input_ArgType="SOU"
+                          ;;
+                          
+                   "-ID") Galmon_Input_ArgType="SOU"
+                          ;;
+                          
+               "-OBJECT") Galmon_Input_ArgType="SOU"
+                          ;;
+                          
+                "-LABEL") Galmon_Input_ArgType="LABEL"
+                          ;;
+                          
+                 "-BAND") Galmon_Input_ArgType="LABEL"
+                          ;;
+                          
+           "-INSTRUMENT") Galmon_Input_ArgType="LABEL"
+                          ;;
+                          
+                 "-WAVE") Galmon_Input_ArgType="LABEL"
+                          ;;
+                          
+               "-FILTER") Galmon_Input_ArgType="LABEL"
+                          ;;
+                          
+                       *) ;;
+                    
+    esac
+    
+    #echo "$Galmon_Input_ArgType"
+    #echo $#
+    
+    case "$Galmon_Input_ArgType" in
+                                        
+                  "IMG") 
+                         # check followed argument
+                         if [[ $# -gt 1 ]]; then shift
+                             # check is float number
+                             if Is_Fits_File "$1"; then
+                                 Galmon_Input_IMG+=($(readlink -f "$1"))
+                             else
+                                 echo ""; echo "Warning! The input argument \"$1\" is not a fits file or does not exist!"; echo ""
+                             fi
+                         else 
+                             echo ""; echo "Error! The input argument \"$1\" should be followed with at least 1 argument!"; echo ""; exit 1
+                         fi
+                         #Galmon_Input_ArgType="N/A"
+                         shift
+                         ;;
+                         
+                  "REG") 
+                         # check followed argument
+                         if [[ $# -gt 1 ]]; then shift
+                             # check nothing
+                             if [[ 1 == 1 ]]; then
+                                 while [[ ${#Galmon_Input_REG[@]} -lt $((${#Galmon_Input_IMG[@]}-1)) ]]; do
+                                     Galmon_Input_REG+=("")
+                                 done
+                                 if [[ ${#Galmon_Input_REG[@]} -eq $((${#Galmon_Input_IMG[@]}-1)) ]]; then
+                                     Galmon_Input_REG+=($(readlink -f "$1"))
+                                 else
+                                     Galmon_Input_REG[${#Galmon_Input_REG[@]}-1]=("${Galmon_Input_REG[${#Galmon_Input_REG[@]}-1]}:::::::$1")
+                                 fi
+                             fi
+                         else
+                             echo ""; echo "Error! The input argument \"$1\" should be followed with at least 1 argument!"; echo ""; exit 1
+                         fi
+                         #Galmon_Input_ArgType="N/A"
+                         shift
+                         ;;
+                         
+                  "FoV") 
+                         # check followed argument
+                         if [[ $# -gt 1 ]]; then shift
+                             # check is float number
+                             if Is_Float_Number "$1"; then
+                                 while [[ ${#Galmon_Input_FoV[@]} -lt $((${#Galmon_Input_IMG[@]}-1)) ]]; do
+                                     Galmon_Input_FoV+=("${Galmon_Input_FoV[${#Galmon_Input_FoV[@]}-1]}") # repeat last FoV
+                                 done
+                                 if [[ ${#Galmon_Input_FoV[@]} -eq $((${#Galmon_Input_IMG[@]}-1)) ]]; then
+                                     Galmon_Input_FoV+=("$1")
+                                 else
+                                     Galmon_Input_FoV[${#Galmon_Input_FoV[@]}-1]=("${Galmon_Input_FoV[${#Galmon_Input_FoV[@]}-1]}:::::::$1")
+                                 fi
+                             else
+                                 echo ""; echo "Warning! The input argument \"$1\" is not a float number!"; echo ""
+                             fi
+                         else 
+                             echo ""; echo "Error! The input argument \"$1\" should be followed with at least 1 argument!"; echo ""; exit 1
+                         fi
+                         #Galmon_Input_ArgType="N/A"
+                         shift
+                         ;;
+                         
+                  "EPS") 
+                         # check followed argument
+                         if [[ $# -gt 1 ]]; then shift
+                             Galmon_Input_EPS="$1"
+                         fi
+                         shift
+                         ;;
+                         
+                  "OUT") 
+                         # check followed argument
+                         if [[ $# -gt 1 ]]; then shift
+                             Galmon_Input_OUT="$1"
+                         fi
+                         shift
+                         ;;
+                         
+                  "CAT") 
+                         # check followed argument
+                         if [[ $# -gt 1 ]]; then shift
+                             Galmon_Input_CAT="$1"
+                         fi
+                         shift
+                         ;;
+                         
+                  "SOU") 
+                         # check followed argument
+                         if [[ $# -gt 1 ]]; then shift
+                             Galmon_Input_SOU+=("$1")
+                         fi
+                         shift
+                         ;;
+                         
+                "RADEC") 
+                         # check followed argument
+                         if [[ $# -gt 2 ]]; then shift
+                             Galmon_Input_RAE+=("$1")
+                             Galmon_Input_DEC+=("$2"); shift
+                         fi
+                         shift
+                         ;;
+                         
+                "LABEL") 
+                         # check followed argument
+                         if [[ $# -gt 1 ]]; then shift
+                             # check nothing
+                             if [[ 1 == 1 ]]; then
+                                 while [[ ${#Galmon_Input_LABEL[@]} -lt $((${#Galmon_Input_IMG[@]}-1)) ]]; do
+                                     Galmon_Input_LABEL+=("N/A") # empty label
+                                 done
+                                 if [[ ${#Galmon_Input_LABEL[@]} -eq $((${#Galmon_Input_IMG[@]}-1)) ]]; then
+                                     Galmon_Input_LABEL+=($(echo "$1" | sed -e 's/ /--/g')) # replace white space as --
+                                 else
+                                     Galmon_Input_LABEL[${#Galmon_Input_LABEL[@]}-1]=("${Galmon_Input_LABEL[${#Galmon_Input_LABEL[@]}-1]}--"$(echo "$1" | sed -e 's/ /--/g'))
+                                 fi
+                             fi
+                         else 
+                             echo ""; echo "Error! The input argument \"$1\" should be followed with at least 1 argument!"; echo ""; exit 1
+                         fi
+                         #Galmon_Input_ArgType="N/A"
+                         shift
+                         ;;
+                         
+                      *) #echo "$1"
+                         shift
+                                        
+    esac
+    
+done
+
+
+
+#####################
+# Prepare Variables #
+#####################
+
+if [[ ${#Galmon_Input_FoV[@]} -eq 0 ]]; then
+    while [[ ${#Galmon_Input_FoV[@]} -lt ${#Galmon_Input_IMG[@]} ]]; do
+        Galmon_Input_FoV+=("60")
+    done # set default FoV 60 arcsec
+else
+    while [[ ${#Galmon_Input_FoV[@]} -lt ${#Galmon_Input_IMG[@]} ]]; do
+        Galmon_Input_FoV+=("${Galmon_Input_FoV[${#Galmon_Input_FoV[@]}-1]}")
+    done
+fi
+
+if [[ ${#Galmon_Input_REG[@]} -eq 0 ]]; then
+    while [[ ${#Galmon_Input_REG[@]} -lt ${#Galmon_Input_IMG[@]} ]]; do
+        Galmon_Input_REG+=("")
+    done # set default no region
+else
+    while [[ ${#Galmon_Input_REG[@]} -lt ${#Galmon_Input_IMG[@]} ]]; do
+        Galmon_Input_REG+=("")
+    done # do not repeat last region file
+fi
+
+if [[ ${#Galmon_Input_LABEL[@]} -eq 0 ]]; then
+    while [[ ${#Galmon_Input_LABEL[@]} -lt ${#Galmon_Input_IMG[@]} ]]; do
+        Galmon_Input_LABEL+=("N/A")
+    done # set default label N/A
+else
+    while [[ ${#Galmon_Input_LABEL[@]} -lt ${#Galmon_Input_IMG[@]} ]]; do
+        Galmon_Input_LABEL+=("N/A")
+    done # do not repeat last label
+fi
+
+
+
+
+
+
+##################
+# Prepare Output #
+##################
+
+if [[ ! -d "$Galmon_Input_OUT" ]]; then
+    #mv "$Galmon_Input_OUT" "$Galmon_Input_OUT.Backup.$(date +'%Y-%m-%d-%Hh%Mm%Ss')"
+    mkdir "$Galmon_Input_OUT"
+fi
+
+
+
+
+
+
+#################################
+# Check All Necessary Variables #
+#################################
+
+echo "Checking input arguments:"
+echo "IMG = ${Galmon_Input_IMG[@]} (Count=${#Galmon_Input_IMG[@]})"
+echo "FoV = ${Galmon_Input_FoV[@]} (Count=${#Galmon_Input_FoV[@]})"
+echo "REG = ${Galmon_Input_REG[@]} (Count=${#Galmon_Input_REG[@]})"
+
+if [[ ${#Galmon_Input_IMG[@]} -eq 0 ]]; then 
+    Galmon_Usage
+    exit
+fi
+
+
+
+
+
+
+####################################
+# Generate BASH script to call ds9 #
+####################################
+
+echo "#!/bin/bash"                                                                                  >  "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+echo "#"                                                                                            >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+echo "cd '$(readlink -f $Galmon_Input_OUT)'"                                                        >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+echo "idl -quiet << EOF"                                                                            >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+echo "!PATH = !PATH + ':$(readlink -f $(dirname ${BASH_SOURCE[0]}))/Galmon_Template_v20160225'"     >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash" #<TODO># 
+echo "resolve_routine, 'galmon'"                                                                    >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+
+# calculate IMG string length
+Galmon_max_str_len=0
+for (( i=0; i<${#Galmon_Input_IMG[@]}; i++ )); do
+    Galmon_temp_str="${Galmon_Input_IMG[i]}"
+    if [[ ${Galmon_max_str_len} -lt ${#Galmon_temp_str} ]]; then Galmon_max_str_len=${#Galmon_temp_str}; fi
+done
+
+# prepare iPhotoList.txt
+for (( i=0; i<${#Galmon_Input_IMG[@]}; i++ )); do
+    if [[ i -eq 0 ]]; then
+        printf "# %-$((${Galmon_max_str_len}-2))s %15s %15s %25s\n" "FitsFile" "Extension" "FoV" "Label" > "$Galmon_Input_OUT/iPhotoList.txt"
+    fi
+    printf "%-${Galmon_max_str_len}s %15d %15.4f %25s\n" "${Galmon_Input_IMG[i]}" "0" "${Galmon_Input_FoV[i]}" "${Galmon_Input_LABEL[i]}" >> "$Galmon_Input_OUT/iPhotoList.txt"
+done
+
+# calculate REG string length
+Galmon_max_str_len=0
+for (( i=0; i<${#Galmon_Input_REG[@]}; i++ )); do
+    Galmon_temp_strs=($(echo "${Galmon_Input_REG[i]}" | awk 'BEGIN {FS=":::::::"} {for (i=1;i<=NF;i++) print $i}'))
+    for Galmon_temp_str in "${Galmon_temp_strs[@]}"; do
+    if [[ ${Galmon_max_str_len} -lt ${#Galmon_temp_str} ]]; then Galmon_max_str_len=${#Galmon_temp_str}; fi
+    done
+done
+
+# prepare iRegionList.txt
+for (( i=0; i<${#Galmon_Input_IMG[@]}; i++ )); do
+    if [[ i -eq 0 ]]; then
+        printf "# %-$((${Galmon_max_str_len}-2))s %20s\n" "RegionFile" "AssignedFrame" > "$Galmon_Input_OUT/iRegionList.txt"
+    fi
+    Galmon_temp_strs=($(echo "${Galmon_Input_REG[i]}" | awk 'BEGIN {FS=":::::::"} {for (i=1;i<=NF;i++) print $i}'))
+    for Galmon_temp_str in "${Galmon_temp_strs[@]}"; do
+    printf "%-${Galmon_max_str_len}s %15d\n" "${Galmon_temp_str}" "$(($i+1))" >> "$Galmon_Input_OUT/iRegionList.txt"
+    done
+done
+
+# prepare bash script
+if [[ x"${Galmon_Input_CAT}" != x && ${#Galmon_Input_SOU[@]} -gt 0 ]]; then
+    # input catalog and source id
+    for (( i=0; i<${#Galmon_Input_SOU[@]}; i++ )); do
+        echo "GalMon, '$Galmon_Input_CAT', '${Galmon_Input_SOU[i]}'" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+        #echo "" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+    done
+elif [[ ${#Galmon_Input_RAE[@]} -gt 0 && ${#Galmon_Input_RAE[@]} -eq ${#Galmon_Input_DEC[@]} ]]; then
+    # input ra dec
+    for (( i=0; i<${#Galmon_Input_SOU[@]}; i++ )); do
+        if echo "${Galmon_Input_RAE[i]}" | grep -q ":"; then
+            echo "GalMon, RA='${Galmon_Input_RAE[i]}', Dec='${Galmon_Input_DEC[i]}', '${Galmon_Input_SOU[i]}'" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+        else
+            echo "GalMon, RA=${Galmon_Input_RAE[i]}D, Dec=${Galmon_Input_DEC[i]}D" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+        fi
+        #echo "" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+    done
+elif [[ ${#Galmon_Input_IMG[@]} -gt 0 ]]; then
+    # no catalog+source or ra+dec, we compute ra dec with sky2xy
+    Galmon_image_naxis1=$(gethead "${Galmon_Input_IMG[0]}" NAXIS1)
+    Galmon_image_naxis2=$(gethead "${Galmon_Input_IMG[0]}" NAXIS2)
+    Galmon_image_center_x=$(awk "BEGIN {print ($Galmon_image_naxis1+1.0)/2.0}")
+    Galmon_image_center_y=$(awk "BEGIN {print ($Galmon_image_naxis2+1.0)/2.0}")
+    Galmon_temp_radec=($(xy2sky -d -n 10 "${Galmon_Input_IMG[0]}" "$Galmon_image_center_x" "$Galmon_image_center_y" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 1,2))
+    if [[ ${#Galmon_Input_SOU[@]} -gt 0 ]]; then
+        echo "GalMon, RA=${Galmon_temp_radec[0]}D, Dec=${Galmon_temp_radec[1]}D, ID='${Galmon_Input_SOU[0]}'" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+    else
+        echo "GalMon, RA=${Galmon_temp_radec[0]}D, Dec=${Galmon_temp_radec[1]}D" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+    fi
+    #echo "" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+fi
+
+
+
+echo "exit" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+echo "EOF" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+echo "" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+chmod +x "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+
+echo ""
+echo "Prepared photo list \"$Galmon_Input_OUT/iPhotoList.txt\"!"
+echo "Prepared region list \"$Galmon_Input_OUT/iRegionList.txt\"!"
+echo "Prepared bash script \"$Galmon_Input_OUT/do_Galmon_Run_idl.bash\"!"
+
+cat "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+
+"$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

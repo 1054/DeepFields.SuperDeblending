@@ -224,12 +224,20 @@ END
 ; ###################################### ;
 ; ###################################### ;
 
-PRO GalMon, PriorCatalog, SelectID, PhotoList, RegionList, SaveEPS=SaveEPS, Verbose=Verbose, RA=RA, Dec=Dec, ForceOneRow=ForceOneRow, ForceOneRadius=ForceOneRadius, WithTextCharSize=TextCharSize, WithTextCharThick=TextCharThick, WithCircleThicks=CircleThicks, PowerLawScale=PowerLawScale
+PRO GalMon, PriorCatalog, SelectID, PhotoList, RegionList, $
+    SaveEPS = SaveEPS, Verbose = Verbose, RA = RA, Dec = Dec, ID = ID, $
+    ForceOneRow = ForceOneRow, ForceOneRadius = ForceOneRadius, $
+    WithTextCharSize = TextCharSize, $
+    WithTextCharThick = TextCharThick, $
+    WithCircleThicks = CircleThicks, $
+    PowerLawScale = PowerLawScale
+    
+    resolve_all
     
     IF N_ELEMENTS(PriorCatalog) EQ 1 AND N_ELEMENTS(SelectID) EQ 1 THEN BEGIN
         IF FILE_TEST(PriorCatalog) EQ 0 THEN MESSAGE, 'PriorCatalog does not exist! Please check '+PriorCatalog
         ; Read Catalog and Select Object
-        ReadCol, FORMAT='(L,D,D)', COMMENT='#', PriorCatalog, ObjID, ObjRA, ObjDEC    
+        ReadCol, FORMAT='(L,D,D)', COMMENT='#', PriorCatalog, ObjID, ObjRA, ObjDEC
         ObjSe = WHERE(ObjID EQ SelectID,/NULL)    
         IF N_ELEMENTS(ObjSe) EQ 0 THEN MESSAGE, "FindObjectAndMakeCutouts: No object found! Please check object ID "+SelectID
         PRINT, FORMAT='("Found object ID",I0," RA Dec ",F0.7," ",F0.7)', SelectID, ObjRA[ObjSe], ObjDEC[ObjSe]
@@ -239,17 +247,25 @@ PRO GalMon, PriorCatalog, SelectID, PhotoList, RegionList, SaveEPS=SaveEPS, Verb
             hms2deg, RA+" "+Dec, TempRADEC
             ObjRA = [TempRADEC[0]]
             ObjDEC = [TempRADEC[1]]
-            degdeg2hmsdms, [ObjRA[ObjSe],ObjDEC[ObjSe]], TempRADECstring, /SeparateByNothing
-            SelectID = "J"+TempRADECstring
+            IF N_ELEMENTS(ID) GT 0 THEN BEGIN
+                SelectID = ID
+            ENDIF ELSE BEGIN
+                degdeg2hmsdms, [ObjRA[ObjSe],ObjDEC[ObjSe]], TempRADECstring, /SeparateByNothing
+                SelectID = "J"+TempRADECstring
+            ENDELSE
         ENDIF ELSE BEGIN
             ObjRA = [RA]
             ObjDEC = [Dec]
-            degdeg2hmsdms, [ObjRA[ObjSe],ObjDEC[ObjSe]], TempRADECstring, /SeparateByNothing
-            SelectID = "J"+TempRADECstring
+            IF N_ELEMENTS(ID) GT 0 THEN BEGIN
+                SelectID = ID
+            ENDIF ELSE BEGIN
+                degdeg2hmsdms, [ObjRA[ObjSe],ObjDEC[ObjSe]], TempRADECstring, /SeparateByNothing
+                SelectID = "J"+TempRADECstring
+            ENDELSE
         ENDELSE
-        PRINT, FORMAT='("Centering at RA Dec ",F0.7," ",F0.7)', ObjRA[ObjSe], ObjDEC[ObjSe]
+        PRINT, FORMAT='("Centering at RA Dec ",F0.7," ",F0.7,", source ID ",A)', ObjRA[ObjSe], ObjDEC[ObjSe], SelectID
     ENDIF ELSE BEGIN
-        MESSAGE, 'Usage: AstroDepthFaireMontage, PriorCatalog, SelectID, RA=RA, Dec=Dec, PhotoList, RegionList, SaveEPS=SaveEPS, Verbose=Verbose'
+        MESSAGE, 'Usage: GalMon, PriorCatalog, SelectID, RA=RA, Dec=Dec, PhotoList, RegionList, SaveEPS=SaveEPS, Verbose=Verbose'
     ENDELSE
     
     IF N_ELEMENTS(PhotoList) EQ 0 THEN BEGIN
@@ -281,12 +297,18 @@ PRO GalMon, PriorCatalog, SelectID, PhotoList, RegionList, SaveEPS=SaveEPS, Verb
     ENDELSE
     
     IF N_ELEMENTS(SaveEPS) EQ 0 THEN BEGIN
-        SaveEPS = STRING(FORMAT='(I0)',SelectID)+'.eps'
+        IF SIZE(SelectID,/TNAME) NE 'STRING' THEN BEGIN
+            SaveEPS = STRING(FORMAT='(I0)',SelectID)+'.eps'
+        ENDIF ELSE BEGIN
+            SaveEPS = SelectID+'.eps'
+        ENDELSE
     ENDIF
     
     
     ; Read PhotoList and Field of View
     ; PhotoList = "PhotoList.txt"
+    PRINT, 'Reading "'+PhotoList+'"'
+    ReadCol, FORMAT='(A,I,D,A)', COMMENT='#', PhotoList, InputFits, InputExts, InputFoVs, InputLabels, /SILENT
     ReadCol, FORMAT='(A,I,D)', COMMENT='#', PhotoList, InputFits, InputExts, InputFoVs
     InputRect = REPLICATE( { x1:0.0D, x2:0.0D, y1:0.0D, y2:0.0D, width:0.0D, height:0.0D } , N_ELEMENTS(InputFits) )
     
@@ -304,13 +326,14 @@ PRO GalMon, PriorCatalog, SelectID, PhotoList, RegionList, SaveEPS=SaveEPS, Verb
         ExtAst, FitsHeader, FitsWCS
         PixScale = [ FitsWCS.CD[0,0]*FitsWCS.CDELT[0]*3600.0, FitsWCS.CD[1,1]*FitsWCS.CDELT[1]*3600.0 ] ; "/pix
         AD2XY, ObjRA[ObjSe], ObjDEC[ObjSe], FitsWCS, ObjX, ObjY
+        PRINT, FORMAT='("Centering at pixel coordinate ",F0.3," ",F0.3)', ObjX, ObjY
         ObjX = ObjX + 1.0D
         ObjY = ObjY + 1.0D
         ; PRINT, FORMAT='(F0.7," ",F0.7," ",F0.3," ",F0.3)', ObjRA[ObjSe], ObjDEC[ObjSe], ObjX, ObjY
-        ObjX1 = ObjX-0.5*(FoVX/ABS(PixScale)-1)
-        ObjY1 = ObjY-0.5*(FoVY/ABS(PixScale)-1)
-        ObjX2 = ObjX+0.5*(FoVX/ABS(PixScale)-1)
-        ObjY2 = ObjY+0.5*(FoVY/ABS(PixScale)-1)
+        ObjX1 = ObjX-0.5*(FoVX/MEAN(ABS(PixScale))-1)
+        ObjY1 = ObjY-0.5*(FoVY/MEAN(ABS(PixScale))-1)
+        ObjX2 = ObjX+0.5*(FoVX/MEAN(ABS(PixScale))-1)
+        ObjY2 = ObjY+0.5*(FoVY/MEAN(ABS(PixScale))-1)
         ; PRINT, ObjX2-ObjX1, ObjY2-ObjY1
         InputRect[i].x1 = ObjX1
         InputRect[i].x2 = ObjX2
@@ -338,6 +361,7 @@ PRO GalMon, PriorCatalog, SelectID, PhotoList, RegionList, SaveEPS=SaveEPS, Verb
     ; Read RegionList
     IF N_ELEMENTS(RegionList) GT 0 THEN BEGIN
         ; RegionList = "RegionList.txt"
+        PRINT, 'Reading "'+RegionList+'"'
         ReadCol, FORMAT='(A,A)', COMMENT='#', DELIMITER=' ', RegionList, RegionFiles, RegionFrames
         FOR i=0,N_ELEMENTS(RegionFiles)-1 DO BEGIN
             DS9RegFile = RegionFiles[i]
@@ -406,7 +430,9 @@ PRO GalMon, PriorCatalog, SelectID, PhotoList, RegionList, SaveEPS=SaveEPS, Verb
                      WithCircles=Circles, WithCircleColors=CircleColors, WithCircleDashed=CircleDashed, $
                      WithCircleBelong=CircleBelong, WithCircleLabels=CircleLabels, WithCircleThicks=CircleThicks, $ ; CircleLabels ; [ObjRA[ObjSe],ObjDEC[ObjSe],3.0D]
                      WithCrosses=Crosses, WithCrossColors=CrossColors, $
-                     WithCrossBelong=CrossBelong, Verbose=Verbose, ForceOneRow=ForceOneRow, WithTextCharSize=TextCharSize, WithTextCharThick=TextCharThick, $
+                     WithCrossBelong=CrossBelong, Verbose=Verbose, ForceOneRow=ForceOneRow, $
+                     WithTextCharSize=TextCharSize, WithTextCharThick=TextCharThick, $
+                     WithTexts=InputLabels, $
                      PowerLawScale=PowerLawScale
     
     ; Print, 'PowerLawScale = ', PowerLawScale

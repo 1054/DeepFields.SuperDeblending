@@ -4,6 +4,7 @@
 ; Last update: 
 ;     2015-01-20 add PowerLawScale parameter
 ;     2015-01-23 set when no CrossBelong, we still plot cross
+;     2017-03-06 WithTexts; TelTexts EQ 'N/A'
 ; 
 PRO CrabImageMosaic, InputConfigFile, InputFits=InputFits, InputExts=InputExts, InputRect=InputRect, Verbose=Verbose, SaveEPS=SaveEPS, $
                      WithCircles=Circles, WithCircleColors=CircleColors, WithCircleWidth=CircleWidth, WithCircleHeight=CircleHeight, $
@@ -504,9 +505,18 @@ PRO CrabImageMosaic, InputConfigFile, InputFits=InputFits, InputExts=InputExts, 
                 ; Show Text 
                 IF N_ELEMENTS(WithTexts) GT 0 AND N_ELEMENTS(WithTexts) GT i THEN BEGIN 
                     TelTexts = WithTexts[i]
+                    IF STRPOS(TelTexts,'--') GT 0 THEN TelTexts = CrabStringReplace(TelTexts,'--',' ')
                 ENDIF ELSE BEGIN
-                    TelTexts = RecognizeInstrument(EachFits)+' '+RecognizeFilter(EachFits)
+                    TelTexts = 'N/A'
                 ENDELSE
+                IF TelTexts EQ '' OR TelTexts EQ ' ' OR TelTexts EQ 'N/A' OR TelTexts EQ 'n/a' THEN BEGIN
+                    TelTexts = RecognizeInstrument(EachFits)+' '+RecognizeFilter(EachFits)
+                ENDIF
+                IF TelTexts EQ '' OR TelTexts EQ ' ' OR TelTexts EQ 'N/A' OR TelTexts EQ 'n/a' THEN BEGIN
+                    ;PRINT, "Recognizing instrument and filter from FitsHeader" ; +FitsHeader[N_ELEMENTS(FitsHeader)-3]
+                    TelTexts = RecognizeInstrument(FitsHeader)+' '+RecognizeFilter(FitsHeader)
+                ENDIF
+                PRINT, "Recognized instrument and filter: "+TelTexts
                 IF N_ELEMENTS(WithTextCharSize) EQ 0 THEN WithTextCharSize=1.05
                 IF N_ELEMENTS(WithTextCharThick) EQ 0 THEN WithTextCharThick=3.85
                 XYOUTS, MosaicRect[i].x1+0.02*MosaicRect[i].width, MosaicRect[i].y2-0.08*MosaicRect[i].height, TelTexts, $

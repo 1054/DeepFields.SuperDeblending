@@ -151,88 +151,88 @@ while [[ $# -gt 0 ]]; do
     
     case "$Galcut_Input_ArgType" in
                                         
-                                 "CAT") 
-                                        # check followed argument
-                                        if [[ $# -ge 1 ]]; then
-                                            # check is file
-                                            if Is_File "$1"; then
-                                                Galcut_Input_CAT="$1"
-                                            fi
-                                        else
-                                            echo ""
-                                            echo "Error! Input argument -catalog should be followed with 1 argument!"
-                                            echo ""
-                                            exit 1
-                                        fi
-                                        Galcut_Input_ArgType="N/A"
-                                        shift
-                                        ;;
-                                        
-                                 "SOU") 
-                                        # check followed argument
-                                        if [[ $# -ge 1 ]]; then
-                                            Galcut_Input_SOU="$1"
-                                        else
-                                            echo ""
-                                            echo "Error! Input argument -catalog should be followed with 1 argument!"
-                                            echo ""
-                                            exit 1
-                                        fi
-                                        Galcut_Input_ArgType="N/A"
-                                        shift
-                                        ;;
-                                        
-                               "RADEC") 
-                                        # check followed argument
-                                        if [[ $# -ge 2 ]]; then
-                                            Galcut_Input_RAE="$1"
-                                            Galcut_Input_DEC="$2"
-                                        else
-                                            echo ""
-                                            echo "Error! Input argument -radec should be followed with 2 arguments!"
-                                            echo ""
-                                            exit 1
-                                        fi
-                                        Galcut_Input_ArgType="N/A"
-                                        shift
-                                        shift
-                                        ;;
-                                        
-                                 "FoV") 
-                                        # check followed argument
-                                        if [[ $# -ge 1 ]]; then
-                                            # check is float number
-                                            if Is_Float_Number "$1"; then
-                                                Galcut_Input_FoV+=("$1")
-                                            fi
-                                        else
-                                            echo ""
-                                            echo "Error! Input argument -FoV should be followed with at least 1 argument!"
-                                            echo ""
-                                            exit 1
-                                        fi
-                                        Galcut_Input_ArgType="N/A"
-                                        shift
-                                        ;;
-                                        
-                                 "N/A") 
-                                        # check followed argument
-                                        if [[ $# -ge 1 ]]; then
-                                            TempFileName=$(echo "$1" | tr '[:lower:]' '[:upper:]')
-                                            # check file extension, must be *.fits or *.FITS
-                                            if [[ "$TempFileName" == *".FITS" ]]; then
-                                                # check file existence
-                                                if Is_File "$1"; then
-                                                    Galcut_Input_IMG+=("$1")
-                                                fi
-                                            fi
-                                        fi
-                                        Galcut_Input_ArgType="N/A"
-                                        shift
-                                        ;;
-                                        
-                                     *) #echo "$1"
-                                        shift
+              "CAT") 
+                     # check followed argument
+                     if [[ $# -ge 1 ]]; then
+                         # check is file
+                         if Is_File "$1"; then
+                             Galcut_Input_CAT="$1"
+                         fi
+                     else
+                         echo ""
+                         echo "Error! Input argument -catalog should be followed with 1 argument!"
+                         echo ""
+                         exit 1
+                     fi
+                     Galcut_Input_ArgType="N/A"
+                     shift
+                     ;;
+                     
+              "SOU") 
+                     # check followed argument
+                     if [[ $# -ge 1 ]]; then
+                         Galcut_Input_SOU="$1"
+                     else
+                         echo ""
+                         echo "Error! Input argument -catalog should be followed with 1 argument!"
+                         echo ""
+                         exit 1
+                     fi
+                     Galcut_Input_ArgType="N/A"
+                     shift
+                     ;;
+                     
+            "RADEC") 
+                     # check followed argument
+                     if [[ $# -ge 2 ]]; then
+                         Galcut_Input_RAE="$1"
+                         Galcut_Input_DEC="$2"
+                     else
+                         echo ""
+                         echo "Error! Input argument -radec should be followed with 2 arguments!"
+                         echo ""
+                         exit 1
+                     fi
+                     Galcut_Input_ArgType="N/A"
+                     shift
+                     shift
+                     ;;
+                     
+              "FoV") 
+                     # check followed argument
+                     if [[ $# -ge 1 ]]; then
+                         # check is float number
+                         if Is_Float_Number "$1"; then
+                             Galcut_Input_FoV+=("$1")
+                         fi
+                     else
+                         echo ""
+                         echo "Error! Input argument -FoV should be followed with at least 1 argument!"
+                         echo ""
+                         exit 1
+                     fi
+                     Galcut_Input_ArgType="N/A"
+                     shift
+                     ;;
+                     
+              "N/A") 
+                     # check followed argument
+                     if [[ $# -ge 1 ]]; then
+                         TempFileName=$(echo "$1" | tr '[:lower:]' '[:upper:]')
+                         # check file extension, must be *.fits or *.FITS
+                         if [[ "$TempFileName" == *".FITS" ]]; then
+                             # check file existence
+                             if Is_File "$1"; then
+                                 Galcut_Input_IMG+=("$1")
+                             fi
+                         fi
+                     fi
+                     Galcut_Input_ArgType="N/A"
+                     shift
+                     ;;
+                     
+                  *) #echo "$1"
+                     shift
                                         
     esac
     

@@ -240,7 +240,7 @@ print_result 01
     #<before><20170304>#         data "image_psf_peak2total.txt" read {peak2total 1.f}
     #<before><20170304>#         set ResultFlux = (10**(ResultMags/(-2.5))) * peak2total
     #<before><20170304>#         set ResultFluxErr = ResultMagsErr*ResultFlux/1.08
-    #<before><20170304>#         set ResultFlux = (ResultMags<30) ? ResultFlux : 1e-99 #<20170303><dzliu># 
+    #<before><20170304>#         set ResultFlux = (ResultMags<30) ? ResultFlux : 1e-30 #<20170303><dzliu># 
     #<before><20170304>#         if(is_file($1.param)) {
     #<before><20170304>#             data $1.param read {id 31.f}
     #<before><20170304>#         }
@@ -258,8 +258,8 @@ print_result 01
         }
         # 
         if(is_vector(ResultMags) && is_vector(ResultMagsErr) && is_vector(ResultPosX) && is_vector(ResultPosY) && $?1) {
-            set ResultFlux = ResultMags*0.0 + 1e-99
-            set ResultFluxErr = ResultMags*0.0 + 1e+99
+            set ResultFlux = ResultMags*0.0 + 1e-30
+            set ResultFluxErr = ResultMags*0.0 + 1e+30
             do i=0,dimen(ResultMags)-1 {
                 if(ResultType[$i]=='psf') {
                     # In this case (10**(ResultMags/(-2.5))) equals the (pix_max / peak2total)
@@ -271,8 +271,8 @@ print_result 01
                     set ResultFlux[$i] = (10**(ResultMags[$i]/(-2.5))) / beamarea * (pixscale*pixscale) # * (pi/(4*ln(2))*ResultRads[$i]*ResultRads[$i]*ResultElli[$i]) #<20170303><dzliu># must correct Jy/beam -> Jy/pixel for Gaussian fitting
                     set ResultFluxErr[$i] = ResultMagsErr[$i]*ResultFlux[$i]/1.08
                 }
-                if(ResultMags[$i]<30) {
-                    set ResultFlux[$i] = (ResultMags[$i]<30) ? ResultFlux[$i] : 1e-99 #<20170303><dzliu># 
+                if(ResultMags[$i]>=30) {
+                    set ResultFlux[$i] = 1e-30 #<20170303><dzliu># 
                 }
             }
             if(is_file($1.param)) {
