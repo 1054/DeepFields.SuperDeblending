@@ -325,38 +325,39 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
         # 
         # make sure images do not contain NaN -- <20170226><dzliu> -- use CrabFitsImageArithmetic
         # and create negative image and rms image if not given -- <20170226><dzliu> -- use CrabFitsImageArithmetic
-        if [[ ! -f "image_check.sh" ]]; then
+        if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"image_check"* || ! -f "image_check.sh" ]]; then
             echo "#!/bin/bash" > "image_check.sh"
-            echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_sci_input.fits '*' '+1.0' image_sci.fits      -remove-nan" >> "image_check.sh"
-            echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_sci_input.fits '*' '-1.0' image_negative.fits -remove-nan" >> "image_check.sh"
+            echo "source \"$AstroDepth_ScriptDir\"/SETUP" >> "image_check.sh"
+            echo "CrabFitsImageArithmetic image_sci_input.fits '*' '+1.0' image_sci.fits      -remove-nan" >> "image_check.sh"
+            echo "CrabFitsImageArithmetic image_sci_input.fits '*' '-1.0' image_negative.fits -remove-nan" >> "image_check.sh"
             # 
             if [[ ! -f "image_rms_input.fits" ]]; then
-                echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_sci.fits '*' 0.0 image_zero.fits -remove-nan"  >> "image_check.sh"
+                echo "CrabFitsImageArithmetic image_sci.fits '*' 0.0 image_zero.fits -remove-nan"  >> "image_check.sh"
                 if [[ ! -f "image_rms_input.txt" ]]; then
-                    echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_zero.fits '+' 1.0 image_rms.fits -remove-nan" >> "image_check.sh"
+                    echo "CrabFitsImageArithmetic image_zero.fits '+' 1.0 image_rms.fits -remove-nan" >> "image_check.sh"
                 else
-                    echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_zero.fits '+' $(head -n 1 image_rms_input.txt) image_rms.fits -remove-nan" >> "image_check.sh"
+                    echo "CrabFitsImageArithmetic image_zero.fits '+' $(head -n 1 image_rms_input.txt) image_rms.fits -remove-nan" >> "image_check.sh"
                 fi
             else
-                echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_rms_input.fits '*' 1.0 image_rms.fits -remove-nan" >> "image_check.sh"
+                echo "CrabFitsImageArithmetic image_rms_input.fits '*' 1.0 image_rms.fits -remove-nan" >> "image_check.sh"
             fi
             # 
-            echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_psf_input.fits '*' 1.0 image_psf.fits -remove-nan" >> "image_check.sh"
+            echo "CrabFitsImageArithmetic image_psf_input.fits '*' 1.0 image_psf.fits -remove-nan" >> "image_check.sh"
             echo "" >> "image_check.sh"
             chmod +x "image_check.sh"
             ./"image_check.sh" > "image_check.log"
         fi
-        # <20170307><dzliu> added an additional check for image_psf.fits
-        if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"image_check"* ]]; then
-            #temp_psf_1_naxis1=$(gethead image_psf.fits NAXIS1)
-            #temp_psf_1_naxis2=$(gethead image_psf.fits NAXIS2)
-            #temp_psf_2_naxis1=$(gethead image_psf.fits NAXIS1)
-            #temp_psf_2_naxis2=$(gethead image_psf.fits NAXIS2)
-            #if [[ "$temp_psf_1_naxis1" != "$temp_psf_2_naxis1" || "$temp_psf_1_naxis2" != "$temp_psf_2_naxis2" ]]; then
-            #    ./"image_check.sh" > "image_check.log"
-            #fi
-            ./"image_check.sh" > "image_check.log"
-        fi
+        ## <20170307><dzliu> added an additional check for image_psf.fits
+        #if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"image_check"* ]]; then
+        #    #temp_psf_1_naxis1=$(gethead image_psf.fits NAXIS1)
+        #    #temp_psf_1_naxis2=$(gethead image_psf.fits NAXIS2)
+        #    #temp_psf_2_naxis1=$(gethead image_psf.fits NAXIS1)
+        #    #temp_psf_2_naxis2=$(gethead image_psf.fits NAXIS2)
+        #    #if [[ "$temp_psf_1_naxis1" != "$temp_psf_2_naxis1" || "$temp_psf_1_naxis2" != "$temp_psf_2_naxis2" ]]; then
+        #    #    ./"image_check.sh" > "image_check.log"
+        #    #fi
+        #    ./"image_check.sh" > "image_check.log"
+        #fi
         # 
         if [[ ! -f "image_sci.fits" ]]; then
             echo "***************************************************************************"
