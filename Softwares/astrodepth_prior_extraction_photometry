@@ -327,7 +327,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
         # and create negative image and rms image if not given -- <20170226><dzliu> -- use CrabFitsImageArithmetic
         if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"image_check"* || ! -f "image_check.sh" ]]; then
             echo "#!/bin/bash" > "image_check.sh"
-            echo "source \"$AstroDepth_ScriptDir\"/SETUP" >> "image_check.sh"
+            echo "source \"$AstroDepth_ScriptDir/SETUP\"" >> "image_check.sh"
             echo "CrabFitsImageArithmetic image_sci_input.fits '*' '+1.0' image_sci.fits      -remove-nan" >> "image_check.sh"
             echo "CrabFitsImageArithmetic image_sci_input.fits '*' '-1.0' image_negative.fits -remove-nan" >> "image_check.sh"
             # 
