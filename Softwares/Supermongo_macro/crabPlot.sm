@@ -81,6 +81,10 @@ crabPlotClosePS 00
             set __crabPlot__EPSBOX[1] = $gy1 / 32767.0 * float(718-144) + 144  -  80 # margin 80
             set __crabPlot__EPSBOX[2] = $gx2 / 32767.0 * float(592-18)  + 18   +  80 # margin 80 (-60 if no Y2 axis)
             set __crabPlot__EPSBOX[3] = $gy2 / 32767.0 * float(718-144) + 144  +  80 # margin 80 (-60 if no X2 axis)
+            if($gx1>=10000) {
+                # add margin
+                set __crabPlot__EPSBOX[0] = __crabPlot__EPSBOX[0] - 45
+            }
             if($gx2>28000) {
                 # detect if there are Y2 axis (if X boundary location is below 28000) or not #<TODO>#
                 set __crabPlot__EPSBOX[2] = __crabPlot__EPSBOX[2] - 60

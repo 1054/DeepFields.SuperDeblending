@@ -1,0 +1,135 @@
+#!/bin/bash
+# 
+# Usage: ds9galfit fit789.fits
+if [ $# -eq 0 ] ; then
+    echo "Usage: "
+    echo "       ds9galfit fit789.fits"
+    echo 
+    exit
+    # check input
+    # echo $@
+    # echo $*
+    # SubFileList=($@)
+    # echo ${SubFileList[0]}
+    # echo ${SubFileList[1]}
+    # find files
+    # SubFileStr=$(ls $1)
+    # echo $SubFileStr
+    # echo ${SubFileStr[1]}
+    # call ds9
+    # ds9 -title xpads9 -port 0 -mecube -tile $* -mode crosshair -lock crosshair wcs -lock crop wcs -lock frame wcs -lock slice yes -lock bin yes -lock scale yes -lock colorbar yes -cube lock yes & 
+fi
+# 
+# 
+DS9GALFIT_FILEP=$1
+# 
+# 
+if [[ $* == *-title* ]]; then
+    DS9GALFIT_TITLE=`expr "$*" : '.*-title \([^\ \-]*\)'`
+    $(dirname $0)/ds9 -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no $* &
+else
+    # first define title
+    DS9GALFIT_TNUMB=1 
+    DS9GALFIT_ISDUP=`ps aux | grep "ds9 -title ds9galfit_$DS9GALFIT_TNUMB" | wc -l | tr -d " "`
+    while [[ $DS9GALFIT_ISDUP -gt 1 ]]; do
+        DS9GALFIT_TNUMB=`expr $DS9GALFIT_TNUMB + 1`
+        DS9GALFIT_ISDUP=`ps aux | grep "ds9 -title ds9galfit_$DS9GALFIT_TNUMB" | wc -l | tr -d " "`
+    done
+    DS9GALFIT_TITLE="ds9galfit_$DS9GALFIT_TNUMB"
+    ds9 -title $DS9GALFIT_TITLE -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no $* &
+fi
+# 
+# 
+#DS9GALFIT_FILEP=$(echo " $* " | sed -E 's#.* +([a-z.]*fits) +.*#\1#g')
+#if [[ x"$DS9GALFIT_FILEP" == x ]]; then 
+#    echo Error! Please give fits file!
+#    exit
+#fi
+#echo $DS9GALFIT_FILEP
+#exit
+# 
+# check fits image
+if [[ ! -f "$DS9GALFIT_FILEP" ]]; then
+    echo ""
+    echo "Error! $DS9GALFIT_FILEP not found! Please check the fits file!"
+    echo ""
+    exit 1
+fi
+# 
+# check CrabFitsHeader
+DS9GALFIT_CHECK=$(CrabFitsHeader 2>&1 >/dev/null)
+if [[ "$DS9GALFIT_CHECK" == *"command not found" ]]; then
+    echo ""
+    echo "Error! CrabFitsHeader not found! Please contact dzliu!"
+    echo ""
+    exit 1
+else 
+    CrabFitsHeader $DS9GALFIT_FILEP > ".CrabFitsHeader.txt"
+fi
+# 
+# check CrabTableReadInfo
+DS9GALFIT_CHECK=$(CrabTableReadInfo 2>&1 >/dev/null)
+if [[ "$DS9GALFIT_CHECK" == *"command not found" ]]; then
+    echo ""
+    echo "Error! CrabTableReadInfo not found! Please contact dzliu!"
+    echo ""
+    exit 1
+fi
+# 
+echo -n Initializing ds9 .
+# 
+echo -n .
+# 
+DS9GALFIT_ISRUN=$(xpaget $DS9GALFIT_TITLE fits type 2>&1 >/dev/null)
+while [[ "$DS9GALFIT_ISRUN" == "XPA\$ERROR no 'xpaget' access points"* ]]; do
+    echo -n .
+    DS9GALFIT_ISRUN=$(xpaget $DS9GALFIT_TITLE fits type 2>&1 >/dev/null)
+                 # xpaget $DS9GALFIT_TITLE fits type #<DEBUG>#
+    sleep 0.5
+done
+echo 
+# echo $(xpaget $DS9GALFIT_TITLE fits type)
+# 
+#DS9GALFIT_REGFP=".$DS9GALFIT_TITLE.reg"
+#echo "# Region file format: DS9 version 4.1" > $DS9GALFIT_REGFP
+#echo "global color=yellow width=1 select=1 highlite=0 dash=1 fixed=0 edit=1 move=0 delete=1 include=1 source=1" >> $DS9GALFIT_REGFP
+#echo "image" >> $DS9GALFIT_REGFP
+
+GALFITRECT=`CrabTableReadInfo ".CrabFitsHeader.txt" "FITSECT" "/" | sed -e "s/[][' ]//g"`
+GALFITRECTX0=0
+GALFITRECTY0=0
+echo $GALFITRECT
+if [[ "$GALFITRECT" != "" ]]; then
+    GALFITRECTX0=`echo $GALFITRECT | sed -e 's/,/:/g' | cut -d ':' -f 1`
+    GALFITRECTY0=`echo $GALFITRECT | sed -e 's/,/:/g' | cut -d ':' -f 3`
+    xpaset -p $DS9GALFIT_TITLE frame 3
+fi
+
+echo "# " > .ds9galfit.ds9.reg
+
+for i in {1..500}; do
+    TC=`CrabTableReadInfo ".CrabFitsHeader.txt" "COMP_"$i "/" | sed -e "s/[][' ]//g"`
+    XC=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_XC" "/" | sed -e s/[\]\[\']//g | sed -e s/[*]//g`
+    YC=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_YC" "/" | sed -e s/[\]\[\']//g | sed -e s/[*]//g`
+    MAG=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_MAG" "/" | sed -e s/[\']//g | sed -e s/[*]//g`
+    FITMAG=$(echo $MAG | grep -v "\[" | grep -v "\]" | wc -l)
+    #echo "$TC" "$GALFITRECTX0" "$GALFITRECTY0" "$XC" "$YC"
+    XC=`bc <<< $XC-$GALFITRECTX0+1`
+    YC=`bc <<< $YC-$GALFITRECTY0+1`
+    #echo "$TC" "$GALFITRECTX0" "$GALFITRECTY0" "$XC" "$YC"
+    #echo "$TC" "$GALFITRECTX0" "$GALFITRECTY0" "$XC" "$YC"
+    if [[ "$TC" == "psf" || "$TC" == "sersic"  || "$TC" == "gaussian" ]]; then
+        if [[ FITMAG -gt 0 ]]; then
+            echo "image; circle("$XC","$YC",5) # text={OBJ"$i"}" | xpaset $DS9GALFIT_TITLE regions
+            echo "image; circle("$XC","$YC",5) # text={OBJ"$i"}" >> ".ds9galfit.ds9.reg"
+            echo "image; circle("$XC","$YC",5) # text={OBJ"$i"}" 
+        else
+            #<added><20150504><dzliu># FITMAG=0 FITMAG=1
+            echo "image; circle("$XC","$YC",5) # text={OBJ"$i"} color=orange dash=1" | xpaset $DS9GALFIT_TITLE regions
+            echo "image; circle("$XC","$YC",5) # text={OBJ"$i"} color=orange dash=1" >> .ds9galfit.ds9.reg
+            echo "image; circle("$XC","$YC",5) # text={OBJ"$i"} color=orange dash=1" 
+        fi
+    else
+        break
+    fi
+done

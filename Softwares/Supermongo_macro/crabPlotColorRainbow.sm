@@ -30,6 +30,7 @@ crabPlotColorRainbowColorBar 01
         print 'Usage: \n\crabPlotColorRainbowColorBar min_max_var\# For example set min_max_var = {3.0 9.9}\n' {}
         return
     }
+    load crabPlot.sm
     set __crabPlot_inpvar = ($1)
     vecminmax __crabPlot_inpvar __crabPlot_colorMIN __crabPlot_colorMAX
     #load crabPlot.sm
@@ -67,7 +68,12 @@ crabPlotColorRainbowColorBar 01
     }
     # 
     relocate $((__crabPlot_xRainbow_0+__crabPlot_xRainbow_1)/2.0) $(__crabPlot_yRainbow[0]-0.85*__crabPlot_hRainbow)
-    ctype default expand 0.85 lweight 3.05 putlabel 2 "Colored by "$1
+    !echo '$1' | sed -e 's/[_]/\\\\_/g' | sed -e 's/[ ]/\\\\_/g' > ".crabPlotColorRainbowColorBar.tmp"
+    crabPlotOnMute
+    data ".crabPlotColorRainbowColorBar.tmp" read row __crabPlot_sRainbow 1.s
+    if(is_vector(__crabPlot_sRainbow)) {!rm ".crabPlotColorRainbowColorBar.tmp"}
+    crabPlotUnMute
+    ctype default expand 0.85 lweight 3.05 putlabel 2 "Colored by "$(__crabPlot_sRainbow)
 
     
 

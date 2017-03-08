@@ -346,6 +346,17 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             chmod +x "image_check.sh"
             ./"image_check.sh" > "image_check.log"
         fi
+        # <20170307><dzliu> added an additional check for image_psf.fits
+        if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"image_check"* ]]; then
+            #temp_psf_1_naxis1=$(gethead image_psf.fits NAXIS1)
+            #temp_psf_1_naxis2=$(gethead image_psf.fits NAXIS2)
+            #temp_psf_2_naxis1=$(gethead image_psf.fits NAXIS1)
+            #temp_psf_2_naxis2=$(gethead image_psf.fits NAXIS2)
+            #if [[ "$temp_psf_1_naxis1" != "$temp_psf_2_naxis1" || "$temp_psf_1_naxis2" != "$temp_psf_2_naxis2" ]]; then
+            #    ./"image_check.sh" > "image_check.log"
+            #fi
+            ./"image_check.sh" > "image_check.log"
+        fi
         # 
         if [[ ! -f "image_sci.fits" ]]; then
             echo "***************************************************************************"
@@ -443,7 +454,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
         fi
         # 
         # now we run photometry in Scoville way, i.e. measure peak and total flux within a radius=1.5 arcsec circle for each prior source
-        if [[ 1 == 1 || ! -f "No_catalog_source_within_image" ]]; then
+        if [[ ! -f "No_catalog_source_within_image" ]]; then
             if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"go_getpix"* || ! -f "getpix.txt" ]]; then
                 echo "Running Supermongo script \"astrodepth_go_getpix.sm\" subroutine \"go_getpix\""
                 echo "macro read astrodepth_go_getpix.sm go_getpix" | sm > "astrodepth_go_getpix.log"
@@ -576,7 +587,7 @@ if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "galfit"; then
             cd "$AstroDepth_OutputDir/$AstroDepth_OutputName/"
             # 
             # now we run galfit in sci image
-            if [[ ! -f "No_catalog_source_within_image" ]]; then
+            if [[ ! -f "No_catalog_source_within_image" && ! -f "No_catalog_source_with_enough_getpix_SNR" ]]; then
                 if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"galfit"* || ! -f "fit_0.fits" ]]; then
                     echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_0\""
                     echo "macro read astrodepth_go_galfit.sm go_galfit_0" | sm > "astrodepth_go_galfit_0.log"
@@ -648,7 +659,7 @@ if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "gaussian"; then
             cd "$AstroDepth_OutputDir/$AstroDepth_OutputName/"
             # 
             # now we run galfit in sci image with Gaussian models
-            if [[ ! -f "No_catalog_source_within_image" ]]; then
+            if [[ ! -f "No_catalog_source_within_image" && ! -f "No_catalog_source_with_enough_getpix_SNR" ]]; then
                 if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"gaussian"* || ! -f "fit_2.fits" ]]; then
                     echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_2\""
                     echo "macro read astrodepth_go_galfit.sm go_galfit_2" | sm > "astrodepth_go_galfit_2.log"

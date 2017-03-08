@@ -1,0 +1,27 @@
+
+Aim: 
+    Here we do post analysis on the SED fitting results. 
+    
+    
+Method:
+    We determine the following SED fitting parameters that will be used in the next time SED fitting. 
+    
+        Type_SED: use MS or SB or both SED templates
+        Type_AGN: use radio data point or not
+        Type_FIT: whether to fit the source in current band image
+        Type_FIR: whether to fit dust SED with only FIR data point
+    
+
+Usage:
+    
+    cd do_Type_FIT; sm <<< "macro read do_Type_FIT.sm go 100"; cd ..
+    #cp -i do_Type_FIT/SED_predictions_* ../Galfit_Band100/
+    #this will produce the SED predictions
+    
+    cd do_Type_AGN; sm <<< "macro read do_Type_AGN.sm do_Type_AGN"; cd ..
+    #cp -i do_Type_AGN/coo_AGN.{log,txt} .
+    
+    cd do_Type_SED; sm <<< "macro read do_Type_SED.sm do_Type_SED"; cd ..
+    #cp -i do_Type_SED/coo_SED.{log,txt} .
+    
+

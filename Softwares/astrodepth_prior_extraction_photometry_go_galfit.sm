@@ -103,12 +103,23 @@ calc_peak2total
 
 
 mask_prior_sources
+    if(is_file("No_catalog_source_with_enough_getpix_SNR")) {
+        !rm "No_catalog_source_with_enough_getpix_SNR"
+    }
     if(is_file("getpix.result") && is_vector(px) && is_vector(py)) {
         data "getpix.result" read {f_peak 1.f f_int 2.f snr_peak 3.f snr_int 4.f id 5.f}
         set mask = (snr_int>=1.0 && snr_peak>=2.0)
-        set px = px if(mask)
-        set py = py if(mask)
-        set id = id if(mask)
+        if(sum(mask)>0) {
+            set px = px if(mask)
+            set py = py if(mask)
+            set id = id if(mask)
+        } else {
+            declare px 0.f
+            declare py 0.f
+            declare id 0.f
+            print "No_catalog_source_with_enough_getpix_SNR" 'No catalog source with enough getpix SNR.\n' {}
+            return # exit
+        }
     } else {
         print 'Warning! \"getpix.result\" was not found! We will not mask the prior sources!\n' {}
     }
@@ -123,19 +134,21 @@ go_galfit_n1
     # no mask_prior_sources
     read_data
     read_pixscale
-    initGalfitParam px py
-    set Note = id
-    set Mags = float(id) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
-    set ParamMaxMags = ParamMaxMags*0.0 + 30.0
-    set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
-    writeGalfitParam fit_n1.param
-    writeGalfitLimit fit_n1.limit
-    writeGalfitInput fit_n1.input image_negative.fits fit_n1.fits image_rms.fits image_psf.fits fit_n1.limit
-    !galfit fit_n1.input > fit_n1.out
-    if(is_file("fit.log")) {!mv "fit.log" "fit_n1.log"}
-    if(is_file("fit_n1.fits")) {
-        readGalfitResult "fit_n1.fits"
-        print_result "fit_n1"
+    if(dimen(px)>0 && dimen(py)==dimen(px)) {
+        initGalfitParam px py
+        set Note = id
+        set Mags = float(id) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
+        set ParamMaxMags = ParamMaxMags*0.0 + 30.0
+        set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+        writeGalfitParam fit_n1.param
+        writeGalfitLimit fit_n1.limit
+        writeGalfitInput fit_n1.input image_negative.fits fit_n1.fits image_rms.fits image_psf.fits fit_n1.limit
+        !galfit fit_n1.input > fit_n1.out
+        if(is_file("fit.log")) {!mv "fit.log" "fit_n1.log"}
+        if(is_file("fit_n1.fits")) {
+            readGalfitResult "fit_n1.fits"
+            print_result "fit_n1"
+        }
     }
     
 
@@ -143,20 +156,22 @@ go_galfit_0
     read_data
     read_pixscale
     mask_prior_sources
-    initGalfitParam px py
-    set Note = id
-    set Mags = float(id) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
-    set ParamMaxMags = float(id)*0.0 + 30.0
-    set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
-    if(is_file("galfit.01")) {!rm galfit.*}
-    writeGalfitParam fit_0.param
-    writeGalfitLimit fit_0.limit
-    writeGalfitInput fit_0.input image_sci.fits fit_0.fits image_rms.fits image_psf.fits fit_0.limit
-    !galfit fit_0.input > fit_0.out
-    if(is_file("fit.log")) {!mv "fit.log" "fit_0.log"}
-    if(is_file("fit_0.fits")) {
-        readGalfitResult "fit_0.fits"
-        print_result "fit_0"
+    if(dimen(px)>0 && dimen(py)==dimen(px)) {
+        initGalfitParam px py
+        set Note = id
+        set Mags = float(id) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
+        set ParamMaxMags = float(id)*0.0 + 30.0
+        set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+        if(is_file("galfit.01")) {!rm galfit.*}
+        writeGalfitParam fit_0.param
+        writeGalfitLimit fit_0.limit
+        writeGalfitInput fit_0.input image_sci.fits fit_0.fits image_rms.fits image_psf.fits fit_0.limit
+        !galfit fit_0.input > fit_0.out
+        if(is_file("fit.log")) {!mv "fit.log" "fit_0.log"}
+        if(is_file("fit_0.fits")) {
+            readGalfitResult "fit_0.fits"
+            print_result "fit_0"
+        }
     }
     
 
@@ -164,27 +179,29 @@ go_galfit_1
     read_data
     read_pixscale
     mask_prior_sources
-    if(is_file("fit_0.result")) {
-        data "fit_0.result" read {ResultPosX 1.f ResultPosY 2.f ResultMags 5.f ResultMagsErr 6.f}
-    } else {
-        readGalfitResult "fit_0.fits"
-        print_result "fit_0"
-    }
-    set Vary_X = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
-    set Vary_Y = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
-    initGalfitParam px py Vary_X Vary_Y
-    set Note = id
-    set Mags = ResultMags # (ResultMagsErr<0.5) ? ResultMags : Mags
-    set ParamMaxMags = float(id)*0.0 + 30.0
-    set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
-    writeGalfitParam fit_1.param
-    writeGalfitLimit fit_1.limit
-    writeGalfitInput fit_1.input image_sci.fits fit_1.fits image_rms.fits image_psf.fits fit_1.limit
-    !galfit fit_1.input > fit_1.out
-    if(is_file("fit.log")) {!mv "fit.log" "fit_1.log"}
-    if(is_file("fit_1.fits")) {
-        readGalfitResult "fit_1.fits"
-        print_result "fit_1"
+    if(dimen(px)>0 && dimen(py)==dimen(px)) {
+        if(is_file("fit_0.result")) {
+            data "fit_0.result" read {ResultPosX 1.f ResultPosY 2.f ResultMags 5.f ResultMagsErr 6.f}
+        } else {
+            readGalfitResult "fit_0.fits"
+            print_result "fit_0"
+        }
+        set Vary_X = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
+        set Vary_Y = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
+        initGalfitParam px py Vary_X Vary_Y
+        set Note = id
+        set Mags = ResultMags # (ResultMagsErr<0.5) ? ResultMags : Mags
+        set ParamMaxMags = float(id)*0.0 + 30.0
+        set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+        writeGalfitParam fit_1.param
+        writeGalfitLimit fit_1.limit
+        writeGalfitInput fit_1.input image_sci.fits fit_1.fits image_rms.fits image_psf.fits fit_1.limit
+        !galfit fit_1.input > fit_1.out
+        if(is_file("fit.log")) {!mv "fit.log" "fit_1.log"}
+        if(is_file("fit_1.fits")) {
+            readGalfitResult "fit_1.fits"
+            print_result "fit_1"
+        }
     }
     
 
@@ -192,40 +209,42 @@ go_galfit_2
     read_data
     read_pixscale
     mask_prior_sources
-    if(is_file("fit_1.result")) {
-        data "fit_1.result" read {ResultPosX 1.f ResultPosY 2.f ResultMags 5.f ResultMagsErr 6.f}
-    } else {
-        readGalfitResult "fit_1.fits"
-        print_result "fit_1"
-    }
-    set Pos_X = (ResultMagsErr<0.25) ? ResultPosX : px
-    set Pos_Y = (ResultMagsErr<0.25) ? ResultPosY : py
-    set Vary_X = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
-    set Vary_Y = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
-    initGalfitParam Pos_X Pos_Y Vary_X Vary_Y
-    set Note = id
-    set Mags = ResultMags # (ResultMagsErr<0.25) ? ResultMags : Mags
-    set Type = (ResultMagsErr<0.25) ? 'gaussian' : Type
-    set Rads = (ResultMagsErr<0.25) ?  0.5/abs(pixscale) : Rads
-    set ParamMaxMags = float(id)*0.0 + 30.0
-    set ParamFitRads = (ResultMagsErr<0.25) ? 1                 : ParamFitRads
-    set ParamMinRads = (ResultMagsErr<0.25) ? 0.25              : ParamMinRads
-    set ParamMaxRads = (ResultMagsErr<0.25) ? 3.0/abs(pixscale) : ParamMaxRads # maximum 3.0 arcsec FWHM
-    set ParamFitElli = (ResultMagsErr<0.25) ? 1                 : ParamFitElli
-    set ParamMinElli = (ResultMagsErr<0.25) ? 0.10              : ParamMinElli
-    set ParamMaxElli = (ResultMagsErr<0.25) ? 10.0              : ParamMaxElli
-    set ParamFitRoti = (ResultMagsErr<0.25) ? 1                 : ParamFitRoti
-    set ParamMinRoti = (ResultMagsErr<0.25) ? 0                 : ParamMinRoti
-    set ParamMaxRoti = (ResultMagsErr<0.25) ? 360.0             : ParamMaxRoti
-    set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
-    writeGalfitParam fit_2.param
-    writeGalfitLimit fit_2.limit
-    writeGalfitInput fit_2.input image_sci.fits fit_2.fits image_rms.fits image_psf.fits fit_2.limit
-    !galfit fit_2.input > fit_2.out
-    if(is_file("fit.log")) {!mv "fit.log" "fit_2.log"}
-    if(is_file("fit_2.fits")) {
-        readGalfitResult "fit_2.fits"
-        print_result "fit_2"
+    if(dimen(px)>0 && dimen(py)==dimen(px)) {
+        if(is_file("fit_1.result")) {
+            data "fit_1.result" read {ResultPosX 1.f ResultPosY 2.f ResultMags 5.f ResultMagsErr 6.f}
+        } else {
+            readGalfitResult "fit_1.fits"
+            print_result "fit_1"
+        }
+        set Pos_X = (ResultMagsErr<0.25) ? ResultPosX : px
+        set Pos_Y = (ResultMagsErr<0.25) ? ResultPosY : py
+        set Vary_X = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
+        set Vary_Y = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
+        initGalfitParam Pos_X Pos_Y Vary_X Vary_Y
+        set Note = id
+        set Mags = ResultMags # (ResultMagsErr<0.25) ? ResultMags : Mags
+        set Type = (ResultMagsErr<0.25) ? 'gaussian' : Type
+        set Rads = (ResultMagsErr<0.25) ?  0.5/abs(pixscale) : Rads
+        set ParamMaxMags = float(id)*0.0 + 30.0
+        set ParamFitRads = (ResultMagsErr<0.25) ? 1                 : ParamFitRads
+        set ParamMinRads = (ResultMagsErr<0.25) ? 0.25              : ParamMinRads
+        set ParamMaxRads = (ResultMagsErr<0.25) ? 3.0/abs(pixscale) : ParamMaxRads # maximum 3.0 arcsec FWHM
+        set ParamFitElli = (ResultMagsErr<0.25) ? 1                 : ParamFitElli
+        set ParamMinElli = (ResultMagsErr<0.25) ? 0.10              : ParamMinElli
+        set ParamMaxElli = (ResultMagsErr<0.25) ? 10.0              : ParamMaxElli
+        set ParamFitRoti = (ResultMagsErr<0.25) ? 1                 : ParamFitRoti
+        set ParamMinRoti = (ResultMagsErr<0.25) ? 0                 : ParamMinRoti
+        set ParamMaxRoti = (ResultMagsErr<0.25) ? 360.0             : ParamMaxRoti
+        set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+        writeGalfitParam fit_2.param
+        writeGalfitLimit fit_2.limit
+        writeGalfitInput fit_2.input image_sci.fits fit_2.fits image_rms.fits image_psf.fits fit_2.limit
+        !galfit fit_2.input > fit_2.out
+        if(is_file("fit.log")) {!mv "fit.log" "fit_2.log"}
+        if(is_file("fit_2.fits")) {
+            readGalfitResult "fit_2.fits"
+            print_result "fit_2"
+        }
     }
 
 
