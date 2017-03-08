@@ -1,0 +1,59 @@
+#!/bin/bash
+# 
+# Usage: ds9mfc fit789.fits
+if [ $# -lt 2 ] ; then
+    echo "Usage: "
+    echo "       ds9panto \"ds9title\" \"{12646}\" [\"*.ds9.reg\"] [fk5]"
+    echo 
+    exit
+    # we will search all *.ds9.reg files under current directory, unless user input the second argument of a ds9 region file
+fi
+# 
+# 
+DS9PAN_NOM=$1
+DS9PAN_STR=$2
+DS9PAN_REG="*.ds9.reg"
+DS9PAN_FK5="fk5"
+# 
+# 
+if [[ $# -ge 3 ]]; then
+    if [[ ! -f "$3" ]]; then
+        echo "Error! The input ds9 region file $3 was not found!"
+        exit 1
+    fi
+    if [[ d"$3" != d ]]; then
+        DS9PAN_REG=$3
+    fi
+fi
+# 
+# 
+if [[ $# -ge 4 ]]; then
+    DS9PAN_FK5=$4
+fi
+# 
+# 
+DS9PAN_LINETEXT=$(grep "$DS9PAN_STR" $DS9PAN_REG | head -n 1)
+if [[ d"$DS9PAN_LINETEXT" != d ]]; then
+    DS9PAN_TEMPTEXT="$DS9PAN_LINETEXT"
+    #echo $DS9PAN_TEMPTEXT
+    DS9PAN_TEMPTEXT=$(echo "$DS9PAN_TEMPTEXT" | sed -e 's/.*circle(//g')
+    #echo $DS9PAN_TEMPTEXT
+    if [[ `uname` == "Darwin" ]]; then
+        DS9PAN_RA=$(echo "$DS9PAN_TEMPTEXT" | sed -E 's/(.*),(.*),(.*)/\1/g')
+        DS9PAN_DEC=$(echo "$DS9PAN_TEMPTEXT" | sed -E 's/(.*),(.*),(.*)/\2/g')
+        DS9PAN_TEMPTEXT=$(echo "$DS9PAN_TEMPTEXT" | sed -E 's/(.*),(.*),(.*)/\3/g')
+    else 
+        DS9PAN_RA=$(echo "$DS9PAN_TEMPTEXT" | sed -E 's/(.*),(.*),(.*)/\1/g')
+        DS9PAN_DEC=$(echo "$DS9PAN_TEMPTEXT" | sed -E 's/(.*),(.*),(.*)/\2/g')
+        DS9PAN_TEMPTEXT=$(echo "$DS9PAN_TEMPTEXT" | sed -E 's/(.*),(.*),(.*)/\3/g')
+    fi
+    #echo $DS9PAN_RA
+    #echo $DS9PAN_DEC
+    #echo $DS9PAN_TEMPTEXT
+    echo "xpaset -p $DS9PAN_NOM pan to $DS9PAN_RA $DS9PAN_DEC $DS9PAN_FK5"
+          xpaset -p $DS9PAN_NOM pan to $DS9PAN_RA $DS9PAN_DEC $DS9PAN_FK5
+else
+    echo "Error! Nothing found in $DS9PAN_REG that matches $DS9PAN_STR!"
+    exit
+fi
+

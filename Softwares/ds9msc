@@ -1,0 +1,74 @@
+#!/bin/bash
+# 
+# Usage: ds9msc -mecube -tile mode column -lock frame wcs fit789.fits fit790.fits fit791.fits
+# 
+if [ $# -eq 0 ] ; then
+    echo "Usage: "
+    echo "       ds9msc fit789.fits fit790.fits"
+    echo 
+    exit
+    # check input
+    # echo $@
+    # echo $*
+    # SubFileList=($@)
+    # echo ${SubFileList[0]}
+    # echo ${SubFileList[1]}
+    # find files
+    # SubFileStr=$(ls $1)
+    # echo $SubFileStr
+    # echo ${SubFileStr[1]}
+    # call ds9
+    # ds9 -title xpads9 -port 0 -mecube -tile $* -mode crosshair -lock crosshair wcs -lock crop wcs -lock frame wcs -lock slice yes -lock bin yes -lock scale yes -lock colorbar yes -cube lock yes & 
+fi
+# 
+# 
+DS9MSC_FILEP=$1
+# 
+# 
+if [[ $* == *-title* ]]; then
+    DS9MSC_TITLE=`expr "$*" : '.*-title \([^\ \-]*\)'`
+    ds9 -mecube -tile mode column -lock frame wcs  $*  &
+else
+    # first define title
+    DS9MSC_TNUMB=1 
+    DS9MSC_ISDUP=`ps | grep "ds9 -title ds9msc_$DS9MSC_TNUMB" | wc -l | tr -d " "`
+    while [[ $DS9MSC_ISDUP -gt 1 ]]; do
+        DS9MSC_TNUMB=`expr $DS9MSC_TNUMB + 1`
+        DS9MSC_ISDUP=`ps | grep "ds9 -title ds9msc_$DS9MSC_TNUMB" | wc -l | tr -d " "`
+    done
+    DS9MSC_TITLE="ds9msc_$DS9MSC_TNUMB"
+    ds9 -title $DS9MSC_TITLE -mecube -tile mode column -lock frame wcs  $*  &
+fi
+# 
+# 
+DS9MSC_FILEP=$(echo " $* " | sed -E 's#.* +([a-z.]*fits) +.*#\1#g')
+if [[ x"$DS9MSC_FILEP" == x ]]; then 
+    echo Error! Please give fits file!
+    exit
+fi
+#echo $DS9MSC_FILEP
+#exit
+# 
+# 
+echo -n Initializing ds9 .
+# 
+echo -n .
+# 
+## while xpaget "$DS9MSC_TITLE" frame active | grep -q "ERROR"; do
+##     sleep 1.25
+##     echo -n .
+## done
+## # 
+## echo .
+#
+DS9MSC_ISRUN=$(xpaget $DS9MSC_TITLE fits type 2>&1 >/dev/null)
+while [[ "$DS9MSC_ISRUN" == "XPA\$ERROR no 'xpaget' access points"* ]]; do
+    echo -n .
+    DS9MSC_ISRUN=$(xpaget $DS9MSC_TITLE fits type 2>&1 >/dev/null)
+    sleep 0.5
+done
+echo 
+# 
+xpaset -p "$DS9MSC_TITLE" frame 1
+
+

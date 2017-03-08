@@ -1,0 +1,76 @@
+#!/bin/bash
+# 
+# Usage: ds9ccc fit789.fits fit790.fits fit791.fits
+if [ $# -eq 0 ] ; then
+    echo "Usage: "
+    echo "       ds9ccc fit789.fits"
+    echo 
+    exit
+    # check input
+    # echo $@
+    # echo $*
+    # SubFileList=($@)
+    # echo ${SubFileList[0]}
+    # echo ${SubFileList[1]}
+    # find files
+    # SubFileStr=$(ls $1)
+    # echo $SubFileStr
+    # echo ${SubFileStr[1]}
+    # call ds9
+    # ds9 -title xpads9 -port 0 -mecube -tile $* -mode crosshair -lock crosshair wcs -lock crop wcs -lock frame wcs -lock slice yes -lock bin yes -lock scale yes -lock colorbar yes -cube lock yes & 
+fi
+# 
+# 
+DS9MCC_FILEP=$1
+# 
+# 
+if [[ $* == *-title* ]]; then
+    DS9MCC_TITLE=`expr "$*" : '.*-title \([^\ \-]*\)'`
+    ds9 -mecube -tile mode column -lock frame wcs $* &
+else
+    # first define title
+    DS9MCC_TNUMB=1 
+    DS9MCC_ISDUP=`ps | grep "ds9 -title ds9ccc_$DS9MCC_TNUMB" | wc -l | tr -d " "`
+    while [[ $DS9MCC_ISDUP -gt 1 ]]; do
+        DS9MCC_TNUMB=`expr $DS9MCC_TNUMB + 1`
+        DS9MCC_ISDUP=`ps | grep "ds9 -title ds9ccc_$DS9MCC_TNUMB" | wc -l | tr -d " "`
+    done
+    DS9MCC_TITLE="ds9ccc_$DS9MCC_TNUMB"
+    ds9 -title $DS9MCC_TITLE -mecube -tile mode column -lock frame wcs -scale mode 99.75 $* &
+fi
+# 
+# 
+DS9MCC_FILEP=$(echo " $* " | sed -E 's#.* +([a-z.]*fits) +.*#\1#g')
+if [[ x"$DS9MCC_FILEP" == x ]]; then 
+    echo Error! Please give fits file!
+    exit
+fi
+#echo $DS9MCC_FILEP
+#exit
+# 
+# 
+echo -n Initializing ds9 .
+# 
+CrabFitsHeader $DS9MCC_FILEP > ".CrabFitsHeader.txt"
+# 
+echo -n .
+#
+DS9MCC_ISRUN=$(xpaget $DS9MCC_TITLE fits type 2>&1 >/dev/null)
+while [[ "$DS9MCC_ISRUN" == "XPA\$ERROR no 'xpaget' access points"* ]]; do
+    echo -n .
+    DS9MCC_ISRUN=$(xpaget $DS9MCC_TITLE fits type 2>&1 >/dev/null)
+    sleep 0.5
+done
+echo 
+# 
+GALFITRECT=`CrabTableReadInfo ".CrabFitsHeader.txt" "FITSECT" "/" | sed -e "s/[][' ]//g"`
+GALFITRECTX0=0
+GALFITRECTY0=0
+echo $GALFITRECT
+if [[ "$GALFITRECT" != "" ]]; then
+    GALFITRECTX0=`echo $GALFITRECT | sed -e 's/,/:/g' | cut -d ':' -f 1`
+    GALFITRECTY0=`echo $GALFITRECT | sed -e 's/,/:/g' | cut -d ':' -f 3`
+    xpaset -p $DS9MCC_TITLE frame 1
+fi
+
+

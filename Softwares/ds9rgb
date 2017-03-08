@@ -1,0 +1,97 @@
+#!/bin/bash
+# 
+# Usage: ds9rgb r.fits g.fits b.fits
+if [ $# -eq 0 ] ; then
+    echo "Usage: "
+    echo "       ds9rgb r.fits g.fits b.fits"
+    echo 
+    exit
+fi
+# 
+# Read R, G, B fitsfile, and other arguments
+DS9RGB_FILE_R="null"
+DS9RGB_FILE_G="null"
+DS9RGB_FILE_B="null"
+DS9RGB_ARGS_O=()
+DS9RGB_ARGS_A="$*"
+while [[ $# -gt 0 ]]; do
+    #echo $1
+    DS9RGB_TPAR="null"
+    DS9RGB_TARG=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+    echo "$DS9RGB_TARG"
+    case "$DS9RGB_TARG" in
+          *".fits") DS9RGB_TPAR="fitsfile";;
+    esac
+    if [[ "$DS9RGB_TPAR" == "fitsfile" ]]; then
+        if [[ ! -f "$1" ]]; then 
+            echo "Error! \"$1\" does not exist!"
+            exit
+        fi
+        if [[ "$DS9RGB_FILE_R" == "null" ]]; then
+            DS9RGB_FILE_R="$1"
+        else
+            if [[ "$DS9RGB_FILE_G" == "null" ]]; then
+                DS9RGB_FILE_G="$1"
+            else
+                if [[ "$DS9RGB_FILE_B" == "null" ]]; then
+                    DS9RGB_FILE_B="$1"
+                fi
+            fi
+        fi
+    fi
+    if [[ "$DS9RGB_TPAR" == "null" ]]; then
+        DS9RGB_ARGS_O+=("$1")
+    fi
+    shift
+done
+# 
+# Check R, G, B fitsfile
+if [[ "$DS9RGB_FILE_R" == "null" ]]; then
+    echo "Error! R color fits file was not given!"
+    exit
+fi
+if [[ "$DS9RGB_FILE_G" == "null" ]]; then
+    echo "Error! G color fits file was not given!"
+    exit
+fi
+if [[ "$DS9RGB_FILE_B" == "null" ]]; then
+    echo "Error! B color fits file was not given!"
+    exit
+fi
+# 
+# function join
+# -- http://zaiste.net/2015/05/how_to_join_elements_of_an_array_in_bash/
+function join { local IFS="$1"; shift; echo "$*"; }
+# 
+# Launch ds9
+if [[ "$DS9RGB_ARGS_A" == *-title* ]]; then
+    DS9RGB_TITLE=`expr "$DS9RGB_ARGS_A" : '.*-title \([^\ \-]*\)'`
+    $(dirname $0)/ds9 -rgb -red "$DS9RGB_FILE_R" -green "$DS9RGB_FILE_G" -blue "$DS9RGB_FILE_B"  $(join ' ' ${DS9RGB_ARGS_O[@]})  &
+else
+    # first define title
+    DS9RGB_TNUMB=1 
+    DS9RGB_ISDUP=`ps aux | grep "ds9 -title ds9rgb_$DS9RGB_TNUMB" | wc -l | tr -d " "`
+    while [[ $DS9RGB_ISDUP -gt 1 ]]; do
+        DS9RGB_TNUMB=`expr $DS9RGB_TNUMB + 1`
+        DS9RGB_ISDUP=`ps aux | grep "ds9 -title ds9rgb_$DS9RGB_TNUMB" | wc -l | tr -d " "`
+    done
+    DS9RGB_TITLE="ds9rgb_$DS9RGB_TNUMB"
+    echo "$(dirname $0)/ds9  -title \"$DS9RGB_TITLE\" -rgb -red \"$DS9RGB_FILE_R\" -green \"$DS9RGB_FILE_G\" -blue \"$DS9RGB_FILE_B\"  $(join ' ' ${DS9RGB_ARGS_O[@]})  &"
+    $(dirname $0)/ds9  -title "$DS9RGB_TITLE"  -rgb -red "$DS9RGB_FILE_R" -green "$DS9RGB_FILE_G" -blue "$DS9RGB_FILE_B"  $(join ' ' ${DS9RGB_ARGS_O[@]})  &
+fi
+# 
+echo -n Initializing ds9 .
+# 
+echo -n .
+# 
+DS9RGB_ISRUN=$(xpaget "$DS9RGB_TITLE" fits type 2>&1 >/dev/null)
+while [[ "$DS9RGB_ISRUN" == "XPA\$ERROR no 'xpaget' access points"* ]]; do
+    echo -n .
+    DS9RGB_ISRUN=$(xpaget "$DS9RGB_TITLE" fits type 2>&1 >/dev/null)
+                 # xpaget "$DS9RGB_TITLE" fits type #<DEBUG>#
+    sleep 0.5
+done
+echo 
+# 
+
+
