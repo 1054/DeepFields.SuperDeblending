@@ -136,10 +136,10 @@ for (( i=1; i<=$FITNUMB; i++ )); do
     FITMAG=$(echo $MAG | grep -v "\[" | grep -v "\]" | wc -l) # whether the magnitude are fitted or fixed
     
     if [[ x"$FWHM" == x ]]; then 
-        MAJ="5.0"
+        MAJ="2.5"
         FITMAJ=0
     else
-        MAJ="$FWHM"
+        MAJ=$(awk "BEGIN {print ($FWHM)/2.0}")
         FITMAJ=$(echo $FWHM | grep -v "\[" | grep -v "\]" | wc -l)
     fi
     
@@ -147,7 +147,7 @@ for (( i=1; i<=$FITNUMB; i++ )); do
         MIN="$MAJ"
         FITMIN=0
     else
-        MIN=$(awk "BEGIN {print ($FWHM)*($ELLI)}")
+        MIN=$(awk "BEGIN {print ($FWHM)*($ELLI)/2.0}")
         FITMIN=$(echo $ELLI | grep -v "\[" | grep -v "\]" | wc -l)
     fi
     
@@ -162,8 +162,6 @@ for (( i=1; i<=$FITNUMB; i++ )); do
     else
         FITOBJ="OBJ$i"
     fi
-    
-    echo "MAJ = $MAJ"
     
     #echo "$TC" "$GALFITRECTX0" "$GALFITRECTY0" "$XC" "$YC"
     XC=`bc <<< $XC-$GALFITRECTX0+1`
