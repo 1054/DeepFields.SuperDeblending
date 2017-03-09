@@ -85,8 +85,8 @@ go_getpix
     # 
     set radius = 1.5 / pixscale
     set rad = px * 0.0 + radius
-    set id = float(id)
-    print "getpix.input" '%15.3f %15.3f %15.3f %15.0f\n' {px py rad id}
+    set cat_index = float(id) # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+    print "getpix.input" '%15.3f %15.3f %15.3f %15.0f\n' {px py rad cat_index}
     !CrabPhotAperPhot -header-in-comment "image_sci.fits" "null" "getpix.input" > "getpix.output"
     #!cat "getpix.input"
     #!cat "getpix.output"
@@ -94,7 +94,7 @@ go_getpix
     if(dimen(pix_num)>0) {
         # 
         # print results
-        print "getpix.txt" '%15g %15g %15g %15.3f %15.3f %15.3f %15.0f\n' {pix_max pix_sum pix_num px py rad id}
+        print "getpix.txt" '%15g %15g %15g %15.3f %15.3f %15.3f %15.0f\n' {pix_max pix_sum pix_num px py rad cat_index}
         # 
         # # 
         # # prepare big array for output
@@ -135,7 +135,7 @@ print_result
         }
         # 
         if(is_file("getpix.txt")) {
-            data "getpix.txt" read {pix_max 1.f pix_sum 2.f pix_num 3.f id 7.f}
+            data "getpix.txt" read {pix_max 1.f pix_sum 2.f pix_num 3.f cat_index 7.f}
             # 
             # print further results with flux unit Jy/beam (f_peak) or Jy (f_int)
             if(is_vector(pixscale) && is_vector(beamarea)) {
@@ -146,7 +146,7 @@ print_result
                     set err_int = pixnoise * sqrt(pix_num) / beamarea * (pixscale*pixscale)
                     set snr_peak = (f_peak>0) ? (f_peak / err_peak) : 0.0
                     set snr_int = (f_int>0) ? (f_int / err_int) : 0.0
-                    print "getpix.result" '%15g %15g %15g %15g %15.0f\n' {f_peak f_int snr_peak snr_int id}
+                    print "getpix.result" '%15g %15g %15g %15g %15.0f\n' {f_peak f_int snr_peak snr_int cat_index}
                 } else {
                     print 'Error! Negative pixscale or beamarea value! Failed to run \"go_getpix.sm\" subroutine \"print_result\"!\n' {}
                 }

@@ -36,7 +36,7 @@ else
         DS9GALFIT_ISDUP=`ps aux | grep "ds9 -title ds9galfit_$DS9GALFIT_TNUMB" | wc -l | tr -d " "`
     done
     DS9GALFIT_TITLE="ds9galfit_$DS9GALFIT_TNUMB"
-    ds9 -title $DS9GALFIT_TITLE -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no $* &
+    ds9 -title $DS9GALFIT_TITLE -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no "$@" &
 fi
 # 
 # 
@@ -107,12 +107,34 @@ fi
 
 echo "# " > .ds9galfit.ds9.reg
 
-for i in {1..500}; do
+DS9GALFIT_PARAM=$(echo "$DS9GALFIT_FILEP" | sed -e 's/\.fits$/.param/g')
+
+if [[ -f "$DS9GALFIT_PARAM" ]]; then
+    FITNOTE=$(cat "$DS9GALFIT_PARAM" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 31)
+    FITNUMB=${#FITNOTE[@]}
+else
+    FITNOTE=()
+    FITNUMB=$(cat ".CrabFitsHeader.txt" | grep "^COMP_" | wc -l)
+fi
+
+for (( i=1; i<=$FITNUMB; i++ )); do
     TC=`CrabTableReadInfo ".CrabFitsHeader.txt" "COMP_"$i "/" | sed -e "s/[][' ]//g"`
     XC=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_XC" "/" | sed -e s/[\]\[\']//g | sed -e s/[*]//g`
     YC=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_YC" "/" | sed -e s/[\]\[\']//g | sed -e s/[*]//g`
     MAG=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_MAG" "/" | sed -e s/[\']//g | sed -e s/[*]//g`
+    FWHM=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_FWHM" "/" | sed -e s/[\']//g | sed -e s/[*]//g`
+    ELLI=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_AR" "/" | sed -e s/[\']//g | sed -e s/[*]//g`
+    POSA=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_PA" "/" | sed -e s/[\']//g | sed -e s/[*]//g`
     FITMAG=$(echo $MAG | grep -v "\[" | grep -v "\]" | wc -l)
+    FITMAJ=$(echo $FWHM | grep -v "\[" | grep -v "\]" | wc -l)
+    FITMIN=$(echo $ELLI | grep -v "\[" | grep -v "\]" | wc -l); FITMIN=$(awk "BEGIN {print ($FITMAJ)*($FITMIN)}")
+    FITPA=$(echo $FWHM | grep -v "\[" | grep -v "\]" | wc -l)
+    if [[ $i -lt ${#FITNOTE[@]} ]]; then
+        FITOBJ="${FITNOTE[i]}"
+    else
+        FITOBJ="OBJ$i"
+    fi
+    if [[ x"$FITMAJ" == x ]]; then FITMAJ="5.0"; fi
     #echo "$TC" "$GALFITRECTX0" "$GALFITRECTY0" "$XC" "$YC"
     XC=`bc <<< $XC-$GALFITRECTX0+1`
     YC=`bc <<< $YC-$GALFITRECTY0+1`
@@ -120,14 +142,14 @@ for i in {1..500}; do
     #echo "$TC" "$GALFITRECTX0" "$GALFITRECTY0" "$XC" "$YC"
     if [[ "$TC" == "psf" || "$TC" == "sersic"  || "$TC" == "gaussian" ]]; then
         if [[ FITMAG -gt 0 ]]; then
-            echo "image; circle("$XC","$YC",5) # text={OBJ"$i"}" | xpaset $DS9GALFIT_TITLE regions
-            echo "image; circle("$XC","$YC",5) # text={OBJ"$i"}" >> ".ds9galfit.ds9.reg"
-            echo "image; circle("$XC","$YC",5) # text={OBJ"$i"}" 
+            echo "image; circle($XC,$YC,$FITMAJ) # text={$FITOBJ}" | xpaset $DS9GALFIT_TITLE regions
+            echo "image; circle($XC,$YC,$FITMAJ) # text={$FITOBJ}" >> ".ds9galfit.ds9.reg"
+            echo "image; circle($XC,$YC,$FITMAJ) # text={$FITOBJ}" 
         else
             #<added><20150504><dzliu># FITMAG=0 FITMAG=1
-            echo "image; circle("$XC","$YC",5) # text={OBJ"$i"} color=orange dash=1" | xpaset $DS9GALFIT_TITLE regions
-            echo "image; circle("$XC","$YC",5) # text={OBJ"$i"} color=orange dash=1" >> .ds9galfit.ds9.reg
-            echo "image; circle("$XC","$YC",5) # text={OBJ"$i"} color=orange dash=1" 
+            echo "image; circle($XC,$YC,$FITMAJ) # text={$FITOBJ} color=orange dash=1" | xpaset $DS9GALFIT_TITLE regions
+            echo "image; circle($XC,$YC,$FITMAJ) # text={$FITOBJ} color=orange dash=1" >> .ds9galfit.ds9.reg
+            echo "image; circle($XC,$YC,$FITMAJ) # text={$FITOBJ} color=orange dash=1" 
         fi
     else
         break
