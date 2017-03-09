@@ -124,6 +124,8 @@ xpaset -p $DS9GALFIT_TITLE frame 3
 # Set scale limits
 # 
 
+xpaset -p $DS9GALFIT_TITLE cmap aips0
+xpaset -p $DS9GALFIT_TITLE scale limits 99.5
 xpaset -p $DS9GALFIT_TITLE scale limits $(xpaget $DS9GALFIT_TITLE scale limits)
 
 
