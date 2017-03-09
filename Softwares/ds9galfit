@@ -84,7 +84,7 @@ if [[ "$DS9GALFIT_CHECK" == *"command not found" ]]; then
     echo ""
     exit 1
 else 
-    CrabPhotImageStatistics $DS9GALFIT_FILEP > ".CrabPhotImageStatistics.txt"
+    CrabPhotImageStatistics $DS9GALFIT_FILEP -ext 2 > ".CrabPhotImageStatistics.txt"
     DS9GALFIT_SCALES=($(cat ".CrabPhotImageStatistics.txt" | sed -e 's/^ *//g' | grep -v "^#" | tr -s ' ' | cut -d ' ' -f 8,9))
 fi
 
