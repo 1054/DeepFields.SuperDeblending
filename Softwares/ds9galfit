@@ -114,8 +114,10 @@ if [[ -f "$DS9GALFIT_PARAM" ]]; then
     FITNUMB=${#FITNOTE[@]}
 else
     FITNOTE=()
-    FITNUMB=$(cat ".CrabFitsHeader.txt" | grep "^COMP_" | wc -l)
+    FITNUMB=$(cat ".CrabFitsHeader.txt" | grep "^COMP_" | grep -v "sky" | wc -l)
 fi
+
+echo "Found $FITNUMB objects in the fits header"
 
 for (( i=1; i<=$FITNUMB; i++ )); do
     TC=`CrabTableReadInfo ".CrabFitsHeader.txt" "COMP_"$i "/" | sed -e "s/[][' ]//g"`
