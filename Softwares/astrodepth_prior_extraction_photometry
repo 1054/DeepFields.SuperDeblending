@@ -328,7 +328,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # 
     # 
     # now prepare image products and supermongo scripts and run "getpix"
-    if [[ ! -f "astrodepth_lock_getpix" ]]; then
+    if [[ ! -f "astrodepth_lock_getpix" || "${AstroDepth_INP_UNLOCK[@]}" == *"getpix"* ]]; then
         # 
         touch "astrodepth_lock_getpix"
         # 
@@ -492,7 +492,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # now run galfit on negative image
     if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "negative"; then
         # 
-        if [[ ! -f "astrodepth_lock_negative" ]]; then
+        if [[ ! -f "astrodepth_lock_negative" || "${AstroDepth_INP_UNLOCK[@]}" == *"negative"* ]]; then
             # 
             touch "astrodepth_lock_negative"
             # 
@@ -525,7 +525,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # now run galfit on input image
     if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "galfit"; then
         # 
-        if [[ ! -f "astrodepth_lock_galfit" ]]; then
+        if [[ ! -f "astrodepth_lock_galfit" || "${AstroDepth_INP_UNLOCK[@]}" == *"galfit"*  ]]; then
             # 
             touch "astrodepth_lock_galfit"
             # 
@@ -569,7 +569,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # now run galfit with gaussian source model
     if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "gaussian"; then
         # 
-        if [[ ! -f "astrodepth_lock_gaussian" ]]; then
+        if [[ ! -f "astrodepth_lock_gaussian" || "${AstroDepth_INP_UNLOCK[@]}" == *"gaussian"*  ]]; then
             # 
             touch "astrodepth_lock_gaussian"
             # 
@@ -602,7 +602,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # now run supermongo script to get "final.result" (the file containing Nfit and Ndet)
     if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "final"; then
         # 
-        if [[ ! -f "astrodepth_lock_final" ]]; then
+        if [[ ! -f "astrodepth_lock_final" || "${AstroDepth_INP_UNLOCK[@]}" == *"final"*  ]]; then
             # 
             touch "astrodepth_lock_final"
             # 

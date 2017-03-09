@@ -58,6 +58,7 @@ AstroDepth_INP_CATALOG_ID=() # the column number (starting from 1)
 AstroDepth_INP_CATALOG_RA=() # the column number (starting from 1)
 AstroDepth_INP_CATALOG_DEC=() # the column number (starting from 1)
 AstroDepth_INP_CATALOG_MASK=() # the column number (starting from 1)
+AstroDepth_INP_UNLOCK=()
 AstroDepth_CMD_TYPE="n/a"
 
 if [[ $AstroDepth_INP_DEBUG -eq 1 ]]; then
@@ -96,6 +97,7 @@ while [[ "$#" -gt 0 ]]; do
          "-steps") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="steps";;
      "-overwrite") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="overwrite";;
     "-overwrites") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="overwrite";;
+        "-unlock") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="unlock";;
            "-yes") AstroDepth_CMD_TEXT="$1";        AstroDepth_CMD_TYPE="yes";;
             "-no") AstroDepth_CMD_TEXT="$1";        AstroDepth_CMD_TYPE="no";;
     esac
@@ -113,6 +115,7 @@ while [[ "$#" -gt 0 ]]; do
     "output-name") if [[ $# -gt 0 ]]; then AstroDepth_INP_OUTPUT_NAME+=("$1"); fi;;
           "steps") if [[ $# -gt 0 ]]; then AstroDepth_INP_STEPS+=("$1"); fi;;
       "overwrite") if [[ $# -gt 0 ]]; then AstroDepth_INP_OVERWRITE+=($(echo "$1" | tr '[:upper:]' '[:lower:]')); fi;;
+         "unlock") if [[ $# -gt 0 ]]; then AstroDepth_INP_UNLOCK+=($(echo "$1" | tr '[:upper:]' '[:lower:]')); fi;;
             "yes")                         AstroDepth_INP_YES=1;;
              "no")                         AstroDepth_INP_NO=1;;
     esac
