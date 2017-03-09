@@ -21,7 +21,7 @@ if [ $# -eq 0 ] ; then
 fi
 # 
 # 
-DS9GALFIT_FILEP=$1
+DS9GALFIT_FILEP="$1"
 # 
 # 
 if [[ $* == *-title* ]]; then
@@ -149,7 +149,7 @@ xpaset -p $DS9GALFIT_TITLE scale mode 99.8
 xpaset -p $DS9GALFIT_TITLE scale limits $(xpaget $DS9GALFIT_TITLE scale limits)
 
 if [[ ${#DS9GALFIT_SCALES[@]} -eq 2 ]]; then
-    xpaset -p $DS9GALFIT_TITLE scale limits ${DS9GALFIT_SCALES[0]} ${DS9GALFIT_SCALES[1]}
+    xpaset -p $DS9GALFIT_TITLE scale limits ${DS9GALFIT_SCALES[0]} $(awk "BEGIN { print (${DS9GALFIT_SCALES[1]})*2.0 }")
 fi
 
 
@@ -167,7 +167,7 @@ if [[ -f "$DS9GALFIT_PARAM" ]]; then
     FITNUMB=${#FITNOTE[@]}
 else
     FITNOTE=()
-    FITNUMB=$(cat ".CrabFitsHeader.txt" | grep "^COMP_" | grep -v "sky" | wc -l)
+    FITNUMB=$(cat ".CrabFitsHeader.txt" | grep "^COMP_" | grep -v -i "sky" | wc -l)
 fi
 
 echo "Found $FITNUMB objects in the fits header"
@@ -210,7 +210,7 @@ for (( i=1; i<=$FITNUMB; i++ )); do
         FITPA=$(echo $PA | grep -v "\[" | grep -v "\]" | wc -l)
     fi
     
-    if [[ $i -lt ${#FITNOTE[@]} ]]; then
+    if [[ $(($i-1)) -lt ${#FITNOTE[@]} ]]; then
         FITOBJ="${FITNOTE[$(($i-1))]}"
     else
         FITOBJ="OBJ$i"
@@ -236,3 +236,15 @@ for (( i=1; i<=$FITNUMB; i++ )); do
         break
     fi
 done
+
+
+
+
+
+
+
+
+
+
+
+
