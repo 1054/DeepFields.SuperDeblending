@@ -463,6 +463,8 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     echo "Log file: \"astrodepth_go_getpix.log\""; cat "astrodepth_go_getpix.log"
                     exit 1
                 fi
+            else
+                echo "Found existing \"getpix.txt\"! We will not overwrite it without \"-overwrite go_getpix\" option!"
             fi
             # 
             if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"getpix"* || ! -f "getpix.result" ]]; then
@@ -474,6 +476,8 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     echo "Log file: \"astrodepth_go_getpix_print_result.log\""; cat "astrodepth_go_getpix_print_result.log"
                     exit 1
                 fi
+            else
+                echo "Found existing \"getpix.result\"! We will not overwrite it without \"-overwrite getpix\" option!"
             fi
             # 
             echo "Done!"
@@ -507,8 +511,9 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                         echo "Log file: \"astrodepth_go_galfit_n1.log\""; cat "astrodepth_go_galfit_n1.log"
                         exit 1
                     fi
+                else
+                    echo "Found existing \"fit_n1.fits\"! We will not overwrite it without \"-overwrite negative\" option!"
                 fi
-                # 
                 echo "Done!"
             else
                 echo "No catalog source within image! Skip and continue!"
@@ -540,6 +545,8 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                         echo "Log file: \"astrodepth_go_galfit_0.log\""; cat "astrodepth_go_galfit_0.log"
                         exit 1
                     fi
+                else
+                    echo "Found existing \"fit_0.fits\"! We will not overwrite it without \"-overwrite galfit\" option!"
                 fi
                 if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"galfit"* || ! -f "fit_1.fits" ]]; then
                     echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_1\""
@@ -550,8 +557,9 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                         echo "Log file: \"astrodepth_go_galfit_1.log\""; cat "astrodepth_go_galfit_1.log"
                         exit 1
                     fi
+                else
+                    echo "Found existing \"fit_1.fits\"! We will not overwrite it without \"-overwrite galfit\" option!"
                 fi
-                # 
                 echo "Done!"
             else
                 echo "No catalog source within image! Skip and continue!"
@@ -584,6 +592,8 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                         echo "Log file: \"astrodepth_go_galfit_2.log\""; cat "astrodepth_go_galfit_2.log"
                         exit 1
                     fi
+                else
+                    echo "Found existing \"fit_2.fits\"! We will not overwrite it without \"-overwrite gaussian\" option!"
                 fi
                 echo "Done!"
             else
@@ -617,6 +627,8 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                         echo "Log file: \"astrodepth_go_galfit_print_result_final.log\""; cat "astrodepth_go_galfit_print_result_final.log"
                         exit 1
                     fi
+                else
+                    echo "Found existing \"final.result\"! We will not overwrite it without \"-overwrite final\" option!"
                 fi
                 echo "Done!"
             else
