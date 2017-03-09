@@ -149,7 +149,7 @@ xpaset -p $DS9GALFIT_TITLE scale mode 99.8
 xpaset -p $DS9GALFIT_TITLE scale limits $(xpaget $DS9GALFIT_TITLE scale limits)
 
 if [[ ${#DS9GALFIT_SCALES[@]} -eq 2 ]]; then
-    xpaset -p $DS9GALFIT_TITLE scale limits ${DS9GALFIT_SCALES[0]} $(awk "BEGIN { print (${DS9GALFIT_SCALES[1]})*2.0 }")
+    xpaset -p $DS9GALFIT_TITLE scale limits ${DS9GALFIT_SCALES[0]} $(awk "BEGIN { print (${DS9GALFIT_SCALES[1]})*5.0 }")
 fi
 
 

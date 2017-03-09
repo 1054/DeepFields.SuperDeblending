@@ -353,18 +353,21 @@ print_result_final 00
             set snr_fit_0 = (df_fit_0>rms) ? (f_fit_0/df_fit_0) : (f_fit_0/rms)
             set snr_fit_1 = (df_fit_1>rms) ? (f_fit_1/df_fit_1) : (f_fit_1/rms)
             set snr_fit_2 = (df_fit_2>rms) ? (f_fit_2/df_fit_2) : (f_fit_2/rms)
-            set detect_getpix = (snr_peak>=3.6 || snr_int>=2.0)
-            set detect_fit_0 = int(snr_fit_0>=3.0)
-            set detect_fit_1 = int(snr_fit_1>=3.0)
-            set detect_fit_2 = int(snr_fit_2>=3.0)
-            set Nfit_getpix = dimen(cid_getpix) set Ndet_getpix = sum(detect_getpix)
-            set Nfit_fit_0 = dimen(cid_fit_0) set Ndet_fit_0 = sum(detect_fit_0)
-            set Nfit_fit_1 = dimen(cid_fit_1) set Ndet_fit_1 = sum(detect_fit_1)
-            set Nfit_fit_2 = dimen(cid_fit_2) set Ndet_fit_2 = sum(detect_fit_2)
-            print "getpix.result.ra.dec.detect.id" '%15.7f %15.7f %12d %15s\n' {ra_getpix dec_getpix detect_getpix id_getpix}
-            print "fit_0.result.ra.dec.detect.id" '%15.7f %15.7f %12d %15s\n' {ra_fit_0 dec_fit_0 detect_fit_0 id_fit_0}
-            print "fit_1.result.ra.dec.detect.id" '%15.7f %15.7f %12d %15s\n' {ra_fit_1 dec_fit_1 detect_fit_1 id_fit_1}
-            print "fit_2.result.ra.dec.detect.id" '%15.7f %15.7f %12d %15s\n' {ra_fit_2 dec_fit_2 detect_fit_2 id_fit_2}
+            set det_getpix = int(snr_peak>=3.6 || snr_int>=2.0)
+            set det_fit_0 = int(snr_fit_0>=3.0)
+            set det_fit_1 = int(snr_fit_1>=3.0)
+            set det_fit_2 = int(snr_fit_2>=3.0)
+            set Nfit_getpix = int(dimen(cid_getpix)) set Ndet_getpix = int(sum(det_getpix))
+            set Nfit_fit_0 = int(dimen(cid_fit_0)) set Ndet_fit_0 = int(sum(det_fit_0))
+            set Nfit_fit_1 = int(dimen(cid_fit_1)) set Ndet_fit_1 = int(sum(det_fit_1))
+            set Nfit_fit_2 = int(dimen(cid_fit_2)) set Ndet_fit_2 = int(sum(det_fit_2))
+            print "getpix.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_getpix dec_getpix det_getpix id_getpix}
+            print "fit_0.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_0 dec_fit_0 det_fit_0 id_fit_0}
+            print "fit_1.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_1 dec_fit_1 det_fit_1 id_fit_1}
+            print "fit_2.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_2 dec_fit_2 det_fit_2 id_fit_2}
+            print "fit_0.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_0 dec_fit_0 f_fit_0 df_fit_0 snr_fit_0 id_fit_0}
+            print "fit_1.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_1 dec_fit_1 f_fit_1 df_fit_1 snr_fit_1 id_fit_1}
+            print "fit_2.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_2 dec_fit_2 f_fit_2 df_fit_2 snr_fit_2 id_fit_2}
         } else {
             data "getpix.result" read {f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 5.f}
             data "getpix.input" read {x_getpix 1.f y_getpix 2.f}
@@ -379,15 +382,15 @@ print_result_final 00
             set snr_fit_0 = 0
             set snr_fit_1 = 0
             set snr_fit_2 = 0
-            set detect_getpix = (snr_peak>=3.6 || snr_int>=2.0)
+            set det_getpix = (snr_peak>=3.6 || snr_int>=2.0)
             set Nfit_fit_0 = 0 set Ndet_fit_0 = 0
             set Nfit_fit_1 = 0 set Ndet_fit_1 = 0
             set Nfit_fit_2 = 0 set Ndet_fit_2 = 0
-            set Nfit_getpix = dimen(cid_getpix) set Ndet_getpix = sum(detect_getpix)
-            print "getpix.result.ra.dec.det.id" '%15.7f %15.7f %12d %15s\n' {ra_getpix dec_getpix det_getpix id_getpix}
+            set Nfit_getpix = dimen(cid_getpix) set Ndet_getpix = sum(det_getpix)
+            print "getpix.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_getpix dec_getpix det_getpix id_getpix}
         }
         # 
-        print "final.result" '%15.0f %15.0f %15.0f %15.0f %15.0f %15.0f %15.0f %15.0f\n' \
+        print "final.result" '%15d %15d %15d %15d %15d %15d %15d %15d\n' \
             {Nfit_getpix Ndet_getpix Nfit_fit_0 Ndet_fit_0 Nfit_fit_1 Ndet_fit_1 Nfit_fit_2 Ndet_fit_2}
         # 
     } else {

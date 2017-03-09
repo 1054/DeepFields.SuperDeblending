@@ -3,3 +3,8 @@ QUIT
 quit
 define aaa ?
 quit
+set aaa = long(10)
+set aaa = int(10)
+set aaa = int(12343324540)
+print{aaa}
+quit
