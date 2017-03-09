@@ -88,6 +88,7 @@ while [[ "$DS9GALFIT_ISRUN" == "XPA\$ERROR no 'xpaget' access points"* ]]; do
     sleep 0.5
 done
 echo 
+# 
 # echo $(xpaget $DS9GALFIT_TITLE fits type)
 # 
 #DS9GALFIT_REGFP=".$DS9GALFIT_TITLE.reg"
@@ -116,6 +117,14 @@ xpaset -p $DS9GALFIT_TITLE frame 1
 xpaset -p $DS9GALFIT_TITLE frame delete
 
 xpaset -p $DS9GALFIT_TITLE frame 3
+
+
+
+# 
+# Set scale limits
+# 
+
+xpaset -p $DS9GALFIT_TITLE scale limits $(xpaget $DS9GALFIT_TITLE scale limits)
 
 
 
