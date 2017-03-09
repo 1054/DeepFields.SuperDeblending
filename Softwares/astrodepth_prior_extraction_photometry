@@ -480,7 +480,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                 echo "Found existing \"getpix.result\"! We will not overwrite it without \"-overwrite getpix\" option!"
             fi
             # 
-            echo "Done!"
+            #echo "Done!"
         else
             echo "No catalog source within image! Skip and continue!"
         fi
@@ -514,7 +514,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                 else
                     echo "Found existing \"fit_n1.fits\"! We will not overwrite it without \"-overwrite negative\" option!"
                 fi
-                echo "Done!"
+                #echo "Done!"
             else
                 echo "No catalog source within image! Skip and continue!"
             fi
@@ -560,7 +560,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                 else
                     echo "Found existing \"fit_1.fits\"! We will not overwrite it without \"-overwrite galfit\" option!"
                 fi
-                echo "Done!"
+                #echo "Done!"
             else
                 echo "No catalog source within image! Skip and continue!"
             fi
@@ -595,7 +595,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                 else
                     echo "Found existing \"fit_2.fits\"! We will not overwrite it without \"-overwrite gaussian\" option!"
                 fi
-                echo "Done!"
+                #echo "Done!"
             else
                 echo "No catalog source within image! Skip and continue!"
             fi
@@ -630,7 +630,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                 else
                     echo "Found existing \"final.result\"! We will not overwrite it without \"-overwrite final\" option!"
                 fi
-                echo "Done!"
+                #echo "Done!"
             else
                 echo "No catalog source within image! Skip and continue!"
             fi
@@ -650,6 +650,7 @@ done
 
 
 
+echo "Done!"
 
 
 
