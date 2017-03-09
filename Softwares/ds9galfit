@@ -207,6 +207,7 @@ for (( i=1; i<=$FITNUMB; i++ )); do
     if [[ x"$PA" == x ]]; then 
         PA="0.0"
     else
+        PA=$(awk "BEGIN {print ($PA)+90.0}")
         FITPA=$(echo $PA | grep -v "\[" | grep -v "\]" | wc -l)
     fi
     
