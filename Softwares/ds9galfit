@@ -105,6 +105,25 @@ if [[ "$GALFITRECT" != "" ]]; then
     xpaset -p $DS9GALFIT_TITLE frame 3
 fi
 
+
+
+# 
+# Delete first blank frame, then
+# wwitch to source model image
+# 
+
+xpaset -p $DS9GALFIT_TITLE frame 1
+
+xpaset -p $DS9GALFIT_TITLE frame delete
+
+xpaset -p $DS9GALFIT_TITLE frame 2
+
+
+
+# 
+# Prepare ds9 region file
+# 
+
 echo "# " > .ds9galfit.ds9.reg
 
 DS9GALFIT_PARAM=$(echo "$DS9GALFIT_FILEP" | sed -e 's/\.fits$/.param/g')
