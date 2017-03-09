@@ -136,6 +136,7 @@ for (( i=1; i<=$FITNUMB; i++ )); do
     else
         FITOBJ="OBJ$i"
     fi
+    echo "FITMAJ = $FITMAJ"
     if [[ x"$FITMAJ" == x ]]; then FITMAJ="5.0"; fi
     #echo "$TC" "$GALFITRECTX0" "$GALFITRECTY0" "$XC" "$YC"
     XC=`bc <<< $XC-$GALFITRECTX0+1`
