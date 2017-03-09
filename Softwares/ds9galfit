@@ -144,7 +144,7 @@ for (( i=1; i<=$FITNUMB; i++ )); do
     fi
     
     if [[ x"$ELLI" == x ]]; then 
-        MIN="5.0"
+        MIN="$MAJ"
         FITMIN=0
     else
         MIN=$(awk "BEGIN {print ($FWHM)*($ELLI)}")
@@ -172,14 +172,14 @@ for (( i=1; i<=$FITNUMB; i++ )); do
     #echo "$TC" "$GALFITRECTX0" "$GALFITRECTY0" "$XC" "$YC"
     if [[ "$TC" == "psf" || "$TC" == "sersic"  || "$TC" == "gaussian" ]]; then
         if [[ FITMAG -gt 0 ]]; then
-            echo "image; circle($XC,$YC,$FITMAJ) # text={$FITOBJ}" | xpaset $DS9GALFIT_TITLE regions
-            echo "image; circle($XC,$YC,$FITMAJ) # text={$FITOBJ}" >> ".ds9galfit.ds9.reg"
-            echo "image; circle($XC,$YC,$FITMAJ) # text={$FITOBJ}" 
+            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ}" | xpaset $DS9GALFIT_TITLE regions
+            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ}" >> ".ds9galfit.ds9.reg"
+            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ}" 
         else
             #<added><20150504><dzliu># FITMAG=0 FITMAG=1
-            echo "image; circle($XC,$YC,$FITMAJ) # text={$FITOBJ} color=orange dash=1" | xpaset $DS9GALFIT_TITLE regions
-            echo "image; circle($XC,$YC,$FITMAJ) # text={$FITOBJ} color=orange dash=1" >> .ds9galfit.ds9.reg
-            echo "image; circle($XC,$YC,$FITMAJ) # text={$FITOBJ} color=orange dash=1" 
+            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ} color=orange dash=1" | xpaset $DS9GALFIT_TITLE regions
+            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ} color=orange dash=1" >> .ds9galfit.ds9.reg
+            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ} color=orange dash=1" 
         fi
     else
         break
