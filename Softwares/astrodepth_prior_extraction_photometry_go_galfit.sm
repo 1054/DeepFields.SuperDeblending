@@ -298,8 +298,8 @@ print_result 01
                 data $1.param read {cat_index 31.f}
             }
             if(is_file("prior_id.txt")) {
-                data "prior_id.txt" read {cat_id 1.f}
-                set id = cat_id[cat_index]
+                data "prior_id.txt" read {cat_id_full 1.s}
+                set cat_id = cat_id_full[cat_index]
             }
             set x = ResultPosX
             set y = ResultPosY
@@ -313,24 +313,89 @@ print_result 01
             set min_err = maj*ResultElliErr
             set pa = ResultRoti
             set pa_err = ResultRotiErr
-            print $1.result '%12.4f %12.4f %14g %14g %10.4f %12g %10.4f %12g %10.4f %12g %10.4f %12g %12.0f %12.0f\n' \
-                {x y f f_err mag mag_err maj maj_err min min_err pa pa_err cat_index id}
+            print $1.result '%12.4f %12.4f %14g %14g %10.4f %12g %10.4f %12g %10.4f %12g %10.4f %12g %12.0f %12s\n' \
+                {x y f f_err mag mag_err maj maj_err min min_err pa pa_err cat_index cat_id}
         }
     }
 
 
 print_result_final 00
     if(!is_file("No_catalog_source_within_image")) {
-        load astroGalfit.sm
-        if(is_file("fit_2.fits")) {
-            readGalfitResult fit_2.fits
-            print_result fit_2
+        if(is_file("final.result")) {!mv final.result final.result.backup}
+        data "image_sci_pixnoise.txt" read {rms 1.f}
+        data "prior_id.txt" read {cat_id_full 1.s}
+        # 
+        if(!is_file("No_catalog_source_with_enough_getpix_SNR")) {
+            data "getpix.result" read {f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 5.f}
+            data "getpix.input" read {x_getpix 1.f y_getpix 2.f}
+            data "fit_0.result" read {x_fit_0 1.f y_fit_0 2.f f_fit_0 3.f df_fit_0 4.f cid_fit_0 13.f}
+            data "fit_1.result" read {x_fit_1 1.f y_fit_1 2.f f_fit_1 3.f df_fit_1 4.f cid_fit_1 13.f}
+            data "fit_2.result" read {x_fit_2 1.f y_fit_2 2.f f_fit_2 3.f df_fit_2 4.f cid_fit_2 13.f}
+            define print_noheader 1
+            print "getpix.sky2xy.input" '%15.4f %15.4f\n' {x_getpix y_getpix}
+            print "fit_0.sky2xy.input" '%15.4f %15.4f\n' {x_fit_0 y_fit_0}
+            print "fit_1.sky2xy.input" '%15.4f %15.4f\n' {x_fit_1 y_fit_1}
+            print "fit_2.sky2xy.input" '%15.4f %15.4f\n' {x_fit_2 y_fit_2}
+            define print_noheader 0
+            !sky2xy -d -n 10 "image_sci.fits" @"getpix.sky2xy.input" > "getpix.sky2xy.output"
+            !sky2xy -d -n 10 "image_sci.fits" @"fit_0.sky2xy.input" > "fit_0.sky2xy.output"
+            !sky2xy -d -n 10 "image_sci.fits" @"fit_1.sky2xy.input" > "fit_1.sky2xy.output"
+            !sky2xy -d -n 10 "image_sci.fits" @"fit_2.sky2xy.input" > "fit_2.sky2xy.output"
+            data "getpix.sky2xy.output" read {ra_getpix 1.f dec_getpix 2.f}
+            data "fit_0.sky2xy.output" read {ra_fit_0 1.f dec_fit_0 2.f}
+            data "fit_1.sky2xy.output" read {ra_fit_1 1.f dec_fit_1 2.f}
+            data "fit_2.sky2xy.output" read {ra_fit_2 1.f dec_fit_2 2.f}
+            foreach var {f_peak f_int rms f_fit_0 f_fit_1 f_fit_2 df_fit_0 df_fit_1 df_fit_2} {set $var = $var * 1e3}} # mJy
+            set id_getpix = cat_id_full[cid_getpix]
+            set id_fit_0 = cat_id_full[cid_fit_0]
+            set id_fit_1 = cat_id_full[cid_fit_1]
+            set id_fit_2 = cat_id_full[cid_fit_2]
+            set snr_fit_0 = (df_fit_0>rms) ? (f_fit_0/df_fit_0) : (f_fit_0/rms)
+            set snr_fit_1 = (df_fit_1>rms) ? (f_fit_1/df_fit_1) : (f_fit_1/rms)
+            set snr_fit_2 = (df_fit_2>rms) ? (f_fit_2/df_fit_2) : (f_fit_2/rms)
+            set detect_getpix = (snr_peak>=3.6 || snr_int>=2.0)
+            set detect_fit_0 = int(snr_fit_0>=3.0)
+            set detect_fit_1 = int(snr_fit_1>=3.0)
+            set detect_fit_2 = int(snr_fit_2>=3.0)
+            set Nfit_getpix = dimen(cid_getpix) set Ndet_getpix = sum(detect_getpix)
+            set Nfit_fit_0 = dimen(cid_fit_0) set Ndet_fit_0 = sum(detect_fit_0)
+            set Nfit_fit_1 = dimen(cid_fit_1) set Ndet_fit_1 = sum(detect_fit_1)
+            set Nfit_fit_2 = dimen(cid_fit_2) set Ndet_fit_2 = sum(detect_fit_2)
+            print "getpix.result.ra.dec.detect.id" '%15.7f %15.7f %12d %15s\n' {ra_getpix dec_getpix detect_getpix id_getpix}
+            print "fit_0.result.ra.dec.detect.id" '%15.7f %15.7f %12d %15s\n' {ra_fit_0 dec_fit_0 detect_fit_0 id_fit_0}
+            print "fit_1.result.ra.dec.detect.id" '%15.7f %15.7f %12d %15s\n' {ra_fit_1 dec_fit_1 detect_fit_1 id_fit_1}
+            print "fit_2.result.ra.dec.detect.id" '%15.7f %15.7f %12d %15s\n' {ra_fit_2 dec_fit_2 detect_fit_2 id_fit_2}
+        } else {
+            data "getpix.result" read {f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 5.f}
+            data "getpix.input" read {x_getpix 1.f y_getpix 2.f}
+            define print_noheader 1
+            print "getpix.sky2xy.input" '%15.4f %15.4f\n' {x_getpix y_getpix}
+            define print_noheader 0
+            !sky2xy -d -n 10 "image_sci.fits" @"getpix.sky2xy.input" > "getpix.sky2xy.output"
+            set id_getpix = cat_id_full[cid_getpix]
+            set id_fit_0 = 0
+            set id_fit_1 = 0
+            set id_fit_2 = 0
+            set snr_fit_0 = 0
+            set snr_fit_1 = 0
+            set snr_fit_2 = 0
+            set detect_getpix = (snr_peak>=3.6 || snr_int>=2.0)
+            set Nfit_fit_0 = 0 set Ndet_fit_0 = 0
+            set Nfit_fit_1 = 0 set Ndet_fit_1 = 0
+            set Nfit_fit_2 = 0 set Ndet_fit_2 = 0
+            set Nfit_getpix = dimen(cid_getpix) set Ndet_getpix = sum(detect_getpix)
+            print "getpix.result.ra.dec.det.id" '%15.7f %15.7f %12d %15s\n' {ra_getpix dec_getpix det_getpix id_getpix}
         }
-        if(is_file("fit_n1.fits")) {
-            readGalfitResult fit_n1.fits
-            print_result fit_n1
-        }
+        # 
+        print "final.result" '%15.0f %15.0f %15.0f %15.0f %15.0f %15.0f %15.0f %15.0f\n' \
+            {Nfit_getpix Ndet_getpix Nfit_fit_0 Ndet_fit_0 Nfit_fit_1 Ndet_fit_1 Nfit_fit_2 Ndet_fit_2}
+        # 
+    } else {
+        if(is_file("final.result")) {!mv final.result final.result.backup}
     }
+
+
+
 
 
 

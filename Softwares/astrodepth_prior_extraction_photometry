@@ -671,17 +671,6 @@ if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "gaussian"; then
                         exit 1
                     fi
                 fi
-                #if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"gaussian"* || -f "fit_2.fits" ]]; then
-                #    echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"print_result_final\""
-                #    echo "macro read astrodepth_go_galfit.sm print_result_final" | sm > "astrodepth_go_galfit_print_result_final.log"
-                #    # check output successful or not
-                #    if [[ ! -f "fit_2.result" ]]; then 
-                #        echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"print_result_final\"! Sorry!"
-                #        echo "Log file: \"astrodepth_go_galfit_print_result_final.log\""; cat "astrodepth_go_galfit_print_result_final.log"
-                #        exit 1
-                #    fi
-                #fi
-                # 
                 echo "Done!"
             else
                 echo "No catalog source within image! Skip and continue!"
@@ -690,6 +679,67 @@ if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "gaussian"; then
             cd "$AstroDepth_CurrrentDir"
             # 
             rm "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_gaussian"
+        fi
+        
+    done
+    
+fi
+
+
+
+
+
+
+
+# 
+# 
+# Loop again for further steps
+# 
+# 
+if echo "${AstroDepth_INP_STEPS[@]}" | grep -q -i "final"; then
+    #echo ""; echo ""; echo ""
+    echo "Continue further steps: final"
+    #echo ""; echo ""; echo ""
+    # 
+    # 
+    for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
+        # 
+        # 
+        # Check output name
+        if [[ $j -ge ${#AstroDepth_INP_OUTPUT_NAME[@]} ]]; then
+            AstroDepth_OutputName="astrodepth_image_${j}_galfit"
+        else
+            AstroDepth_OutputName=${AstroDepth_INP_OUTPUT_NAME[j]}
+        fi
+        # 
+        # 
+        # cd 
+        if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_final" ]]; then
+            # 
+            touch "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_final"
+            # 
+            cd "$AstroDepth_OutputDir/$AstroDepth_OutputName/"
+            # 
+            # now we print final result (Nfit, Ndet)
+            if [[ ! -f "No_catalog_source_within_image" ]]; then
+                if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"final"* || ! -f "final.result" ]]; then
+                    echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"print_result_final\""
+                    echo "macro read astrodepth_go_galfit.sm print_result_final" | sm > "astrodepth_go_galfit_print_result_final.log"
+                    # check output successful or not
+                    if [[ ! -f "final.result" ]]; then 
+                        echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"print_result_final\"! Sorry!"
+                        echo "Log file: \"astrodepth_go_galfit_print_result_final.log\""; cat "astrodepth_go_galfit_print_result_final.log"
+                        exit 1
+                    fi
+                fi
+                echo "Done!"
+            else
+                echo "No catalog source within image! Skip and continue!"
+            fi
+            # 
+            cd "$AstroDepth_CurrrentDir"
+            # 
+            rm "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_lock_final"
         fi
         
     done
