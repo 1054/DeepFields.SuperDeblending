@@ -345,7 +345,7 @@ print_result_final 00
             data "fit_0.sky2xy.output" read {ra_fit_0 1.f dec_fit_0 2.f}
             data "fit_1.sky2xy.output" read {ra_fit_1 1.f dec_fit_1 2.f}
             data "fit_2.sky2xy.output" read {ra_fit_2 1.f dec_fit_2 2.f}
-            foreach var {f_peak f_int rms f_fit_0 f_fit_1 f_fit_2 df_fit_0 df_fit_1 df_fit_2} {set $var = $var * 1e3}} # mJy
+            foreach var {f_peak f_int rms f_fit_0 f_fit_1 f_fit_2 df_fit_0 df_fit_1 df_fit_2} {set $var = $var * 1e3} # mJy
             set id_getpix = cat_id_full[cid_getpix]
             set id_fit_0 = cat_id_full[cid_fit_0]
             set id_fit_1 = cat_id_full[cid_fit_1]
