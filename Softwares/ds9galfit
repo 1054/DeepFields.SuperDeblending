@@ -26,7 +26,7 @@ DS9GALFIT_FILEP="$1"
 # 
 if [[ $* == *-title* ]]; then
     DS9GALFIT_TITLE=`expr "$*" : '.*-title \([^\ \-]*\)'`
-    $(dirname $0)/ds9 -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no $* &
+    ds9 -geometry 1200x600 -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no $* &
 else
     # first define title
     DS9GALFIT_TNUMB=1 
@@ -36,7 +36,7 @@ else
         DS9GALFIT_ISDUP=`ps aux | grep "ds9 -title ds9galfit_$DS9GALFIT_TNUMB" | wc -l | tr -d " "`
     done
     DS9GALFIT_TITLE="ds9galfit_$DS9GALFIT_TNUMB"
-    ds9 -title $DS9GALFIT_TITLE -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no "$@" &
+    ds9 -title $DS9GALFIT_TITLE -geometry 1200x600 -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no "$@" &
 fi
 # 
 # 
