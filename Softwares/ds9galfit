@@ -126,11 +126,13 @@ for (( i=1; i<=$FITNUMB; i++ )); do
     MAG=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_MAG" "/" | sed -e s/[\']//g | sed -e s/[*]//g`
     FWHM=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_FWHM" "/" | sed -e s/[\']//g | sed -e s/[*]//g`
     ELLI=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_AR" "/" | sed -e s/[\']//g | sed -e s/[*]//g`
-    POSA=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_PA" "/" | sed -e s/[\']//g | sed -e s/[*]//g`
+    PA=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_PA" "/" | sed -e s/[\']//g | sed -e s/[*]//g`
+    MAJ="$FWHM"
+    MIN=$(awk "BEGIN {print ($FWHM)*($ELLI)}")
     FITMAG=$(echo $MAG | grep -v "\[" | grep -v "\]" | wc -l)
     FITMAJ=$(echo $FWHM | grep -v "\[" | grep -v "\]" | wc -l)
-    FITMIN=$(echo $ELLI | grep -v "\[" | grep -v "\]" | wc -l); FITMIN=$(awk "BEGIN {print ($FITMAJ)*($FITMIN)}")
-    FITPA=$(echo $FWHM | grep -v "\[" | grep -v "\]" | wc -l)
+    FITMIN=$(echo $ELLI | grep -v "\[" | grep -v "\]" | wc -l)
+    FITPA=$(echo $PA | grep -v "\[" | grep -v "\]" | wc -l)
     if [[ $i -lt ${#FITNOTE[@]} ]]; then
         FITOBJ="${FITNOTE[i]}"
     else
