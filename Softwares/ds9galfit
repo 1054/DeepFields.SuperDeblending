@@ -110,7 +110,7 @@ echo "# " > .ds9galfit.ds9.reg
 DS9GALFIT_PARAM=$(echo "$DS9GALFIT_FILEP" | sed -e 's/\.fits$/.param/g')
 
 if [[ -f "$DS9GALFIT_PARAM" ]]; then
-    FITNOTE=($(cat "$DS9GALFIT_PARAM" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 31))
+    FITNOTE=($(cat "$DS9GALFIT_PARAM" | grep -v "^#" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 31))
     FITNUMB=${#FITNOTE[@]}
 else
     FITNOTE=()
@@ -127,6 +127,11 @@ for (( i=1; i<=$FITNUMB; i++ )); do
     FWHM=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_FWHM" "/" | sed -e s/[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
     ELLI=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_AR"   "/" | sed -e s/[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
     PA=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_PA"   "/" | sed -e s/[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
+    
+    echo "MAG = $MAG"
+    echo "FWHM = $FWHM"
+    echo "ELLI = $ELLI"
+    echo "PA = $PA"
     
     FITMAG=$(echo $MAG | grep -v "\[" | grep -v "\]" | wc -l) # whether the magnitude are fitted or fixed
     
@@ -153,12 +158,12 @@ for (( i=1; i<=$FITNUMB; i++ )); do
     fi
     
     if [[ $i -lt ${#FITNOTE[@]} ]]; then
-        FITOBJ="${FITNOTE[i]}"
+        FITOBJ="${FITNOTE[$(($i-1))]}"
     else
         FITOBJ="OBJ$i"
     fi
     
-    echo "FITMAJ = $FITMAJ"
+    echo "MAJ = $MAJ"
     
     #echo "$TC" "$GALFITRECTX0" "$GALFITRECTY0" "$XC" "$YC"
     XC=`bc <<< $XC-$GALFITRECTX0+1`
