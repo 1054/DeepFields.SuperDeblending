@@ -127,6 +127,7 @@ for (( i=1; i<=$FITNUMB; i++ )); do
     FWHM=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_FWHM" "/" | sed -e s/[\']//g | sed -e s/[*]//g`
     ELLI=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_AR" "/" | sed -e s/[\']//g | sed -e s/[*]//g`
     PA=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_PA" "/" | sed -e s/[\']//g | sed -e s/[*]//g`
+    echo "FWHM = $FWHM"
     MAJ="$FWHM"
     MIN=$(awk "BEGIN {print ($FWHM)*($ELLI)}")
     FITMAG=$(echo $MAG | grep -v "\[" | grep -v "\]" | wc -l)
