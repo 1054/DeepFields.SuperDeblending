@@ -98,11 +98,10 @@ echo
 GALFITRECT=`CrabTableReadInfo ".CrabFitsHeader.txt" "FITSECT" "/" | sed -e "s/[][' ]//g"`
 GALFITRECTX0=0
 GALFITRECTY0=0
-echo $GALFITRECT
+echo "GALFITRECT = $GALFITRECT"
 if [[ "$GALFITRECT" != "" ]]; then
     GALFITRECTX0=`echo $GALFITRECT | sed -e 's/,/:/g' | cut -d ':' -f 1`
     GALFITRECTY0=`echo $GALFITRECT | sed -e 's/,/:/g' | cut -d ':' -f 3`
-    xpaset -p $DS9GALFIT_TITLE frame 3
 fi
 
 
@@ -116,7 +115,7 @@ xpaset -p $DS9GALFIT_TITLE frame 1
 
 xpaset -p $DS9GALFIT_TITLE frame delete
 
-xpaset -p $DS9GALFIT_TITLE frame 2
+xpaset -p $DS9GALFIT_TITLE frame 3
 
 
 
