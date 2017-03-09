@@ -76,6 +76,26 @@ if [[ "$DS9GALFIT_CHECK" == *"command not found" ]]; then
     exit 1
 fi
 # 
+# check CrabFitsImageStatistics
+DS9GALFIT_CHECK=$(CrabPhotImageStatistics 2>&1 >/dev/null)
+if [[ "$DS9GALFIT_CHECK" == *"command not found" ]]; then
+    echo ""
+    echo "Error! CrabPhotImageStatistics not found! Please contact dzliu!"
+    echo ""
+    exit 1
+else 
+    CrabPhotImageStatistics $DS9GALFIT_FILEP > ".CrabPhotImageStatistics.txt"
+    DS9GALFIT_SCALES=($(cat ".CrabPhotImageStatistics.txt" | sed -e 's/^ *//g' | grep -v "^#" | tr -s ' ' | cut -d ' ' -f 8,9))
+fi
+
+
+
+
+
+
+
+
+# 
 echo -n Initializing ds9 .
 # 
 echo -n .
@@ -127,6 +147,10 @@ xpaset -p $DS9GALFIT_TITLE frame 3
 xpaset -p $DS9GALFIT_TITLE cmap aips0
 xpaset -p $DS9GALFIT_TITLE scale mode 99.8
 xpaset -p $DS9GALFIT_TITLE scale limits $(xpaget $DS9GALFIT_TITLE scale limits)
+
+if [[ ${#DS9GALFIT_SCALES[@]} -eq 2 ]]; then
+    xpaset -p $DS9GALFIT_TITLE scale limits ${DS9GALFIT_SCALES[0]} ${DS9GALFIT_SCALES[1]}
+fi
 
 
 
