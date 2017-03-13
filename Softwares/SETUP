@@ -18,6 +18,42 @@ SUPERDEBLENDDIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
 export SUPERDEBLENDDIR
 #
 # PATH
+# <20170313>
+TEMP_PATH_DROP="$SUPERDEBLENDDIR"
+if [[ "$PATH" == *"$TEMP_PATH_DROP"* ]]; then
+    # split system path variable into a list
+    Old_IFS=$IFS
+    IFS=$":" TEMP_PATH_LIST=($PATH)
+    IFS=$Old_IFS
+    #echo ${TEMP_PATH_LIST[@]} "(${#TEMP_PATH_LIST[@]})"
+    TEMP_PATH_POOL=()
+    TEMP_PATH_TEXT=""
+    # loop each system path item and remove duplicated and the specified path to drop
+    for (( i=0; i<${#TEMP_PATH_LIST[@]}; i++ )); do
+        # check duplication
+        for (( j=0; j<${#TEMP_PATH_POOL[@]}; j++ )); do
+            if [[ "${TEMP_PATH_LIST[i]}" == "${TEMP_PATH_POOL[j]}" ]]; then
+                TEMP_PATH_LIST[i]="."
+            fi
+        done
+        # append to path
+        if [[ "${TEMP_PATH_LIST[i]}" != *"$TEMP_PATH_DROP"* && "${TEMP_PATH_LIST[i]}" != "." ]]; then
+            if [[ ${#TEMP_PATH_POOL[@]} -eq 0 ]]; then
+                TEMP_PATH_TEXT="${TEMP_PATH_LIST[i]}"
+                TEMP_PATH_POOL+=("${TEMP_PATH_LIST[i]}")
+            else
+                TEMP_PATH_TEXT="$TEMP_PATH_TEXT:${TEMP_PATH_LIST[i]}"
+                TEMP_PATH_POOL+=("${TEMP_PATH_LIST[i]}")
+            fi
+            #echo "$TEMP_PATH_TEXT"
+        fi
+    done
+    # finally append current directory as the last system path item
+    if [[ x"$TEMP_PATH_TEXT" != x ]]; then
+        export PATH="$TEMP_PATH_TEXT:."
+    fi
+    #echo "PATH = $PATH"
+fi
 if [[ $PATH != *"$SUPERDEBLENDDIR"* ]]; then
     export PATH="$SUPERDEBLENDDIR":$PATH
 fi
