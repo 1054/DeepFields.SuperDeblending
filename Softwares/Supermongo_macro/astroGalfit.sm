@@ -797,7 +797,7 @@ readGalfitResult 01
                 print '\n\n' {}
             }
             # clean 
-            !\rm $(readgresult_tmp) 2>/dev/null
+            if(is_file($(readgresult_tmp))) {!\rm $(readgresult_tmp)}
         }
 
 readGalfitResult_Old_Before20150220 01
@@ -812,7 +812,7 @@ readGalfitResult_Old_Before20150220 01
         if(is_file($(readgresult_file))) {
             # now get residual pixel sum from residual map
             !\cp $(readgresult_file) ".tmp.iraf.1.fits"
-            !\rm ".tmp.iraf.2.fits" 2>/dev/null
+            if(is_file(".tmp.iraf.2.fits")) {!\rm ".tmp.iraf.2.fits"}
             if($verbose){
                 !echo imcopy ".tmp.iraf.1.fits"[3] ".tmp.iraf.2.fits"';' logout | cl | grep 'vocl>' } else {
                 !echo imcopy ".tmp.iraf.1.fits"[3] ".tmp.iraf.2.fits"';' logout | cl > /dev/null
@@ -835,12 +835,12 @@ readGalfitResult_Old_Before20150220 01
             }
             getResPixStats ".tmp.iraf.2.fits" PosX PosY $(PsfMap)
             set ResultResPix = ResPixStats_ABS
-            !\rm ".tmp.iraf.2.fits" 2>/dev/null
+            if(is_file(".tmp.iraf.2.fits")) {!\rm ".tmp.iraf.2.fits"}
             !\cp "rms.fits" ".tmp.iraf.2.fits"
             getRmsPixStats ".tmp.iraf.2.fits" PosX PosY
             set ResultRmsPix = RmsPixStats_RMS
-            !\rm ".tmp.iraf.2.fits" 2>/dev/null
-            !\rm ".tmp.iraf.1.fits" 2>/dev/null
+            if(is_file(".tmp.iraf.2.fits")) {!\rm ".tmp.iraf.2.fits"}
+            if(is_file(".tmp.iraf.1.fits")) {!\rm ".tmp.iraf.1.fits"}
             # define aaa ? # check point ResultResPix ResultRmsPix
             astroGalfitOnMute
             # now get type from the galfit output fits header
@@ -936,9 +936,9 @@ readGalfitResult_Old_Before20150220 01
                 !echo 'vocl>' imhead $(readgresult_file)[2] 'lo+;   ' # ; cat ".tmp.iraf.imhead.txt"
             } }
             data ".tmp.iraf.imhead.txt" read {SkyValue 3 SkyValueErr 5}
-            !\rm ".tmp.iraf.1.fits"
-            !\rm ".tmp.iraf.imhead.txt" 2>/dev/null
-            !\rm ".tmp.iraf.imhead.txt.bak" 2>/dev/null
+            if(is_file(".tmp.iraf.1.fits")) {!\rm ".tmp.iraf.1.fits"}
+            if(is_file(".tmp.iraf.imhead.txt")) {!\rm ".tmp.iraf.imhead.txt"}
+            if(is_file(".tmp.iraf.imhead.txt.bak")) {!\rm ".tmp.iraf.imhead.txt.bak"}
             astroGalfitUnMute
             # now print what have been read
             if($verbose){ print '\n' {}
