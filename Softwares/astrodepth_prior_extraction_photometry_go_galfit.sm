@@ -227,10 +227,10 @@ go_galfit_2
         set Rads = (ResultMagsErr<0.25) ?  0.5/abs(pixscale) : Rads
         set ParamMaxMags = float(id)*0.0 + 30.0
         set ParamFitRads = (ResultMagsErr<0.25) ? 1                 : ParamFitRads
-        set ParamMinRads = (ResultMagsErr<0.25) ? 0.25              : ParamMinRads
+        set ParamMinRads = (ResultMagsErr<0.25) ? 0.50              : ParamMinRads
         set ParamMaxRads = (ResultMagsErr<0.25) ? 3.0/abs(pixscale) : ParamMaxRads # maximum 3.0 arcsec FWHM
         set ParamFitElli = (ResultMagsErr<0.25) ? 1                 : ParamFitElli
-        set ParamMinElli = (ResultMagsErr<0.25) ? 0.10              : ParamMinElli
+        set ParamMinElli = (ResultMagsErr<0.25) ? 0.20              : ParamMinElli
         set ParamMaxElli = (ResultMagsErr<0.25) ? 10.0              : ParamMaxElli
         set ParamFitRoti = (ResultMagsErr<0.25) ? 1                 : ParamFitRoti
         set ParamMinRoti = (ResultMagsErr<0.25) ? 0                 : ParamMinRoti

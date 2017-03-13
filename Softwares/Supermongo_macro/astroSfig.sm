@@ -487,7 +487,7 @@ calc_Liu2015_CO 04
         verbose $_Liu2015_Verbose undef _Liu2015_Verbose
         if($?4) { if($4>0) {
             # 20160828
-            set _Liu2015_W_CO = float($4)
+            set _Liu2015_W_CO = float($4) # line width in km/s
             if(dimen(_Liu2015_W_CO)==1 && dimen(_Liu2015_Jupper)>1) {
                 set _Liu2015_W_CO = _Liu2015_LumFIR*0 + _Liu2015_W_CO
             }
@@ -921,6 +921,7 @@ calc_Gladders2013_CSFRD 03
     # output cosmic SFR Density, in Salpeter IMF
     # paper: http://adsabs.harvard.edu/abs/2013ApJ...770...64G  Eq(1) Sec2.1
     # example: set CSFRD = calc_Gladders2013_CSFRD(z,1.64,0.66)
+    # 20170312 -- same as "calc_Abramson2016_CSFRD"
     set _cosmic_z = float($1)
     !rm .cosmic.comoving.distance.tmp 2>/dev/null
     do _cosmic_j=0,dimen(_cosmic_z)-1 {
@@ -940,7 +941,33 @@ calc_Gladders2013_CSFRD 03
     set $0 = _cosmic_SFR
     return
 
-calc_MadauDickinson2014_CSFRD 01
+calc_Abramson2016_CSFRD 03
+    # input z
+    # input arg2 T0 -- an age parameter in unit of Gyr
+    # input arg3 tau -- an age width parameter in unit of Gyr
+    # output cosmic SFR Density, in Salpeter IMF
+    # paper: Abramson - 2016 - lognormalcy Rethinking Quenching SF-MS and More - 1604.00016.pdf  Eq.(1)
+    # example: set CSFRD = calc_Abramson2016_CSFRD(z,1.64,0.66)
+    set _cosmic_z = float($1)
+    !rm .cosmic.comoving.distance.tmp 2>/dev/null
+    do _cosmic_j=0,dimen(_cosmic_z)-1 {
+        #if($verbose) {echo Computing lumdist $(_cosmic_z[$_cosmic_j]) -verbose}
+        !lumdist $(_cosmic_z[$_cosmic_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
+    }
+    if(is_file(.cosmic.comoving.distance.tmp)) {
+        data .cosmic.comoving.distance.tmp read {_cosmic_t_age 3} # Gyr
+    } else { print 'Error! Failed to run lumdist!\n' {} return }
+    set Abramson2016_t0 = 1.64 # Gyr
+    set Abramson2016_tau = 0.66 # Gyr
+    if($?2) {set Abramson2016_t0 = float($2)}
+    if($?3) {set Abramson2016_tau = float($3)}
+    set Abramson2016_SFR_1 = 1.0/(_cosmic_t_age*sqrt(2*pi*Abramson2016_tau**2))
+    set Abramson2016_SFR_2 = exp(-(ln(_cosmic_t_age)-Abramson2016_t0)**2/(2*Abramson2016_tau**2))
+    set _cosmic_SFR = Abramson2016_SFR_1 * Abramson2016_SFR_2
+    set $0 = _cosmic_SFR
+    return
+
+calc_MadauDickinson2014_CSFRD_old 01
     # input z
     # output cosmic SFR Density, in Salpeter IMF
     # ref: https://ned.ipac.caltech.edu/level5/March14/Madau/Madau5.html#Table%201 Eq(15)
@@ -948,6 +975,22 @@ calc_MadauDickinson2014_CSFRD 01
     set _cosmic_z = float($1)
     set _cosmic_SFR = 0.015 * (1+_cosmic_z)**2.7 / (1.0 + ((1+_cosmic_z)/2.9)**5.6 )
     set $0 = _cosmic_SFR
+    return
+
+calc_MadauDickinson2014_CSFRD 04
+    # input z
+    # output cosmic SFR Density, in Salpeter IMF
+    # ref: https://ned.ipac.caltech.edu/level5/March14/Madau/Madau5.html#Table%201 Eq(15)
+    if($?1==0){print 'Usage: set CSFRD = calc_MadauDickinson2014_CSFRD(z)\n' {} return}
+    set MadauDickinson2014_z = float($1)
+    set MadauDickinson2014_a = 2.7
+    set MadauDickinson2014_b = 2.9
+    set MadauDickinson2014_c = 5.6
+    if($?2) {set MadauDickinson2014_a = float($2)}
+    if($?3) {set MadauDickinson2014_b = float($3)}
+    if($?4) {set MadauDickinson2014_c = float($4)}
+    set MadauDickinson2014_SFR = 0.015 * (1+MadauDickinson2014_z)**MadauDickinson2014_a / (1.0 + ((1+MadauDickinson2014_z)/MadauDickinson2014_b)**MadauDickinson2014_c )
+    set $0 = MadauDickinson2014_SFR
     return
 
 calc_comoving_volume 03
