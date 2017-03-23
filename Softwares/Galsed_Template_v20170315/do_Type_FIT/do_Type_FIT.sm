@@ -1,0 +1,422 @@
+go 02
+    # 
+    #  macro read do_Type_FIT.sm go 100 $fcut
+    # 
+    if($?1) {
+      if('$1'=='100') {
+        define band 100
+        if($?2) {define fcut$band $2} else {define fcut$band 0.30} # 0.30 # cutting f+2*df
+        #define fsig$band 0.30 # 1-sigma flux from 100um simulation 0.3028 mJy
+        #define fmax$band 1.50
+        define fsig$band 0.32 #<20170103><dzliu><daddi># posteriori 1-sigma flux from our superdeblending photometry
+        define fmax$band 3.00 #<20170103><dzliu><daddi># 
+      }
+      if('$1'=='160') {
+        define band 160
+        if($?2) {define fcut$band $2} else {define fcut$band 1.10} # 1.10  # cutting f+2*df
+        #define fsig$band 0.70 # 1-sigma flux from 160um simulation 0.6951 mJy
+        #define fmax$band 3.00
+        define fsig$band 0.68 #<20170103><dzliu><daddi># posteriori 1-sigma flux from our superdeblending photometry
+        define fmax$band 3.00 #<20170103><dzliu><daddi># 
+      }
+      if('$1'=='250') {
+        define band 250
+        if($?2) {define fcut$band $2} else {define fcut$band 5.20} # 5.20  # cutting f+2*df
+        #define fsig$band 1.77 # 1-sigma flux from 250um simulation 1.77 mJy
+        #define fmax$band 11.0
+        define fsig$band 1.57 #<20170103><dzliu><daddi># posteriori 1-sigma flux from our superdeblending photometry
+        define fmax$band 11.0 #<20170103><dzliu><daddi># 
+      }
+      if('$1'=='350') {
+        define band 350
+        if($?2) {define fcut$band $2} else {define fcut$band 6.60} # 6.60 _DenserThanOne_  # cutting f+2*df
+        #define fsig$band 2.20 # 1-sigma flux from 350um simulation 2.20 mJy
+        #define fmax$band 15.0 
+        define fsig$band 2.07 #<20170103><dzliu><daddi># posteriori 1-sigma flux from our superdeblending photometry
+        define fmax$band 13.0 #<20170103><dzliu><daddi># 
+      }
+      if('$1'=='500') {
+        define band 500
+        if($?2) {define fcut$band $2} else {define fcut$band 7.44} # 7.44  # cutting f+2*df
+        #define fsig$band 2.48 # 1-sigma flux from 500um simulation 2.48 mJy
+        #define fmax$band 15.0
+        define fsig$band 2.57 #<20170103><dzliu><daddi># posteriori 1-sigma flux from our superdeblending photometry
+        define fmax$band 15.0 #<20170103><dzliu><daddi># 
+      }
+      if('$1'=='850') {
+        define band 850
+        if($?2) {define fcut$band $2} else {define fcut$band 1.20} # 1.20  # cutting f+2*df
+        #define fsig$band 1.20 # 1-sigma flux from S2CLS 850um paper http://arxiv.org/pdf/1607.03904v1.pdf Abstract -- or Figure 5
+        #define fmax$band 10.0
+        define fsig$band 0.94 #<20170103><dzliu><daddi># posteriori 1-sigma flux from our superdeblending photometry
+        define fmax$band 6.00 #<20170103><dzliu><daddi># 
+      }
+      if('$1'=='1160') {
+        define band 1160
+        if($?2) {define fcut$band $2} else {define fcut$band 0.66} # 0.66  # cutting f+2*df
+        #define fsig$band 0.66 # 1-sigma flux from 1160um simulation 0.66 mJy
+        #define fmax$band 3.00
+        define fsig$band 0.66 #<20170103><dzliu><daddi># posteriori 1-sigma flux from our superdeblending photometry
+        define fmax$band 3.00 #<20170103><dzliu><daddi># 
+      }
+      if(!$?band) {
+        print 'Error! Input \"$1\" must be one of 100 160 250 350 500 850 1160\n' {}
+        define aaa 0
+        define aaa ?
+        echo ""
+        return
+      }
+    } else {
+        print 'Usage: macro read do_Type_FIT.sm go \$band\n' {}
+        return
+    }
+    define useprevdetect 1
+    define usecrowdiness 0
+    define numadditional 0
+    #read_additional_catalog #<TODO># define how many additional sources in Shuowen's list and residual source list
+    calc_number_count_versus_cutting_flux
+    plot_number_count_versus_cutting_flux
+    print_SED_predictions
+
+
+do_select 01
+    # 
+    # select sources to fit, i.e. Type_FIT = 1
+    # by:
+    #     1. the input cutting flux $1
+    #     2. the S/N of previous band
+    #     3. the Shuowen's prior list
+    # 
+    if(!$?hasreaddata) {
+    macro read read_sed_files.sm read_sed_files
+    macro read read_catalog_file.sm read_catalog_file
+    macro read astroPhot.sm }
+    macro read crowdiness.sm
+    if($?band && $?1) {
+        if($?fcut$band && is_vector(xf$band) && is_vector(xe$band)) {
+            
+            if($usecrowdiness) {
+                if(!is_vector(crow$band)) {
+                    print 'do_select: Error! crow$band is invalid!\n' {}
+                    define aaa ?
+                    return
+                }
+                set fit$band = ((xf$band+2.0*xe$band)/crow$band>=($1))
+            } else {
+                set fit$band = ((xf$band+2.0*xe$band)>=($1))
+            }
+            
+            #<added><20160113><dzliu><daddi>#
+            if($useprevdetect) {
+                if('$band'=='100') { 
+                    set fit$band = fit$band + 2* (f24>3.*df24)
+                }
+                if('$band'=='160') { 
+                    set fit$band = fit$band + 2* (f100>3.*df100)
+                }
+                if('$band'=='250') { 
+                    set fit$band = fit$band + 2* (f160>3.*df160)
+                }
+                if('$band'=='350') { 
+                    set fit$band = fit$band + 2* (f250>3.*df250)
+                }
+                if('$band'=='500') { 
+                    set fit$band = fit$band + 2* (f350>3.*df350)
+                }
+                if('$band'=='1160') { 
+                    set fit$band = fit$band + 2* (f500>3.*df500)
+                }
+            }
+            
+            #<added><20160113><dzliu><swjin>#
+            # data "Jin_431.txt" read {id_Jin 1}
+            # set fitJin = id_Jin*0+1
+            # set fit$band = fit$band concat fitJin #<TODO># assuming that we attach Jin_431 catalog to the end of 24+radio 3306 catalog. 
+            
+            set exc$band = !(fit$band>0)
+            set nfit$band = sum(fit$band>0)
+            set nexc$band = sum(exc$band)
+            set qfit$band = float(sum(fit$band>0))/float(dimen(fit$band))
+            set qexc$band = float(sum(exc$band))/float(dimen(exc$band))
+            if($?area$band && $?fwhm$band) {
+                set rfit$band = 0 #<TODO>#
+                set rexc$band = 0 #<TODO>#
+            }
+            set $0 = fit$band
+        }
+    }
+    return
+
+
+read_data
+    # 
+    # read SED output and constants
+    # 
+    ##define band 100
+    ##define fcut$band 0.0
+    if($?band) {
+        # 
+        # read data
+        # 
+        macro read read_sed_files.sm read_sed_files
+        macro read read_catalog_file.sm read_catalog_file
+        define hasreaddata 1
+        
+        macro read astroPhot.sm
+        set_goodsn_photometry_constants_$band
+        set PSFFWHM = $rBeam_$band
+        set PSFArea = pi/(4.0*ln(2))*PSFFWHM**2
+        set GOODSNArea = 10.0*16.0*3600.0
+        set GOODSNGoodArea = 111.0*3600.0
+        # 
+        # compute crowdiness
+        # 
+        if(!$?usecrowdiness) {define usecrowdiness 0}
+        if($usecrowdiness==1) {
+            macro read crowdiness.sm
+            
+            # now we also consider additional sources that will always be fit <20160113>
+            if(is_vector(add_ra) && is_vector(add_de)) {
+                set s_ra = s_ra concat add_ra
+                set s_de = s_de concat add_de
+            } else {
+                set s_ra = _ra
+                set s_de = _de
+            }
+            
+            set s_crow = crowdiness(s_ra,s_de,PSFFWHM,1.5)
+            set s_id = 0,dimen(_ra)-1
+            set crow = s_crow[s_id]
+            set crow$band = crow
+        } else {
+            set crow$band = _ra * 0.0 + 1.0
+        }
+        ###<test>
+        ###set sort_crow_numb = _crd_numb
+        ###set sort_crow = crow
+        ###set sort_id = _id
+        ###sort {sort_crow sort_crow_numb sort_id}
+        ###set sort_crow_numb = reverse(sort_crow_numb)
+        ###set sort_crow = reverse(sort_crow)
+        ###set sort_id = reverse(sort_id)
+        ##echo $(PSFArea)
+        ##print '%10.0f%10g%10g\n' {sort_id sort_crow sort_crow_numb}
+        ##define aaa ?
+    } else {
+        if($?hasreaddata) {undef hasreaddata}
+    }
+
+
+read_additional_catalog 00
+    # 
+    # here we read an additional catalog, in which sources will always be fit
+    # so we will consider them when computing the crowdiness
+    # 
+    data "Jin_431.txt" #<TODO>#
+    read {add_id 1 add_ra 2 add_de 3}
+    define numadditional $(dimen(add_id))
+
+
+calc_number_count_versus_cutting_flux
+    # 
+    #  macro read do_Type_FIT.sm calc_number_count_versus_cutting_flux
+    # 
+    # 
+    # Read SED fluxes
+    # 
+    ##define band 100
+    ##define fcut$band 0.0
+    read_data
+    # 
+    # loop cutting fluxes and write to file
+    # 
+    set fcuts = 0.0,$fmax$band,$($fmax$band/50)
+    do i=0,dimen(fcuts)-1 {
+        # cutting by flux fcut
+        # see how many sources left
+        set fcut = fcuts[$i]
+        set yfit = do_select(fcut)
+        set nsou = sum(yfit>0)+$numadditional # plus Shuowen's list
+        set ncut = sum(yfit<=0)
+        set rsou = nsou/GOODSNArea*PSFArea
+        set gyfit = yfit if(goodArea)
+        set gnsou = sum(gyfit)+$numadditional # in goodArea, number of sources # plus Shuowen's list
+        set grsou = gnsou/GOODSNGoodArea*PSFArea
+        if($i==0) {
+            print "log_cutting_flux_"$band"_temp.txt" '\#   fcut    ncut    nsou    rsou   gnsou   grsou\n\#\n' {}
+            define print_noheader 1
+        }
+        print +"log_cutting_flux_"$band"_temp.txt" '%8.3f%8g%8g%8.3f%8g%8.3f\n' {fcut ncut nsou rsou gnsou grsou}
+    }
+    define print_noheader 0
+    !head -n 5 "log_cutting_flux_"$band"_temp.txt"
+    !echo "..."
+    !tail -n 5 "log_cutting_flux_"$band"_temp.txt"
+    # 
+    if($usecrowdiness==1) {
+        !mv "log_cutting_flux_"$band"_temp.txt" "log_cutting_flux_"$band"_with_crow.txt"
+    } else {
+        !mv "log_cutting_flux_"$band"_temp.txt" "log_cutting_flux_"$band".txt"
+    }
+
+
+plot_number_count_versus_cutting_flux
+    # do the plot
+    if($?band) {
+        # 
+        # read fcut and ncut nsou
+        if($usecrowdiness==1) {
+            rfile "log_cutting_flux_"$band"_with_crow.txt"
+        } else {
+            rfile "log_cutting_flux_"$band".txt"
+        }
+        # 
+        # do plot
+        if($usecrowdiness==1) {
+            device pdf "plot_cutting_flux_"$band"_with_crow.pdf"
+        } else {
+            device pdf "plot_cutting_flux_"$band".pdf"
+        }
+        location 5800 27500 22000 31500
+        format "%.1f" "%.2f"  #<20170103><dzliu><daddi># 
+        expand 1.5 lweight 4
+        define TeX_strings 1
+        xtcolours
+        limits fcut rsou
+        if('$band'=='500') {limits fcut 0 5}
+        ctype default expand 1.50 box 1 2 0 3
+        ctype default expand 1.75 ylabel \rho_{beam}
+        ctype default expand 1.75 
+        if($usecrowdiness==1) {
+            xlabel ({\it{f}}+2\sigma_{\it{f}})/crowdiness
+        } else {
+            xlabel {\it{f}}+2\sigma_{\it{f}} [mJy]
+        }
+        ctype default expand 1.50
+        ctype default ptype 4 0 points fcut rsou
+        ctype default ptype 4 1 
+        #
+        # plot the 1-sigma flux vertical dashed line
+        # 
+        if($?fsig$band) {
+            if($fsig$band>0) {
+                # 
+                # draw vertical dashed line
+                ctype default ltype 1
+                rel $fsig$band $fy1 draw $fsig$band $fy2
+                ctype default ltype 0
+                # 
+                # draw text
+                if($band>=250) {
+                    relocate $fsig$band $($fy1+0.73*($fy2-$fy1))
+                } else {
+                    relocate $fsig$band $($fy1+0.13*($fy2-$fy1))
+                }
+                expand 1.35 puts 1\bar{\sigma}_{\it{f}}=$fsig$band\,mJy
+            }
+        }
+        #
+        # plot the cutting flux vertical dashed line
+        # 
+        if($?fcut$band) {
+            if($fcut$band>0) {
+                # 
+                # draw vertical dashed line
+                ctype red ltype 1
+                rel $fcut$band $fy1 draw $fcut$band $fy2
+                set spfcut = $fcut$band
+                spline fcut rsou spfcut sprsou
+                rel $fx1 $(sprsou) draw $fx2 $(sprsou)
+                ltype 0
+                # 
+                # draw text
+                relocate $fcut$band $($fy1+0.30*($fy2-$fy1))
+                expand 1.35 puts {\it{f}}_{cut}=$fcut$band\,mJy
+                ctype default
+            }
+        }
+        # 
+        # plot band name
+        # 
+        relocate (26000 30500) expand 1.50 putlabel 1 Band $band
+        # 
+        # plot Y2 axis
+        # 
+        limits fcut nsou
+        format "%.1f" "%.0f"  #<20170103><dzliu><daddi># 
+        ctype default expand 1.50 box 3 3 3 2
+        relocate $($fx2+0.21*($fx2-$fx1)) $($fy1+0.5*($fy2-$fy1)) 
+        angle 90 expand 1.625 putlabel 5 Number
+        angle 0
+        # 
+        # email:
+        #     2016-01-21 "Predict 100um flux" -- showing the number per beam 
+        # 
+        # 
+        # close device
+        # 
+        device nodevice
+        # 
+        # pdfcrop #<20170103><dzliu><daddi>#
+        # 
+        if($usecrowdiness==1) {
+            !pdfcrop --bbox \\"10 460 610 720\\" "plot_cutting_flux_"$band"_with_crow.pdf" "plot_cutting_flux_"$band"_with_crow_crop.pdf"
+        } else {
+            !pdfcrop --bbox \\"10 460 610 720\\" "plot_cutting_flux_"$band".pdf" "plot_cutting_flux_"$band"_crop.pdf"
+        }
+    }
+
+
+print_SED_predictions
+    # 
+    #read_data
+    if($?band && is_vector(_ra) && is_vector(_de) && is_vector(PSFFWHM)) {
+      if($?fcut$band && is_vector(crow$band)) {
+        set fit$band = int(do_select($fcut$band))
+        set exc$band = int(!(fit$band>0))
+        # 
+        # now do the source filtering
+        foreach var {_id _ra _de} {
+            set s$var=$var if(fit$band>0)
+        }
+        # 
+        # now do the recomputing of crow$band 
+        # now we also consider additional sources that will always be fit <20160113>
+        if(is_vector(add_ra) && is_vector(add_de)) {
+            set s_ra = s_ra concat add_ra
+            set s_de = s_de concat add_de
+        }
+        set s_crow = crowdiness(s_ra,s_de,PSFFWHM,1.5)
+        set s_id = 0,sum(fit$band>0)-1
+        set s_crow = s_crow[s_id]
+        set s_id = 0,dimen(fit$band)-1
+        set s_id = s_id if(fit$band>0)
+        set newcrow = _id*0.0
+        set newcrow[s_id] = s_crow
+        # 
+        # write to file
+        print "SED_predictions_"$band".txt" '%10.0f%13.7f%13.7f%8d%8d%10g%10g%10g%10g\n' <_id _ra _de exc$band fit$band crow$band newcrow xf$band xe$band>
+        # 
+        # print message
+        !echo "\#" \$(date +\"%F %T %Z\") > "SED_predictions_"$band".log"
+        print +"SED_predictions_"$band".log" 'band: $band\n' {}
+        print +"SED_predictions_"$band".log" 'fcut: $fcut$band   \# mJy \# the cutting value of f+2df\n' {}
+        print +"SED_predictions_"$band".log" 'fsig: $fsig$band   \# mJy \# the 1-sigma detection limit\n' {}
+        print +"SED_predictions_"$band".log" 'Total source number: $(dimen(_ra))\n' {}
+        print +"SED_predictions_"$band".log" 'Fitting source number: $(sum(fit$band>0))\n' {}
+        print +"SED_predictions_"$band".log" 'Fitting source number (SED prediction selection): $(sum(fit$band==1||fit$band==3))\n' {}
+        print +"SED_predictions_"$band".log" 'Fitting source number (previous band S/N selection): $(sum(fit$band==2||fit$band==3))\n' {}
+        print +"SED_predictions_"$band".log" 'Subtract source number: $(sum(exc$band))\n' {}
+        !cat   "SED_predictions_"$band".log"
+        # 
+        # copy a copy
+        if($usecrowdiness==1) {
+            !cp "SED_predictions_"$band".log" "SED_predictions_"$band"_with_crow.log"
+            !cp "SED_predictions_"$band".txt" "SED_predictions_"$band"_with_crow.txt"
+        }
+      }
+    }
+
+
+
+

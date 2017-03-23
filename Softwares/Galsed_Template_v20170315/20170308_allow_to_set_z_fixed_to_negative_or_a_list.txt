@@ -1,0 +1,9 @@
+20170308
+
+now we allow to set z_fixed to negative value (so that no redshift will be fixed even when the source has spec-z) or to a list of values for redshift scan. 
+
+files modified:
+  do_GalsedRunqsub
+  fit_engine.sm
+
+

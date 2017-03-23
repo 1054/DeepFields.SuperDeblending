@@ -1,0 +1,26 @@
+20170103
+20170104
+With Emanuele, we modified do_Type_FIT/do_Type_FIT.sm
+
+if('$1'=='100')
+if($?2) {define fcut$band $2} else {define fcut$band 0.30} # 0.30 # cutting f+2*df
+
+if('$1'=='160')
+if($?2) {define fcut$band $2} else {define fcut$band 1.10} # 1.10  # cutting f+2*df
+
+if('$1'=='250')
+if($?2) {define fcut$band $2} else {define fcut$band 5.20} # 5.20  # cutting f+2*df
+
+...
+
+if('$1'=='1160')
+if($?2) {define fcut$band $2} else {define fcut$band 0.66} # 0.66  # cutting f+2*df
+
+...
+
+format "%.1f" "%.2f"  #<20170103><dzliu><daddi># 
+
+...
+
+format "%.1f" "%.0f"  #<20170103><dzliu><daddi># 
+

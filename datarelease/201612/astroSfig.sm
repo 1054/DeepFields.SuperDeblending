@@ -688,13 +688,14 @@ calc_Zhao2016_NII 04
     if(dimen(_Zhao2016_PosID)==0){print 'calc_Zhao2016_NII: Error! Input data array has no positive value!' {} return}
     set _Zhao2016_N = 0.0 set _Zhao2016_A = 0.0 
     set _Zhao2016_I = 0,dimen(_Zhao2016_LumTIR)-1 set _Zhao2016_I = _Zhao2016_I if(_Zhao2016_R70100>0)
-    set _Zhao2016_X = float(_Zhao2016_I)*0+0.9 set _Zhao2016_X[_Zhao2016_I] = lg(_Zhao2016_R70100[_Zhao2016_I]) # TODO: default R_f70/f100 = 0.9
+    set _Zhao2016_X = float(_Zhao2016_I)*0 set _Zhao2016_X[_Zhao2016_I] = lg(_Zhao2016_R70100[_Zhao2016_I]) # TODO: default R_f70/f100 = 0.9
     if($2==1) {set _Zhao2016_N = 1.00 set _Zhao2016_A = 3.83+1.26*_Zhao2016_X+1.86*_Zhao2016_X**2+0.90*_Zhao2016_X**3} # see Zhao Yinghe, Lu Nanyao et al. 2016 Eq(1)
     set _Zhao2016_FluxNII = _Zhao2016_LumTIR*0+0.0
     set _Zhao2016_LumiNII = _Zhao2016_LumTIR*0+0.0
     set _Zhao2016_LumiNII[_Zhao2016_PosID] = 10**((lg(_Zhao2016_LumTIR[_Zhao2016_PosID])-_Zhao2016_A)/_Zhao2016_N) # correlation between LineLumi and LuminTIR
     set _Zhao2016_LPrmNII = _Zhao2016_LumTIR*0+0.0
     set _Zhao2016_LPrmNII[_Zhao2016_PosID] = _Zhao2016_LumiNII[_Zhao2016_PosID] / (3.1814084e-11 * $(calc_line_freq(NII,$2,0))**3)
+    echo _Zhao2016_A = $(_Zhao2016_A)
     if($?3) { if($3>0) { 
         define _Zhao2016_Verbose $verbose verbose 0
         set _Zhao2016_FreqNII = _Zhao2016_LumTIR*0 + calc_line_freq(NII,$2,0) # FreqNII is restframe
@@ -953,10 +954,17 @@ calc_MadauDickinson2014_CSFRD 01
 calc_comoving_volume 03
     # http://www.astro.ufl.edu/~guzman/ast7939/projects/project01.html Eq(27)
     # https://ned.ipac.caltech.edu/level5/Hogg/Hogg9.html Eq(27)
+    # usage: set dVc = calc_comoving_volume(z_bin_center,z_bin_wdith,survey_area_square_arcmin)
     # usage: set dVc = calc_comoving_volume($((1.5+2.5)/2),$(2.5-1.5),165)
     #        set dVc = calc_comoving_volume($((2.5+4.0)/2),$(4.0-2.5),165)
     #        set dVc = calc_comoving_volume($((5.0+3.5)/2),$(5.0-3.5),165) # http://arxiv.org/pdf/0901.3341.pdf
     #        set dVc = calc_comoving_volume(5.7,0.1,320) # http://arxiv.org/pdf/astro-ph/0510672.pdf
+    # 
+    if(!$?3) {
+        print 'Usage: set dVc = calc_comoving_volume(z_bin_center,z_bin_wdith,survey_area_square_arcmin)\n' {}
+        return
+    }
+    # 
     set _cosmic_H0 = 73.0
     set _cosmic_OmeM = 0.27
     set _cosmic_Omek = 0

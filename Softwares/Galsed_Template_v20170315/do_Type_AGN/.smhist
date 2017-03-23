@@ -1,0 +1,38 @@
+macro read do_Type_RLAGN_ALL_EQUAL_1.sm do_Type_RLAGN
+quit
+macro read do_Type_RLAGN.sm do_Type_RLAGN
+quit
+echo yes
+QUIT
+!date "\"+%Y%m%d %H%M%S\""
+quit
+!date "\"+%Y%m%d %H%M%S\""
+!date +%Y%m%d %H%M%S
+!date +%Y%m%d\ %H%M%S
+!date +%Y%m%d\ %H:%M:%S
+!date "+%Y-%m-%d\ %H:%M:%S"
+quit
+macro read do_Type_AGN.sm do_Type_AGN
+quit
+macro read do_Type_AGN.sm do_Type_AGN
+QUIT
+macro read do_Type_AGN.sm do_Type_AGN
+QUIT
+macro read do_Type_AGN.sm do_Type_AGN
+QUIT
+macro read do_Type_AGN.sm do_Type_AGN
+QUIT
+macro read do_Type_AGN.sm do_Type_AGN
+QUIT
+macro read do_Type_AGN.sm do_Type_AGN
+QUIT
+macro read do_Type_AGN.sm do_Type_AGN
+QUIT
+macro read do_Type_AGN.sm do_Type_AGN
+QUIT
+macro read do_Type_AGN.sm do_Type_AGN
+QUIT
+macro read do_Type_AGN.sm do_Type_AGN
+QUIT
+macro read do_Type_AGN.sm do_Type_AGN
+QUIT

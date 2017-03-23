@@ -142,6 +142,9 @@ Galmon_Input_SOU=()
 Galmon_Input_EPS="Galmon.eps"
 Galmon_Input_OUT="do_Galmon_Output" # output directory containing intermediate files
 Galmon_Input_LABEL=()
+Galmon_Input_LAYOUT=""
+Galmon_Input_CHARSIZE=""
+Galmon_Input_CHARTHICK=""
 
 while [[ $# -gt 0 ]]; do
     
@@ -217,6 +220,15 @@ while [[ $# -gt 0 ]]; do
                             ;;
                             
                  "-FILTER") Galmon_Input_ArgType="LABEL"; Galmon_Input_ArgName="$1"; shift
+                            ;;
+                            
+                 "-LAYOUT") Galmon_Input_ArgType="LAYOUT"; Galmon_Input_ArgName="$1"; shift
+                            ;;
+                            
+               "-CHARSIZE") Galmon_Input_ArgType="CHARSIZE"; Galmon_Input_ArgName="$1"; shift
+                            ;;
+                            
+              "-CHARTHICK") Galmon_Input_ArgType="CHARTHICK"; Galmon_Input_ArgName="$1"; shift
                             ;;
                             
                          *) ;;
@@ -348,6 +360,30 @@ while [[ $# -gt 0 ]]; do
                                 echo ""; echo "Error! The input argument \"$Galmon_Input_ArgName\" should be followed with at least 1 argument!"; echo ""; exit 1
                             fi
                             #Galmon_Input_ArgType="N/A"
+                            shift
+                            ;;
+                            
+                  "LAYOUT") 
+                            # check followed argument
+                            if [[ $# -ge 1 ]]; then 
+                                Galmon_Input_LAYOUT="$1"
+                            fi
+                            shift
+                            ;;
+                            
+                "CHARSIZE") 
+                            # check followed argument
+                            if [[ $# -ge 1 ]]; then 
+                                Galmon_Input_CHARSIZE="$1"
+                            fi
+                            shift
+                            ;;
+                            
+               "CHARTHICK") 
+                            # check followed argument
+                            if [[ $# -ge 1 ]]; then 
+                                Galmon_Input_CHARTHICK="$1"
+                            fi
                             shift
                             ;;
                             
@@ -487,7 +523,16 @@ if [[ x"${Galmon_Input_CAT}" != x && ${#Galmon_Input_SOU[@]} -gt 0 ]]; then
     # input catalog and source id
     for (( i=0; i<${#Galmon_Input_SOU[@]}; i++ )); do
         echo "GalMon, '$Galmon_Input_CAT', '${Galmon_Input_SOU[i]}'" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
-        #echo "" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+        if [[ x"${Galmon_Input_LAYOUT}" != x ]]; then
+            echo -n ", ForceLayout=${Galmon_Input_LAYOUT}" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+        fi
+        if [[ x"${Galmon_Input_CHARSIZE}" != x ]]; then
+            echo -n ", WithTextCharSize=${Galmon_Input_CHARSIZE}" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+        fi
+        if [[ x"${Galmon_Input_CHARTHICK}" != x ]]; then
+            echo -n ", WithTextCharThick=${Galmon_Input_CHARTHICK}" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+        fi
+        echo "" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
     done
 elif [[ ${#Galmon_Input_RAE[@]} -gt 0 && ${#Galmon_Input_RAE[@]} -eq ${#Galmon_Input_DEC[@]} ]]; then
     # input ra dec
@@ -506,12 +551,20 @@ elif [[ ${#Galmon_Input_IMG[@]} -gt 0 ]]; then
     Galmon_image_center_x=$(awk "BEGIN {print ($Galmon_image_naxis1+1.0)/2.0}")
     Galmon_image_center_y=$(awk "BEGIN {print ($Galmon_image_naxis2+1.0)/2.0}")
     Galmon_temp_radec=($(xy2sky -d -n 10 "${Galmon_Input_IMG[0]}" "$Galmon_image_center_x" "$Galmon_image_center_y" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 1,2))
+    echo -n "GalMon, RA=${Galmon_temp_radec[0]}D, Dec=${Galmon_temp_radec[1]}D" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
     if [[ ${#Galmon_Input_SOU[@]} -gt 0 ]]; then
-        echo "GalMon, RA=${Galmon_temp_radec[0]}D, Dec=${Galmon_temp_radec[1]}D, ID='${Galmon_Input_SOU[0]}'" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
-    else
-        echo "GalMon, RA=${Galmon_temp_radec[0]}D, Dec=${Galmon_temp_radec[1]}D" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+        echo -n ", ID='${Galmon_Input_SOU[0]}'" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
     fi
-    #echo "" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+    if [[ x"${Galmon_Input_LAYOUT}" != x ]]; then
+        echo -n ", ForceLayout=${Galmon_Input_LAYOUT}" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+    fi
+    if [[ x"${Galmon_Input_CHARSIZE}" != x ]]; then
+        echo -n ", WithTextCharSize=${Galmon_Input_CHARSIZE}" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+    fi
+    if [[ x"${Galmon_Input_CHARTHICK}" != x ]]; then
+        echo -n ", WithTextCharThick=${Galmon_Input_CHARTHICK}" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
+    fi
+    echo "" >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
 fi
 
 

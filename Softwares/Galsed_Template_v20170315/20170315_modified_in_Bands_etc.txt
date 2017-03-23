@@ -1,0 +1,10 @@
+20170315
+
+now we rearranged the way we loop each band, so it is much more convenient to add new bands. 
+
+files modified:
+  defaut.sm
+  fit_engine.sm
+  AGN_N.sm
+
+

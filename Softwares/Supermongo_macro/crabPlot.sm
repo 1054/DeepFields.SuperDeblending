@@ -45,6 +45,7 @@ crabPlotOpenPS 01
     xtcolours
     define TeX_strings 1
     add_ctype gray 230 230 230
+    add_ctype midgray 210 210 210
     add_ctype darkgray 170 170 170
     if($gx1==3500 && $gx2==31000 && $gy1==3500 && $gy2==31000) {
         location 5500 31500 9500 31500

@@ -455,8 +455,8 @@ goxfitAGN 01
 				if(is_vector(z_fixed_str)) {unset z_fixed_str}
 				do i_fixed=0,dimen(z_fixed)-1 {
 					if(z_fixed[$i_fixed]>0.0) {
-						if(!is_vector(z_fixed_str)) {set z_fixed_str = sprintf('%.3f',z_fixed[$i_fixed])}
-						else {set z_fixed_str = z_fixed_str+sprintf(',%.3f',z_fixed[$i_fixed])}
+						if(!is_vector(z_fixed_str)) {set z_fixed_str = sprintf('%.3f',z_fixed[$i_fixed])
+											  }else {set z_fixed_str = z_fixed_str+sprintf(',%.3f',z_fixed[$i_fixed])}
 					}
 				}
 				if(is_vector(z_fixed_str)) {

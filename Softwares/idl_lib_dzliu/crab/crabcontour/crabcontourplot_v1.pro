@@ -40,6 +40,7 @@ PRO CrabContourPlot_v1, Title=Title, XTitle=XTitle, YTitle=YTitle, $
     PRINT, "contour levels: ", CrabStringPrintArray(Levels)
     
     
+    ; Set Overplot or not
     IF NOT KEYWORD_SET(OverPlot) THEN BEGIN
         SET_PLOT, 'PS'
         DEVICE, FILENAME=SaveEPS, /Color, /ENCAPSULATED, DECOMPOSED=0, XSIZE=24, YSIZE=20 ; cm
@@ -112,7 +113,7 @@ PRO CrabContourPlot_v1, Title=Title, XTitle=XTitle, YTitle=YTitle, $
              C_CharSize=1.0, C_CharThick=2.0
     
     
-    ; finally plot the axis ticket -- they are usually covered up by contour
+    ; finally plot the axis ticket again -- they are usually covered up by contour
     PLOT, [0], [0], /NoErase, /NoData, $
              COLOR=cgColor("black"), $
              XRange=XRange, YRange=YRange, $
@@ -125,6 +126,7 @@ PRO CrabContourPlot_v1, Title=Title, XTitle=XTitle, YTitle=YTitle, $
     
     
     
+    ; plot colorbar
     IF !D.NAME EQ 'PS' THEN BEGIN
         dl_levels = Levels
         dl_barBytes = bytscl(FINDGEN(N_ELEMENTS(dl_levels)),TOP=255)

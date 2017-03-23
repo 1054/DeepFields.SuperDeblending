@@ -1,0 +1,26 @@
+go
+    #  
+    #  macro read do_Type_FIR.sm go
+    #  
+    load rfile.sm 
+    rfile "../RadioOwenMIPS24_priors_v6_20151221_Final.txt"
+    load vecSNR.sm
+    set snrFIR = f100*0.0
+    foreach imax {100 160 250 350 500 1160} {
+        set snr$imax = vecSNR(f$imax,df$imax)
+        set snrFIR = (snr$imax>0) ? snrFIR + (snr$imax)**2 : snrFIR
+    }
+    set snrFIR = sqrt(snrFIR)
+    set cooFIR = int(snrFIR>=5) #<TODO># S/N ratio limit -- 5 or 10?
+    set id = int(_id)
+    if(is_file("coo_FIR.txt")) {!cp "coo_FIR.txt" "coo_FIR_backup.txt"}
+    if(is_file("coo_FIR.log")) {!cp "coo_FIR.log" "coo_FIR_backup.log"}
+    print "coo_FIR.txt" '%15d%15g%15d%15g%15g\n' {cooFIR snrFIR id snr100 snr160}
+    set Type_FIR = cooFIR
+    !date "+%Y-%m-%d\ %H:%M:%S" > coo_FIR.log
+    !echo "Writting to \"coo_FIR.txt\"!" >> coo_FIR.log
+    !echo "We have "$(sum(Type_FIR))" out of "$(dimen(Type_FIR))" sources will be fit with only FIR data points." >> coo_FIR.log
+    !echo "Successfully output to \"coo_FIR.txt\"!" >> coo_FIR.log
+    !echo "Please use the output file \"coo_FIR.txt\" for the following SED fitting!" >> coo_FIR.log
+    !cat coo_FIR.log
+

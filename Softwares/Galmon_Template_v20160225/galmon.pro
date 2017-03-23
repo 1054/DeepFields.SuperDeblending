@@ -227,6 +227,7 @@ END
 PRO GalMon, PriorCatalog, SelectID, PhotoList, RegionList, $
     SaveEPS = SaveEPS, Verbose = Verbose, RA = RA, Dec = Dec, ID = ID, $
     ForceOneRow = ForceOneRow, ForceOneRadius = ForceOneRadius, $
+    ForceLayout = ForceLayout, $
     WithTextCharSize = TextCharSize, $
     WithTextCharThick = TextCharThick, $
     WithCircleThicks = CircleThicks, $
@@ -430,7 +431,7 @@ PRO GalMon, PriorCatalog, SelectID, PhotoList, RegionList, $
                      WithCircles=Circles, WithCircleColors=CircleColors, WithCircleDashed=CircleDashed, $
                      WithCircleBelong=CircleBelong, WithCircleLabels=CircleLabels, WithCircleThicks=CircleThicks, $ ; CircleLabels ; [ObjRA[ObjSe],ObjDEC[ObjSe],3.0D]
                      WithCrosses=Crosses, WithCrossColors=CrossColors, $
-                     WithCrossBelong=CrossBelong, Verbose=Verbose, ForceOneRow=ForceOneRow, $
+                     WithCrossBelong=CrossBelong, Verbose=Verbose, ForceOneRow=ForceOneRow, ForceLayout=ForceLayout, $
                      WithTextCharSize=TextCharSize, WithTextCharThick=TextCharThick, $
                      WithTexts=InputLabels, $
                      PowerLawScale=PowerLawScale

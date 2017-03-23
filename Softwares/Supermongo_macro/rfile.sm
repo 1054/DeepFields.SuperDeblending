@@ -28,11 +28,12 @@ rfile 03
                       if($pref_verbose){!echo Read column $rfhi as $rfhc \(backuped existing $rfhc as $rfhc""_rfile_backup\)}
                 }else{if($pref_verbose){!echo Read column $rfhi as $rfhc}} set rfile_headers = rfile_headers concat '$rfhc'
                 if('$rfhc'=='Type'||'$rfhc'=='Note'){
-                  read $rfhc $rfhi.s}else{if(index('$rfhc','Source')>=0||index('$rfhc','Name')>=0||index('$rfhc','Alias')>=0){
-                  read $rfhc $rfhi.s}else{if(index('$rfhc','source')>=0||index('$rfhc','name')>=0||index('$rfhc','alias')>=0){
+                  read $rfhc $rfhi.s}else{if(index('$rfhc','Source')>=0||index('$rfhc','Name')>=0||index('$rfhc','NAME')>=0||index('$rfhc','Alias')>=0){
+                  read $rfhc $rfhi.s}else{if(index('$rfhc','source')>=0||index('$rfhc','name')>=0||index('$rfhc','nAME')>=0||index('$rfhc','alias')>=0){
+                  read $rfhc $rfhi.s}else{if(index('$rfhc','file')>=0||index('$rfhc','File')>=0||index('$rfhc','FILE')>=0){
                   read $rfhc $rfhi.s}else{if(index('$rfhc','_STR')>=0){
                   read $rfhc $rfhi.s}else{
-                  read $rfhc $rfhi}}}}
+                  read $rfhc $rfhi}}}}}
                 if(is_vector(rfile_vectors)){set rfile_vectors = rfile_vectors concat <$rfhc>
                   }else{set rfile_vectors = <$rfhc>}
                 #if(is_vector(rfvectors)) {

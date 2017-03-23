@@ -1,0 +1,21 @@
+
+Aim: 
+    Here we do pre-analysis on the input catalog. 
+    This is only needed at and above band 160um. 
+    
+    
+Method:
+    We determine the following SED fitting parameters that will be used in the next time SED fitting. 
+    
+        Type_SED: use MS or SB or both SED templates
+        Type_AGN: use radio data point or not
+        Type_FIT: whether to fit the source in current band image
+        Type_FIR: whether to fit dust SED with only FIR data point
+    
+
+Usage:
+    
+    cd do_Type_FIR; sm <<< "macro read do_Type_FIR.sm do_Type_FIR"; cd ..
+    cp -i do_Type_FIR/coo_FIR.* ./
+    
+

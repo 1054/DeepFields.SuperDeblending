@@ -14,7 +14,8 @@ PRO CrabImageMosaic, InputConfigFile, InputFits=InputFits, InputExts=InputExts, 
                                           WithCrossBelong=CrossBelong, $
                      WithTexts=WithTexts, WithTextCharSize=WithTextCharSize, WithTextCharThick=WithTextCharThick, $
                                           PowerLawScale=PowerLawScale, $
-                                          ForceOneRow=ForceOneRow
+                                          ForceOneRow=ForceOneRow, $
+                                          ForceLayout=ForceLayout
     
     
     IF KEYWORD_SET(Verbose) THEN Silent=!NULL ELSE Silent=1
@@ -102,7 +103,10 @@ PRO CrabImageMosaic, InputConfigFile, InputFits=InputFits, InputExts=InputExts, 
     NumbFits = N_ELEMENTS(InputFits)
     NumbRows = 1
     NumbCols = 1
-    IF KEYWORD_SET(ForceOneRow) THEN BEGIN
+    IF N_ELEMENTS(ForceLayout) GE 2 THEN BEGIN
+        NumbCols = ForceLayout[0]
+        NumbRows = ForceLayout[1]
+    ENDIF ELSE IF KEYWORD_SET(ForceOneRow) THEN BEGIN
         NumbCols = NumbFits
     ENDIF ELSE BEGIN
         FOR j=1,NumbFits DO BEGIN
@@ -495,10 +499,17 @@ PRO CrabImageMosaic, InputConfigFile, InputFits=InputFits, InputExts=InputExts, 
                 ENDELSE
                 IF N_ELEMENTS(WithTextCharSize) EQ 0 THEN WithTextCharSize=1.05
                 IF N_ELEMENTS(WithTextCharThick) EQ 0 THEN WithTextCharThick=3.85
-                XYOUTS, MosaicRect[i].x2-0.01*MosaicRect[i].width, MosaicRect[i].y2-0.08*MosaicRect[i].height, FoVTexts, $
-                        ALIGNMENT=1.0, COLOR='000000'xL, CHARSIZE=WithTextCharSize, CHARTHICK=WithTextCharThick+10, /NORMAL
-                XYOUTS, MosaicRect[i].x2-0.01*MosaicRect[i].width, MosaicRect[i].y2-0.08*MosaicRect[i].height, FoVTexts, $
-                        ALIGNMENT=1.0, COLOR=cgColor('green'), CHARSIZE=WithTextCharSize, CHARTHICK=WithTextCharThick, /NORMAL
+                IF WithTextCharSize LT 1.5 THEN BEGIN
+                    XYOUTS, MosaicRect[i].x2-0.01*MosaicRect[i].width, MosaicRect[i].y2-0.08*MosaicRect[i].height, FoVTexts, $
+                            ALIGNMENT=1.0, COLOR='000000'xL, CHARSIZE=WithTextCharSize, CHARTHICK=WithTextCharThick+10, /NORMAL
+                    XYOUTS, MosaicRect[i].x2-0.01*MosaicRect[i].width, MosaicRect[i].y2-0.08*MosaicRect[i].height, FoVTexts, $
+                            ALIGNMENT=1.0, COLOR=cgColor('green'), CHARSIZE=WithTextCharSize, CHARTHICK=WithTextCharThick, /NORMAL
+                ENDIF ELSE BEGIN
+                    XYOUTS, MosaicRect[i].x1+0.01*MosaicRect[i].width, MosaicRect[i].y2-0.24*MosaicRect[i].height, FoVTexts, $
+                            ALIGNMENT=0.0, COLOR='000000'xL, CHARSIZE=WithTextCharSize, CHARTHICK=WithTextCharThick+10, /NORMAL
+                    XYOUTS, MosaicRect[i].x1+0.01*MosaicRect[i].width, MosaicRect[i].y2-0.24*MosaicRect[i].height, FoVTexts, $
+                            ALIGNMENT=0.0, COLOR=cgColor('green'), CHARSIZE=WithTextCharSize, CHARTHICK=WithTextCharThick, /NORMAL
+                ENDELSE
                 
                 
                 ; 
@@ -519,10 +530,17 @@ PRO CrabImageMosaic, InputConfigFile, InputFits=InputFits, InputExts=InputExts, 
                 PRINT, "Recognized instrument and filter: "+TelTexts
                 IF N_ELEMENTS(WithTextCharSize) EQ 0 THEN WithTextCharSize=1.05
                 IF N_ELEMENTS(WithTextCharThick) EQ 0 THEN WithTextCharThick=3.85
-                XYOUTS, MosaicRect[i].x1+0.02*MosaicRect[i].width, MosaicRect[i].y2-0.08*MosaicRect[i].height, TelTexts, $
-                        ALIGNMENT=0.0, COLOR='000000'xL, CHARSIZE=WithTextCharSize, CHARTHICK=WithTextCharThick+10.0, /NORMAL
-                XYOUTS, MosaicRect[i].x1+0.02*MosaicRect[i].width, MosaicRect[i].y2-0.08*MosaicRect[i].height, TelTexts, $
-                        ALIGNMENT=0.0, COLOR=cgColor('green'), CHARSIZE=WithTextCharSize, CHARTHICK=WithTextCharThick, /NORMAL
+                IF WithTextCharSize LT 1.5 THEN BEGIN
+                    XYOUTS, MosaicRect[i].x1+0.02*MosaicRect[i].width, MosaicRect[i].y2-0.08*MosaicRect[i].height, TelTexts, $
+                            ALIGNMENT=0.0, COLOR='000000'xL, CHARSIZE=WithTextCharSize, CHARTHICK=WithTextCharThick+10.0, /NORMAL
+                    XYOUTS, MosaicRect[i].x1+0.02*MosaicRect[i].width, MosaicRect[i].y2-0.08*MosaicRect[i].height, TelTexts, $
+                            ALIGNMENT=0.0, COLOR=cgColor('green'), CHARSIZE=WithTextCharSize, CHARTHICK=WithTextCharThick, /NORMAL
+                ENDIF ELSE BEGIN
+                    XYOUTS, MosaicRect[i].x1+0.01*MosaicRect[i].width, MosaicRect[i].y2-0.12*MosaicRect[i].height, TelTexts, $
+                            ALIGNMENT=0.0, COLOR='000000'xL, CHARSIZE=WithTextCharSize, CHARTHICK=WithTextCharThick+10.0, /NORMAL
+                    XYOUTS, MosaicRect[i].x1+0.01*MosaicRect[i].width, MosaicRect[i].y2-0.12*MosaicRect[i].height, TelTexts, $
+                            ALIGNMENT=0.0, COLOR=cgColor('green'), CHARSIZE=WithTextCharSize, CHARTHICK=WithTextCharThick, /NORMAL
+                ENDELSE
                 
                 
                 

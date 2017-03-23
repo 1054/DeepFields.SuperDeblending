@@ -298,12 +298,14 @@ calc_Daddi2015_CO 05
         set _Daddi2015_Jscale = (_Daddi2015_Jupper==8)  ? 0.20/0.193/8**2*_Daddi2015_excitation : _Daddi2015_Jscale # 0.20/0.193/8**2=0.0161917
         set _Daddi2015_Jscale = _Daddi2015_Jscale * _Daddi2015_Jupper**2
         set _Daddi2015_LPrmCO = _Daddi2015_LPrmCO * _Daddi2015_Jscale / _Daddi2015_Jupper**2 # note that the LPrm is K km s-1 pc2
+        echo "DEBUG: calc_Daddi2015_CO"
+        echo "DEBUG: calc_Daddi2015_CO $2 = "$(_Daddi2015_Jupper)
         if($?3) { if($3>0) {
             define _Daddi2015_Verbose $verbose verbose 0
-            set _Daddi2015_ResFreq = _Daddi2015_LumTIR*0+calc_line_freq(co,$2,0) # ResFreq is restframe
+            set _Daddi2015_ResFreq = _Daddi2015_LumTIR*0+calc_line_freq(co,_Daddi2015_Jupper,0) # ResFreq is restframe
             set _Daddi2015_LumDist = calc_lumdist($3)
             set _Daddi2015_FluxCO[_Daddi2015_PosID] = convert_lprm2flux($3,_Daddi2015_LPrmCO[_Daddi2015_PosID],_Daddi2015_ResFreq,_Daddi2015_LumDist)
-            set _Daddi2015_FreqCO = _Daddi2015_LumTIR*0 + calc_line_freq(co,$2,$3) # FreqCO is obsframe
+            set _Daddi2015_FreqCO = _Daddi2015_LumTIR*0 + calc_line_freq(co,_Daddi2015_Jupper,$3) # FreqCO is obsframe
             verbose $_Daddi2015_Verbose #undef _Daddi2015_Verbose
         }}
         if($verbose) { 
@@ -641,13 +643,13 @@ calc_dzliu_NII 04
     if(dimen(_dzliu_PosID)==0){print 'calc_dzliu_NII: Error! Input data array has no positive value!' {} return}
     set _dzliu_N = 0.0 set _dzliu_A = 0.0 
     set _dzliu_I = 0,dimen(_dzliu_LumTIR)-1 set _dzliu_I = _dzliu_I if(_dzliu_R60100>0)
-    set _dzliu_X = float(_dzliu_I)*0+0.8 set _dzliu_X[_dzliu_I] = lg(_dzliu_R60100[_dzliu_I]) # TODO: default R_f60/f100 = 0.8
+    set _dzliu_X = float(_dzliu_I)*0 set _dzliu_X[_dzliu_I] = lg(_dzliu_R60100[_dzliu_I]) # TODO: default R_f60/f100 = 0.8
     # if($2==1) {set _dzliu_N = 1.00 set _dzliu_A = 3.48914*_dzliu_X**0 +1.68786*_dzliu_X**1 -8.76484*_dzliu_X**2 -18.47071*_dzliu_X**3} # dzliu MPFIT 2016-03-09
     if($2==1) {set _dzliu_N = 1.00 set _dzliu_A = 4.58563*_dzliu_X**0 +1.54078*_dzliu_X**1 -9.22952*_dzliu_X**2 -18.77348*_dzliu_X**3} # dzliu MPFIT 2016-03-13
     # dzliu MPFIT 2016-03-13 If fit LuminTIR/LineLumi(R60100): y = +4.58563*x^0 +1.54078*x^1 -9.22952*x^2 -18.77348*x^3
     set _dzliu_X = (_dzliu_X<-0.4) ? -0.4 : _dzliu_X
     set _dzliu_X = (_dzliu_X>0.2) ? 0.2 : _dzliu_X
-    # comparing Zhao2016 fitting LuminTIR/LineLumi(R70100): y = 3.83 + 1.26*x + 1.86*x^2 + 0.90*x^3 # see Zhao Yinghe, Lu Nanyao et al. 2016 Eq(1)
+    # comparing Zhao2016 fitting LuminTIR/LineLumi(R70160): y = 3.83 + 1.26*x + 1.86*x^2 + 0.90*x^3 # see Zhao Yinghe, Lu Nanyao et al. 2016 Eq(1)
     set _dzliu_FluxNII = _dzliu_LumTIR*0+0.0
     set _dzliu_LumiNII = _dzliu_LumTIR*0+0.0
     set _dzliu_LumiNII[_dzliu_PosID] = 10**((lg(_dzliu_LumTIR[_dzliu_PosID])-_dzliu_A)/_dzliu_N) # correlation between LineLumi and LuminTIR
@@ -674,27 +676,28 @@ calc_dzliu_NII 04
 calc_Zhao2016_NII 04
     # 
     # calculate the NII 205um line luminosities for a given total IR luminosity 
-    # calc_Zhao2016_NII LTIR NII_J_up z R70100 # all input are in linear form
+    # calc_Zhao2016_NII LTIR NII_J_up z R70160 # all input are in linear form
     # 
-    if($?1==0||$?2==0){print 'Usage: set L_NII_205um = calc_Zhao2016_NII(LTIR,J_up[,z[,R70100]]) --> L_NII_205um\n' {} return}
+    if($?1==0||$?2==0){print 'Usage: set L_NII_205um = calc_Zhao2016_NII(LTIR,J_up[,z[,R70160]]) --> L_NII_205um\n' {} return}
     if($2<1||$2>1){print 'calc_Zhao2016_NII: Error! we only support NII 205um 3P1-3P0, sorry!\n' {} return}
     set _Zhao2016_LumTIR = $1
     set _Zhao2016_LumFIR = _Zhao2016_LumTIR/1.3 # NO NEED TO convert TIR to FIR
     set _Zhao2016_PosID = 0,dimen(_Zhao2016_LumTIR)-1 set _Zhao2016_PosID = _Zhao2016_PosID if(_Zhao2016_LumTIR>0)
     if($?2){set _Zhao2016_Jupper = float($2)} else {set _Zhao2016_Jupper = _Zhao2016_LumTIR*0+1.0} # default NII transition = 3P1-3P0 205um
-    if($?4){set _Zhao2016_R70100 = float($4)} else {set _Zhao2016_R70100 = _Zhao2016_LumTIR*0+0.9} # TODO: default R_f70/f100 = 0.9
+    if($?4){set _Zhao2016_R70160 = float($4)} else {set _Zhao2016_R70160 = _Zhao2016_LumTIR*0+0.9} # TODO: default R_f70/f100 = 0.9
     if(dimen(_Zhao2016_Jupper)!=dimen(_Zhao2016_LumTIR)) {set _Zhao2016_Jupper = _Zhao2016_LumTIR*0+_Zhao2016_Jupper}
-    if(dimen(_Zhao2016_R70100)!=dimen(_Zhao2016_LumTIR)) {set _Zhao2016_R70100 = _Zhao2016_LumTIR*0+_Zhao2016_R70100}
+    if(dimen(_Zhao2016_R70160)!=dimen(_Zhao2016_LumTIR)) {set _Zhao2016_R70160 = _Zhao2016_LumTIR*0+_Zhao2016_R70160}
     if(dimen(_Zhao2016_PosID)==0){print 'calc_Zhao2016_NII: Error! Input data array has no positive value!' {} return}
     set _Zhao2016_N = 0.0 set _Zhao2016_A = 0.0 
-    set _Zhao2016_I = 0,dimen(_Zhao2016_LumTIR)-1 set _Zhao2016_I = _Zhao2016_I if(_Zhao2016_R70100>0)
-    set _Zhao2016_X = float(_Zhao2016_I)*0+0.9 set _Zhao2016_X[_Zhao2016_I] = lg(_Zhao2016_R70100[_Zhao2016_I]) # TODO: default R_f70/f100 = 0.9
+    set _Zhao2016_I = 0,dimen(_Zhao2016_LumTIR)-1 set _Zhao2016_I = _Zhao2016_I if(_Zhao2016_R70160>0)
+    set _Zhao2016_X = float(_Zhao2016_I)*0 set _Zhao2016_X[_Zhao2016_I] = lg(_Zhao2016_R70160[_Zhao2016_I]) # TODO: default R_f70/f100 = 0.9
     if($2==1) {set _Zhao2016_N = 1.00 set _Zhao2016_A = 3.83+1.26*_Zhao2016_X+1.86*_Zhao2016_X**2+0.90*_Zhao2016_X**3} # see Zhao Yinghe, Lu Nanyao et al. 2016 Eq(1)
     set _Zhao2016_FluxNII = _Zhao2016_LumTIR*0+0.0
     set _Zhao2016_LumiNII = _Zhao2016_LumTIR*0+0.0
     set _Zhao2016_LumiNII[_Zhao2016_PosID] = 10**((lg(_Zhao2016_LumTIR[_Zhao2016_PosID])-_Zhao2016_A)/_Zhao2016_N) # correlation between LineLumi and LuminTIR
     set _Zhao2016_LPrmNII = _Zhao2016_LumTIR*0+0.0
     set _Zhao2016_LPrmNII[_Zhao2016_PosID] = _Zhao2016_LumiNII[_Zhao2016_PosID] / (3.1814084e-11 * $(calc_line_freq(NII,$2,0))**3)
+    echo _Zhao2016_A = $(_Zhao2016_A)
     if($?3) { if($3>0) { 
         define _Zhao2016_Verbose $verbose verbose 0
         set _Zhao2016_FreqNII = _Zhao2016_LumTIR*0 + calc_line_freq(NII,$2,0) # FreqNII is restframe
@@ -996,10 +999,17 @@ calc_MadauDickinson2014_CSFRD 04
 calc_comoving_volume 03
     # http://www.astro.ufl.edu/~guzman/ast7939/projects/project01.html Eq(27)
     # https://ned.ipac.caltech.edu/level5/Hogg/Hogg9.html Eq(27)
+    # usage: set dVc = calc_comoving_volume(z_bin_center,z_bin_wdith,survey_area_square_arcmin)
     # usage: set dVc = calc_comoving_volume($((1.5+2.5)/2),$(2.5-1.5),165)
     #        set dVc = calc_comoving_volume($((2.5+4.0)/2),$(4.0-2.5),165)
     #        set dVc = calc_comoving_volume($((5.0+3.5)/2),$(5.0-3.5),165) # http://arxiv.org/pdf/0901.3341.pdf
     #        set dVc = calc_comoving_volume(5.7,0.1,320) # http://arxiv.org/pdf/astro-ph/0510672.pdf
+    # 
+    if(!$?3) {
+        print 'Usage: set dVc = calc_comoving_volume(z_bin_center,z_bin_wdith,survey_area_square_arcmin)\n' {}
+        return
+    }
+    # 
     set _cosmic_H0 = 73.0
     set _cosmic_OmeM = 0.27
     set _cosmic_Omek = 0
@@ -1007,7 +1017,10 @@ calc_comoving_volume 03
     set _cosmic_z = float($1)
     set _cosmic_dz = float($2)
     set _cosmic_area = float($3) # arcmin^2
-    !rm .cosmic.comoving.distance.tmp 2>/dev/null
+    # 
+    if(is_file(".cosmic.comoving.distance.tmp")) {
+        !rm ".cosmic.comoving.distance.tmp"
+    }
     #set _cosmic_DL = 15301.8 #<TODO># dzliu tool lumdist
     #set _cosmic_DH = 5100.6 #<TODO># dzliu tool lumdist
     #set _cosmic_DA = 1700.2 #<TODO># dzliu tool lumdist
@@ -1240,59 +1253,65 @@ calc_line_chan 07
 
 calc_line_freq 03
     # calc line frequency in observing frame
-    if($?1==0||$?2==0){print 'Usage: set uCO10 = calc_line_freq(co,1,6.005) => output: LineFreq\n' {} return}
-    set _line_freq = 0.0 # GHz
-    #<TODO><20160828># if(is_vector($1)) {set _line_name = $1} else {set _line_name = '$1'}
-    #<TODO><20160828># set _line_Jup = ($2)
-    #<TODO><20160828># -- TODO: only support input scalar variable
-    if('$1'=='CO'||'$1'=='co'){
-        if('$2'=='1')  {set _line_freq = 115.2712018}
-        if('$2'=='2')  {set _line_freq = 230.5380000}
-        if('$2'=='3')  {set _line_freq = 345.7959899}
-        if('$2'=='4')  {set _line_freq = 461.0407682}
-        if('$2'=='5')  {set _line_freq = 576.2679305}
-        if('$2'=='6')  {set _line_freq = 691.4730763}
-        if('$2'=='7')  {set _line_freq = 806.6518060}
-        if('$2'=='8')  {set _line_freq = 921.7997000}
-        if('$2'=='9')  {set _line_freq = 1036.9123930}
-        if('$2'=='10') {set _line_freq = 1151.9854520}
-        if('$2'=='11') {set _line_freq = 1267.0144860}
-        if('$2'=='12') {set _line_freq = 1381.9951050}
-        if('$2'=='13') {set _line_freq = 1496.9229090}
-        if('$2'=='14') {set _line_freq = 1611.7935180}
-        if('$2'=='15') {set _line_freq = 1726.6025057}
+    if($?1==0||$?2==0) {
+        print 'Usage: set line_freq = calc_line_freq(line_name,line_J_up,line_z) => output: line_freq in GHz (at line_z, optional).\n' {} 
+        return
     }
-    if('$1'=='HCN'||'$1'=='hcn'){
-        if('$2'=='1')  {set _line_freq = 88.6316023}
+    set _line_freq_cclf = 0.0 # GHz
+    if(is_vector($1)) {set _line_name_cclf = string($1)} else {set _line_name_cclf = '$1'}
+    if(is_vector($2)) {set _line_Jup_cclf = string($2)} else {set _line_Jup_cclf = '$2'}
+    if(dimen(_line_name_cclf)!=dimen(_line_Jup_cclf)) {
+        print 'Errot! The input line_name and line_J_up have different dimension!\n' {}
+        if($?0) {set $0 = _line_freq_cclf} return
     }
-    if('$1'=='OIII'||'$1'=='oiii'){
-        if('$2'=='1'||'$2'=='88') {set _line_freq = 3393.00624}
-        if('$2'=='2'||'$2'=='51') {set _line_freq = 5785.87959}
+    if(_line_name_cclf=='CO'||_line_name_cclf=='co') {
+        if(_line_Jup_cclf=='1')  {set _line_freq_cclf = 115.2712018}
+        if(_line_Jup_cclf=='2')  {set _line_freq_cclf = 230.5380000}
+        if(_line_Jup_cclf=='3')  {set _line_freq_cclf = 345.7959899}
+        if(_line_Jup_cclf=='4')  {set _line_freq_cclf = 461.0407682}
+        if(_line_Jup_cclf=='5')  {set _line_freq_cclf = 576.2679305}
+        if(_line_Jup_cclf=='6')  {set _line_freq_cclf = 691.4730763}
+        if(_line_Jup_cclf=='7')  {set _line_freq_cclf = 806.6518060}
+        if(_line_Jup_cclf=='8')  {set _line_freq_cclf = 921.7997000}
+        if(_line_Jup_cclf=='9')  {set _line_freq_cclf = 1036.9123930}
+        if(_line_Jup_cclf=='10') {set _line_freq_cclf = 1151.9854520}
+        if(_line_Jup_cclf=='11') {set _line_freq_cclf = 1267.0144860}
+        if(_line_Jup_cclf=='12') {set _line_freq_cclf = 1381.9951050}
+        if(_line_Jup_cclf=='13') {set _line_freq_cclf = 1496.9229090}
+        if(_line_Jup_cclf=='14') {set _line_freq_cclf = 1611.7935180}
+        if(_line_Jup_cclf=='15') {set _line_freq_cclf = 1726.6025057}
     }
-    if('$1'=='OI'||'$1'=='oi'){
-        if('$2'=='1'||'$2'=='146') {set _line_freq = 2.99792458e5/145.5} #<TODO>#
-        if('$2'=='2'||'$2'=='63') {set _line_freq = 2.99792458e5/63.18} #<TODO>#
+    if(_line_name_cclf=='HCN'||_line_name_cclf=='hcn') {
+        if(_line_Jup_cclf=='1')  {set _line_freq_cclf = 88.6316023}
     }
-    if('$1'=='CII'||'$1'=='cii'){
-        if('$2'=='1'||'$2'=='158') {set _line_freq = 1900.53690}
+    if(_line_name_cclf=='OIII'||_line_name_cclf=='oiii') {
+        if(_line_Jup_cclf=='1'||_line_Jup_cclf=='88') {set _line_freq_cclf = 3393.00624}
+        if(_line_Jup_cclf=='2'||_line_Jup_cclf=='51') {set _line_freq_cclf = 5785.87959}
     }
-    if('$1'=='CI'||'$1'=='ci'){
-        if('$2'=='2'||'$2'=='2-1'||'$2'=='370'||'$2'=='3P2-3P1'||'$2'=='3p2-3p1')  {set _line_freq = 809.34197}
-        if('$2'=='1'||'$2'=='1-0'||'$2'=='609'||'$2'=='3P1-3P0'||'$2'=='3p1-3p0')  {set _line_freq = 492.16065}
+    if(_line_name_cclf=='OI'||_line_name_cclf=='oi') {
+        if(_line_Jup_cclf=='1'||_line_Jup_cclf=='146') {set _line_freq_cclf = 2.99792458e5/145.5} #<TODO>#
+        if(_line_Jup_cclf=='2'||_line_Jup_cclf=='63') {set _line_freq_cclf = 2.99792458e5/63.18} #<TODO>#
     }
-    if('$1'=='NII'||'$1'=='nii'){
-        if('$2'=='2'||'$2'=='2-1'||'$2'=='122'||'$2'=='3P2-3P1'||'$2'=='3p2-3p1')  {set _line_freq = 2459.38010}
-        if('$2'=='1'||'$2'=='1-0'||'$2'=='205'||'$2'=='3P1-3P0'||'$2'=='3p1-3p0')  {set _line_freq = 1461.13141}
+    if(_line_name_cclf=='CII'||_line_name_cclf=='cii') {
+        if(_line_Jup_cclf=='1'||_line_Jup_cclf=='158') {set _line_freq_cclf = 1900.53690}
     }
-    if($?3) { set _line_freq_z = $3
-        set _line_freq = _line_freq / (1.0+_line_freq_z)
+    if(_line_name_cclf=='CI'||_line_name_cclf=='ci') {
+        if(_line_Jup_cclf=='2'||_line_Jup_cclf=='2-1'||_line_Jup_cclf=='370'||_line_Jup_cclf=='3P2-3P1'||_line_Jup_cclf=='3p2-3p1') {set _line_freq_cclf = 809.34197}
+        if(_line_Jup_cclf=='1'||_line_Jup_cclf=='1-0'||_line_Jup_cclf=='609'||_line_Jup_cclf=='3P1-3P0'||_line_Jup_cclf=='3p1-3p0') {set _line_freq_cclf = 492.16065}
     }
-    ##if($verbose&&is_vector(LineFreq)){
+    if(_line_name_cclf=='NII'||_line_name_cclf=='nii') {
+        if(_line_Jup_cclf=='2'||_line_Jup_cclf=='2-1'||_line_Jup_cclf=='122'||_line_Jup_cclf=='3P2-3P1'||_line_Jup_cclf=='3p2-3p1') {set _line_freq_cclf = 2459.38010}
+        if(_line_Jup_cclf=='1'||_line_Jup_cclf=='1-0'||_line_Jup_cclf=='205'||_line_Jup_cclf=='3P1-3P0'||_line_Jup_cclf=='3p1-3p0') {set _line_freq_cclf = 1461.13141}
+    }
+    if($?3) { set _line_z_cclf = $3
+        set _line_freq_cclf = _line_freq_cclf / (1.0+_line_z_cclf)
+    }
+    ##if($verbose&&is_vector(LineFreq)) {
     ##    print 'astroSfig::calc_line_freq: Warning! Overwriting LineFreq (backuped existing LineFreq as LineFreq_backup\n' {} 
     ##    set LineFreq_backup = LineFreq
     ##}
-    ##set LineFreq = _line_freq
-    if($?0){set $0 = _line_freq}
+    ##set LineFreq = _line_freq_cclf
+    if($?0) {set $0 = _line_freq_cclf}
     return
 
 calc_jvla_time 04
