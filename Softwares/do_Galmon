@@ -480,6 +480,7 @@ echo "#"                                                                        
 echo "cd '$(readlink -f $Galmon_Input_OUT)'"                                                        >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
 echo "idl -quiet << EOF"                                                                            >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
 echo "!PATH = !PATH + ':$(readlink -f $(dirname ${BASH_SOURCE[0]}))/Galmon_Template_v20160225'"     >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash" #<TODO># 
+echo "!PATH = !PATH + ':$(readlink -f $(dirname ${BASH_SOURCE[0]}))/idl_lib_dzliu'"                 >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash" #<TODO># 
 echo "resolve_routine, 'galmon'"                                                                    >> "$Galmon_Input_OUT/do_Galmon_Run_idl.bash"
 
 # calculate IMG string length
