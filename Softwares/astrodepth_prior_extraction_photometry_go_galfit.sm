@@ -108,7 +108,10 @@ mask_prior_sources
     }
     if(is_file("getpix.result") && is_vector(px) && is_vector(py)) {
         data "getpix.result" read {f_peak 1.f f_int 2.f snr_peak 3.f snr_int 4.f id 5.f}
-        set mask = (snr_int>=1.0 && snr_peak>=2.0)
+        set mask = (snr_int>=1.0 && snr_peak>=2.0) #<before><20170403><dzliu>#
+        set threshold_int = 2.0
+        set threshold_peak = 3.6
+        set mask = ((snr_int/threshold_int>=0.35 && snr_peak/threshold_peak>=0.35) || (snr_int/threshold_int>=0.75) || (snr_peak/threshold_peak>=0.75))
         if(sum(mask)>0) {
             set px = px if(mask)
             set py = py if(mask)
