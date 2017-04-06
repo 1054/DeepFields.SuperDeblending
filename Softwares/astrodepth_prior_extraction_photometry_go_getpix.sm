@@ -78,6 +78,9 @@ calc_beamarea
 
 
 
+
+
+
 go_getpix
     read_data
     read_pixscale
@@ -120,6 +123,29 @@ go_getpix
     }
 
 
+go_getpix_on_negative_image
+    read_data
+    read_pixscale
+    read_pixnoise
+    # 
+    set radius = 1.5 / pixscale
+    set rad = px * 0.0 + radius
+    set cat_index = float(id) # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+    print "getpix_on_negative_image.input" '%15.3f %15.3f %15.3f %15.0f\n' {px py rad cat_index}
+    !CrabPhotAperPhot -header-in-comment "image_negative.fits" "null" "getpix_on_negative_image.input" > "getpix_on_negative_image.output"
+    #!cat "getpix_on_negative_image.input"
+    #!cat "getpix_on_negative_image.output"
+    data "getpix_on_negative_image.output" read {pix_num 4 pix_sum 5 pix_max 7}
+    if(dimen(pix_num)>0) {
+        # 
+        # print results
+        print "getpix_on_negative_image.txt" '%15g %15g %15g %15.3f %15.3f %15.3f %15.0f\n' {pix_max pix_sum pix_num px py rad cat_index}
+    }
+
+
+
+
+
 
 
 
@@ -155,6 +181,41 @@ print_result
             }
         } else {
             print 'Error! \"getpix.txt\" was not found under current directory! Failed to run \"go_getpix.sm\" subroutine \"print_result\"!\n' {}
+        }
+    }
+
+
+print_result_on_negative_image
+    if(!is_file("No_catalog_source_within_image")) {
+        read_pixscale
+        read_pixnoise
+        calc_beamarea
+        # 
+        if(is_file("getpix_on_negative_image.result")) {
+            !mv "getpix_on_negative_image.result" "getpix_on_negative_image.result.backup"
+        }
+        # 
+        if(is_file("getpix_on_negative_image.txt")) {
+            data "getpix_on_negative_image.txt" read {pix_max 1.f pix_sum 2.f pix_num 3.f cat_index 7.f}
+            # 
+            # print further results with flux unit Jy/beam (f_peak) or Jy (f_int)
+            if(is_vector(pixscale) && is_vector(beamarea)) {
+                if(pixscale>0 && beamarea>0) {
+                    set f_peak = pix_max
+                    set f_int = pix_sum / beamarea * (pixscale*pixscale)
+                    set err_peak = pixnoise
+                    set err_int = pixnoise * sqrt(pix_num) / beamarea * (pixscale*pixscale)
+                    set snr_peak = (f_peak>0) ? (f_peak / err_peak) : 0.0
+                    set snr_int = (f_int>0) ? (f_int / err_int) : 0.0
+                    print "getpix_on_negative_image.result" '%15g %15g %15g %15g %15.0f\n' {f_peak f_int snr_peak snr_int cat_index}
+                } else {
+                    print 'Error! Negative pixscale or beamarea value! Failed to run \"go_getpix.sm\" subroutine \"print_result_on_negative_image\"!\n' {}
+                }
+            } else {
+                print 'Error! Failed to read pixscale and beamarea! Failed to run \"go_getpix.sm\" subroutine \"print_result_on_negative_image\"!\n' {}
+            }
+        } else {
+            print 'Error! \"getpix_on_negative_image.txt\" was not found under current directory! Failed to run \"go_getpix.sm\" subroutine \"print_result_on_negative_image\"!\n' {}
         }
     }
 
