@@ -444,7 +444,7 @@ print_result 01
 
 print_result_final 00
     if(!is_file("No_catalog_source_within_image")) {
-        if(is_file("final.result")) {!mv final.result final.result.backup}
+        if(is_file("final.result")) {!mv "final.result" "final.result.backup"}
         data "image_sci_pixnoise.txt" read {rms 1.f}
         data "prior_id.txt" read {cat_id_full 1.s}
         # 
@@ -517,9 +517,87 @@ print_result_final 00
             {Nfit_getpix Ndet_getpix Nfit_fit_0 Ndet_fit_0 Nfit_fit_1 Ndet_fit_1 Nfit_fit_2 Ndet_fit_2}
         # 
     } else {
-        if(is_file("final.result")) {!mv final.result final.result.backup}
+        if(is_file("final.result")) {!mv "final.result" "final.result.backup"}
     }
 
+
+print_result_final_on_negative_image 00
+    if(!is_file("No_catalog_source_within_image")) {
+        if(is_file("final_on_negative_image.result")) {!mv "final_on_negative_image.result" "final_on_negative_image.result.backup"}
+        data "image_sci_pixnoise.txt" read {rms 1.f}
+        data "prior_id.txt" read {cat_id_full 1.s}
+        # 
+        if(!is_file("No_catalog_source_with_enough_getpix_SNR")) {
+            data "getpix_on_negative_image.result" read {f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 5.f}
+            data "getpix_on_negative_image.input" read {x_getpix 1.f y_getpix 2.f}
+            data "fit_n0.result" read {x_fit_n0 1.f y_fit_n0 2.f f_fit_n0 3.f df_fit_n0 4.f cid_fit_n0 13.f}
+            data "fit_n1.result" read {x_fit_n1 1.f y_fit_n1 2.f f_fit_n1 3.f df_fit_n1 4.f cid_fit_n1 13.f}
+            data "fit_n2.result" read {x_fit_n2 1.f y_fit_n2 2.f f_fit_n2 3.f df_fit_n2 4.f cid_fit_n2 13.f}
+            define print_noheader 1
+            print "getpix_on_negative_image.sky2xy.input" '%15.4f %15.4f\n' {x_getpix y_getpix}
+            print "fit_n0.sky2xy.input" '%15.4f %15.4f\n' {x_fit_n0 y_fit_n0}
+            print "fit_n1.sky2xy.input" '%15.4f %15.4f\n' {x_fit_n1 y_fit_n1}
+            print "fit_n2.sky2xy.input" '%15.4f %15.4f\n' {x_fit_n2 y_fit_n2}
+            define print_noheader 0
+            !xy2sky -d -n 10 "image_negative.fits" @"getpix_on_negative_image.sky2xy.input" > "getpix_on_negative_image.sky2xy.output"
+            !xy2sky -d -n 10 "image_negative.fits" @"fit_n0.sky2xy.input" > "fit_n0.sky2xy.output"
+            !xy2sky -d -n 10 "image_negative.fits" @"fit_n1.sky2xy.input" > "fit_n1.sky2xy.output"
+            !xy2sky -d -n 10 "image_negative.fits" @"fit_n2.sky2xy.input" > "fit_n2.sky2xy.output"
+            data "getpix_on_negative_image.sky2xy.output" read {ra_getpix 1.f dec_getpix 2.f}
+            data "fit_n0.sky2xy.output" read {ra_fit_n0 1.f dec_fit_n0 2.f}
+            data "fit_n1.sky2xy.output" read {ra_fit_n1 1.f dec_fit_n1 2.f}
+            data "fit_n2.sky2xy.output" read {ra_fit_n2 1.f dec_fit_n2 2.f}
+            foreach var {f_peak f_int rms f_fit_n0 f_fit_n1 f_fit_n2 df_fit_n0 df_fit_n1 df_fit_n2} {set $var = $var * 1e3} # mJy
+            set id_getpix = cat_id_full[cid_getpix]
+            set id_fit_n0 = cat_id_full[cid_fit_n0]
+            set id_fit_n1 = cat_id_full[cid_fit_n1]
+            set id_fit_n2 = cat_id_full[cid_fit_n2]
+            set snr_fit_n0 = (df_fit_n0>rms) ? (f_fit_n0/df_fit_n0) : (f_fit_n0/rms)
+            set snr_fit_n1 = (df_fit_n1>rms) ? (f_fit_n1/df_fit_n1) : (f_fit_n1/rms)
+            set snr_fit_n2 = (df_fit_n2>rms) ? (f_fit_n2/df_fit_n2) : (f_fit_n2/rms)
+            set det_getpix = int(snr_peak>=3.6 || snr_int>=2.0)
+            set det_fit_n0 = int(snr_fit_n0>=3.0)
+            set det_fit_n1 = int(snr_fit_n1>=3.0)
+            set det_fit_n2 = int(snr_fit_n2>=3.0)
+            set Nfit_getpix = int(dimen(cid_getpix)) set Ndet_getpix = int(sum(det_getpix))
+            set Nfit_fit_n0 = int(dimen(cid_fit_n0)) set Ndet_fit_n0 = int(sum(det_fit_n0))
+            set Nfit_fit_n1 = int(dimen(cid_fit_n1)) set Ndet_fit_n1 = int(sum(det_fit_n1))
+            set Nfit_fit_n2 = int(dimen(cid_fit_n2)) set Ndet_fit_n2 = int(sum(det_fit_n2))
+            print "getpix_on_negative_image.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_getpix dec_getpix det_getpix id_getpix}
+            print "fit_n0.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_n0 dec_fit_n0 det_fit_n0 id_fit_n0}
+            print "fit_n1.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_n1 dec_fit_n1 det_fit_n1 id_fit_n1}
+            print "fit_n2.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_n2 dec_fit_n2 det_fit_n2 id_fit_n2}
+            print "fit_n0.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_n0 dec_fit_n0 f_fit_n0 df_fit_n0 snr_fit_n0 id_fit_n0}
+            print "fit_n1.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_n1 dec_fit_n1 f_fit_n1 df_fit_n1 snr_fit_n1 id_fit_n1}
+            print "fit_n2.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_n2 dec_fit_n2 f_fit_n2 df_fit_n2 snr_fit_n2 id_fit_n2}
+        } else {
+            data "getpix_on_negative_image.result" read {f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 5.f}
+            data "getpix_on_negative_image.input" read {x_getpix 1.f y_getpix 2.f}
+            define print_noheader 1
+            print "getpix_on_negative_image.sky2xy.input" '%15.4f %15.4f\n' {x_getpix y_getpix}
+            define print_noheader 0
+            !sky2xy -d -n 10 "image_negative.fits" @"getpix_on_negative_image.sky2xy.input" > "getpix_on_negative_image.sky2xy.output"
+            set id_getpix = cat_id_full[cid_getpix]
+            set id_fit_n0 = 0
+            set id_fit_n1 = 0
+            set id_fit_n2 = 0
+            set snr_fit_n0 = 0
+            set snr_fit_n1 = 0
+            set snr_fit_n2 = 0
+            set det_getpix = (snr_peak>=3.6 || snr_int>=2.0)
+            set Nfit_fit_n0 = 0 set Ndet_fit_n0 = 0
+            set Nfit_fit_n1 = 0 set Ndet_fit_n1 = 0
+            set Nfit_fit_n2 = 0 set Ndet_fit_n2 = 0
+            set Nfit_getpix = dimen(cid_getpix) set Ndet_getpix = sum(det_getpix)
+            print "getpix_on_negative_image.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_getpix dec_getpix det_getpix id_getpix}
+        }
+        # 
+        print "final_on_negative_image.result" '%15d %15d %15d %15d %15d %15d %15d %15d\n' \
+            {Nfit_getpix Ndet_getpix Nfit_fit_n0 Ndet_fit_n0 Nfit_fit_n1 Ndet_fit_n1 Nfit_fit_n2 Ndet_fit_n2}
+        # 
+    } else {
+        if(is_file("final_on_negative_image.result")) {!mv "final_on_negative_image.result" "final_on_negative_image.result.backup"}
+    }
 
 
 
