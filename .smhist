@@ -1,0 +1,6 @@
+load test_string_vector_length.sm
+test_string_vector_length
+quit
+load test_string_vector_length.sm
+test_string_vector_length
+quit

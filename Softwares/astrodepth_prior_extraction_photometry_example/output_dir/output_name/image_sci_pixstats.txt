@@ -1,0 +1,9 @@
+# CrabPhotAperPhot: readFitsHeader image_sci.fits extension=0 headersize=8640 errStatus=0
+# 
+# image_sci.fits
+# 
+#          NPIX            MIN           MEAN         MEDIAN            MAX            SUM         STDDEV       -3STDDEV       +6STDDEV
+# 
+         131573   -0.000290867    5.87557e-07              0     0.00333339      0.0773066    6.64783e-05   -0.000198847    0.000399457
+
+

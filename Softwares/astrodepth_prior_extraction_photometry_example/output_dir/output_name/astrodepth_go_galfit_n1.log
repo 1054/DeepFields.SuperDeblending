@@ -1,0 +1,77 @@
+Read lines 1 to 91 from prior_x_y.txt
+Read lines 1 to 1 from image_sci_pixscale.txt
+
+Initialized value vectors with 57 objects:
+       IObj        PosX        PosY        Type        Mags        Rads        Sers        Elli        Roti        Note
+
+           1       348.2       2.304         psf           5           0           1           1           0           _
+           2       20.02       14.53         psf           5           0           1           1           0           _
+           3       235.1       32.45         psf           5           0           1           1           0           _
+           4         321       43.01         psf           5           0           1           1           0           _
+           5       295.4       1.826         psf           5           0           1           1           0           _
+           6       25.39       57.02         psf           5           0           1           1           0           _
+           7       188.9       54.22         psf           5           0           1           1           0           _
+           8       321.7       72.07         psf           5           0           1           1           0           _
+           9       180.4       13.87         psf           5           0           1           1           0           _
+          10       27.54       75.25         psf           5           0           1           1           0           _
+          11       90.53       85.47         psf           5           0           1           1           0           _
+          12       240.1        91.3         psf           5           0           1           1           0           _
+          13       363.8       90.94         psf           5           0           1           1           0           _
+          14       70.39       105.4         psf           5           0           1           1           0           _
+          15       99.64       112.9         psf           5           0           1           1           0           _
+          16       142.6       105.3         psf           5           0           1           1           0           _
+          17       5.591       129.2         psf           5           0           1           1           0           _
+          18       240.9       148.3         psf           5           0           1           1           0           _
+          19       143.9         152         psf           5           0           1           1           0           _
+          20         143       162.9         psf           5           0           1           1           0           _
+          21       124.5       150.3         psf           5           0           1           1           0           _
+          22         135       134.5         psf           5           0           1           1           0           _
+          23       73.81       177.6         psf           5           0           1           1           0           _
+          24       9.973       178.8         psf           5           0           1           1           0           _
+          25       89.25         172         psf           5           0           1           1           0           _
+          26       140.2       184.1         psf           5           0           1           1           0           _
+          27       25.65       187.6         psf           5           0           1           1           0           _
+          28       247.6       195.6         psf           5           0           1           1           0           _
+          29       283.5       196.9         psf           5           0           1           1           0           _
+          30       368.2       162.5         psf           5           0           1           1           0           _
+          31       169.3       190.3         psf           5           0           1           1           0           _
+          32       344.8       218.1         psf           5           0           1           1           0           _
+          33         327       212.5         psf           5           0           1           1           0           _
+          34       234.7       229.9         psf           5           0           1           1           0           _
+          35       260.8       226.6         psf           5           0           1           1           0           _
+          36       191.9       189.3         psf           5           0           1           1           0           _
+          37       165.2       169.8         psf           5           0           1           1           0           _
+          38       63.95       229.4         psf           5           0           1           1           0           _
+          39       369.2       141.1         psf           5           0           1           1           0           _
+          40       246.4       216.8         psf           5           0           1           1           0           _
+          41       358.7       195.3         psf           5           0           1           1           0           _
+          42       233.6       297.2         psf           5           0           1           1           0           _
+          43       70.52       293.2         psf           5           0           1           1           0           _
+          44       95.94       299.4         psf           5           0           1           1           0           _
+          45       127.7       290.7         psf           5           0           1           1           0           _
+          46       78.97       282.9         psf           5           0           1           1           0           _
+          47       93.31       309.9         psf           5           0           1           1           0           _
+          48       308.2         271         psf           5           0           1           1           0           _
+          49       329.9       277.9         psf           5           0           1           1           0           _
+          50       116.6       235.4         psf           5           0           1           1           0           _
+          51        98.9       329.4         psf           5           0           1           1           0           _
+          52       314.6       336.4         psf           5           0           1           1           0           _
+          53       78.92       338.1         psf           5           0           1           1           0           _
+          54       127.9       334.7         psf           5           0           1           1           0           _
+          55       291.3       286.5         psf           5           0           1           1           0           _
+          56       180.6       238.8         psf           5           0           1           1           0           _
+          57       13.82       292.1         psf           5           0           1           1           0           _
+
+Initialized paramter vectors with 57 objects:
+    ParamMinPosX ParamMaxPosX ParamFitPosX ParamMinPosY ParamMaxPosY ParamFitPosY ParamMinMags ParamMaxMags ParamFitMags
+    ParamMinRads ParamMaxRads ParamFitRads ParamMinSers ParamMaxSers ParamFitSers
+    ParamMinElli ParamMaxElli ParamFitElli ParamMinRoti ParamMaxRoti ParamFitRoti
+Initialized paramter vectors for sky background:
+    SkyValue ParamFitSkyValue
+
+astroGalfit::writeGalfitParam: Checked vector IObj PosX PosY Mags Rads Sers Elli Roti Type ParamFitPosX ParamMinPosX ParamMaxPosX ParamFitPosY ParamMinPosY ParamMaxPosY ParamFitMags ParamMinMags ParamMaxMags ParamFitRads ParamMinRads ParamMaxRads ParamFitSers ParamMinSers ParamMaxSers ParamFitElli ParamMinElli ParamMaxElli ParamFitRoti ParamMinRoti ParamMaxRoti Note
+astroGalfit::writeGalfitParam: Galfit parameters has been written into fit_n1.param
+
+Read these vectors: ResultType ResultPosX ResultPosXErr ResultPosY ResultPosYErr ResultMags ResultMagsErr ResultRads ResultRadsErr ResultSers ResultSersErr ResultElli ResultElliErr ResultRoti ResultRotiErr 
+
+Read lines 1 to 1 from image_psf_peak2total.txt
