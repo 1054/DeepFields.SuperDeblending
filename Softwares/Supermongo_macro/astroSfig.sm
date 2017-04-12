@@ -313,6 +313,7 @@ calc_Daddi2015_CO 05
             print '\ncalc_Daddi2015_CO:\n' {}
             print '\nJ_CO  = %15.0f\nSB    = %15.2f\nRJ1   = %15.2f\nL_CO  = %15.7e  K km s-1 pc2\nS_CO  = %15f  Jy km s-1\n' \
                    {_Daddi2015_Jupper _Daddi2015_starbursty _Daddi2015_Jscale _Daddi2015_LPrmCO _Daddi2015_FluxCO} 
+            echo "Output vectors: _Daddi2015_Jupper _Daddi2015_starbursty _Daddi2015_Jscale _Daddi2015_LPrmCO _Daddi2015_FluxCO"
             define print_noheader 0
         }
     }
@@ -518,10 +519,62 @@ calc_Liu2015_CO 04
 
 calc_dzliu_CI 04
     # 
+    # calculate the CI line luminosities for a given total IR luminosity  (version 20170411)
+    # calc_dzliu_CI LTIR CI_J_up z # all input are in linear form
+    # -- 2017-04-11 13h19m CEST
+    # 
+    if($?1==0||$?2==0){print 'Usage: set L_CI_J = calc_dzliu_CI(LTIR,J_up[,z[,velowidth]]) --> L_CI\n' {} return}
+    if($2<1||$2>2){print 'calc_dzliu_CI: Error! we only support CI 3P1-3P0 and 3P2-3P1, sorry!\n' {} return}
+    set _dzliu_LuminTIR = $1
+    set _dzliu_LuminFIR = _dzliu_LuminTIR/1.3 # convert TIR to FIR
+    set _dzliu_LPrmLine = _dzliu_LuminFIR*0.0 # line luminosity L_{\prime}
+    set _dzliu_FPrmLine = _dzliu_LuminFIR*0.0 # line flux
+    set _dzliu_PeakLine = _dzliu_LuminFIR*0.0 # line peak intensity
+    set _dzliu_FWHMLine = _dzliu_LuminFIR*0.0 # line width
+    set _dzliu_LineFreq = _dzliu_LuminFIR*0.0 # line freq in obs-frame
+    set _dzliu_RestFreq = _dzliu_LuminFIR*0.0 # line freq in rest-frame
+    if($?2) {set _dzliu_Jupper = $2} else {set _dzliu_Jupper = _dzliu_LuminFIR*0+1} # default CI transition = 3P1-3P0
+    if($?3) {set _dzliu_Redshift = $3} else {set _dzliu_Redshift = _dzliu_LuminFIR*0+0.0} # default CI transition = 3P1-3P0
+    if($?4) {set _dzliu_FWHMLine = $4} else {set _dzliu_FWHMLine = _dzliu_LuminFIR*0+0.8} # TODO: default R_f60/f100 = 0.8
+    if(dimen(_dzliu_Jupper)!=dimen(_dzliu_LuminFIR)) {set _dzliu_Jupper = _dzliu_LuminFIR*0+_dzliu_Jupper}
+    if(dimen(_dzliu_Redshift)!=dimen(_dzliu_LuminFIR)) {set _dzliu_Redshift = _dzliu_LuminFIR*0+_dzliu_Redshift}
+    if(dimen(_dzliu_FWHMLine)!=dimen(_dzliu_LuminFIR)) {set _dzliu_FWHMLine = _dzliu_LuminFIR*0+_dzliu_FWHMLine}
+    # 
+    set _dzliu_ValidID = 0,dimen(_dzliu_LuminFIR)-1 set _dzliu_ValidID = _dzliu_ValidID if(_dzliu_LuminFIR>0)
+    if(dimen(_dzliu_ValidID)==0){ print 'calc_dzliu_CI: Error! Input data array has no positive value!' {} return }
+    # spline/interp2 correlation
+    set _dzliu_X_spline = 6.5,10.0,0.1
+    set _dzliu_Y_spline = _dzliu_X_spline * 0.0
+    set _dzliu_Y_spline = (_dzliu_Jupper==1) ?  0.019 * _dzliu_X_spline**3 - 0.917 * _dzliu_X_spline**2 + 12.761 * _dzliu_X_spline - 42.860 : _dzliu_Y_spline
+    set _dzliu_Y_spline = (_dzliu_Jupper==2) ? -0.046 * _dzliu_X_spline**3 + 0.945 * _dzliu_X_spline**2 - 4.859 * _dzliu_X_spline + 12.610 : _dzliu_Y_spline
+    set _dzliu_Y_array = lg(_dzliu_LuminFIR[_dzliu_ValidID]) # Y array is LuminFIR
+    interp_dzliu _dzliu_Y_spline _dzliu_X_spline _dzliu_Y_array _dzliu_X_array
+    set _dzliu_LPrmLine[_dzliu_ValidID] = 10**(_dzliu_X_array) # X array is LPrmLine
+    # -- if input redshift
+    if($?3) {
+        define _dzliu_Verbose $verbose verbose 0
+        set _dzliu_RestFreq = _dzliu_RestFreq*0.0 + calc_line_freq(CI,$2,0) # FreqCI is restframe
+        set _dzliu_LineFreq = _dzliu_LineFreq*0.0 + calc_line_freq(CI,$2,$3) # ObsFreq is obsframe
+        set _dzliu_lumdist = calc_lumdist(_dzliu_Redshift)
+        set _dzliu_FPrmLine = convert_lprm2flux(_dzliu_Redshift,_dzliu_LPrmLine,_dzliu_RestFreq,_dzliu_lumdist)
+        if($?4) { set _dzliu_PeakLine[_dzliu_ValidID] = (_dzliu_FPrmLine[_dzliu_ValidID] / _dzliu_FWHMLine[_dzliu_ValidID]) }
+        verbose $_dzliu_Verbose undef _dzliu_Verbose
+    }
+    if($verbose) { 
+        define print_noheader 1 set _dzliu_Jupper = int(_dzliu_Jupper)
+        print '\ncalc_dzliu_CI:\n' {}
+        print '\nL_TIR = %15.7e  L_sun\nL_FIR = %15.7e  L_sun\nJ_up  = %15d\nv_CI  = %15.3f  GHz\nL_CI  = %15.7e  K km s-1 pc2\nF_CI  = %15f  Jy km s-1\nS_CI  = %15f  mJy\n\n' \
+               {_dzliu_LuminTIR _dzliu_LuminFIR _dzliu_Jupper _dzliu_LineFreq _dzliu_LPrmLine _dzliu_FPrmLine _dzliu_PeakLine}
+        define print_noheader 0
+    }
+    set $0 = _dzliu_LPrmLine
+
+calc_dzliu_CI_2016 04
+    # 
     # calculate the CI line luminosities for a given total IR luminosity 
     # calc_dzliu_CI LTIR CI_J_up z R60100 # all input are in linear form
     # 
-    if($?1==0||$?2==0){print 'Usage: set L_CI_J = calc_dzliu_CI(LTIR,J_up[,z[,R60100]]) --> L_CI_158um\n' {} return}
+    if($?1==0||$?2==0){print 'Usage: set L_CI_J = calc_dzliu_CI(LTIR,J_up[,z[,R60100]]) --> L_CI\n' {} return}
     if($2<1||$2>1){print 'calc_dzliu_CI: Error! we only support CI 3P1-3P0, sorry!\n' {} return}
     set _dzliu_LumTIR = $1
     set _dzliu_LumFIR = _dzliu_LumTIR/1.3 # convert TIR to FIR
@@ -888,12 +941,19 @@ convert_lprm2flux 04
         define _lprm2flux_verbose $verbose verbose 0
         !echo "\# lumdist " > ".lprm2flux.lumdist.tmp"
         do _lprm2flux_i=0,dimen(_lprm2flux_z)-1 {
-        !lumdist -simple $(_lprm2flux_z[$_lprm2flux_i]) >> ".lprm2flux.lumdist.tmp"
+            if(_lprm2flux_z[$_lprm2flux_i]>0.0) {
+                !lumdist -simple $(_lprm2flux_z[$_lprm2flux_i]) >> ".lprm2flux.lumdist.tmp"
+            } else {
+                !echo "0.0" >> ".lprm2flux.lumdist.tmp"
+            }
         }
         data ".lprm2flux.lumdist.tmp" read {_lprm2flux_dL 1} verbose $_lprm2flux_verbose
         !rm ".lprm2flux.lumdist.tmp"
     }
-    set _lprm2flux_f = _lprm2flux_L / 3.25e7 / _lprm2flux_dL**2 * _lprm2flux_nu**2 * (1.0+_lprm2flux_z)
+    set _lprm2flux_i=0,dimen(_lprm2flux_z)-1
+    set _lprm2flux_i=_lprm2flux_i if(_lprm2flux_z>0.0)
+    set _lprm2flux_f = _lprm2flux_L * 0.0
+    set _lprm2flux_f[_lprm2flux_i] = _lprm2flux_L[_lprm2flux_i] / 3.25e7 / _lprm2flux_dL[_lprm2flux_i]**2 * _lprm2flux_nu[_lprm2flux_i]**2 * (1.0+_lprm2flux_z[_lprm2flux_i])
     if($verbose&&is_vector(LineLPrm)){
         print 'astroSfig::convert_lprm2flux: Warning! Overwriting LineLPrm (backuped existing LineLPrm as LineLPrm_backup\n' {} 
         set LineLPrm_backup = LineLPrm
@@ -1802,6 +1862,36 @@ calc_Popping_Metallicity_Based_fH2 03
 
 
 
+
+
+
+
+
+
+
+interp_dzliu 04
+    # -- dzliu -- a quiet version of supermongo original interp2
+    # Linearily interpolate $3 into ($1,$2), giving $4
+    # Note that x must be increasing. Points beyond the range of x
+    # are interpolated linearily
+    if(dimen($1) < 2) {
+       user abort Please use vectors with at least 2 elements
+    }
+    if(dimen($1) != dimen($2)) {
+       user abort $1 and $2 have different dimensions
+    }
+    #
+    set _index = ifloor($1,$3)
+    #
+    set _x1 = $1[(_index < 0 ? 0 : _index >= dimen($1) - 1 ? \
+        dimen($1) - 2 : _index)]
+    set _y1 = $2[(_index < 0 ? 0 : _index >= dimen($1) - 1 ? \
+        dimen($1) - 2 : _index)]
+    set _x2 = $1[(_index < 0 ? 1 : _index >= dimen($1) - 1 ? \
+        dimen($1) - 1 : _index + 1)]
+    set _y2 = $2[(_index < 0 ? 1 : _index >= dimen($1) - 1 ? \
+        dimen($1) - 1 : _index + 1)]
+    set $4 = _y1 + ($3 - _x1)*(_y2 - _y1)/(_x1 == _x2 ? 1 : _x2 - _x1)
 
 
 
