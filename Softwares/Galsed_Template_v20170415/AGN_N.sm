@@ -79,8 +79,9 @@ AGN_Parallel 02
 			foreach VdarX out_Bands {set xf$VdarX = $f$VdarX}
 			foreach VdarX out_Bands {set xe$VdarX = $e$VdarX}
 			define print_noheader 0
-			set SAVEDcols = {SAVEDid xf70 xe70 xf100 xe100 xf160 xe160 xf250 xe250 xf350 xe350 xf500 xe500 \
-			                	     xf850 xe850 xf1160 xe1160 xf1200 xe1200 xf1250 xe1250 xf2000 xe2000 xf2050 xe2050 xfRad xeRad}
+			#<buggy><20170414># set SAVEDcols = {SAVEDid xf70 xe70 xf100 xe100 xf160 xe160 xf250 xe250 xf350 xe350 xf500 xe500 \
+			#<buggy><20170414>#                 	     xf850 xe850 xf1160 xe1160 xf1200 xe1200 xf1250 xe1250 xf2000 xe2000 xf2050 xe2050 xf10cm xe10cm xf20cm xe20cm}
+			set SAVEDcols = 'SAVEDid' foreach VdarX out_Bands { set SAVEDcols = SAVEDcols + ' xf$VdarX xe$VdarX' }
 			print "fit_parallel_HDFN/ResLMT_"$Vdar.txt '%.0f\n' {SAVEDid xmeAGN xfAGN xeAGN xmeSFR xfSFR xeSFR xfTOT xeTOT xf_zz xe_zz}
 			print "fit_parallel_HDFN/ResLMTfluxes_"$Vdar.txt '%.0f\n' <$(SAVEDcols)>
 			}

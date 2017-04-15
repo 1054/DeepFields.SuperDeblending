@@ -569,7 +569,7 @@ calc_dzliu_CI 04
     }
     set $0 = _dzliu_LPrmLine
 
-calc_dzliu_CI_2016 04
+calc_dzliu_CI_old_2016 04
     # 
     # calculate the CI line luminosities for a given total IR luminosity 
     # calc_dzliu_CI LTIR CI_J_up z R60100 # all input are in linear form
@@ -673,8 +673,10 @@ calc_dzliu_CII 04
     if($verbose) { 
         define print_noheader 1 set _dzliu_Jupper = int(_dzliu_Jupper)
         print '\ncalc_dzliu_CII:\n' {}
-        print '\nL_TIR  = %15.7e  L_sun\nL_FIR  = %15.7e  L_sun\nJ_CII  = %15d\nv_CII  = %15.3f  GHz\nL_CII  = %15.7e  K km s-1 pc2\nF_CII  = %15f  Jy km s-1\nS_CII  = %15f  mJy\n\n' \
-               {_dzliu_LumTIR _dzliu_LumFIR _dzliu_Jupper _dzliu_ObsFreq _dzliu_LPrmCII _dzliu_FluxCII _dzliu_PeakCII}
+        print '\nL_TIR  = %15.7e  L_sun\nL_FIR  = %15.7e  L_sun\nJ_CII  = %15d\nv_CII  = %15.3f  GHz' \
+               {_dzliu_LumTIR _dzliu_LumFIR _dzliu_Jupper _dzliu_ObsFreq}
+        print 'L_CII  = %15.7e  K km s-1 pc2\nF_CII  = %15f  Jy km s-1\nS_CII  = %15f  mJy\n\n' \
+               {_dzliu_LPrmCII _dzliu_FluxCII _dzliu_PeakCII}
         define print_noheader 0
     }
     set $0 = _dzliu_LPrmCII

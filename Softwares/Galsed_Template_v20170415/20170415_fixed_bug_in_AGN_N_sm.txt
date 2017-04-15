@@ -1,0 +1,16 @@
+20170415
+
+    "AGN_N.sm"
+
+            set SAVEDcols = {SAVEDid xf70 xe70 xf100 xe100 xf160 xe160 xf250 xe250 xf350 xe350 xf500 xe500 \
+                                     xf850 xe850 xf1160 xe1160 xf1200 xe1200 xf1250 xe1250 xf2000 xe2000 xf2050 xe2050 xfRad xeRad}
+
+    Replace these with:
+
+            #<buggy><20170414># set SAVEDcols = {SAVEDid xf70 xe70 xf100 xe100 xf160 xe160 xf250 xe250 xf350 xe350 xf500 xe500 \
+            #<buggy><20170414>#                          xf850 xe850 xf1160 xe1160 xf1200 xe1200 xf1250 xe1250 xf2000 xe2000 xf2050 xe2050 xf10cm xe10cm xf20cm xe20cm}
+            set SAVEDcols = 'SAVEDid' foreach VdarX out_Bands { set SAVEDcols = SAVEDcols + ' xf$VdarX xe$VdarX' }
+
+    And with the updated supermongo binary, the code should be fine now (writing to "ResLMTfluxes_*.txt")!
+
+
