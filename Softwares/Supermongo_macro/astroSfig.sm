@@ -543,13 +543,25 @@ calc_dzliu_CI 04
     set _dzliu_ValidID = 0,dimen(_dzliu_LuminFIR)-1 set _dzliu_ValidID = _dzliu_ValidID if(_dzliu_LuminFIR>0)
     if(dimen(_dzliu_ValidID)==0){ print 'calc_dzliu_CI: Error! Input data array has no positive value!' {} return }
     # spline/interp2 correlation
-    set _dzliu_X_spline = 6.5,10.0,0.1
-    set _dzliu_Y_spline = _dzliu_X_spline * 0.0
-    set _dzliu_Y_spline = (_dzliu_Jupper==1) ?  0.019 * _dzliu_X_spline**3 - 0.917 * _dzliu_X_spline**2 + 12.761 * _dzliu_X_spline - 42.860 : _dzliu_Y_spline
-    set _dzliu_Y_spline = (_dzliu_Jupper==2) ? -0.046 * _dzliu_X_spline**3 + 0.945 * _dzliu_X_spline**2 - 4.859 * _dzliu_X_spline + 12.610 : _dzliu_Y_spline
-    set _dzliu_Y_array = lg(_dzliu_LuminFIR[_dzliu_ValidID]) # Y array is LuminFIR
-    interp_dzliu _dzliu_Y_spline _dzliu_X_spline _dzliu_Y_array _dzliu_X_array
-    set _dzliu_LPrmLine[_dzliu_ValidID] = 10**(_dzliu_X_array) # X array is LPrmLine
+    foreach _dzliu_IndexID _dzliu_ValidID {
+        if(_dzliu_Jupper[$_dzliu_IndexID]==1) {
+            set _dzliu_X_spline = 7.0,10.1,0.1
+            set _dzliu_Y_spline = _dzliu_X_spline * 0.0
+            set _dzliu_Y_spline =  0.019 * _dzliu_X_spline**3 - 0.917 * _dzliu_X_spline**2 + 12.761 * _dzliu_X_spline - 42.860
+            set _dzliu_Y_array = lg(_dzliu_LuminFIR[$_dzliu_IndexID]) # Y array is LuminFIR
+            interp_dzliu _dzliu_Y_spline _dzliu_X_spline _dzliu_Y_array _dzliu_X_array
+            set _dzliu_LPrmLine[$_dzliu_IndexID] = 10**(_dzliu_X_array) # X array is LPrmLine
+        }
+        if(_dzliu_Jupper[$_dzliu_IndexID]==2) {
+            set _dzliu_X_spline = 6.0,10.1,0.1
+            set _dzliu_Y_spline = _dzliu_X_spline * 0.0
+            #set _dzliu_Y_spline = -0.046 * _dzliu_X_spline**3 + 0.945 * _dzliu_X_spline**2 - 4.859 * _dzliu_X_spline + 12.610
+            set _dzliu_Y_spline = 1.413 * _dzliu_X_spline - 0.613
+            set _dzliu_Y_array = lg(_dzliu_LuminFIR[$_dzliu_IndexID]) # Y array is LuminFIR
+            interp_dzliu _dzliu_Y_spline _dzliu_X_spline _dzliu_Y_array _dzliu_X_array
+            set _dzliu_LPrmLine[$_dzliu_IndexID] = 10**(_dzliu_X_array) # X array is LPrmLine
+        }
+    }
     # -- if input redshift
     if($?3) {
         define _dzliu_Verbose $verbose verbose 0
@@ -557,7 +569,7 @@ calc_dzliu_CI 04
         set _dzliu_LineFreq = _dzliu_LineFreq*0.0 + calc_line_freq(CI,$2,$3) # ObsFreq is obsframe
         set _dzliu_lumdist = calc_lumdist(_dzliu_Redshift)
         set _dzliu_FPrmLine = convert_lprm2flux(_dzliu_Redshift,_dzliu_LPrmLine,_dzliu_RestFreq,_dzliu_lumdist)
-        if($?4) { set _dzliu_PeakLine[_dzliu_ValidID] = (_dzliu_FPrmLine[_dzliu_ValidID] / _dzliu_FWHMLine[_dzliu_ValidID]) }
+        if($?4) { set _dzliu_PeakLine[_dzliu_ValidID] = (_dzliu_FPrmLine[_dzliu_ValidID] / _dzliu_FWHMLine[_dzliu_ValidID]) * 1e3 }
         verbose $_dzliu_Verbose undef _dzliu_Verbose
     }
     if($verbose) { 
@@ -567,6 +579,7 @@ calc_dzliu_CI 04
                {_dzliu_LuminTIR _dzliu_LuminFIR _dzliu_Jupper _dzliu_LineFreq _dzliu_LPrmLine _dzliu_FPrmLine _dzliu_PeakLine}
         define print_noheader 0
     }
+    set _dzliu_FluxCI = _dzliu_FPrmLine
     set $0 = _dzliu_LPrmLine
 
 calc_dzliu_CI_old_2016 04
@@ -1885,15 +1898,13 @@ interp_dzliu 04
     #
     set _index = ifloor($1,$3)
     #
-    set _x1 = $1[(_index < 0 ? 0 : _index >= dimen($1) - 1 ? \
-        dimen($1) - 2 : _index)]
-    set _y1 = $2[(_index < 0 ? 0 : _index >= dimen($1) - 1 ? \
-        dimen($1) - 2 : _index)]
-    set _x2 = $1[(_index < 0 ? 1 : _index >= dimen($1) - 1 ? \
-        dimen($1) - 1 : _index + 1)]
-    set _y2 = $2[(_index < 0 ? 1 : _index >= dimen($1) - 1 ? \
-        dimen($1) - 1 : _index + 1)]
+    set _x1 = $1[(_index < 0 ? 0 : _index >= dimen($1) - 1 ? dimen($1) - 2 : _index)]
+    set _y1 = $2[(_index < 0 ? 0 : _index >= dimen($1) - 1 ? dimen($1) - 2 : _index)]
+    set _x2 = $1[(_index < 0 ? 1 : _index >= dimen($1) - 1 ? dimen($1) - 1 : _index + 1)]
+    set _y2 = $2[(_index < 0 ? 1 : _index >= dimen($1) - 1 ? dimen($1) - 1 : _index + 1)]
     set $4 = _y1 + ($3 - _x1)*(_y2 - _y1)/(_x1 == _x2 ? 1 : _x2 - _x1)
+    set $4 = (($3)>(_x1)) ? $4 : _y1
+    set $4 = (($3)<(_x2)) ? $4 : _y2
 
 
 

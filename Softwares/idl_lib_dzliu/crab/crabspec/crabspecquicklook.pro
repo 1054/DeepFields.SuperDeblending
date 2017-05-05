@@ -5,7 +5,8 @@ PRO CrabSpecQuickLook, InputFiles, Redshift=Redshift, $
                        SaveEPS=SaveEPS, AxesColor=AxesColor, Color=Color, Thick=Thick, CharSize=CharSize, CharThick=CharThick, $
                        XTitle=XTitle, YTitle=YTitle, Title=Title, XSize=XSize, YSize=YSize, XRange=XRange, YRange=YRange, XStyle=XStyle, YStyle=YStyle, XMargin=XMargin, YMargin=YMargin, $
                        XThick=XThick, YThick=YThick, XTickFormat=XTickFormat, YTickFormat=YTickFormat, XTickInterval=XTickInterval, YTickInterval=YTickInterval, $
-                       Continue=Continue, Overplot=Overplot, Close=Close, Fill=Fill, Base=Base, NoData=NoData, Position=Position
+                       Continue=Continue, Overplot=Overplot, Close=Close, Fill=Fill, Base=Base, NoData=NoData, Position=Position, $
+                       SET_FONT=SET_FONT
     
     ;;
     ;; Read Command Line Arguments
@@ -61,14 +62,16 @@ PRO CrabSpecQuickLook, InputFiles, Redshift=Redshift, $
         InputFileList = [InputFileList, TempFileList]
     ENDFOR
     ;; 
+    ;; resolve_routine
+    resolve_all
+    ;; 
     ;; Prepare Figure
     IF NOT KEYWORD_SET(Overplot) THEN BEGIN
         ; SaveEPS
         IF KEYWORD_SET(SaveEPS) THEN BEGIN
             IF N_ELEMENTS(XSize) EQ 0 THEN XSize = 30.0
             IF N_ELEMENTS(YSize) EQ 0 THEN YSize = 12.0
-            OpenPS, SaveEPS, XSize=XSize, YSize=YSize
-            DEVICE, SET_FONT='NGC', /TT_FONT
+            OpenPS, SaveEPS, XSize=XSize, YSize=YSize, SET_FONT=SET_FONT
         ENDIF
         ; TVWindow
         IF N_ELEMENTS(TVWindow) EQ 0 THEN TVWindow=1 ELSE TVWindow=FIX(TVWindow)
@@ -92,6 +95,8 @@ PRO CrabSpecQuickLook, InputFiles, Redshift=Redshift, $
     ;; 
     ;; Read input files
     FOR file_id = 0, N_ELEMENTS(InputFileList)-1 DO BEGIN
+        XArray = []
+        YArray = []
         readcol, InputFileList[file_id], format='(d)', XArray, /SILENT
         readcol, InputFileList[file_id], format='(d,d)', XArray, YArray, /SILENT
         IF N_ELEMENTS(XArray) GT 0 THEN BEGIN
@@ -110,6 +115,7 @@ PRO CrabSpecQuickLook, InputFiles, Redshift=Redshift, $
             MESSAGE, 'Error! Failed to read "'+InputFileList[file_id]+'"'
         ENDELSE
     ENDFOR
+    PRINT, 'Read '+STRTRIM(STRING(NSpectra),2)+' Spectra'
     ;; 
     ;; Plot 
     IF N_ELEMENTS(NSpectra) GT 0 THEN BEGIN
@@ -152,10 +158,16 @@ PRO CrabSpecQuickLook, InputFiles, Redshift=Redshift, $
             IF N_ELEMENTS(XTickLen)  EQ 0 THEN XTickLen_Plot  = 0.02/!D.Y_SIZE*!D.X_SIZE
             IF N_ELEMENTS(YTickLen)  EQ 0 THEN YTickLen_Plot  = 0.02
         ENDELSE
+        ; Font use
+        IF N_ELEMENTS(SET_FONT) NE 0 THEN BEGIN
+            Use_Font=1 
+        ENDIF ELSE BEGIN
+            Use_Font=!NULL
+        ENDELSE
         ; Plot box
         PLOT, XArrayMinMax, YArrayMinMax, /NODATA, Position=Position, XTitle=XTitle, YTitle=YTitle, XTickFormat=XTickFormat, YTickFormat=YTickFormat, XTickInterval=XTickInterval, YTickInterval=YTickInterval, $
               CharSize=CharSize_Plot, CharThick=CharThick_Plot, Thick=Thick_Plot, XThick=XThick_Plot, YThick=YThick_Plot, XMargin=XMargin, YMargin=YMargin, $
-              Color=AxesColor, PSYM=10, Font=1, XRange=XRange, YRange=YRange, XStyle=XStyle, YStyle=YStyle, XTickLen=XTickLen_Plot, YTickLen=YTickLen_Plot
+              Color=AxesColor, PSYM=10, Font=Use_Font, XRange=XRange, YRange=YRange, XStyle=XStyle, YStyle=YStyle, XTickLen=XTickLen_Plot, YTickLen=YTickLen_Plot
         ; Plot spec
         IF NOT KEYWORD_SET(NoData) THEN BEGIN
             
@@ -208,7 +220,7 @@ PRO CrabSpecQuickLook, InputFiles, Redshift=Redshift, $
                 Simplified_Lengend = STRMID(InputFileList[spec_id],STRPOS(STRUPCASE(InputFileList[spec_id]),'SPW'))
                 IF STRMATCH(Simplified_Lengend,'*.txt') THEN Simplified_Lengend = STRMID(Simplified_Lengend,0,STRPOS(Simplified_Lengend,'.txt')) ; remove filename suffix
                 XYOUTS, XArray_Plot[N_ELEMENTS(XArray_Plot)/2-1], YArray_Plot[N_ELEMENTS(YArray_Plot)/2-1]+(!Y.CRange[1]-!Y.CRange[0])*0.01, $
-                        Simplified_Lengend, CHARTHICK=CharThick_Plot, COLOR=Color_Plot, ALIGNMENT=0.5, FONT=1
+                        Simplified_Lengend, CHARTHICK=CharThick_Plot, COLOR=Color_Plot, ALIGNMENT=0.5, FONT=Use_Font
                 
             ENDFOR
         ENDIF

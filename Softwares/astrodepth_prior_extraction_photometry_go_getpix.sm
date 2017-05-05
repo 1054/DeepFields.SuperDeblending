@@ -1,4 +1,4 @@
-read_data
+read_data 00
     load astroGalfit.sm
     data "prior_x_y.txt" read {_px 1 _py 2}
     set _id = 0,dimen(_px)-1
@@ -14,7 +14,7 @@ read_data
     }
 
 
-read_pixscale
+read_pixscale 00
     if(is_file("image_sci_pixscale.txt")) {
         if(is_vector(pixscale)) {unset pixscale}
         data "image_sci_pixscale.txt" read {pixscale 1}
@@ -30,7 +30,7 @@ read_pixscale
     data "image_sci_pixscale.txt" read {pixscale 1}
 
 
-read_pixnoise
+read_pixnoise 00
     if(is_file("image_sci_pixnoise.txt")) {
         if(is_vector(pixnoise)) {unset pixnoise}
         data "image_sci_pixnoise.txt" read {pixnoise 1}
@@ -50,7 +50,7 @@ read_pixnoise
     data "image_sci_pixnoise.txt" read {pixnoise 1}
 
 
-calc_beamarea
+calc_beamarea 00
     if(is_file("image_sci_beamarea.txt")) {
         !mv "image_sci_beamarea.txt" "image_sci_beamarea.txt.backup"
     }
@@ -72,6 +72,83 @@ calc_beamarea
         }
         verbose 1
     }
+
+
+calc_sky_frequency 00
+    if(is_file("image_sci_sky_frequency.txt")) {
+        !mv "image_sci_sky_frequency.txt" "image_sci_sky_frequency.txt.backup"
+    }
+    if(is_file("image_sci.fits")) {
+        !gethead "image_sci.fits" "CTYPE3" "CRPIX3" "CRVAL3" > "image_sci_sky_frequency.tmp"
+        verbose 0
+        if(is_vector(sky_frequency)) {unset sky_frequency}
+        if(is_vector(sky_freq_type)) {unset sky_freq_type}
+        data "image_sci_sky_frequency.tmp" 
+        read {sky_freq_type 1.s sky_frequency 3}
+        if(is_vector(sky_freq_type) && is_vector(sky_frequency)) {
+            if(index(sky_freq_type,'FREQ')==0) {
+                set sky_frequency = sky_frequency/1e9 # GHz
+                define print_noheader 1
+                print "image_sci_sky_frequency.txt" '%15.10f # GHz\n' {sky_frequency}
+                define print_noheader 0
+            }
+        }
+        verbose 1
+    }
+
+
+calc_phase_center 00
+    if(is_file("image_sci_phase_center.txt")) {
+        !mv "image_sci_phase_center.txt" "image_sci_phase_center.txt.backup"
+    }
+    if(is_file("image_sci.fits")) {
+        !gethead "image_sci.fits" "CTYPE1" "CRPIX1" "CRVAL1" "CTYPE2" "CRPIX2" "CRVAL2" > "image_sci_phase_center.tmp"
+        verbose 0
+        if(is_vector(phase_center_type1)) {unset phase_center_type1}
+        if(is_vector(phase_center_type2)) {unset phase_center_type2}
+        if(is_vector(phase_center_ra)) {unset phase_center_ra}
+        if(is_vector(phase_center_dec)) {unset phase_center_dec}
+        if(is_vector(phase_center_x)) {unset phase_center_x}
+        if(is_vector(phase_center_y)) {unset phase_center_y}
+        data "image_sci_phase_center.tmp" 
+        read {phase_center_type1 1.s phase_center_x 2.f phase_center_ra 3 phase_center_type2 4.s phase_center_y 5.f phase_center_dec 6}
+        if(is_vector(phase_center_ra) && is_vector(phase_center_dec)) {
+            if(index(phase_center_type1,'RA')==0 && index(phase_center_type2,'DEC')==0) {
+                define print_noheader 1
+                print "image_sci_phase_center.txt" '%15.10f %15.10f %15.3f %15.3f\n' {phase_center_ra phase_center_dec phase_center_x phase_center_y}
+                define print_noheader 0
+            }
+        }
+        verbose 1
+    }
+
+
+calc_primary_beam_correction 00
+    if(is_file("image_sci_primary_beam_correction.txt")) {
+        !mv "image_sci_primary_beam_correction.txt" "image_sci_primary_beam_correction.txt.backup"
+    }
+    if(is_vector(phase_center_x) && is_vector(phase_center_y) && is_vector(sky_frequency) && is_vector(px) && is_vector(py) && is_vector(pixscale)) {
+        # https://safe.nrao.edu/wiki/bin/view/ALMA/PrimaryBeamArcsec
+        # Computes the expected FWHM of a single dish beam by implementing the Baars formula (b*lambda / D), where b is taken either from Equation 18 in ALMA Memo 456 (http://legacy.nrao.edu/alma/memos/html-memos/abstracts/abs456.html):
+        # where b = 1.243 - 0.343*10**(-0.05*taper) + 0.12*(10**(-0.05*taper))**2
+        # or by Equation 4.13 in Baars (2007) book:
+        # where b = 1.269 - 0.566*tau + 0.534*(tau)**2 - 0.208*(tau)**3
+        # 
+        set primary_beam_disq = ((phase_center_x-px)**2 + (phase_center_y-py)**2) * pixscale**2
+        # 
+        set sky_wavelength = 2.99792458e5/sky_frequency # um
+        set primary_beam_diam = 12.0 # ALMA 12m
+        #set primary_beam_tape = 10.0 # https://safe.nrao.edu/wiki/bin/view/ALMA/AlmaPrimaryBeamCorrection
+        #set primary_beam_bpar = 1.243 - 0.343 * primary_beam_tape + 0.12 * primary_beam_tape**2 # http://legacy.nrao.edu/alma/memos/html-memos/alma456/memo456.pdf -- Eq(18)
+        set primary_beam_bpar = 1.13
+        set primary_beam_fwhm = primary_beam_bpar * sky_wavelength / (primary_beam_diam*1e6) / pi * 180.0 * 3600.0 # arcsec
+        set primary_beam_attenuation = exp((-primary_beam_disq)/(primary_beam_fwhm**2))
+        set primary_beam_correction = 1.0/primary_beam_attenuation
+        define print_noheader 1
+        print "image_sci_primary_beam_correction.txt" '%15.10f\n' {primary_beam_correction}
+        define print_noheader 0
+    }
+
 
 
 
@@ -120,6 +197,10 @@ go_getpix
         # # print results
         # print "getpix.txt" '%15g %15g %15g %15.3f %15.3f %15.3f %15.0f\n' {pixel_max pixel_sum pixel_num pixel_x pixel_y pixel_rad pixel_id}
         # #!cat "getpix.txt"
+        # 
+        # calc primary beam attenuation correction
+        calc_phase_center
+        calc_primary_beam_correction
     }
 
 
