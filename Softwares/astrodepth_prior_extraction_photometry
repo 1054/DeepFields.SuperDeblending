@@ -321,9 +321,27 @@ done
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 
 # 
-# Loop input images
+# Loop input images and do photometry
 # 
 # 
 for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
