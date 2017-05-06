@@ -248,32 +248,43 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # check whether catalog sources at within the image area, convert RA Dec to X Y
     if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_x_y.txt" ]]; then
         for (( i=0; i<${#AstroDepth_INP_CATALOG[@]}; i++ )); do
-            if [[ ! -f "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" ]]; then
+            if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" ]]; then
                 echo "Converting catalog RA Dec to pixel coordinates"
-                #echo sky2xy -n 3 "${AstroDepth_INP_IMAGE_SCI[j]}" @"$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt"
-                     sky2xy -n 3 "${AstroDepth_INP_IMAGE_SCI[j]}" @"$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" > "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt"
+                sky2xy -n 3 "${AstroDepth_INP_IMAGE_SCI[j]}" @"$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" \
+                                                            > "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_sky2xy.txt"
                 # check the output line count
-                if [[ $(cat "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" | wc -l) -ne $(cat "$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" | wc -l) ]]; then 
+                if [[ $(cat "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" | wc -l) -ne \
+                      $(cat "$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" | wc -l) ]]; then 
                     echo "Error! Seems failed to run sky2xy and convert RA Dec to X Y? Please check and re-try!"
-                    mv "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt.failed"
+                    mv "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" \
+                       "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_sky2xy.txt.failed"
                     exit 1
                 fi
             fi
             # extract x y from the output of sky2xy (x,y start from 1, not 0)
-            if [[ ! -f "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt" ]]; then
-                cat "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" | sed -e 's/^ *//g' | grep -v "^#" \
-                    | perl -p -e 's/^([0-9.+-]+)[ ]+([0-9.+-]+)[ ]+J2000 ->[ ]*([0-9.+-]+)[ ]+([0-9.+-]+)[ ]+(\(off[a-z A-Z]*\))$/-99 -99/g' \
-                    | perl -p -e 's/^([0-9.+-]+)[ ]+([0-9.+-]+)[ ]+J2000 ->[ ]*([0-9.+-]+)[ ]+([0-9.+-]+)$/${3} ${4}/g' \
-                    > "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt"
+            if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_x_y.txt" ]]; then
+                   cat "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" | sed -e 's/^ *//g' | grep -v "^#" \
+                     | perl -p -e 's/^([0-9.+-]+)[ ]+([0-9.+-]+)[ ]+J2000 ->[ ]*([0-9.+-]+)[ ]+([0-9.+-]+)[ ]+(\(off[a-z A-Z]*\))$/-99 -99/g' \
+                     | perl -p -e 's/^([0-9.+-]+)[ ]+([0-9.+-]+)[ ]+J2000 ->[ ]*([0-9.+-]+)[ ]+([0-9.+-]+)$/${3} ${4}/g' \
+                     > "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_x_y.txt"
                 # check the output line count
-                if [[ $(cat "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt" | wc -l) -ne $(cat "$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" | wc -l) ]]; then 
+                if [[ $(cat "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_x_y.txt" | wc -l) -ne \
+                      $(cat "$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" | wc -l) ]]; then 
                     echo "Error! Seems failed to extract x y from sky2xy output? Maybe the RA Dec is not J2000? Please check and re-try!"
-                    mv "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt" "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt.failed"
+                    mv "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_x_y.txt" \
+                       "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_x_y.txt.failed"
                     exit 1
+                fi
+                # clean
+                if [[ -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" ]]; then
+                    rm   "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_sky2xy.txt"
                 fi
             fi
             # merge into prior_x_y.txt
-            cat "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt" >> "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_x_y.txt"
+            cat "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_x_y.txt" \
+             >> "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_x_y.txt"
+            # clean
+            rm  "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_x_y.txt"
         done
     fi
     # 
