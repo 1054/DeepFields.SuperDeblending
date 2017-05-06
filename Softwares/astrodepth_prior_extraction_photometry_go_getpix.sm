@@ -89,7 +89,7 @@ calc_sky_frequency 00
             if(index(sky_freq_type,'FREQ')==0) {
                 set sky_frequency = sky_frequency/1e9 # GHz
                 define print_noheader 1
-                print "image_sci_sky_frequency.txt" '%15.10f # GHz\n' {sky_frequency}
+                print "image_sci_sky_frequency.txt" '%15.10f \# GHz\n' {sky_frequency}
                 define print_noheader 0
             }
         }
