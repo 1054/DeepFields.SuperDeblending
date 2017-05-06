@@ -1599,7 +1599,7 @@ calc_iram_30m_time
 
 calc_FIR_lines 01
     # input redshift, output FIR line frequencies
-    do _calc_i=1,10 {
+    do _calc_i=1,13 {
         set _calc_v = calc_line_freq(co,$_calc_i,$1)
         echo CO($_calc_i-$($_calc_i-1)) @ $(_calc_v) GHz
     }
