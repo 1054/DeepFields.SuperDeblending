@@ -225,7 +225,7 @@ done
 
 # 
 # 
-# Loop input images, create subdirectories and convert coordinates
+# Loop input images
 # 
 # 
 for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
@@ -314,45 +314,12 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             echo "1.0" > "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_rms_input.txt"
         fi
     fi
-done
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 
-# 
-# Loop input images and do photometry
-# 
-# 
-for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # 
     # 
-    # Check output name
-    if [[ $j -ge ${#AstroDepth_INP_OUTPUT_NAME[@]} ]]; then
-        AstroDepth_OutputName="astrodepth_image_${j}_galfit"
-    else
-        AstroDepth_OutputName=${AstroDepth_INP_OUTPUT_NAME[j]}
-    fi
+    # 
+    # 
+    # 
+    # 
     # 
     # 
     # Change to subdirectory
