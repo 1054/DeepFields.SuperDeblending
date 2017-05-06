@@ -342,8 +342,8 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # 
     # 
     # Check "prior_x_y.txt"
-    while [[ ! -f "prior_x_y.txt" ]]; do
-        echo "Error! prior_x_y.txt was not yet found! The code will wait for 30 seconds then check again! Please press Ctrl+C to break!"
+    while [[ ! -f "prior_x_y.txt" || ! -f "prior_id.txt" ]]; do
+        echo "Error! \"prior_x_y.txt\" or \"prior_id.txt\" was not yet found! The code will wait for 30 seconds then check again! Please press Ctrl+C to break!"
         sleep 30
     done
     # 
