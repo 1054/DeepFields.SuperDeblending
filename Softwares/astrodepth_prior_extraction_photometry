@@ -225,7 +225,7 @@ done
 
 # 
 # 
-# Loop input images
+# Loop input images, create subdirectories and convert coordinates
 # 
 # 
 for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
@@ -314,13 +314,40 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             echo "1.0" > "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_rms_input.txt"
         fi
     fi
+done
+
+
+
+
+
+
+# 
+# 
+# Loop input images
+# 
+# 
+for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # 
     # 
+    # Check output name
+    if [[ $j -ge ${#AstroDepth_INP_OUTPUT_NAME[@]} ]]; then
+        AstroDepth_OutputName="astrodepth_image_${j}_galfit"
+    else
+        AstroDepth_OutputName=${AstroDepth_INP_OUTPUT_NAME[j]}
+    fi
     # 
     # 
-    # 
-    # 
+    # Change to subdirectory
     cd "$AstroDepth_OutputDir/$AstroDepth_OutputName/"
+    # 
+    # 
+    # Check "prior_x_y.txt"
+    while [[ ! -f "prior_x_y.txt" ]]; do
+        echo "Error! prior_x_y.txt was not yet found! The code will wait for 30 seconds then check again! Please press Ctrl+C to break!"
+        sleep 30
+    done
+    # 
+    # 
     # 
     # 
     # 
@@ -328,7 +355,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # 
     # 
     # now prepare image products and supermongo scripts and run "getpix"
-    if [[ ! -f "astrodepth_lock_getpix" || "${AstroDepth_INP_UNLOCK[@]}" == *"getpix"* ]]; then
+    if [[ ! -f "astrodepth_done_getpix" || ! -f "astrodepth_lock_getpix" || "${AstroDepth_INP_UNLOCK[@]}" == *"getpix"* ]]; then
         # 
         touch "astrodepth_lock_getpix"
         # 
@@ -486,7 +513,18 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
         fi
         # 
         rm "astrodepth_lock_getpix"
+        # 
+        date +"%Y-%m-%d %Hh%Mm%Ss %Z" > "astrodepth_done_getpix"
     fi
+    # 
+    # 
+    # check "astrodepth_done_getpix"
+    if [[ ! -f "astrodepth_done_getpix" ]]; then
+        echo "Error! The getpix step was not done! Exit!"
+        exit 1
+    fi
+    # 
+    # 
     # 
     # 
     # 
@@ -589,6 +627,8 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             fi
             # 
             rm "astrodepth_lock_negative"
+            # 
+            date +"%Y-%m-%d %Hh%Mm%Ss %Z" > "astrodepth_done_negative"
         fi
     fi
     # 
@@ -635,6 +675,8 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             fi
             # 
             rm "astrodepth_lock_galfit"
+            # 
+            date +"%Y-%m-%d %Hh%Mm%Ss %Z" > "astrodepth_done_galfit"
         fi
     fi
     # 
@@ -670,6 +712,8 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             fi
             # 
             rm "astrodepth_lock_gaussian"
+            # 
+            date +"%Y-%m-%d %Hh%Mm%Ss %Z" > "astrodepth_done_gaussian"
         fi
     fi
     # 
@@ -705,6 +749,8 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             fi
             # 
             rm "astrodepth_lock_final"
+            # 
+            date +"%Y-%m-%d %Hh%Mm%Ss %Z" > "astrodepth_done_final"
         fi
     fi
     # 
