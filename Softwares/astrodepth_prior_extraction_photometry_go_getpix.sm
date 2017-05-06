@@ -199,6 +199,7 @@ go_getpix
         # #!cat "getpix.txt"
         # 
         # calc primary beam attenuation correction
+        calc_sky_frequency
         calc_phase_center
         calc_primary_beam_correction
     }
