@@ -234,7 +234,7 @@ SimuX	00	## define Nsimu 6000
 				define xSi $(x_si_[$sar]) define ySi $(y_si_[$sar]) define mSi $(mag_si[$sar]) 
 				define raSi $(x_si[$sar]) define deSi $(y_si[$sar]) ###<Added><20141012><DZLIU>### 
 				
-				set Aa = float($xSi) set Bb = float($ySi) set Cc=float($mSi)
+				set Aa = $xSi set Bb = $ySi set Cc=$mSi
 				set Lx1 = int(Aa)-$f_buff-$g_buff set Lx1 = Lx1>=1 ? Lx1 : 1 set Lx1 = Lx1<=$imax_xsize ? Lx1 : $imax_xsize
 				set Lx2 = int(Aa)+$f_buff+$g_buff set Lx2 = Lx2>=1 ? Lx2 : 1 set Lx2 = Lx2<=$imax_xsize ? Lx2 : $imax_xsize
 				set Ly1 = int(Bb)-$f_buff-$g_buff set Ly1 = Ly1>=1 ? Ly1 : 1 set Ly1 = Ly1<=$imax_ysize ? Ly1 : $imax_ysize
@@ -260,25 +260,16 @@ SimuX	00	## define Nsimu 6000
 					###!\cp simu.fits fit$idSi.mod.galfit.fits                               ###<Added><DZLIU>###
 					
 					# Add the model image to original image using IRAF
-					#<20170507># print  do.cl 'images\n' {}
-					#<20170507># print +do.cl 'imutil\n' {}
-					#<20170507># print +do.cl 'imdel simu2.fits\n' {}
-					#<20170507># print +do.cl 'imdel simu3.fits\n' {}
-					#<20170507># print +do.cl 'imdel simu_rms.fits \n' {}
-					#<20170507># print +do.cl 'imcopy $imax_name""[$(Lx1[0]):$(Lx2[0]),$(Ly1[0]):$(Ly2[0])] simu3 \n' {}
-					#<20170507># print +do.cl 'imarith simu + simu3 simu2.fits\n' {}
-					#<20170507># print +do.cl 'imcopy $imax_name_rms""[$(Lx1[0]):$(Lx2[0]),$(Ly1[0]):$(Ly2[0])] simu_rms \n' {}
-					#<20170507># print +do.cl 'logout\n\n' {}
-					#<20170507># !cl < do.cl >> /dev/null 2>&1
-					
-					# Add the model image to original image using dzliu CrabFitsImage toolkit
-					!rm simu2.fits simu3.fits simu_rms.fits 2>/dev/null
-					!echo CrabFitsImageCrop $imax_name.fits -rect $(Lx1[0]-1) $(Ly1[0]-1) $(Lx2[0]-1) $(Ly2[0]-1) -out simu3.fits > simu3.log
-					!CrabFitsImageCrop $imax_name.fits -rect $(Lx1[0]-1) $(Ly1[0]-1) $(Lx2[0]-1) $(Ly2[0]-1) -out simu3.fits >> simu3.log
-					!echo CrabFitsImageArithmetic simu.fits + simu3.fits simu2.fits > simu2.log
-					!CrabFitsImageArithmetic simu.fits + simu3.fits simu2.fits >> simu2.log
-					!echo CrabFitsImageCrop $imax_name_rms.fits -rect $(Lx1[0]-1) $(Ly1[0]-1) $(Lx2[0]-1) $(Ly2[0]-1) -out simu_rms.fits > simu_rms.log
-					!CrabFitsImageCrop $imax_name_rms.fits -rect $(Lx1[0]-1) $(Ly1[0]-1) $(Lx2[0]-1) $(Ly2[0]-1) -out simu_rms.fits >> simu_rms.log
+					print  do.cl 'images\n' {}
+					print +do.cl 'imutil\n' {}
+					print +do.cl 'imdel simu2.fits\n' {}
+					print +do.cl 'imdel simu3.fits\n' {}
+					print +do.cl 'imdel simu_rms.fits \n' {}
+					print +do.cl 'imcopy $imax_name""[$(Lx1[0]):$(Lx2[0]),$(Ly1[0]):$(Ly2[0])] simu3 \n' {}
+					print +do.cl 'imarith simu + simu3 simu2.fits\n' {}
+					print +do.cl 'imcopy $imax_name_rms""[$(Lx1[0]):$(Lx2[0]),$(Ly1[0]):$(Ly2[0])] simu_rms \n' {}
+					print +do.cl 'logout\n\n' {}
+					!cl < do.cl >> /dev/null 2>&1
 					
 					# Save the original image block, model image block and combined image block
 					###!\cp simu3.fits fit$idSi.ori.fits
@@ -432,10 +423,8 @@ Simu_ 00
 					!mkdir -p                     $idBox                              ###<Added><DZLIU>### doParallel
 					!cp HSO_$imax.INPUT           $idBox/                             ###<Added><DZLIU>### doParallel
 					!cp HSO_$imax.CONSTRAINTS     $idBox/                             ###<Added><DZLIU>### doParallel
-					!cp simu3.*                   $idBox/                             ###<Added><DZLIU>### doParallel
-					!cp simu2.*                   $idBox/                             ###<Added><DZLIU>### doParallel
-					!cp simu.*                    $idBox/                             ###<Added><DZLIU>### doParallel
-					!cp simu_rms.*                $idBox/                             ###<Added><DZLIU>### doParallel
+					!cp simu2.fits                $idBox/                             ###<Added><DZLIU>### doParallel
+					!cp simu_rms.fits             $idBox/                             ###<Added><DZLIU>### doParallel
 					!ln -s ../$imax_name.fits     $idBox/$imax_name.fits              ###<Added><DZLIU>### doParallel
 					!ln -s ../$imax_name_rms.fits $idBox/$imax_name_rms.fits          ###<Added><DZLIU>### doParallel
 					!ln -s ../$imax_name_psf.fits $idBox/$imax_name_psf.fits          ###<Added><DZLIU>### doParallel
@@ -1098,18 +1087,10 @@ goBackupFile 01
 			if(index('$ToNewOutFile','r')==0 || index('$ToNewOutFile','R')==0) {
 			    set BkOldOutFile =              substr('$date',index('$date',':')+7,4)
 			    set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',' ')*0,index('$date',' '))
-			    set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',' ')+1,index('$date',':')-index('$date',' ')-4)+'.' #<buggy><fixed><20170507><dzliu># 
+			    set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',' ')+1,index('$date',':')-index('$date',' ')-4)+'.'
 			    set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',':')-2,2)+'H'
 			    set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',':')+1,2)+'M'
 			    set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',':')+4,2)+'S'
-			    while { index(BkOldOutFile,' ')>=0 } {
-			    	set BkOldOutFile_nbsp = index(BkOldOutFile,' ')
-			    	set BkOldOutFile_slen = strlen(BkOldOutFile)
-			    	set BkOldOutFile_str1 = substr(BkOldOutFile,0,BkOldOutFile_nbsp)
-			    	set BkOldOutFile_str2 = substr(BkOldOutFile,BkOldOutFile_nbsp+1,BkOldOutFile_slen-BkOldOutFile_nbsp-1)
-			    	set BkOldOutFile = BkOldOutFile_str1+'0'+BkOldOutFile_str2
-			    }
-			    #echo $(BkOldOutFile)
 			    !mv $1 $1.backup.$(BkOldOutFile)
 			    echo 
 				echo Backuping $1 as $1.backup.$(BkOldOutFile)
@@ -1471,29 +1452,18 @@ ppp24   00	set ii=0,dimen(x24)-1
 			}  # check separations
 
 noise_AaB	!\rm aaa_noise >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
-			#echo Doing noise_AaB
+			echo Doing noise_AaB
 			set x1=Aa-1 set x2=Aa+1
 			set y1=Bb-1 set y2=Bb+1
-			#<20170507># print  do.cl 'images\n imutil\n' {}
-			#<20170507># print +do.cl 'imstat $imax_name_rms[%.0f:%.0f,%.0f:%.0f] >> aaa_noise \n' {x1 x2 y1 y2}
-			#<20170507># print +do.cl 'logout\n' {}
-			#<20170507># !cl < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
-			#<20170507># verbose 0
-			#<20170507># data aaa_noise read NNN 4
-			#<20170507># verbose 1
-			#!echo getpix $imax_name_rms.fits $(x1)-$(x2) $(y1)-$(y2) > aaa_noise.getpix.input
-			!getpix $imax_name_rms.fits '%.10g' $(x1)-$(x2) $(y1)-$(y2) | sed 's/\\s\\+/\\n/g' > aaa_noise.getpix.output
+			print  do.cl 'images\n imutil\n' {}
+			print +do.cl 'imstat $imax_name_rms[%.0f:%.0f,%.0f:%.0f] >> aaa_noise \n' {x1 x2 y1 y2}
+			print +do.cl 'logout\n' {}
+			!cl < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
 			verbose 0
-			data aaa_noise.getpix.output read {aaa_noise_tmp_var 1.f}
-			stats_med aaa_noise_tmp_var aaa_noise_tmp_med aaa_noise_tmp_siq
-			set NNN = $aaa_noise_tmp_med
-			set NNN = NNN >0 ? NNN : 1e30
+			data aaa_noise read NNN 4
 			verbose 1
-			#echo Done  noise_AaB
-			if(is_vector(NNN)==0) { 
-				define ErrorOccursOn___NNN ? 
-				exit
-			} ###<Added><DZLIU>###
+			echo Done  noise_AaB
+			if(is_vector(NNN)==0) { define ErrorOccursOn___NNN ? } ###<Added><DZLIU>###
 
 growth 		macro read goFine.sm R_MIPS$imax
 			Xgrowth_simu

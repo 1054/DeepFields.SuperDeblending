@@ -25,8 +25,13 @@ echo Current directory $(pwd)
 echo Starting time $(date +"%Y-%m-%d %H:%M:%S")
 #GalfitTmpList=$(find . -maxdepth 1 -type d -name "box[0-9]*"       | sort -t 'x' -k 2 -n); GalfitBoxList=($(echo $GalfitTmpList))
 #GalfitTmpList=$(find . -maxdepth 1 -type f -name "runbox[0-9]*.sh" | sort -t 'x' -k 2 -n); GalfitRunList=($(echo $GalfitTmpList))
+if [[ $(uname) == "Darwin" ]]; then
+GalfitBoxList=( $(find . -maxdepth 1 -type d -regex "./box[0-9]*"       | sort -t 'x' -k 2 -n) )
+GalfitRunList=( $(find . -maxdepth 1 -type f -regex "./runbox[0-9]*.sh" | sort -t 'x' -k 2 -n) )
+else
 GalfitBoxList=( $(find . -maxdepth 1 -type d -regex "./box[0-9]+"       | sort -t 'x' -k 2 -n) )
 GalfitRunList=( $(find . -maxdepth 1 -type f -regex "./runbox[0-9]+.sh" | sort -t 'x' -k 2 -n) )
+fi
 #echo $GalfitBoxList
 #echo $GalfitRunList
 #echo ${#GalfitBoxList}
@@ -64,17 +69,17 @@ fi
 # start from and finish up to some sources
 STARTSOURCE=0 # <Added> start from id
 FINALSOURCE=-1 # <Added> final upto id
-if [[ $* == *-start*          ]]; then STARTSOURCE=$(echo $* | sed -e 's/.*-start[ ]*\([^ -]*\).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -start parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
-if [[ $* == *-begin*          ]]; then STARTSOURCE=$(echo $* | sed -e 's/.*-begin[ ]*\([^ -]*\).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -begin parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
-if [[ $* == *-from*           ]]; then STARTSOURCE=$(echo $* | sed -e 's/.*-from[ ]*\([^ -]*\).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -from parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
-if [[ $* == *-finish*         ]]; then FINALSOURCE=$(echo $* | sed -e 's/.*-finish[ ]*\([^ -]*\).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -finish parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
-if [[ $* == *-upto*           ]]; then FINALSOURCE=$(echo $* | sed -e 's/.*-upto[ ]*\([^ -]*\).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -upto parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
-if [[ $* == *-end*            ]]; then FINALSOURCE=$(echo $* | sed -e 's/.*-end[ ]*\([^ -]*\).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -end parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
+if [[ $* == *-start*          ]]; then STARTSOURCE=$(echo $* | perl -p -e 's/.*-start[ ]*\([^ -]*\).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -start parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
+if [[ $* == *-begin*          ]]; then STARTSOURCE=$(echo $* | perl -p -e 's/.*-begin[ ]*\([^ -]*\).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -begin parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
+if [[ $* == *-from*           ]]; then STARTSOURCE=$(echo $* | perl -p -e 's/.*-from[ ]*\([^ -]*\).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -from parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
+if [[ $* == *-finish*         ]]; then FINALSOURCE=$(echo $* | perl -p -e 's/.*-finish[ ]*\([^ -]*\).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -finish parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
+if [[ $* == *-upto*           ]]; then FINALSOURCE=$(echo $* | perl -p -e 's/.*-upto[ ]*\([^ -]*\).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -upto parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
+if [[ $* == *-end*            ]]; then FINALSOURCE=$(echo $* | perl -p -e 's/.*-end[ ]*\([^ -]*\).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -end parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
 # 
 # 
 for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
     # debug 
-    # if [[ $(echo "${GalfitBoxList[i]}" | sed -e 's#./box##g') != 83 ]]; then
+    # if [[ $(echo "${GalfitBoxList[i]}" | perl -p -e 's#./box##g') != 83 ]]; then
     #     continue
     # fi
     # 
@@ -100,30 +105,14 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
             echo "${GalfitBoxList[i]}"
             # 
             # check hostname
-            if [[ $(hostname) == *localhost* || $(hostname) == *SN* || $(hostname) == *bogon* || $(hostname) == *mars* || $(hostname) == *sapmcm116* || $(hostname) == *sapherschel* || $(hostname) == *sappcb34* ]]; then
-                echo Checking hostname $(hostname)
-                cp  "${GalfitRunList[i]}"                          "${GalfitRunList[i]}.$(hostname).sh"
-                sed --in-place -e "s%^cd .*/boxgalsim_vary/%cd %g" "${GalfitRunList[i]}.$(hostname).sh"
-                sed --in-place -e "s%^cd .*/boxgalsim/%cd %g"      "${GalfitRunList[i]}.$(hostname).sh"
-                sed --in-place -e "s%^cd boxgalsim_vary/%cd %g"    "${GalfitRunList[i]}.$(hostname).sh"
-                sed --in-place -e "s%^cd boxgalsim/%cd %g"         "${GalfitRunList[i]}.$(hostname).sh"
-                sed --in-place -e "s%^.*/galfit %galfit %g"        "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> assume the galfit is already in your $PATH
-                chmod a+x "${GalfitRunList[i]}.$(hostname).sh"
-                echo "$PWD/${GalfitRunList[i]}.$(hostname).sh"
-                cat "${GalfitRunList[i]}.$(hostname).sh"
-                "${GalfitRunList[i]}.$(hostname).sh"
-                echo Sleeping 1s
-                echo 
-                sleep 1
-            fi
             if [[ $(hostname) == *planer* || $(hostname) == irfucoast* ]]; then
                 echo Checking hostname $(hostname)
                 cp  "${GalfitRunList[i]}"                                                                     "${GalfitRunList[i]}.$(hostname).sh"
-                sed --in-place -e "2 i export PATH=$SUPERDEBLENDDIR:\$PATH"                                   "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> prepend the $PATH where one can find galfit
-                sed --in-place -e "s%cd .*/boxgalsim_vary/%cd $(pwd)/%g"                                      "${GalfitRunList[i]}.$(hostname).sh"
-                sed --in-place -e "s%cd .*/boxgalsim/%cd $(pwd)/%g"                                           "${GalfitRunList[i]}.$(hostname).sh"
-                sed --in-place -e "s%cd box%cd $(pwd)/box%g"                                                  "${GalfitRunList[i]}.$(hostname).sh"
-                sed --in-place -e "s%^.*/galfit %galfit %g"                                                   "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "2 i export PATH=$SUPERDEBLENDDIR:\$PATH"                                   "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> prepend the $PATH where one can find galfit
+                sed -i -e "s%cd .*/boxgalsim_vary/%cd $(pwd)/%g"                                      "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "s%cd .*/boxgalsim/%cd $(pwd)/%g"                                           "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "s%cd box%cd $(pwd)/box%g"                                                  "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "s%^.*/galfit %galfit %g"                                                   "${GalfitRunList[i]}.$(hostname).sh"
                 echo "chmod 777 *"                                                                         >> "${GalfitRunList[i]}.$(hostname).sh"
                 echo Counting qsub task "$(showq | grep $USER | wc -l)"
                 while      [[   18  -le "$(showq | grep $USER | wc -l)" ]]; do
@@ -137,6 +126,21 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
                 qsub -l walltime=3:15:00 "${GalfitRunList[i]}.$(hostname).sh"
                 echo Sleeping 6s
                 sleep 6
+            else
+                echo Checking hostname $(hostname)
+                cp  "${GalfitRunList[i]}"                          "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "s%^cd .*/boxgalsim_vary/%cd %g" "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "s%^cd .*/boxgalsim/%cd %g"      "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "s%^cd boxgalsim_vary/%cd %g"    "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "s%^cd boxgalsim/%cd %g"         "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "s%^.*/galfit %galfit %g"        "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> assume the galfit is already in your $PATH
+                chmod a+x "${GalfitRunList[i]}.$(hostname).sh"
+                echo "$PWD/${GalfitRunList[i]}.$(hostname).sh"
+                cat "${GalfitRunList[i]}.$(hostname).sh"
+                "${GalfitRunList[i]}.$(hostname).sh"
+                #echo Sleeping 1s
+                echo 
+                #sleep 1
             fi
         fi
     fi

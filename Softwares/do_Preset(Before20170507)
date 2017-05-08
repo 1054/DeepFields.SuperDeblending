@@ -58,8 +58,6 @@ export DG_FSED="NONE" # "SED_predictions_goodsn_$1" # _$2
 export DG_FRES="NONE"
 export DG_CATA="NONE" # "RadioOwenMIPS24_priors_April18_2014.txt"
 export DG_CATB="NONE"
-export DG_VMSK="0.006" # Mask value, usually is 24um 3-sigma
-export DG_FMSK="NONE" # Mask image, usually is 24um rms image
 export DG_FSCI="NONE"
 export DG_FRMS="NONE"
 export DG_FPSF="NONE"
@@ -100,151 +98,125 @@ echo ""
 while [[ $# -gt 0 ]]; do
     
     case "$1" in
-                        
-               "-vary") shift
-                        DG_VARY=1
-                        DG_PRIM=1 #<Fixed><201700507><dzliu># 
-                        DG_FSED=$DG_FSED # "_vary"
-                        DG_FLOG=$DG_FLOG"_Vary"
-                        echo ; echo We are varying prior positions!
-                        ;;
-                        
-      "-vary-position") shift
-                        DG_VARY=1
-                        DG_FSED=$DG_FSED # "_vary"
-                        DG_FLOG=$DG_FLOG"_Vary"
-                        echo ; echo We are varying prior positions!
-                        ;;
-                        
-           "-priormag") shift
-                        DG_PRIM=1
-                        DG_FLOG=$DG_FLOG"_PriorMag"
-                        ;;
-                        
-           "-parallel") shift
-                        DG_PARA=1
-                        DG_FLOG=$DG_FLOG"_Parallel"
-                        echo ; echo We are doing parallel!
-                        ;;
-                        
-       "-postparallel") shift
-                        DG_PARA=2
-                        DG_FLOG=$DG_FLOG"_PostParallel"
-                        echo ; echo We are doing post parallel!
-                        ;;
-                        
-      "-post-parallel") shift
-                        DG_PARA=2
-                        DG_FLOG=$DG_FLOG"_PostParallel"
-                        echo ; echo We are doing post parallel!
-                        ;;
-                       
-            "-catalog") shift
-                        while [[ $# -gt 0 ]]; do
-                            if [[ "$1" != "-"* ]]; then
-                                DG_CATA="$1"
-                            else break; fi; shift
-                        done
-                        ;;
-                       
-        "-catalog-inp") shift
-                        while [[ $# -gt 0 ]]; do
-                            if [[ "$1" != "-"* ]]; then
-                                DG_CATA="$1"
-                            else break; fi; shift
-                        done
-                        ;;
-                       
-        "-catalog-out") shift
-                        while [[ $# -gt 0 ]]; do
-                            if [[ "$1" != "-"* ]]; then
-                                GALFIT_CATALOG_OUT="$1"
-                            else break; fi; shift
-                        done
-                        ;;
-                       
-        "-catalog-add") shift
-                        while [[ $# -gt 0 ]]; do
-                            if [[ "$1" != "-"* ]]; then
-                                DG_CATB="$1"
-                            else break; fi; shift
-                        done
-                        ;;
-                       
-        "-sedpredict"*) shift
-                        while [[ $# -gt 0 ]]; do
-                            if [[ "$1" != "-"* ]]; then
-                                DG_FSED="$(echo $1 | sed 's/\.txt$//g')"
-                            else break; fi; shift
-                        done
-                        ;;
-                       
-           "-fitsname") shift
-                        while [[ $# -gt 0 ]]; do
-                            if [[ "$1" != "-"* ]]; then
-                                DG_FSCI="$(echo $1 | sed 's/\.fits$//g')"
-                            else break; fi; shift
-                        done
-                        ;;
-                       
-       "-fitsname-sci") shift
-                        while [[ $# -gt 0 ]]; do
-                            if [[ "$1" != "-"* ]]; then
-                                DG_FSCI="$(echo $1 | sed 's/\.fits$//g')"
-                            else break; fi; shift
-                        done
-                        ;;
-                       
-       "-fitsname-rms") shift
-                        while [[ $# -gt 0 ]]; do
-                            if [[ "$1" != "-"* ]]; then
-                                DG_FRMS="$(echo $1 | sed 's/\.fits$//g')"
-                            else break; fi; shift
-                        done
-                        ;;
-                       
-       "-fitsname-psf") shift
-                        while [[ $# -gt 0 ]]; do
-                            if [[ "$1" != "-"* ]]; then
-                                DG_FPSF="$(echo $1 | sed 's/\.fits$//g')"
-                            else break; fi; shift
-                        done
-                        ;;
-                        
-             "-fitall") shift
-                        DG_PFIT=0
-                        DG_FLOG=$DG_FLOG"_FitALL"
-                        ;;
-                       
-            "-fitincl") shift
-                        DG_PFIT=1
-                        DG_FLOG=$DG_FLOG"_FitIncl"
-                        ;;
-                       
-            "-fitexcl") shift
-                        DG_PFIT=2
-                        DG_FLOG=$DG_FLOG"_FitExcl"
-                        ;;
-                       
-            "-fitadds") shift
-                        #DG_CATB="Radec_of_new_priors.txt"
-                        DG_FLOG=$DG_FLOG"_FitAdds"
-                        ;;
-                        
-  "-fitsname-goodarea") shift
-                        while [[ $# -gt 0 ]]; do
-                            if [[ "$1" != "-"* ]]; then
-                                DG_FMSK="$(echo $1 | sed 's/\.fits$//g')"
-                            else break; fi; shift
-                        done
-                        ;;
-                        
- "-threshold-goodarea") shift
-                        DG_VMSK="$1"; shift
-                        ;;
-                        
-                     *) shift
-                        
+                     
+             "-vary") shift
+                      DG_VARY=1
+                      DG_FSED=$DG_FSED # "_vary"
+                      DG_FLOG=$DG_FLOG"_Vary"
+                      echo ; echo We are varying prior positions!
+                      ;;
+                      
+         "-priormag") shift
+                      DG_PRIM=1
+                      DG_FLOG=$DG_FLOG"_PriorMag"
+                      ;;
+                      
+         "-parallel") shift
+                      DG_PARA=1
+                      DG_FLOG=$DG_FLOG"_Parallel"
+                      echo ; echo We are doing parallel!
+                      ;;
+                      
+     "-postparallel") shift
+                      DG_PARA=2
+                      DG_FLOG=$DG_FLOG"_PostParallel"
+                      echo ; echo We are doing post parallel!
+                      ;;
+                     
+          "-catalog") shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              DG_CATA="$1"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+      "-catalog-inp") shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              DG_CATA="$1"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+      "-catalog-out") shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              GALFIT_CATALOG_OUT="$1"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+      "-catalog-add") shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              DG_CATB="$1"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+      "-sedpredict"*) shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              DG_FSED="$(echo $1 | sed 's/\.txt$//g')"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+         "-fitsname") shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              DG_FSCI="$(echo $1 | sed 's/\.fits$//g')"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+     "-fitsname-sci") shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              DG_FSCI="$(echo $1 | sed 's/\.fits$//g')"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+     "-fitsname-rms") shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              DG_FRMS="$(echo $1 | sed 's/\.fits$//g')"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+     "-fitsname-psf") shift
+                      while [[ $# -gt 0 ]]; do
+                          if [[ "$1" != "-"* ]]; then
+                              DG_FPSF="$(echo $1 | sed 's/\.fits$//g')"
+                          else break; fi; shift
+                      done
+                      ;;
+                     
+           "-fitall") shift
+                      DG_PFIT=0
+                      DG_FLOG=$DG_FLOG"_FitALL"
+                      ;;
+                     
+          "-fitincl") shift
+                      DG_PFIT=1
+                      DG_FLOG=$DG_FLOG"_FitIncl"
+                      ;;
+                     
+          "-fitexcl") shift
+                      DG_PFIT=2
+                      DG_FLOG=$DG_FLOG"_FitExcl"
+                      ;;
+                     
+          "-fitadds") shift
+                      #DG_CATB="Radec_of_new_priors.txt"
+                      DG_FLOG=$DG_FLOG"_FitAdds"
+                      ;;
+                      
+                   *) shift
+                   
     esac
 done
 # 
@@ -287,17 +259,6 @@ if [[ x"$DG_FPSF" != x"NONE" ]]; then
         if echo $DG_FPSF | grep -q -E '[^a-zA-Z0-9_.]'; then echo ; echo "Sorry! The filename contains non a-zA-Z0-9_ characters! Supermongo could not deal with this!" ; echo ; exit 1; fi
     else
         echo ; echo "Error! Fits file $DG_FPSF.fits does not exist! Abort!"; exit 1
-    fi
-else
-    echo ; echo "We do not set fitsname-psf and will use the default psf fits image!"
-fi
-# 
-if [[ x"$DG_FMSK" != x"NONE" ]]; then
-    if [ -f $DG_FMSK.fits ]; then
-        echo ; echo "We are using map $DG_FMSK.fits as the goodArea mask map! The default threshold for goodarea is $DG_VMSK if is not set by -threshold-goodarea <TODO>."
-        if echo $DG_FMSK | grep -q -E '[^a-zA-Z0-9_.]'; then echo ; echo "Sorry! The filename contains non a-zA-Z0-9_ characters! Supermongo could not deal with this!" ; echo ; exit 1; fi
-    else
-        echo ; echo "Error! Fits file $DG_FMSK.fits does not exist! Abort!"; exit 1
     fi
 else
     echo ; echo "We do not set fitsname-psf and will use the default psf fits image!"
