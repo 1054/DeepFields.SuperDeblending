@@ -101,42 +101,66 @@ SimuX_1160	macro read goFine.sm xSet_1160
 			goSS
 			SimuX
 
-SimuX	00	
-			# Here we do galaxy simulation
-			# We inject one simulated source each time and fit with galfit then recover its flux and uncertainty. 
-			# W repeat this for several thousand times defined by Nsimu. 
+SimuX	00	## define Nsimu 6000
+			#define outfile   "xsimuGH_RAD_SPInew_"$imax".dat"
+			#define outfile   "xsimuGH_RAD_SPInewX2_"$imax".dat"
+			#define outfile   "xsimu_South_GH9_2014_"$imax".dat"     # GOODS-S
+			#define outfile   "xsimu_DF_GH1_"$imax".dat"             # Daddi-F
+			#define outfile   "xsimuGN_OUT_"$imax"_"$xdate".txt"
+			#!\rm $outfile
+			#!\rm simu*fits >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+			#define mag_start 5
 			
 			# check the variable: doParallel doPostParallel
 			# if doParallel is defined and == 0, then undefine it.
 			# if doPostParallel is defined and == 0, then undefine it. <20150608><dzliu>
 			if($?doParallel==1){if($doParallel==0){undef doParallel}}
 			if($?doPostParallel==1){if($doPostParallel==0){undef doPostParallel}}
+
+			#set x_si = 189.05+0.35*random($Nsimu)
+			#set y_si = 62.15+0.15*random($Nsimu)
+			###  goSS      # commented here to have a global one
 			
-			# define Nsimu 6000
-			# set x_si = 189.05+0.35*random($Nsimu)
-			# set y_si = 62.15+0.15*random($Nsimu)
-			# goSS # commented here to have a global one
-			
-			if(!$?vary_positions) {define vary_positions 0}
-			if(!$vary_positions) {
-				define Nsimu $(dimen(x_si)) ###<Modified><DZLIU>### after goSS, Nsimu is reduced!
-				set mag_si = $mag0+($mag1-$mag0)*random($Nsimu)
-				get_coordX
-				gPriors
-			}
+			define Nsimu $(dimen(x_si))                                                   ###<Modified><DZLIU>### after goSS, Nsimu is reduced!
+			set mag_si = $mag0+($mag1-$mag0)*random($Nsimu)
+			##declare mag_si $(dimen(x_si))				#### use these 2 for zero flux sources
+			##set mag_si = x_si*0+19
             
+			get_coordX
+			gPriors
 			macro read goFine.sm xdo_sizes
 			
-			# <20160914> note that after goSS or gPriors, xdate already contains vary if defined vary_positions
-			define outfile "xsimuGN_OUT_"$imax"_"$xdate".txt"                         ###<20160914><DZLIU### moved to here
-			define sumfile "xpriorGN_MAG_"$imax"_"$xdate".txt"                        ###<Added><DZLIU>### doFakeDetection
+			# <20160914> note that after gPriors xdate already contains vary if defined vary_position
+			if($?doFakeDetection==1) {                                                    ###<Added><DZLIU>### doFakeDetection
+				define outfile "xsimu2GN_OUT_"$imax"_"$xdate".txt"                        ###<Added><DZLIU>### doFakeDetection
+				define sumfile "xpriorGN_MAG_"$imax"_"$xdate".txt"                        ###<Added><DZLIU>### doFakeDetection
+				!\mv $outfile $outfile.backup                                             ###<Added><DZLIU>### doFakeDetection
+			} else {                                                                      ###<Added><DZLIU>### doFakeDetection
+			    define outfile "xsimuGN_OUT_"$imax"_"$xdate".txt"                         ###<20160914><DZLIU### moved to here
+			    define sumfile "xpriorGN_MAG_"$imax"_"$xdate".txt"                        ###<Added><DZLIU>### doFakeDetection
+			   #!\mv $outfile $outfile.backup                                             ###<Added><DZLIU>### doFakeDetection
+			}                                                                             ###<Added><DZLIU>### doFakeDetection
 			
-			# <20160914> backup
+			# <20160914> backup after gPriors (so xdate can contain vary)
 			if(is_file($outfile)) {
 				goBackupFile $outfile
+				#<20160914># define ToNewOutFile Replace
+				#<20160914># #<TODO># define ToNewOutFile ? <$outfile exists! Append or replace? [a/r]>
+				#<20160914># if(index('$ToNewOutFile','r')==0||index('$ToNewOutFile','R')==0) {
+				#<20160914>#     echo 
+				#<20160914>#     echo mv $outfile $outfile.backup
+				#<20160914>#     echo 
+				#<20160914>#     !\mv $outfile $outfile.backup
+				#<20160914>#     echo 
+				#<20160914># 	echo Backuping $outfile as $outfile.backup
+				#<20160914># 	echo Creating new $outfile
+				#<20160914># 	echo 
+				#<20160914># }
 			}
 			
-			if($?doPostParallel==0) {                                                     ###<Added><DZLIU>### doPostParallel -doFakeDetection
+			### define doRedoGalsim 1 #<TODO># comment this 
+			
+			if($?doPostParallel==0 && $?doFakeDetection==0 && $?doRedoGalsim==0) {        ###<Added><DZLIU>### doPostParallel -doFakeDetection
 				verbose 0                                                                 ###<Added><DZLIU>### doPostParallel
 				if(is_file($sumfile)) {                                                   ###<Added><DZLIU>### doPostParallel
 					goBackupFile $sumfile                                                 ###<Added><DZLIU>### doPostParallel
@@ -156,8 +180,53 @@ SimuX	00
 			
 			set ii_s = 0,dimen(x_si)-1
 			
+			######## <TODO><DzLIU> ###### 
+			######## set ii_s = ii_s if(Xid_==20141015005731)
+			######## <DONE> ###### 
+			
+			######## <TODO><DzLIU><doing100> ###### some 100 simu failed, redo these simu. Do not forget to backup first!
+			######## data $sumfile read {x_si 1 y_si 2 x_si_ 3 y_si_ 4 mag_si 5}
+			######## data "xsimu_check.txt" read {Xid_ 1 Xck_ 4}
+			######## set ii_s = ii_s if(Xck_==0)
+			######## <DONE> ###### 
+			
+			######## <TODO><DzLIU><doing100> ###### do a check for 100 simu fake detection
+			######## set ii_s = ii_s if(Xid_==20141015006587)
+			######## <DONE> ###### 
+			
+			######## <TODO><DzLIU><doing100> ###### do a check for 100 simu fake detection
+			######## set ii_s = ii_s if(Xid_==20141015001870)
+			######## set ii_s = ii_s if(Xid_==20141015001871)
+			######## ./do_Galsim 100 201408 -vary -mag0 6.0 -mag1 9.0 -fitsname pgh_goodsn_green_Map_v1.0_sci_subfaintDL
+			######## ./do_Galsim 100 201408 -vary -mag0 6.0 -mag1 9.0 -fitsname pgh_goodsn_green_Map_v1.0_sci_subfaintDL -fakedetection
+			######## <DONE> ###### 
+			
+			######## <TODO><DzLIU><doing250> ###### some 250 simu failed, redo these simu. Do not forget to backup first!
+			######## data $sumfile read {x_si 1 y_si 2 x_si_ 3 y_si_ 4 mag_si 5}
+			######## data "xsimu_check.txt" read {Xid_ 1 Xck_ 4}
+			######## set ii_s = ii_s if(Xck_==0)
+			######## <DONE> ###### 
+			
+			######## <TODO><DzLIU><doing250> ###### strange 5-sigma outlier of 250 simu, redo the simu. 
+			######## set ii_s = ii_s if(Xid_==20141015002055)
+			######## <DONE> ###### 
+			
+			######## <TODO><DzLIU><doing350> ###### some 350 simu failed, redo these simu. Do not forget to backup first!
+			######## data $sumfile read {x_si 1 y_si 2 x_si_ 3 y_si_ 4 mag_si 5}
+			######## data "xsimu_check.txt" read {Xid_ 1 Xck_ 4}
+			######## set ii_s = ii_s if(Xck_==0)
+			######## ./do_Galsim 350 201408 -mag0 "-0.06" -mag1 "2.45" -fitsname spire350_ima_4p8_v0_100615_subfaintDL
+			######## ./do_Galsim 350 201408 -mag0 "-0.06" -mag1 "2.45" -fitsname spire350_ima_4p8_v0_100615_subfaintDL -fakedetection
+			######## <DONE> ###### 
+			
+			######## <TODO><DzLIU><doing1160> ###### 1160 failed box
+			######## set ii_s = ii_s if(Xid_==20141015002570 || Xid_==20141015001713 || Xid_==20141015001635)
+			######## ./do_Galsim 1160 201408 -mag0 "-5.5" -mag1 "-3.0" -fitsname combined_maw0_4_azw0_5_sig_astro_subfaintDL -parallel
+			######## <DONE> ###### 
+			
+			
 			foreach sar ii_s {
-				# create simulated image with added object
+				#Here create simulated image with added object
 				if(is_vector(Xid_)){
 					set Xid_f = Xid_[$sar] set Xid_s = sprintf('%.0f',Xid_f) define idSi "$(Xid_s)"
 				} else {define idSi $sar}
@@ -171,7 +240,7 @@ SimuX	00
 				set Ly1 = int(Bb)-$f_buff-$g_buff set Ly1 = Ly1>=1 ? Ly1 : 1 set Ly1 = Ly1<=$imax_ysize ? Ly1 : $imax_ysize
 				set Ly2 = int(Bb)+$f_buff+$g_buff set Ly2 = Ly2>=1 ? Ly2 : 1 set Ly2 = Ly2<=$imax_ysize ? Ly2 : $imax_ysize
 				
-				if($?doPostParallel==0) {
+				if($?doPostParallel==0 && $?doFakeDetection==0) {
 					# Make a model image using galfit
 					define  aa_file "HSO_$imax"".INPUT"
 					print  $aa_file 'A) $imax_name".fits" \n' {}
@@ -186,7 +255,9 @@ SimuX	00
 					print +$aa_file 'H) $(Lx1[0]) $(Lx2[0]) $(Ly1[0]) $(Ly2[0]) \n' {}    ###<Modified><DZLIU>###<IMPORTANT>### [$0]=>[0]
 					define print_noheader 1
 					print +$aa_file '\n 0) psf \n 1) %.3f %.3f 0 0 \n 3) %.3f  0 \n Z) 0  \n \n' {Aa Bb Cc}
-					!galfit $aa_file > "HSO_"$imax".STDOUT"
+					#!/dsm/upgal/data/edaddi/galfit/galfit $aa_file                       ###<Modified><DZLIU>### 
+					!galfit $aa_file > "HSO_"$imax".STDOUT"                               ###<Modified><DZLIU>### 
+					###!\cp simu.fits fit$idSi.mod.galfit.fits                               ###<Added><DZLIU>###
 					
 					# Add the model image to original image using IRAF
 					#<20170507># print  do.cl 'images\n' {}
@@ -217,10 +288,56 @@ SimuX	00
 				}
 				
 				
-				# Now we recover the simulated object flux and uncertainty
+				if($?doFakeDetection==1) {                                                #<TODO># if fake detection mode
+					if(!is_file(fit$idSi.ori.fits)) {
+						# Make no model but just extract the original image using IRAF
+						print  do.cl 'images\n' {}
+						print +do.cl 'imutil\n' {}
+						print +do.cl 'imdel simu2.fits\n' {}
+						print +do.cl 'imdel simu3.fits\n' {}
+						print +do.cl 'imdel simu_rms.fits \n' {}
+						print +do.cl 'imcopy $imax_name""[$(Lx1[0]):$(Lx2[0]),$(Ly1[0]):$(Ly2[0])] simu3 \n' {}
+						print +do.cl 'imcopy $imax_name_rms""[$(Lx1[0]):$(Lx2[0]),$(Ly1[0]):$(Ly2[0])] simu_rms \n' {}
+						print +do.cl 'logout\n\n' {}
+						!cl < do.cl >> /dev/null 2>&1
+						!\cp simu3.fits fit$idSi.ori.fits
+						!\cp simu_rms.fits fit$idSi.rms.fits
+					}
+					!\cp fit$idSi.ori.fits simu2.fits
+					set Cc = 20.00
+				}
+				
+				
+				
 				Simu_
+
 				
 				
+				
+				
+				
+				
+				###<Added><20141012><DzLIU><EDADDI>### The flux boost probability
+				###                                ### we simulate zero flux objects and detect its flux
+				### !\cp simu3.fits simu2.fits     ### <Corrected><20141013><DzLIU>
+				## if(is_vector(ResABS) && is_vector(ResPixObsABS) && is_vector(CloseDis) && is_vector(CrowdVar)){ ###<Added><20141016><DzLIU>### Double Check
+				## if(ResABS>0 && ResPixObsABS>0 && CloseDis>0 && CrowdVar>0) { ###<Added><20141014><DzLIU>### Double Check in case of bad solutions
+				## !\rm simu3.fits
+				## !\cp fit$idSi.ori.fits simu2.fits
+				## set Cc = 20.0
+				## define outfile_FluxSimu $outfile 
+				## define outfile_FluxBoost "xsimuGH_RAD_SPInewXB_"$imax".dat"
+				## define outfile $outfile_FluxBoost
+				## Simu_
+				## !\cp simu3.fits fit$idSi.ori.galfit.fits   #<Added><DZLIU>#
+				## define outfile $outfile_FluxSimu
+				## }
+				## }
+				###<Added><20141012><DzLIU><EDADDI>### 
+				
+				
+				
+				#define aaa ?
 			}
 
 
@@ -241,13 +358,34 @@ Simu_ 00
 			
 			set Sm$imax = Sx$imax*0+$mag_start
 			
-			# select objects within current box
+			## fit the simulated galaxies and objects around only
 			set coo = abs(Sy$imax-Bb[0])<$g_buff && abs(Sx$imax-Aa[0])<$g_buff
 			set xx$imax = Sx$imax-$(Lx1[0])+1 if(coo)
 			set yy$imax = Sy$imax-$(Ly1[0])+1 if(coo)
 			set mm$imax = Sm$imax if(coo)
 			
-			# prepare galfit input file
+			###<Added><DZLIU>### <TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO> mag prior for bright sources!
+			# set   mmmmmm = x$imax * 0.0 + 10.0
+			# set   mmmmmm = mmmmmm concat Cc
+			# set   mmmmmm = mmmmmm if(coo)
+			# macro read run_image_util.sm pix_close_pack "simu2.fits" xx$imax yy$imax 6
+			# set   tf$imax = pix_values>0 ? pix_values : 10**(-0.4*20.0)/45.41
+			# set   tm$imax = -2.5*lg(tf$imax*45.41)
+			# set   xfmaxi = 1.8 # real flux (mJy)
+			# set   xmmaxi = -2.5*lg(xfmaxi*45.41) # obs mag (Jy/beam)
+			# print aaa_xyfm '%15.5g %15.5g %15.5g %15.5g %15.5g %15.5g\n' <xx$imax yy$imax mm$imax tf$imax tm$imax mmmmmm>
+			# # set   select = tm$imax < xmmaxi
+			# # set   mm$imax = select ? tm$imax : 10.0
+			# # echo "We will set prior mag for" $(sum(select)) bright objects with SED predicted flux > $(xfmaxi[0]) mJy or mag < $(xmmaxi[0]). 
+			# #<TODO># set   mm$imax = tm$imax<10.0 ? tm$imax : 10.0
+			# set   mm$imax = tm$imax*0.0 + 10.0 #<TODO># no initial guess, just use starting mag 10.0
+			# ###define aaa ?
+			###<Added><DZLIU>### <TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO>
+			
+			#echo $(dimen(xx$imax)) #<Commented><DZLIU>#
+			#define aaa ?
+			## to here
+			
 			if($?doPostParallel==0) {
 				define aa_file "HSO_$imax"".INPUT"
 				
@@ -283,6 +421,11 @@ Simu_ 00
 					define idBox "boxgalsim/box"$idSi
 					define idRun "boxgalsim/runbox"$idSi".sh"
 					define idTar "../doing"$imax".box.galsim"
+				}
+				if($?doFakeDetection==1) {
+					define idBox boxfaked$idSi
+					define idRun runboxfaked$idSi.sh
+					define idTar "../doing$imax.boxfaked"
 				}
 				if($?doParallel==1) {                                                 ###<Added><DZLIU>### doParallel
 					!rm -rf                       $idBox                              ###<Added><DZLIU>### doParallel
@@ -353,7 +496,6 @@ Simu_ 00
 				echo CRASH !!!!!!!
 				echo CRASH !!!!!!!
 				define aaa ?
-				exit
 			}
 			
 			#define aaa ?    # uncomment this to check result of Simu
@@ -760,11 +902,14 @@ gop	02		limits $1 $2 erase box points $1 $2
 goi	02		limits $1 $2 erase box histogram  $1 $2
 
 goSS	00	
-			###<Added><DzLIU><20170510>###
 			###<Added><DzLIU><20141123>###
 			if($?doPostParallel) {
 				if($doPostParallel!=0) {
-					data "xpriorGN_RAD_"$imax"_"$xdate".txt"
+			        if($vary_positions) {
+					    data "xpriorGN_RAD_"$imax"_"$xdate"_vary.txt" 
+					} else {
+						data "xpriorGN_RAD_"$imax"_"$xdate".txt" 
+					}
 					read {Xid_ 1 Xra_ 2 Xde_ 3}
 					set x_si = Xra_
 					set y_si = Xde_
@@ -773,25 +918,7 @@ goSS	00
 					undef doPostParallel
 				}
 			}
-			if($vary_positions) {
-				data "xpriorGN_RAD_"$imax"_"$xdate".txt" 
-				read {Xid_ 1 Xra_ 2 Xde_ 3}
-				set x_si = Xra_
-				set y_si = Xde_
-				data "xpriorGN_MAG_"$imax"_"$xdate".txt" 
-				read {x_si 1.f y_si 2.f x_si_ 3.f y_si_ 4.f mag_si 5.f}
-				data "xpriorGN_OUT_"$imax"_"$xdate".txt" 
-				read {mm 4 ee 5}
-				set fix1 = ee<=.05 && ee>=0
-				set fix2 = fix1
-				define xdate $xdate"_vary"
-				define use_prior_mags 1
-				set xm = fix1 ? mm : 5.0
-				set xm$imax = xm
-				return
-			}
 			###<Added><DzLIU><20141123>###
-			###<Added><DzLIU><20170510>###
 			
 			device x11
 			
@@ -918,18 +1045,50 @@ goSS	00
 			set y_si = Xde_
 			#Up to here they are just RA-DEC positions simulated
 			
-			###<Modif><DzLIU><20170510>### fixed vary bug
-			###<Modif><DzLIU><20160914>### fixed vary problem
 			###<Added><DzLIU><20141123>###
+			###<Modif><DzLIU><20160914>### fixed vary problem
 			set Xid_ = 0,dimen(Xra_)-1
 			set Xid_ = Xid_ + float($xdate)*1e6
-			if(is_file("xpriorGN_RAD_"$imax"_"$xdate".txt")) {
-				goBackupFile "xpriorGN_RAD_"$imax"_"$xdate".txt"
+			if($vary_positions) {
+				if(is_file("xpriorGN_RAD_"$imax"_"$xdate"_vary.txt")) {
+					goBackupFile "xpriorGN_RAD_"$imax"_"$xdate"_vary.txt"
+				}
+			    print "xpriorGN_RAD_"$imax"_"$xdate"_vary.txt" '%18.0f %15.7f %15.7f\n' {Xid_ Xra_ Xde_}
+			} else {
+				if(is_file("xpriorGN_RAD_"$imax"_"$xdate".txt")) {
+					goBackupFile "xpriorGN_RAD_"$imax"_"$xdate".txt"
+				}
+			    print "xpriorGN_RAD_"$imax"_"$xdate".txt" '%18.0f %15.7f %15.7f\n' {Xid_ Xra_ Xde_}
 			}
-			print "xpriorGN_RAD_"$imax"_"$xdate".txt" '%18.0f %15.7f %15.7f\n' {Xid_ Xra_ Xde_}
+			#<20160914># if(is_file("xpriorGN_RAD_"$imax"_"$xdate".txt")) {
+			#<20160914># 	goBackupFile "xpriorGN_RAD_"$imax"_"$xdate".txt"
+			#<20160914># 	#<20160914># define ToNewOutFile Replace
+			#<20160914># 	#<20160914># # define ToNewOutFile ? <"xpriorGN_RAD_"$imax"_"$xdate".txt" exists! Do you really want to replace it? [Replace/No]>
+			#<20160914># 	#<20160914># if(index('$ToNewOutFile','r')==0 || index('$ToNewOutFile','R')==0) {
+			#<20160914># 	#<20160914>#     set BkOldOutFile =              substr('$date',index('$date',':')+7,4)
+			#<20160914># 	#<20160914>#     set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',' ')*0,index('$date',' '))
+			#<20160914># 	#<20160914>#     set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',' ')+1,index('$date',':')-index('$date',' ')-4)+'.'
+			#<20160914># 	#<20160914>#     set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',':')-2,2)+'H'
+			#<20160914># 	#<20160914>#     set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',':')+1,2)+'M'
+			#<20160914># 	#<20160914>#     set BkOldOutFile = BkOldOutFile+substr('$date',index('$date',':')+4,2)+'S'
+			#<20160914># 	#<20160914>#     !mv "xpriorGN_RAD_"$imax"_"$xdate".txt" "xpriorGN_RAD_"$imax"_"$xdate".txt".backup.$(BkOldOutFile)
+			#<20160914># 	#<20160914>#     echo 
+			#<20160914># 	#<20160914># 	echo Backuping "xpriorGN_RAD_"$imax"_"$xdate".txt" as "xpriorGN_RAD_"$imax"_"$xdate".txt".backup.$(BkOldOutFile)
+			#<20160914># 	#<20160914># 	echo 
+			#<20160914># 	#<20160914># 	echo Creating new "xpriorGN_RAD_"$imax"_"$xdate".txt"
+			#<20160914># 	#<20160914># 	echo 
+			#<20160914># 	#<20160914># } else {
+			#<20160914># 	#<20160914>#     echo TODO
+			#<20160914># 	#<20160914>#     echo TODO
+			#<20160914># 	#<20160914>#     echo TODO
+			#<20160914># 	#<20160914>#     echo TODO
+			#<20160914># 	#<20160914>#     echo TODO
+			#<20160914># 	#<20160914>#     echo TODO
+			#<20160914># 	#<20160914>#     define aaa ?
+			#<20160914># 	#<20160914># }
+			#<20160914># }
+			#<20160914># print "xpriorGN_RAD_"$imax"_"$xdate".txt" '%18.0f %15.7f %15.7f\n' {Xid_ Xra_ Xde_}
 			###<Added><DzLIU><20141123>###
-			###<Modif><DzLIU><20160914>### fixed vary problem
-			###<Modif><DzLIU><20170510>### fixed vary bug
 
 
 goBackupFile 01
@@ -1026,40 +1185,70 @@ GoErr	00	stats_med df me si echo Median error $me
 			define aaa ?
 
 gPriors	00	
-			# In this function we convert prior source coordinates, correct coordinate misalignments, and set prior magnitudes if available
+			###<Modified><DZLIU>### my sky2xy
+			!rm aaa_gPriors_sky2xy_input  >> /dev/null 2>&1						### <Modified><20140311><DZLIU>
+			!rm aaa_gPriors_sky2xy_output >> /dev/null 2>&1						### <Modified><20140311><DZLIU>
+			if($?print_noheader==1) {define prev_noheader $print_noheader} else {define prev_noheader 0} define print_noheader 1 
+			print aaa_gPriors_sky2xy_input '%17.7f %17.7f\n' {raF deF}			### <Modified><20140513><DZLIU>
+			if($?prev_noheader==1) {define print_noheader $prev_noheader}       ### <Modified><20140513><DZLIU>
+			echo Doing sky2xy for $(dimen(raF)) sources in gPriors ...			### <Modified><20140513><DZLIU>
+			!sky2xy  -j  $imax_name.fits  @aaa_gPriors_sky2xy_input > aaa_gPriors_sky2xy_output
+			data aaa_gPriors_sky2xy_output read <x$imax 5 y$imax 6>             ### <Modified><20140513><DZLIU>
+			echo Done  sky2xy
+			###<Modified><DZLIU>### 
 			
-			# Convert sky2xy
-			if(is_vector(raF) && is_vector(deF)) {
-				!rm aaa_gPriors_sky2xy_input  >> /dev/null 2>&1						### <Modified><20140311><DZLIU>
-				!rm aaa_gPriors_sky2xy_output >> /dev/null 2>&1						### <Modified><20140311><DZLIU>
-				if($?print_noheader==1) {define prev_noheader $print_noheader} else {define prev_noheader 0} define print_noheader 1 
-				print aaa_gPriors_sky2xy_input '%17.7f %17.7f\n' {raF deF}			### <Modified><20140513><DZLIU>
-				if($?prev_noheader==1) {define print_noheader $prev_noheader}       ### <Modified><20140513><DZLIU>
-				echo Doing sky2xy for $(dimen(raF)) sources in gPriors ...			### <Modified><20140513><DZLIU>
-				!sky2xy  -j  $imax_name.fits  @aaa_gPriors_sky2xy_input > aaa_gPriors_sky2xy_output
-				data aaa_gPriors_sky2xy_output read <x$imax 5 y$imax 6>             ### <Modified><20140513><DZLIU>
-				echo Done  sky2xy
-				
-				if(dimen(x$imax)!=dimen(raF)) {
-					echo CRASH !!!!!!!
-					define aaa ?
-					exit
-				}
+			# define iX 1000
+			# define xGO 1
+			# set ccx = 0,dimen(raF)-1
+			# declare x$imax 0 declare y$imax 0
+			# while {$xGO} {
+			# 	set xcoo = ccx>=$iX-1000 && ccx<$iX foreach var {raF deF} {set $var"_"=$var if(xcoo)} 
+			# 	if(dimen(raF_)) {
+			# 		### echo $(dimen(raF_))
+			# 		### print do.csh 'sky2xy $imax_name".fits"' {}
+			# 		### print +do.csh ' %.7f %.7f J2000 ' {raF_ deF_}
+			# 		### print +do.csh '\n' {}
+			# 		### !\rm aaa
+			# 		### !csh < do.csh > aaa
+			# 		### !\rm do.csh
+			# 		### data aaa read {ximax 5 yimax 6}
+			# 		###<Modified><DZLIU>### my sky2xy version is different ...
+			# 		!rm aaa_gPriors_sky2xy_input  >> /dev/null 2>&1						### <Modified><20140311><DZLIU>
+			# 		!rm aaa_gPriors_sky2xy_output >> /dev/null 2>&1						### <Modified><20140311><DZLIU>
+			# 		define pref_noheader $print_noheader								### <Modified><20140321><DZLIU>
+			# 		define print_noheader 1												### <Modified><20140321><DZLIU>
+			# 		print  aaa_gPriors_sky2xy_input  '%17.7f %17.7f\n'  { raF_ deF_ }	### <Modified><20140321><DZLIU>
+			# 		define print_noheader $pref_noheader								### <Modified><20140321><DZLIU>
+			# 		echo Doing sky2xy for $(dimen(raF_)) sources in gPriors ...			### <Modified><20140321><DZLIU>
+			# 		!sky2xy  -j  $imax_name.fits  @aaa_gPriors_sky2xy_input > aaa_gPriors_sky2xy_output
+			# 		data aaa_gPriors_sky2xy_output read {ximax 5 yimax 6}
+			# 		echo Done  sky2xy
+			# 
+			# 		if(dimen(ximax)!=dimen(raF_)) {
+			# 		echo CRASH !!!!!!!
+			# 		define aaa ?
+			# 		} else {
+			# 		set x$imax = x$imax concat ximax
+			# 		set y$imax = y$imax concat yimax
+			# 		define iX $($iX+1000)
+			# 		} # if2
+			# 	} else {define xGO 0}  # if1
+			# } # while
+			if(dimen(x$imax)!=dimen(raF)) {
+			echo CRASH !!!!!!!
+			define aaa ?
 			}
-			
-			# Set prior magnitude
-			if(is_vector(x$imax) && is_vector(y$imax)) {
-				set x1=x$imax set y1=y$imax
-				set fix1 = x1*0 set fix2 = fix1
-				if($vary_positions) {
-					data results_$imax"_"$xdate read {ee 5 mm 4}
-					set fix1 = ee<=.05 && ee>=0
-					set fix2 = fix1
-					define xdate $xdate"_vary"
-					define use_prior_mags 1
-					set xm$imax = mm
-					set xm$imax = xm$imax > $mag_toofaint ? $mag_toofaint : xm$imax
-				}
+		
+			set x1=x$imax set y1=y$imax
+			set fix1 = x1*0 set fix2 = fix1
+			if($vary_positions) {
+				data results_$imax"_"$xdate read {ee 5 mm 4}
+				set fix1 = ee<=.05 && ee>=0
+				set fix2 = fix1
+				define xdate $xdate"_vary"
+				define use_prior_mags 1
+				set xm$imax = mm
+				set xm$imax = xm$imax > $mag_toofaint ? $mag_toofaint : xm$imax
 			}
 
 			if( '$imax_name' == 'HTfinal_coadd20101016_ima_grn' && $fix_astrometry) {

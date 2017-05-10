@@ -163,7 +163,8 @@ get_fits_filename_and_extension_number 01
     # 
     # prepare fits file name and fits extension number
     print "aaa_fresidual_fitsname" '$1\n' {}
-    !sed -i -e 's/\(.*\)\[\([0-9]*\)\]\$/\1\\n\2/g' "aaa_fresidual_fitsname"
+    #!sed -i -e 's/\(.*\)\[\([0-9]*\)\]\$/\1\\n\2/g' "aaa_fresidual_fitsname" # seems not working under Mac 10.12.4, using perl now <20170508>
+    !perl -pi -e 's/(.*)\[([0-9]*)\]\$/\1\\n\2/g' "aaa_fresidual_fitsname"
     define _fresi_verbose $verbose verbose 0
     data "aaa_fresidual_fitsname"
     read row _fresi_fits 1.s
