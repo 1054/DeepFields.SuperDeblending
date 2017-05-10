@@ -69,12 +69,12 @@ fi
 # start from and finish up to some sources
 STARTSOURCE=0 # <Added> start from id
 FINALSOURCE=-1 # <Added> final upto id
-if [[ $* == *-start*  ]]; then STARTSOURCE=$(echo $* | perl -p -e 's/.*-start[ ]*([^ -]*).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -start parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
-if [[ $* == *-begin*  ]]; then STARTSOURCE=$(echo $* | perl -p -e 's/.*-begin[ ]*([^ -]*).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -begin parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
-if [[ $* == *-from*   ]]; then STARTSOURCE=$(echo $* | perl -p -e 's/.*-from[ ]*([^ -]*).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -from parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
+if [[ $* == *-start*  ]]; then STARTSOURCE=$(echo $* | perl -p -e 's/.*-start[ ]*([^ -]*).*/\1/g');  echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -start parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
+if [[ $* == *-begin*  ]]; then STARTSOURCE=$(echo $* | perl -p -e 's/.*-begin[ ]*([^ -]*).*/\1/g');  echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -begin parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
+if [[ $* == *-from*   ]]; then STARTSOURCE=$(echo $* | perl -p -e 's/.*-from[ ]*([^ -]*).*/\1/g');   echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -from parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
 if [[ $* == *-finish* ]]; then FINALSOURCE=$(echo $* | perl -p -e 's/.*-finish[ ]*([^ -]*).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -finish parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
-if [[ $* == *-upto*   ]]; then FINALSOURCE=$(echo $* | perl -p -e 's/.*-upto[ ]*([^ -]*).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -upto parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
-if [[ $* == *-end*    ]]; then FINALSOURCE=$(echo $* | perl -p -e 's/.*-end[ ]*([^ -]*).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -end parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
+if [[ $* == *-upto*   ]]; then FINALSOURCE=$(echo $* | perl -p -e 's/.*-upto[ ]*([^ -]*).*/\1/g');   echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -upto parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
+if [[ $* == *-end*    ]]; then FINALSOURCE=$(echo $* | perl -p -e 's/.*-end[ ]*([^ -]*).*/\1/g');    echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -end parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
 # 
 # 
 for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do

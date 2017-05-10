@@ -1009,7 +1009,7 @@ set_goodsn_photometry_constants_500 00
 
 set_cosmos_photometry_constants_500 00
     # set SPIRE500 photometry constants
-    define h_500        0.0964              # photometry fudge factor from Jy/beam definition, for small pixels
+    define h_500        0.0964              # photometry fudge factor from Jy/beam definition, for small pixels, calc 12.0**2 / ((pi/(4.0*ln(2.0))*36.3**2)) = 0.09644613353
     define m_500        1                   # photometry fudge factor from PEP, from use of finite PSF  (divise)
     define mJy_500      1e+3                # converting pixel flux to mJy
     define mBias_500    0.0                 # 
@@ -1033,9 +1033,9 @@ set_cosmos_photometry_constants_500 00
     define DirPhoto_500 "/data/AstroDepth/GOODSN_Photo/SPIRE"
 
 set_goodsn_photometry_constants_850 00
-    # set SPIRE850 photometry constants
-    define h_850        $(1/2.8954625)      # photometry fudge factor from Jy/beam definition, data unit mJy/beam, PSF SUM/MAX = 2.39744/0.827999 = 2.8954625
-    define m_850        1                   # photometry fudge factor from use of finite PSF  (divise)
+    # set SCUBA2 850 photometry constants
+    define h_850        $(1/2.8954625)      # Jy/beam => mJy/pixel, calc 2.0**2 / ((pi/(4.0*ln(2.0))*14.8**2)) = 0.01611655224, PSF SUM/MAX = 2.39744/0.827999 = 2.8954625
+    define m_850        1                   # from finite PSF
     define mJy_850      1                   # converting pixel flux to mJy -- already mJy/beam unit
     define mBias_850    0.0                 # 
     define fBias_850    0.0                 # flux bias in mJy, used in conversion between flux and galfit magnitudes. 
@@ -1056,6 +1056,31 @@ set_goodsn_photometry_constants_850 00
     define RmsPhoto_850 "S2CLS_GOODS-N_MF_RMS_DR1"
     define PsfPhoto_850 "TODO"
     define DirPhoto_850 "TODO:NONEED"
+
+set_goodsn_photometry_constants_850_NMF 00
+    # set SCUBA2 850 photometry constants
+    define h_850_NMF        $(1/48.36040504)    # Jy/beam => mJy/pixel, calc 2.0**2 / ((pi/(4.0*ln(2.0))*11.0**2)) = 0.02917495539, PSF SUM/MAX = 40.9528/0.846825 = 48.36040504
+    define m_850_NMF        1                   # photometry fudge factor from use of finite PSF  (divise)
+    define mJy_850_NMF      1                   # converting pixel flux to mJy -- already mJy/beam unit
+    define mBias_850_NMF    0.0                 # 
+    define fBias_850_NMF    0.0                 # flux bias in mJy, used in conversion between flux and galfit magnitudes. 
+    define rBeam_850_NMF    11.                 # FWHM of PSF in arcsec # derived by Shuowen Jin & Emanuele Daddi
+    define fSigma_850_NMF   1.2                 # 1-sigma flux detection limit in mJy. 
+    set_default_astrometry_constants 850_NMF
+    define xStep_850_NMF    75                  # x length of the inner region of each box
+    define yStep_850_NMF    75                  # y length of the inner region of each box
+    define gBuff_850_NMF    10                  # length of the buffer region of each box
+    define fBuff_850_NMF    1                   # additional length of the buffer region of each box, historical variable, always 1
+    set_default_telescope_constants 850_NMF
+    define SkyValue_850_NMF  0.0                # Jy/pixel
+    define PixScale_850_NMF  2.0                # arcsec
+    define Telescop_850_NMF "JCMT"              # 
+    define BandName_850_NMF "SCUBA2"            # 
+    define BandWave_850_NMF  850                # um
+    define SciPhoto_850_NMF "S2CLS_GOODS-N_NMF_FLUX_DR1"
+    define RmsPhoto_850_NMF "S2CLS_GOODS-N_NMF_RMS_DR1"
+    define PsfPhoto_850_NMF "TODO"
+    define DirPhoto_850_NMF "TODO:NONEED"
 
 set_cosmos_photometry_constants_870  00
     define h_870        0.018423 #0.0751    # photometry fudge factor from Jy/beam definition, for small pixels

@@ -69,7 +69,9 @@ sm << EOF | tee "$DG_FLOG.smlog"
     
     ####  EXCLUDING SOURCES
     echo 
-    load "rfile.sm" rfile "$DG_FSED.txt" 
+    #load "rfile.sm" rfile "$DG_FSED.txt" 
+    data "$DG_FSED.txt"
+    read {_id 1 _ra 2 _de 3 exc$DG_IMAX 4 fit$DG_IMAX 5 crow$DG_IMAX 6 newcrow 7 xf$DG_IMAX 8 xe$DG_IMAX 9}
     set idFull = _id
     set raFull = _ra
     set deFull = _de
@@ -82,15 +84,16 @@ sm << EOF | tee "$DG_FLOG.smlog"
     
     ###   SET PRIOR MAG
     echo 
-    echo "Checking non-positive xf" 
-    if(sum((xf-\$fBias_\$imax)<=0.0)>0) {
+    echo "Checking non-positive xf"
+    if( sum( (xf-\$fBias_\$imax) <= 0.0 ) > 0 ) {
     set   xfNonPositive = 0,dimen(xf)-1
-    set   xfNonPositive = xfNonPositive if((xf-\$fBias_\$imax)<=0.0)
-    set   idNonPositive = idFull[xfNonPositive] set xfNonPositive = xf[xfNonPositive] 
+    set   xfNonPositive = xfNonPositive if( (xf-\$fBias_\$imax) <= 0.0 )
+    set   xfNonPositive = xf[xfNonPositive] 
+    set   idNonPositive = idFull[xfNonPositive]
     print '%15d%15g\n' {idNonPositive xfNonPositive}
     }
     echo 
-    echo "Converting flux to magnitude" 
+    echo "Converting flux to magnitude"
     convert_flux2mag goodsn $DG_IMAX xf xe
     # set   xm\$imax = lg((xf-\$fBias_\$imax)/\$mJy_\$imax/\$h_\$imax*\$m_\$imax)/(-0.4) if(exc==1) #<TODO># fBias
     set xm\$imax = m\$imax if(exc==1)
@@ -119,7 +122,7 @@ sm << EOF | tee "$DG_FLOG.smlog"
     Rebuild_XXX
     ### CLEAN
     !cp "FIT_goodsn_${DG_IMAX}_Map_${DG_DATE}.fits" "FIT_goodsn_${DG_IMAX}_Map_${DG_DATE}_Galsub.fits"
-    !rm galfit.* fit*.log fit*.input fit*.stdout fit*.limit fit*.fits HSO_*.* null.fits do.cl summary_run
+    !rm galfit.* fit*.log fit*.input fit*.stdout fit*.limit fit*.fits null.fits do.cl summary_run
     #### FINISH
     echo 
     echo SM SubExcl Finished!
