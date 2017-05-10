@@ -121,7 +121,13 @@ SimuX	00
 			if(!$vary_positions) {
 				define Nsimu $(dimen(x_si)) ###<Modified><DZLIU>### after goSS, Nsimu is reduced!
 				set mag_si = $mag0+($mag1-$mag0)*random($Nsimu)
+				set mag_pr = mag_si * 0.0 + $mag_start
 				get_coordX
+				gPriors
+			} else {
+				# must have already run goSS => xm_si, fix1_si, fix2_si
+				set mag_si = mag_si
+				set mag_pr = xm_si
 				gPriors
 			}
             
@@ -162,10 +168,13 @@ SimuX	00
 					set Xid_f = Xid_[$sar] set Xid_s = sprintf('%.0f',Xid_f) define idSi "$(Xid_s)"
 				} else {define idSi $sar}
 				
-				define xSi $(x_si_[$sar]) define ySi $(y_si_[$sar]) define mSi $(mag_si[$sar]) 
-				define raSi $(x_si[$sar]) define deSi $(y_si[$sar]) ###<Added><20141012><DZLIU>### 
+				define raSi $(x_si[$sar]) define deSi $(y_si[$sar])
+				define xSi $(x_si_[$sar]) define ySi $(y_si_[$sar])
+				define mSi $(mag_si[$sar]) define mPr $(mag_pr[$sar])
 				
-				set Aa = float($xSi) set Bb = float($ySi) set Cc=float($mSi)
+				
+				set Aa = float($xSi) set Bb = float($ySi) set Cc=float($mSi) set Dd=float($mPr)
+				set fixAa = float(fix1_si[$sar]) set fixBb = float(fix2_si[$sar])
 				set Lx1 = int(Aa)-$f_buff-$g_buff set Lx1 = Lx1>=1 ? Lx1 : 1 set Lx1 = Lx1<=$imax_xsize ? Lx1 : $imax_xsize
 				set Lx2 = int(Aa)+$f_buff+$g_buff set Lx2 = Lx2>=1 ? Lx2 : 1 set Lx2 = Lx2<=$imax_xsize ? Lx2 : $imax_xsize
 				set Ly1 = int(Bb)-$f_buff-$g_buff set Ly1 = Ly1>=1 ? Ly1 : 1 set Ly1 = Ly1<=$imax_ysize ? Ly1 : $imax_ysize
@@ -208,6 +217,10 @@ SimuX	00
 					!CrabFitsImageArithmetic simu.fits + simu3.fits simu2.fits >> simu2.log
 					!echo CrabFitsImageCrop $imax_name_rms.fits -rect $(Lx1[0]-1) $(Ly1[0]-1) $(Lx2[0]-1) $(Ly2[0]-1) -out simu_rms.fits > simu_rms.log
 					!CrabFitsImageCrop $imax_name_rms.fits -rect $(Lx1[0]-1) $(Ly1[0]-1) $(Lx2[0]-1) $(Ly2[0]-1) -out simu_rms.fits >> simu_rms.log
+					!cp simu3.fits simu1.fits
+					!touch simu.is.model.image
+					!touch simu1.is.original.image
+					!touch simu2.is.coadded.image
 					
 					# Save the original image block, model image block and combined image block
 					###!\cp simu3.fits fit$idSi.ori.fits
@@ -235,17 +248,22 @@ Simu_ 00
 			set Sx$imax = x$imax concat Aa           # Here join the prior list with the fake object in exam
 			set Sy$imax = y$imax concat Bb
 			
-			set Snoi$imax = Sx$imax*0 concat 0
+			set fixSx$imax = fix1 concat fixAa
+			set fixSy$imax = fix2 concat fixBb
+			
+			set Snoi$imax = (x$imax*0.0) concat 0.0
 			
 			noise_AaB       # determine NNN, the noise at the fake object position
 			
-			set Sm$imax = Sx$imax*0+$mag_start
+			set Sm$imax = (m$imax) concat Dd
 			
 			# select objects within current box
 			set coo = abs(Sy$imax-Bb[0])<$g_buff && abs(Sx$imax-Aa[0])<$g_buff
 			set xx$imax = Sx$imax-$(Lx1[0])+1 if(coo)
 			set yy$imax = Sy$imax-$(Ly1[0])+1 if(coo)
-			set mm$imax = Sm$imax if(coo)
+			set mm$imax = Sm$imax             if(coo)
+			set fixxx$imax = fixSx$imax       if(coo)
+			set fixyy$imax = fixSy$imax       if(coo)
 			
 			# prepare galfit input file
 			if($?doPostParallel==0) {
@@ -262,12 +280,28 @@ Simu_ 00
 				print +$aa_file 'J) 0 \n K) 0.06   0.06 \n O) regular \n P) 0 \n \n' {}
 				print +$aa_file 'H) 1 $(Lx2[0]-Lx1[0]+1) 1 $(Ly2[0]-Ly1[0]+1) \n' {}
 				
-				set aa1 = xx$imax set aa2 = yy$imax set aa3 = mm$imax define print_noheader 1 ###<Modified><DZLIU>### define print_noheader 1
+				set aa1 = xx$imax set aa2 = yy$imax set aa3 = mm$imax 
+				set fixaa1 = fixxx$imax set fixaa2 = fixyy$imax
 				
-				print +$aa_file '\n 0) psf \n 1) %.3f %.3f 0 0 \n 3) %.3f  1 \n Z) 0  \n \n' {aa1 aa2 aa3}
+				define print_noheader 1 ###<Modified><DZLIU>### define print_noheader 1
+				
+				print +$aa_file '\n 0) psf \n 1) %.3f %.3f %.0f %.0f \n 3) %.3f  1 \n Z) 0  \n \n' {aa1 aa2 fixaa1 fixaa2 aa3}
 				print +$aa_file '\n 0) sky \n 1) $Xback  0 \n 2) 0 0 \n 3) 0 0 \n Z) 0  \n \n' {}
 				
-				set oo=1,dimen(xx$imax) print HSO_$imax".CONSTRAINTS" '   %d   mag -10 to $mag_toofaint  \n' {oo}
+				set oo=1,dimen(xx$imax)
+				print HSO_$imax".CONSTRAINTS" '   %d   mag -10 to $mag_toofaint  \n' {oo}
+				if($vary_positions) {
+					define max_vary 1
+					if('$imax'=='16') {define max_vary 1}
+					if('$imax'=='24') {define max_vary 1}
+					if('$imax'=='100') {define max_vary 1}
+					if('$imax'=='160') {define max_vary 1}
+					if('$imax'== '20cm') {define max_vary 2}
+					print +HSO_$imax".CONSTRAINTS" '   %d   x -$max_vary $max_vary  \n' {oo}
+					print +HSO_$imax".CONSTRAINTS" '   %d   y -$max_vary $max_vary  \n' {oo}
+				} else {
+					define max_vary 0
+				}
 			}
 				
 			#!/dsm/upgal/data/edaddi/galfit/galfit HSO_$imax".INPUT"
@@ -291,6 +325,7 @@ Simu_ 00
 					!cp HSO_$imax.CONSTRAINTS     $idBox/                             ###<Added><DZLIU>### doParallel
 					!cp simu3.*                   $idBox/                             ###<Added><DZLIU>### doParallel
 					!cp simu2.*                   $idBox/                             ###<Added><DZLIU>### doParallel
+					!cp simu1.*                   $idBox/                             ###<Added><DZLIU>### doParallel
 					!cp simu.*                    $idBox/                             ###<Added><DZLIU>### doParallel
 					!cp simu_rms.*                $idBox/                             ###<Added><DZLIU>### doParallel
 					!ln -s ../$imax_name.fits     $idBox/$imax_name.fits              ###<Added><DZLIU>### doParallel
@@ -369,25 +404,31 @@ goRead  00
 			###<Modified><20141127><DZLIU>### !sed -i -e 's/\[//g' -e 's/\]//g' -e 's/,]//g' -e 's/\,//g' -e 's/)//g' -e 's/(//g' fit.log > fit.log.s
 			###<Modified><20141127><DZLIU>### !rm fit.log
 			###<Modified><20141127><DZLIU>### !mv fit.log.s fit.log
-			!sed -i -e 's/[](,)[]//g' fit.log
+			#!sed -i -e 's/[](,)[]//g' fit.log
 			###<Modified><DZLIU>### sed got rename() error, see http://stackoverflow.com/questions/21441289/confusing-error-from-xargs-sed
 			
-			!grep -A1 psf fit.log | grep -e"--" -v > aaa3
+			#!grep -A1 psf fit.log | grep -e"--" -v > aaa3
 			
-			!grep psf aaa3 > aaa2
-			!grep psf -v aaa3 > aaa1
+			#!grep psf aaa3 > aaa2
+			#!grep psf -v aaa3 > aaa1
 			
-			data aaa1 read _err 3
-			data aaa2 read '%s %s %f %f %f'  {_aa _bb xg yg _mag}
+			#data aaa1 read _err 3
+			#data aaa2 read '%s %s %f %f %f'  {_aa _bb xg yg _mag}
+			
+			# Read fit.log
+			!grep -A1 "psf" "fit.log" | perl -p -e 's/[^0-9. +-]//g' | perl -p -e 's/--/\\n/g' > "fit.txt"
+			data "fit.txt" read {xg 1.f yg 2.f _mag 3.f xg_err 4.f yg_err 5.f _err 6.f}
 			
 			#define aaa ?
 			
-			set xcoox = abs(xg-Aa[0]+$(Lx1[0])-1)<.02 && abs(yg-Bb[0]+$(Ly1[0])-1)<.02
-			set mm = _mag if(xcoox)
-			set ee = _err if(xcoox)
-			
-			set mm = mm[0] ###<TODO><20141021><DZLIU>###
-			set ee = ee[0] ###<TODO><20141021><DZLIU>###
+			# Select the simulated object
+			#set xcoox = abs(xg-Aa[0]+$(Lx1[0])-1)<.02 && abs(yg-Bb[0]+$(Ly1[0])-1)<.02
+			#set mm = _mag if(xcoox)
+			#set ee = _err if(xcoox)
+			#set mm = mm[0] ###<TODO><20141021><DZLIU>###
+			#set ee = ee[0] ###<TODO><20141021><DZLIU>###
+			set mm = _mag[dimen(_mag)-1] # the simulated object is the last fitted source
+			set ee = _err[dimen(_err)-1] # the simulated object is the last fitted source
 			
 			
 			###<Added><DZLIU>### <TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><OBSOLETE>
@@ -774,20 +815,23 @@ goSS	00
 				}
 			}
 			if($vary_positions) {
-				data "xpriorGN_RAD_"$imax"_"$xdate".txt" 
+				#echo ""
+				echo "We are running in vary_positions mode!"
+				echo ""
+				data "xpriorGN_RAD_"$imax"_"$xdate".txt"
 				read {Xid_ 1 Xra_ 2 Xde_ 3}
 				set x_si = Xra_
 				set y_si = Xde_
-				data "xpriorGN_MAG_"$imax"_"$xdate".txt" 
+				data "xpriorGN_MAG_"$imax"_"$xdate".txt"
 				read {x_si 1.f y_si 2.f x_si_ 3.f y_si_ 4.f mag_si 5.f}
-				data "xpriorGN_OUT_"$imax"_"$xdate".txt" 
-				read {mm 4 ee 5}
-				set fix1 = ee<=.05 && ee>=0
-				set fix2 = fix1
-				define xdate $xdate"_vary"
-				define use_prior_mags 1
-				set xm = fix1 ? mm : 5.0
-				set xm$imax = xm
+				data "xsimuGN_OUT_"$imax"_"$xdate".txt" 
+				read {mm_si 4 ee_si 5}
+				set fix1_si = ee_si<=.05 && ee_si>=0
+				set fix2_si = fix1_si
+				set xm_si = fix1_si ? mm_si : $mag_start
+				set xm_si = xm_si > $mag_toofaint ? $mag_toofaint : xm_si
+				!cp "xpriorGN_RAD_"$imax"_"$xdate".txt" "xpriorGN_RAD_"$imax"_"$xdate"_vary.txt"
+				!cp "xpriorGN_MAG_"$imax"_"$xdate".txt" "xpriorGN_MAG_"$imax"_"$xdate"_vary.txt"
 				return
 			}
 			###<Added><DzLIU><20141123>###
@@ -916,6 +960,8 @@ goSS	00
 			ctype red points Xra_ Xde_ ctype 0
 			set x_si = Xra_
 			set y_si = Xde_
+			set fix1_si = x_si*0.0 # fix the position (fix=0) in default
+			set fix2_si = y_si*0.0 # fix the position (fix=0) in default
 			#Up to here they are just RA-DEC positions simulated
 			
 			###<Modif><DzLIU><20170510>### fixed vary bug
@@ -1029,38 +1075,39 @@ gPriors	00
 			# In this function we convert prior source coordinates, correct coordinate misalignments, and set prior magnitudes if available
 			
 			# Convert sky2xy
-			if(is_vector(raF) && is_vector(deF)) {
-				!rm aaa_gPriors_sky2xy_input  >> /dev/null 2>&1						### <Modified><20140311><DZLIU>
-				!rm aaa_gPriors_sky2xy_output >> /dev/null 2>&1						### <Modified><20140311><DZLIU>
-				if($?print_noheader==1) {define prev_noheader $print_noheader} else {define prev_noheader 0} define print_noheader 1 
-				print aaa_gPriors_sky2xy_input '%17.7f %17.7f\n' {raF deF}			### <Modified><20140513><DZLIU>
-				if($?prev_noheader==1) {define print_noheader $prev_noheader}       ### <Modified><20140513><DZLIU>
-				echo Doing sky2xy for $(dimen(raF)) sources in gPriors ...			### <Modified><20140513><DZLIU>
-				!sky2xy  -j  $imax_name.fits  @aaa_gPriors_sky2xy_input > aaa_gPriors_sky2xy_output
-				data aaa_gPriors_sky2xy_output read <x$imax 5 y$imax 6>             ### <Modified><20140513><DZLIU>
-				echo Done  sky2xy
-				
-				if(dimen(x$imax)!=dimen(raF)) {
-					echo CRASH !!!!!!!
-					define aaa ?
-					exit
-				}
+			!rm aaa_gPriors_sky2xy_input  >> /dev/null 2>&1						### <Modified><20140311><DZLIU>
+			!rm aaa_gPriors_sky2xy_output >> /dev/null 2>&1						### <Modified><20140311><DZLIU>
+			if($?print_noheader==1) {define prev_noheader $print_noheader} else {define prev_noheader 0} define print_noheader 1
+			print aaa_gPriors_sky2xy_input '%17.7f %17.7f\n' {raF deF}			### <Modified><20140513><DZLIU>
+			if($?prev_noheader==1) {define print_noheader $prev_noheader}       ### <Modified><20140513><DZLIU>
+			echo Doing sky2xy for $(dimen(raF)) sources in gPriors ...			### <Modified><20140513><DZLIU>
+			!sky2xy  -j  $imax_name.fits  @aaa_gPriors_sky2xy_input > aaa_gPriors_sky2xy_output
+			if($?verbose==1) {define prev_verbose $verbose} else {define prev_verbose 1} verbose 0
+			data aaa_gPriors_sky2xy_output read <x$imax 5 y$imax 6>             ### <Modified><20140513><DZLIU>
+			if($?prev_verbose==1) {verbose $prev_verbose}                       ### <Modified><20140513><DZLIU>
+			echo Done  sky2xy
+			
+			if(dimen(x$imax)!=dimen(raF)) {
+				echo CRASH !!!!!!!
+				define aaa ?
+				exit
 			}
 			
 			# Set prior magnitude
-			if(is_vector(x$imax) && is_vector(y$imax)) {
-				set x1=x$imax set y1=y$imax
-				set fix1 = x1*0 set fix2 = fix1
-				if($vary_positions) {
-					data results_$imax"_"$xdate read {ee 5 mm 4}
-					set fix1 = ee<=.05 && ee>=0
-					set fix2 = fix1
-					define xdate $xdate"_vary"
-					define use_prior_mags 1
-					set xm$imax = mm
-					set xm$imax = xm$imax > $mag_toofaint ? $mag_toofaint : xm$imax
-				}
+			set x1=x$imax set y1=y$imax
+			set fix1 = x1*0 set fix2 = fix1
+			if($vary_positions) {
+				data results_$imax"_"$xdate read {ee 5 mm 4}
+				set fix1 = ee<=.05 && ee>=0
+				set fix2 = fix1
+				define xdate $xdate"_vary"
+				define use_prior_mags 1
+				set m$imax = fix1 ? mm : $mag_start # fix1==1 means fit it, so we use previously measured magnitude (mm) as the initial value (m$imax). 
+				set m$imax = m$imax > $mag_toofaint ? $mag_toofaint : m$imax
+			} else {
+				set m$imax = x1*0.0 + $mag_start
 			}
+			
 
 			if( '$imax_name' == 'HTfinal_coadd20101016_ima_grn' && $fix_astrometry) {
 			set x100 = x100-0.000917146157*x100+0.5255420208

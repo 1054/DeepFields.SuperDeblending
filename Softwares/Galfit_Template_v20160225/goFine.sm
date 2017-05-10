@@ -657,7 +657,7 @@ Fit_XXX
 		#noise_XXX
 		#}
 		
-		if($use_prior_mags) {set m$imax  = xm$imax} else {set m$imax  = x$imax*0+$mag_start}
+		if($use_prior_mags) {set m$imax = xm$imax} else {set m$imax = x$imax*0+$mag_start}
 		
 		
 		###<DZLIU><Modified>### 
@@ -917,15 +917,15 @@ Rebuild_XXX
 		if($?doPostParallel) { if($doPostParallel==1) { echo "boxgalfit/box"$var } }
 		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==0) { chdir "boxgalfit/box"$var } } }  ###<Added><DZLIU>### doPostParallel
 		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) { chdir "boxgalfit_vary/box"$var } } }  ###<Added><DZLIU>### doPostParallel
-		#if($?doPostParallel) { if($doPostParallel==1) { !cp fit.log fit$var".log" } } ###<DZLIU><Modified><20161028><for_Gaussian>###
-		if($?doPostParallel) { if($doPostParallel==1) { 
-			###<DZLIU><Modified><20161102><for_Gaussian>###
-			!grep -n -e"--" "fit.log" | cut -d ':' -f 1 | tail -n 2 | head -n 1 > fit$var".log.start.line.number"
-			!awk 'NR >= \$(cat fit$var".log.start.line.number")' "fit.log" > fit$var".log"
-			echo fit$var".log"
-		  }
-		} ###<DZLIU><Modified><20161102><for_Gaussian>###
-		###<DZLIU><Modified>### 
+		#<TODO><20170510># #if($?doPostParallel) { if($doPostParallel==1) { !cp fit.log fit$var".log" } } ###<DZLIU><Modified><20161028><for_Gaussian>###
+		#<TODO><20170510># if($?doPostParallel) { if($doPostParallel==1) { 
+		#<TODO><20170510># 	###<DZLIU><Modified><20161102><for_Gaussian>###
+		#<TODO><20170510># 	!grep -n -e"--" "fit.log" | cut -d ':' -f 1 | tail -n 2 | head -n 1 > fit$var".log.start.line.number"
+		#<TODO><20170510># 	!awk 'NR >= \$(cat fit$var".log.start.line.number")' "fit.log" > fit$var".log"
+		#<TODO><20170510># 	echo fit$var".log"
+		#<TODO><20170510>#   }
+		#<TODO><20170510># } ###<DZLIU><Modified><20161102><for_Gaussian>###
+		#<TODO><20170510># ###<DZLIU><Modified>### 
 		if(is_file("fit"$var".log")) {
 		!\rm aaa1 >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
 		!\rm aaa2 >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
@@ -934,47 +934,46 @@ Rebuild_XXX
 		#!more fit$var".log" | grep "'(0'" | grep "', 0'"  > aaa1    # old galfit 2.0
 		#!more fit$var".log" |grep "(   " |grep ")   "  > aaa1   # this version was for linux csh, doesn't work in bash
 		
-		###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### !sed -i -e's/\[//g' -e's/\]//g' -e's/,]//g' -e's/\,//g' -e's/)//g' -e's/(//g' fit$var".log"
-		###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### 
-		###<DZLIU><Modified><20161028><for_Gaussian>### !sed -e 's/\[//g' -e 's/\]//g' -e 's/,]//g' -e 's/\,//g' -e 's/)//g' -e 's/(//g' fit$var.log > fit$var.log.s
-		###<DZLIU><Modified><20161028><for_Gaussian>### !rm fit$var.log
-		###<DZLIU><Modified><20161028><for_Gaussian>### !mv fit$var.log.s fit$var.log
-		###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### sed got rename() error, see http://stackoverflow.com/questions/21441289/confusing-error-from-xargs-sed
-		###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### 
-		###<DZLIU><Modified><20161028><for_Gaussian>### 
-		###<DZLIU><Modified><20161028><for_Gaussian>### !grep -A1 psf fit$var".log" | grep -e"--" -v > aaa3
-		###<DZLIU><Modified><20161028><for_Gaussian>### !grep psf aaa3 > aaa2
-		###<DZLIU><Modified><20161028><for_Gaussian>### !grep psf -v aaa3 > aaa1
-		!grep -A1 "': ('" fit$var".log" | grep -e"--" -v > aaa3
-		!grep "': ('" aaa3 | sed -e 's/[][,()]//g' > aaa2
-		!grep "': ('" -v aaa3 | sed -e 's/[][,()]//g' > aaa1
+		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### !sed -i -e's/\[//g' -e's/\]//g' -e's/,]//g' -e's/\,//g' -e's/)//g' -e's/(//g' fit$var".log"
+		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### 
+		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### !sed -e 's/\[//g' -e 's/\]//g' -e 's/,]//g' -e 's/\,//g' -e 's/)//g' -e 's/(//g' fit$var.log > fit$var.log.s
+		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### !rm fit$var.log
+		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### !mv fit$var.log.s fit$var.log
+		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### sed got rename() error, see http://stackoverflow.com/questions/21441289/confusing-error-from-xargs-sed
+		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### 
+		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### 
+		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### !grep -A1 psf fit$var".log" | grep -e"--" -v > aaa3
+		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### !grep psf aaa3 > aaa2
+		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### !grep psf -v aaa3 > aaa1
+		#<TODO><20170510># !grep -A1 "': ('" fit$var".log" | grep -e"--" -v > aaa3
+		#<TODO><20170510># !grep "': ('" aaa3 | sed -e 's/[][,()]//g' > aaa2
+		#<TODO><20170510># !grep "': ('" -v aaa3 | sed -e 's/[][,()]//g' > aaa1
 		
-		#print goB 'more fit$var".log" |grep \"0.00   0.00\"  > aaa1\n' {}
-		#        !bash < goB
-
-
-
-		if($fit_gaussian) {
-			!more fit$var".log" |grep gaussian > aaa2
-		} else {
-			#!more fit$var".log" |grep psf > aaa2
-		}
-		if($fit_gaussian) {
-			data aaa1 read {_err 3.s _err_fw 4.s _err_ba 5.s}
-			set _err = atof(_err) set _err_fw=atof(_err_fw) set _err_ba=atof(_err_ba)
-			data aaa2 read ' %s %s (%f, %f) %f %f %f' {_aa _bb xg yg _mag _xxfw _xxba}
-			set yy =0,dimen(_mag)-1 foreach xar yy {
-				set inxi = x$imax  > x1[$var-1] && x$imax  <= x2[$var-1] && y$imax  > y1[$var-1] && y$imax  <= y2[$var-1]
-				set FW$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _xxfw[$xar] : FW$imax 
-				set ba$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _xxba[$xar] : ba$imax 
-				set eFW$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _err_fw[$xar] : eFW$imax 
-				set eba$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _err_ba[$xar] : eba$imax 
-			}
-		} else {
-			data aaa1 read _err 3
-			data aaa2 read '%s %s %f %f %f'  {_aa _bb xg yg _mag}
-		}
-
+		#<TODO><20170510># if($fit_gaussian) {
+		#<TODO><20170510># 	!more fit$var".log" |grep gaussian > aaa2
+		#<TODO><20170510># } else {
+		#<TODO><20170510># 	#!more fit$var".log" |grep psf > aaa2
+		#<TODO><20170510># }
+		#<TODO><20170510># if($fit_gaussian) {
+		#<TODO><20170510># 	data aaa1 read {_err 3.s _err_fw 4.s _err_ba 5.s}
+		#<TODO><20170510># 	set _err = atof(_err) set _err_fw=atof(_err_fw) set _err_ba=atof(_err_ba)
+		#<TODO><20170510># 	data aaa2 read ' %s %s (%f, %f) %f %f %f' {_aa _bb xg yg _mag _xxfw _xxba}
+		#<TODO><20170510># 	set yy =0,dimen(_mag)-1 foreach xar yy {
+		#<TODO><20170510># 		set inxi = x$imax  > x1[$var-1] && x$imax  <= x2[$var-1] && y$imax  > y1[$var-1] && y$imax  <= y2[$var-1]
+		#<TODO><20170510># 		set FW$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _xxfw[$xar] : FW$imax 
+		#<TODO><20170510># 		set ba$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _xxba[$xar] : ba$imax 
+		#<TODO><20170510># 		set eFW$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _err_fw[$xar] : eFW$imax 
+		#<TODO><20170510># 		set eba$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _err_ba[$xar] : eba$imax 
+		#<TODO><20170510># 	}
+		#<TODO><20170510># } else {
+		#<TODO><20170510># 	data aaa1 read _err 3
+		#<TODO><20170510># 	data aaa2 read '%s %s %f %f %f'  {_aa _bb xg yg _mag}
+		#<TODO><20170510># }
+		
+		# Read fit$var.log
+		!grep -A1 "psf" fit$var.log | perl -p -e 's/[^0-9. +-]//g' | perl -p -e 's/--/\\n/g' > "fit.txt"
+		data "fit.txt" read {xg 1.f yg 2.f _mag 3.f xg_err 4.f yg_err 5.f _err 6.f}
+		
 		if(dimen(_err)!=dimen(_mag)) {echo PROBLEMI DI LETTURA FILES GALFIT --> BREAK with ctrl-C
 			define aaa ?
 			exit
@@ -1529,14 +1528,40 @@ xFit_500  00
 		Rebuild_XXX
 
 xSet_850	define imax 850
-		define imax_name "S2CLS_GOODS-N_MF_FLUX_DR1"
-		define imax_name_rms "S2CLS_GOODS-N_MF_RMS_DR1"
+		define imax_name "S2CLS_GOODSN_MF_FLUX_DR1"
+		define imax_name_rms "S2CLS_GOODSN_MF_RMS_DR1"
 		define imax_name_psf "S2CLS_SCUBA2_850um_dzliu_DoubleGaussian_PSF"
 		define psf_resampl   1
 		if(!$?xdate) {define xdate "Undefined"}
 		
 		define mag_toofaint 20
-		define max_noise 1.5   # DZLIU 20160719
+		define max_noise 1.5    # DZLIU 20160719
+		define max_noise 1e30   # DZLIU 20160909
+		define max_noise 1e20   # DZLIU 20160909
+		define mag_start 5
+		define Xback 0.0    # TODO: background value
+		
+		define ystep 75
+		define xstep 75
+		define g_buff 10
+		define f_buff 1
+		define use_prior_mags 0      # if 1, define xm$imax to a meaningful guess start for the mag
+		define vary_positions 0      # if 1, allow positions of bright objects to vary
+		define fix_astrometry 0      # if 1, account for astrometry variation
+		define make_residuals 0      # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+		define fit_gaussian   0      # to switch only for resolved sources
+		define fit_sky 	      0      # test
+		if($make_residuals) {define Xback 0}
+
+xSet_850_NMF	define imax 850_NMF
+		define imax_name "S2CLS_GOODSN_NMF_FLUX_DR1"
+		define imax_name_rms "S2CLS_GOODSN_NMF_RMS_DR1"
+		define imax_name_psf "SCUBA2_PSF_unfilter_v2"
+		define psf_resampl   1
+		if(!$?xdate) {define xdate "Undefined"}
+		
+		define mag_toofaint 20
+		define max_noise 1.5    # DZLIU 20160719
 		define max_noise 1e30   # DZLIU 20160909
 		define max_noise 1e20   # DZLIU 20160909
 		define mag_start 5
