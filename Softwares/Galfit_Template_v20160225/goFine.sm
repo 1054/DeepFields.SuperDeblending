@@ -3152,19 +3152,51 @@ R_MIPS850_E 00
 			define imax 850
 			define xdate 20160719
 			define xdate 20160909
+			define xdate 20170506
 			define vary_positions 1
-			define rrrr_name "results_"$imax"_"$xdate"_vary" ###<Modified><DZLIU>### NO vary FOR 850!!!
+			define rrrr_name "results_"$imax"_"$xdate"_vary"
 			data $rrrr_name read {x850 1 y850 2 m850 4 e850 5 noi850 3 ra850 6 de850 7 id850 8}
-    		define h_850        $(1/2.8954625)  # photometry fudge factor from Jy/beam definition, data unit mJy/beam, PSF SUM/MAX = 2.39744/0.827999 = 2.8954625
-			define m_850 1          # photometry fudge factor, from use of finite PSF  (divise)
+    		define h_850 $(1/2.8954625) # see astroPhot.sm
+			define m_850 1 # see astroPhot.sm
 			set f850 = 10**(-0.4*m850)*$h_850/$m_850
-			set df850 = f850*e850/1.08   #  
+			set df850 = f850*e850/1.08
 			
 		    define rBeam_850 14.8
-		    if(is_file("run_simu_stats_v8.sm")) {
-		    	macro read run_simu_stats_v8.sm
+		    if(is_file("run_simu_stats_v9.sm")) {
+		    	macro read run_simu_stats_v9.sm
 		    } else {
-		    	macro read run_simu_stats_v7.sm
+		    	if(is_file("run_simu_stats_v8.sm")) {
+		    		macro read run_simu_stats_v8.sm
+		    	} else {
+		    		macro read run_simu_stats_v7.sm
+		    	}
+		    }
+			go_correct_three_step_recipes
+			
+			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
+
+R_MIPS850_NMF_E 00
+			define imax 850_NMF
+			define xdate 20160719
+			define xdate 20160909
+			define xdate 20170506
+			define vary_positions 1
+			define rrrr_name "results_"$imax"_"$xdate"_vary"
+			data $rrrr_name read {x850_NMF 1 y850_NMF 2 m850_NMF 4 e850_NMF 5 noi850_NMF 3 ra850_NMF 6 de850_NMF 7 id850_NMF 8}
+    		define h_850_NMF $(1/48.36040504) # see astroPhot.sm
+			define m_850_NMF 1 # see astroPhot.sm
+			set f850_NMF = 10**(-0.4*m850_NMF)*$h_850_NMF/$m_850_NMF
+			set df850_NMF = f850_NMF*e850_NMF/1.08
+			
+		    define rBeam_850_NMF 11.
+		    if(is_file("run_simu_stats_v9.sm")) {
+		    	macro read run_simu_stats_v9.sm
+		    } else {
+		    	if(is_file("run_simu_stats_v8.sm")) {
+		    		macro read run_simu_stats_v8.sm
+		    	} else {
+		    		macro read run_simu_stats_v7.sm
+		    	}
 		    }
 			go_correct_three_step_recipes
 			

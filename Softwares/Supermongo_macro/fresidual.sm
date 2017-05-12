@@ -107,9 +107,9 @@ fresidual_inPixel 04
     get_fits_filename_and_extension_number $1
     # 
     # read input
-    set _fresipix_px = $2
-    set _fresipix_py = $3
-    set _fresipix_radius = $4
+    set _fresipix_px = float($2)
+    set _fresipix_py = float($3)
+    set _fresipix_radius = float($4)
     # 
     # check dimension
     if(dimen(_fresipix_px)!=dimen(_fresipix_py)) {

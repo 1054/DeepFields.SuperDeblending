@@ -239,11 +239,10 @@ SimuX	00
 
 
 Simu_ 00	
-			## !\rm galfit.* >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
-			## !\rm tmp*fits >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
-			## !\rm HSO_$imax".CONSTRAINTS" >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
-			## !\rm summary_run >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
-			## !\rm fit.log >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+			# In this function we run galfit to model the simulated object, 
+			# then coadd original image with the simulated source model image, 
+			# then run galfit to recover all prior sources plus the simulated source, 
+			# then copy final results "fit.log" from each box subdirectory to main directory for further analysis
 
 			set Sx$imax = x$imax concat Aa           # Here join the prior list with the fake object in exam
 			set Sy$imax = y$imax concat Bb
@@ -331,7 +330,7 @@ Simu_ 00
 					!ln -s ../$imax_name.fits     $idBox/$imax_name.fits              ###<Added><DZLIU>### doParallel
 					!ln -s ../$imax_name_rms.fits $idBox/$imax_name_rms.fits          ###<Added><DZLIU>### doParallel
 					!ln -s ../$imax_name_psf.fits $idBox/$imax_name_psf.fits          ###<Added><DZLIU>### doParallel
-					!\rm "fit.log" >> /dev/null 2>&1                                  ###<Added><DZLIU>### doParallel
+					!rm "fit.log" 2>/dev/null                                         ###<Added><DZLIU>### doParallel
 					echo doParallel: preparing $idBox                                 ###<Added><DZLIU>### doParallel
 					print  runqsub '\#!/bin/bash\n' {}                                ###<Added><DZLIU>### doParallel
 					print +runqsub 'set -e\n' {}                                      ###<Added><DZLIU>### doParallel
@@ -350,46 +349,18 @@ Simu_ 00
 					return                                                            ###<Added><DZLIU>### doParallel
 				}                                                                     ###<Added><DZLIU>### doParallel
 				if($?doPostParallel==1) {                                             ###<Added><DZLIU>### doPostParallel
-					!\cp  $idBox/fit.log        fit.log                               ###<Added><DZLIU>### doPostParallel
-					!\cp  $idBox/simu3.fits     simu3.fits                            ###<Added><DZLIU>### doPostParallel
-					!\cp  $idBox/simu_rms.fits  simu_rms.fits                         ###<Added><DZLIU>### doPostParallel
+					!rm                        fit.log        2>/dev/null             ###<Added><DZLIU>### doPostParallel
+					!rm                        simu3.fits     2>/dev/null             ###<Added><DZLIU>### doPostParallel
+					!rm                        simu_rms.fits  2>/dev/null             ###<Added><DZLIU>### doPostParallel
+					!cp  $idBox/fit.log        fit.log        2>/dev/null             ###<Added><DZLIU>### doPostParallel
+					!cp  $idBox/simu3.fits     simu3.fits     2>/dev/null             ###<Added><DZLIU>### doPostParallel
+					!cp  $idBox/simu_rms.fits  simu_rms.fits  2>/dev/null             ###<Added><DZLIU>### doPostParallel
 				}                                                                     ###<Added><DZLIU>### doPostParallel
 			}
-			if(is_file("fit.log")) { 
-				verbose $pref_verbose #<Modified><DZLIU>#
-				echo $idSi ($xSi,$ySi) [$(Lx1[0]):$(Lx2[0]),$(Ly1[0]):$(Ly2[0])] ($($sar+1)~/~$(dimen(x_si))) {$(sum(coo))} (RA=$raSi Dec=$deSi X=$(Aa) Y=$(Bb) Xm=$(Cc))
-				#<Commented><20141012># !cp fit.log    fit$idSi.log              #<Modified><DZLIU>#
-				#<Commented><20141012># !cp fit.stdout fit$idSi.stdout           #<Modified><DZLIU>#
-				#<Commented><20141016># !cp simu3.fits fit$idSi.fits             #<Inserted><DZLIU># #<Modified><20141012><DZLIU># #<Modified><20141016><DZLIU>#
-				#<Commented><20141012># !cp HSO_$imax.INPUT fit$idSi.input       #<Inserted><20140820><DZLIU>#
-				#<Commented><20141012># !cp HSO_$imax.CONSTRAINTS fit$idSi.limit #<Inserted><20140820><DZLIU>#
-				define pref_verbose $verbose                                     #<Modified><DZLIU>#
-				verbose 0                                                        #<Modified><DZLIU>#
-				goRead                                                           #<NoModify><DZLIU>#
-				#!\rm fit$idSi.fits >> /dev/null 2>&1                            #<Inserted><20141016><DZLIU>#
-				#if($?doFakeDetection==0) {                                       #<FakeDetection># if normal mode
-				#	!\cp simu3.fits fit$idSi.com.galfit.fits                     #<FakeDetection># if normal mode
-				#} else  {                                                        #<FakeDetection># if fake detection mode
-				#	!\cp simu3.fits fit$idSi.ori.galfit.fits                     #<FakeDetection># if fake detection mode
-				#}
-				#echo all done #<Commented><DZLIU>#
-			} else {
-				echo CRASH !!!!!!!
-				echo CRASH !!!!!!!
-				echo CRASH !!!!!!!
-				echo CRASH !!!!!!!
-				echo CRASH !!!!!!!
-				echo CRASH !!!!!!!
-				echo CRASH !!!!!!!
-				echo CRASH !!!!!!!
-				echo CRASH !!!!!!!
-				echo CRASH !!!!!!!
-				echo CRASH !!!!!!!
-				echo CRASH !!!!!!!
-				echo CRASH !!!!!!!
-				define aaa ?
-				exit
-			}
+			
+			echo $idSi ($xSi,$ySi) [$(Lx1[0]):$(Lx2[0]),$(Ly1[0]):$(Ly2[0])] ($($sar+1)~/~$(dimen(x_si))) {$(sum(coo))} (RA=$raSi Dec=$deSi X=$(Aa) Y=$(Bb) Xm=$(Cc))
+			
+			goRead
 			
 			#define aaa ?    # uncomment this to check result of Simu
 
@@ -400,115 +371,48 @@ goRead  00
 			!\rm aaa2 >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
 			!\rm aaa3 >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
 			
-			###<Modified><DZLIU>### !sed -i -e's/\[//g' -e's/\]//g' -e's/,]//g' -e's/\,//g' -e's/)//g' -e's/(//g' fit.log
-			###<Modified><20141127><DZLIU>### !sed -i -e 's/\[//g' -e 's/\]//g' -e 's/,]//g' -e 's/\,//g' -e 's/)//g' -e 's/(//g' fit.log > fit.log.s
-			###<Modified><20141127><DZLIU>### !rm fit.log
-			###<Modified><20141127><DZLIU>### !mv fit.log.s fit.log
-			#!sed -i -e 's/[](,)[]//g' fit.log
-			###<Modified><DZLIU>### sed got rename() error, see http://stackoverflow.com/questions/21441289/confusing-error-from-xargs-sed
+			if(is_file("fit.log")) {
+				
+				# Read fit.log
+				!grep -A1 "psf" "fit.log" | perl -p -e 's/[^0-9. +-]//g' | perl -p -e 's/--/\\n/g' > "fit.txt"
+				if($?verbose==1) {define goRead_verbose $verbose} else {define goRead_verbose 1} verbose 0
+				data "fit.txt" read {xg 1.f yg 2.f _mag 3.f xg_err 4.f yg_err 5.f _err 6.f}
+				if($?goRead_verbose==1) {verbose $goRead_verbose}
+				
+				# Select the simulated object
+				set mm = _mag[dimen(_mag)-1] # the simulated object is the last fitted source
+				set ee = _err[dimen(_err)-1] # the simulated object is the last fitted source
+				
+				# Compute residual image flux -- #<ADD><20151220><dzliu># -- new and better written fresidual.sm code
+				load fresidual.sm
+				load astroPhot.sm
+				set_goodsn_photometry_constants_$imax
+				set ResABS = fresidual_inPixel("simu3.fits[3]",$($f_buff+$g_buff+1),$($f_buff+$g_buff+1),$($rBeam_$imax/$PixScale_$imax/2.0)) #<FIXED><20151221># fits[3] not [2]
+				                                !\cp aaa_fresidual_aperphot_* $idBox/
+				                               # FIT_goodsn_100_Map_201512_vary.fits[2] is the residual frame
+											   # BUT simu2.fits[3] fit.fits[3] are the residual frame
+				set ResPixObsABS = ResABS
+				
+				# Compute crowdedness/crowdiness
+				load crowdiness.sm 
+				#set Sx$imax = x$imax concat Aa # Here join the prior list with the fake object in exam
+				#set Sy$imax = y$imax concat Bb
+				set PSFSizePix = $rBeam_$imax/$PixScale_$imax
+				set CrowdnessVar = calcOneCrowdiness_inPixel(Sx$imax,Sy$imax,Aa,Bb,PSFSizePix,1.5)
+				set CrowdVar = CrowdnessVar
+				set CloseDis = CrowdnessVar
+				echo ResABS=$(ResABS) ResPixObsABS=$(ResPixObsABS) CloseDis=$(CloseDis) CrowdVar=$(CrowdVar)
+				
+			} else {
+				
+				echo ""
+				echo "Warning! \"fit.log\" was not found for box "$idSi"! Could probably because the simulated source is too close to the edge of the whole image thus the fitting was failed because some prior sources are cut outside of the box image."
+				echo ""
+				foreach varvar {mm ee ResABS CloseDis CrowdVar ResPixObsABS} {set $varvar = -99}
+				
+			}
 			
-			#!grep -A1 psf fit.log | grep -e"--" -v > aaa3
-			
-			#!grep psf aaa3 > aaa2
-			#!grep psf -v aaa3 > aaa1
-			
-			#data aaa1 read _err 3
-			#data aaa2 read '%s %s %f %f %f'  {_aa _bb xg yg _mag}
-			
-			# Read fit.log
-			!grep -A1 "psf" "fit.log" | perl -p -e 's/[^0-9. +-]//g' | perl -p -e 's/--/\\n/g' > "fit.txt"
-			data "fit.txt" read {xg 1.f yg 2.f _mag 3.f xg_err 4.f yg_err 5.f _err 6.f}
-			
-			#define aaa ?
-			
-			# Select the simulated object
-			#set xcoox = abs(xg-Aa[0]+$(Lx1[0])-1)<.02 && abs(yg-Bb[0]+$(Ly1[0])-1)<.02
-			#set mm = _mag if(xcoox)
-			#set ee = _err if(xcoox)
-			#set mm = mm[0] ###<TODO><20141021><DZLIU>###
-			#set ee = ee[0] ###<TODO><20141021><DZLIU>###
-			set mm = _mag[dimen(_mag)-1] # the simulated object is the last fitted source
-			set ee = _err[dimen(_err)-1] # the simulated object is the last fitted source
-			
-			
-			###<Added><DZLIU>### <TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><OBSOLETE>
-			###<Added><DZLIU>### getFitResMapPix
-			###<Added><DZLIU>### set RES = $imres_abs
-			###<Added><DZLIU>### <TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><OBSOLETE>
-			
-			###<Added><DZLIU>### <TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO>
-			
-			#<DEL><20151220><dzliu># print  do.cl 'images\nimutil\n' {}                    ###<Added><20141016><DZLIU>###
-			#<DEL><20151220><dzliu># print +do.cl 'imdel simu3.frame3.fits\n' {}           ###<Added><20141016><DZLIU>###
-			#<DEL><20151220><dzliu># print +do.cl 'imcopy simu3[3] simu3.frame3.fits\n' {} ###<Added><20141016><DZLIU>###
-			#<DEL><20151220><dzliu># print +do.cl 'logout\n\n' {}                          ###<Added><20141016><DZLIU>###
-			#<DEL><20151220><dzliu># !cl < do.cl >> /dev/null 2>&1                         ###<Added><20141016><DZLIU>###
-			#<DEL><20151220><dzliu># 
-			#<DEL><20150604><dzliu># macro read run_image_util.sm
-			#<ADD><20150604><dzliu># load run_image_util.sm
-			#<DEL><20151220><dzliu># load run_image_util.sm
-			#<DEL><20151220><dzliu># getResPixStats "simu3.frame3.fits" $($f_buff+$g_buff+1) $($f_buff+$g_buff+1) $imax_name_psf.fits
-			#<DEL><20151220><dzliu># set ResABS = $imres_abs set ResSIG = $imres_sig set ResRMS = $imres_rms
-			#<DEL><20151220><dzliu># #<DEL><20151220><dzliu># if (ResABS==-99) {
-			#<DEL><20151220><dzliu># 	echo 
-			#<DEL><20151220><dzliu># 	echo CRASH!!!
-			#<DEL><20151220><dzliu># 	echo getResPixStats "simu3.frame3.fits" $($f_buff+$g_buff+1) $($f_buff+$g_buff+1) $imax_name_psf.fits
-			#<DEL><20151220><dzliu># 	echo 
-			#<DEL><20151220><dzliu># 	### <TODO> ### define aaa ?
-			#<DEL><20151220><dzliu># }
-			#<ADD><20151220><dzliu># -- new and better written fresidual.sm code
-			load fresidual.sm
-			load astroPhot.sm
-			set_goodsn_photometry_constants_$imax
-			set ResABS = fresidual_inPixel("simu3.fits[3]",$($f_buff+$g_buff+1),$($f_buff+$g_buff+1),$($rBeam_$imax/$PixScale_$imax/2.0)) #<FIXED><20151221># fits[3] not [2]
-			                                !\cp aaa_fresidual_aperphot_* $idBox/
-			                               # FIT_goodsn_100_Map_201512_vary.fits[2] is the residual frame
-										   # BUT simu2.fits[3] fit.fits[3] are the residual frame
-			###<Added><DZLIU>### <TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO>
-			
-			###<Done>### ###<Added><DZLIU>### <TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO>
-			###<Done>### print  do.cl 'images\nimutil\n' {}                    ###<Added><20141016><DZLIU>###
-			###<Done>### print +do.cl 'imdel simu3.frame1.fits\n' {}           ###<Added><20141016><DZLIU>###
-			###<Done>### print +do.cl 'imcopy simu3[1] simu3.frame1.fits\n' {} ###<Added><20141016><DZLIU>###
-			###<Done>### print +do.cl 'logout\n\n' {}                          ###<Added><20141016><DZLIU>###
-			###<Done>### !cl < do.cl >> /dev/null 2>&1                         ###<Added><20141016><DZLIU>###
-			###<Done>### macro read run_image_util.sm
-			###<Done>### getResPixStats "simu3.frame1.fits" $($f_buff+$g_buff+1) $($f_buff+$g_buff+1) $imax_name_psf.fits
-			###<Done>### set ResPixObsABS = $imres_abs set ResPixObsSIG = $imres_sig set ResPixObsRMS = $imres_rms
-			###<Done>### if (ResPixObsABS==-99) {
-			###<Done>### 	echo 
-			###<Done>### 	echo CRASH!!!
-			###<Done>### 	echo getResPixStats "simu3.frame1.fits" $($f_buff+$g_buff+1) $($f_buff+$g_buff+1) $imax_name_psf.fits
-			###<Done>### 	echo 
-			###<Done>### 	### <TODO> ### define aaa ?
-			###<Done>### }
-			set ResPixObsABS = ResABS
-			###<Done>### ###<Added><DZLIU>### <TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO>
-			
-			###<Done>### ###<Added><DZLIU>### <TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO>
-			###<Done>### macro read run_image_util.sm
-			###<Done>### getClosestDistance x$imax y$imax Aa Bb
-			###<Done>### set CloseDis = ClosestDistance
-			###<Done>### getCrowdnessVar x$imax y$imax Aa Bb
-			###<Done>### set CrowdVar = CrowdnessVar
-			#<DEL><20150604><dzliu># macro read run_image_util.sm
-			#<ADD><20150604><dzliu># load run_image_util.sm
-			#<DEL><20151217><dzliu># load run_image_util.sm
-			#<DEL><20151217><dzliu># getCrowdnessVar x$imax y$imax Aa Bb
-			#<ADD><20151217><dzliu># 
-			#<DEL><20151220><dzliu># load astroPhot.sm
-			#<DEL><20151220><dzliu># set_goodsn_photometry_constants_$imax
-			set PSFSizePix = $rBeam_$imax/$PixScale_$imax
-			set Sx$imax = x$imax concat Aa # Here join the prior list with the fake object in exam
-			set Sy$imax = y$imax concat Bb
-			load crowdiness.sm 
-			## set CrowdnessVar = calcOneCrowdiness_inPixel(Sx$imax,Sy$imax,Aa,Bb,$rBeam_$imax,1.5) ##<TODO>## Bug found 2015-12-23 03:42 Band100 galsim not affected.
-			set CrowdnessVar = calcOneCrowdiness_inPixel(Sx$imax,Sy$imax,Aa,Bb,PSFSizePix,1.5)
-			set CrowdVar = CrowdnessVar
-			set CloseDis = CrowdnessVar
-			###<Done>### ###<Added><DZLIU>### <TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO><TODO>
-			
-			echo ResABS=$(ResABS) ResPixObsABS=$(ResPixObsABS) CloseDis=$(CloseDis) CrowdVar=$(CrowdVar)
+			# Output to outfile
 			define pref_noheader $print_noheader
 			define print_noheader 1
 			echo 
@@ -809,6 +713,8 @@ goSS	00
 					read {Xid_ 1 Xra_ 2 Xde_ 3}
 					set x_si = Xra_
 					set y_si = Xde_
+					set fix1_si = x_si*0.0
+					set fix2_si = y_si*0.0
 					return
 				} else {
 					undef doPostParallel
