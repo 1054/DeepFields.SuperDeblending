@@ -374,7 +374,8 @@ goRead  00
 			if(is_file("fit.log")) {
 				
 				# Read fit.log
-				!grep -A1 "psf" "fit.log" | perl -p -e 's/[^0-9. +-]//g' | perl -p -e 's/--/\\n/g' > "fit.txt"
+				#!grep -A1 "psf" "fit.log" | perl -p -e 's/[^0-9. +-]//g' | perl -p -e 's/--/\\n/g' > "fit.txt"
+				!galfit_fit_log_to_fit_txt
 				if($?verbose==1) {define goRead_verbose $verbose} else {define goRead_verbose 1} verbose 0
 				data "fit.txt" read {xg 1.f yg 2.f _mag 3.f xg_err 4.f yg_err 5.f _err 6.f}
 				if($?goRead_verbose==1) {verbose $goRead_verbose}

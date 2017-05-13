@@ -1,0 +1,14 @@
+#!/bin/bash
+# 
+# Aim:
+#     read galfit fit.log and convert to a data table fit.txt
+# 
+# 
+# 
+if [[ ! -f "fit.log" ]]; then
+    exit
+fi
+
+grep -A1 "psf" "fit.log" | perl -p -e 's/[^0-9. +-]//g' | perl -p -e 's/--/\n/g' > "fit.txt"
+
+

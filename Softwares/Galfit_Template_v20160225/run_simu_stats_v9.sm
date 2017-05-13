@@ -201,7 +201,7 @@ run_simu_stats_v9 02
     #define NumberSteps 6
     
     #<20170111># 
-    define NumberSteps 3 # -- for 20cm and 24um
+    #define NumberSteps 3 # -- for 20cm and 24um
     
     
     
