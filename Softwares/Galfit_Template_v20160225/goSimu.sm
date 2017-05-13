@@ -375,14 +375,21 @@ goRead  00
 				
 				# Read fit.log
 				#!grep -A1 "psf" "fit.log" | perl -p -e 's/[^0-9. +-]//g' | perl -p -e 's/--/\\n/g' > "fit.txt"
-				!galfit_fit_log_to_fit_txt
+				#!galfit_fit_log_to_fit_txt
+				#if($?verbose==1) {define goRead_verbose $verbose} else {define goRead_verbose 1} verbose 0
+				#data "fit.txt" read {xg 1.f yg 2.f _mag 3.f xg_err 4.f yg_err 5.f _err 6.f}
+				#if($?goRead_verbose==1) {verbose $goRead_verbose}
 				if($?verbose==1) {define goRead_verbose $verbose} else {define goRead_verbose 1} verbose 0
-				data "fit.txt" read {xg 1.f yg 2.f _mag 3.f xg_err 4.f yg_err 5.f _err 6.f}
+				load astroGalfit.sm
+				readGalfitResult simu3.fits
 				if($?goRead_verbose==1) {verbose $goRead_verbose}
 				
+				# Initialize variables
+				foreach varvar {mm ee ResABS CloseDis CrowdVar ResPixObsABS} {set $varvar = -99}
+				
 				# Select the simulated object
-				set mm = _mag[dimen(_mag)-1] # the simulated object is the last fitted source
-				set ee = _err[dimen(_err)-1] # the simulated object is the last fitted source
+				set mm = ResultMags[dimen(ResultMags)-1] # _mag[dimen(_mag)-1] # the simulated object is the last fitted source
+				set ee = ResultMagsErr[dimen(ResultMagsErr)-1] # _err[dimen(_err)-1] # the simulated object is the last fitted source
 				
 				# Compute residual image flux -- #<ADD><20151220><dzliu># -- new and better written fresidual.sm code
 				load fresidual.sm

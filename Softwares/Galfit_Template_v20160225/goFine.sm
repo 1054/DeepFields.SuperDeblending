@@ -971,14 +971,23 @@ Rebuild_XXX
 		#<TODO><20170510># }
 		
 		# Read fit$var.log
-		#!grep -A1 "psf" fit$var.log | perl -p -e 's/[^0-9. +-]//g' | perl -p -e 's/--/\\n/g' > "fit.txt"
-		!galfit_fit_log_to_fit_txt
-		data "fit.txt" read {xg 1.f yg 2.f _mag 3.f xg_err 4.f yg_err 5.f _err 6.f}
+		#!grep -A1 "psf" fit$var.log | perl -p -e 's/[^0-9. +-]//g' | perl -p -e 's/--/\\n/g' > "fit.txt" # only works on Mac!
+		#!galfit_fit_log_to_fit_txt
+		#data "fit.txt" read {xg 1.f yg 2.f _mag 3.f xg_err 4.f yg_err 5.f _err 6.f}
+		# 
+		if($?verbose==1) {define rebuild_verbose $verbose} else {define rebuild_verbose 1} verbose 0
+		load astroGalfit.sm
+		readGalfitResult tmp.fits
+		set xg = ResultPosX set xg_err = ResultPosXErr
+		set yg = ResultPosY set yg_err = ResultPosYErr
+		set _mag = ResultMags set _err = ResultMagsErr
+		if($?rebuild_verbose==1) {verbose $rebuild_verbose}
 		
 		if(dimen(_err)!=dimen(_mag)) {echo PROBLEMI DI LETTURA FILES GALFIT --> BREAK with ctrl-C
 			define aaa ?
 			exit
 		}
+		
 		
 		###<DZLIU><Modified>### just moved the vary_positions condition to here
 		if($vary_positions) {
