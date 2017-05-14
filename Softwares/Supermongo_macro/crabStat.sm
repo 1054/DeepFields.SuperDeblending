@@ -318,16 +318,23 @@ crabStat_makeBins 04
                     while { abs(sum(rFenBinArray<$rFenBinEdge)-fenBinVolum[$iFenBin])>=$rFenBinToler } { #<TODO># tolerant 0!
                         ## echo fenBin:$(sum(rFenBinArray<($rFenBinEdge+$rFenBinStep))) ?> Volume=$(fenBinVolum[$iFenBin]) Step=$rFenBinStep
                         if ( sum(rFenBinArray<($rFenBinEdge+$rFenBinStep)) > fenBinVolum[$iFenBin] ) {
-                            define rFenBinStep $($rFenBinStep/10.0)
+                            ## echo define rFenBinStep $($rFenBinStep/2.0)
+                            define rFenBinStep $($rFenBinStep/2.0)
                         } else {
+                            ## echo define rFenBinEdge $($rFenBinEdge+$rFenBinStep)
                             define rFenBinEdge $($rFenBinEdge+$rFenBinStep)
                         }
-                        if ( $rFenBinCount > 100 ) {
+                        if ( $rFenBinCount > 30 ) {
                             define rFenBinToler $($rFenBinToler+1)
                             define rFenBinCount 0
                         } else {
                             define rFenBinCount $($rFenBinCount+1)
                         }
+                    }
+                    #<20170513><dzliu># what if failed to make that bin with desired fenBinVolum?
+                    if($rFenBinEdge==$lFenBinEdge) {
+                        define rFenBinStep $(($rFenBinMax-$rFenBinMin)/100.0)
+                        define rFenBinEdge $($rFenBinEdge+$rFenBinStep)
                     }
                 }
             } else {
@@ -382,14 +389,16 @@ crabStat_vecBins 09
         define lFenBinEdge $(fenBinEdges[$iFenBin-1])
         define rFenBinEdge $(fenBinEdges[$iFenBin])
         set TempBinFlag = ( fenBinArray>=$lFenBinEdge && fenBinArray<$rFenBinEdge )
-        set TempBinItem = vecBinArray if(TempBinFlag)
-        stats TempBinItem TempBinMean TempBinSigma TempBinKurtosis 
-        stats_med TempBinItem TempBinMedian TempBinSIQR
-        define TempBinRMS $(sqrt(sum(TempBinItem**2)/dimen(TempBinItem)))
-        set vecBinMeans[$iFenBin-1] = $TempBinMean
-        set vecBinMedians[$iFenBin-1] = $TempBinMedian
-        set vecBinSigmas[$iFenBin-1] = $TempBinSigma
-        set vecBinRMS[$iFenBin-1] = $TempBinRMS
+        if(sum(TempBinFlag)>0) {
+            set TempBinItem = vecBinArray if(TempBinFlag)
+            stats TempBinItem TempBinMean TempBinSigma TempBinKurtosis 
+            stats_med TempBinItem TempBinMedian TempBinSIQR
+            define TempBinRMS $(sqrt(sum(TempBinItem**2)/dimen(TempBinItem)))
+            set vecBinMeans[$iFenBin-1] = $TempBinMean
+            set vecBinMedians[$iFenBin-1] = $TempBinMedian
+            set vecBinSigmas[$iFenBin-1] = $TempBinSigma
+            set vecBinRMS[$iFenBin-1] = $TempBinRMS
+        }
     }
     set vecBinEdges = fenBinEdges
     set $6 = vecBinMeans

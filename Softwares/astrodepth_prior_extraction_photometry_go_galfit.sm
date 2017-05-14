@@ -454,6 +454,7 @@ print_result_final 00
             data "fit_0.result" read {x_fit_0 1.f y_fit_0 2.f f_fit_0 3.f df_fit_0 4.f cid_fit_0 13.f}
             data "fit_1.result" read {x_fit_1 1.f y_fit_1 2.f f_fit_1 3.f df_fit_1 4.f cid_fit_1 13.f}
             data "fit_2.result" read {x_fit_2 1.f y_fit_2 2.f f_fit_2 3.f df_fit_2 4.f cid_fit_2 13.f}
+            data "fit_2.result" read {Maj 7.f Maj_err 8.f Min 9.f Min_err 10.f PA 11.f PA_err 12.f} #<20170514><dzliu># Maj Min are already arcsec unit
             define print_noheader 1
             print "getpix.sky2xy.input" '%15.4f %15.4f\n' {x_getpix y_getpix}
             print "fit_0.sky2xy.input" '%15.4f %15.4f\n' {x_fit_0 y_fit_0}
@@ -491,6 +492,7 @@ print_result_final 00
             print "fit_0.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_0 dec_fit_0 f_fit_0 df_fit_0 snr_fit_0 id_fit_0}
             print "fit_1.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_1 dec_fit_1 f_fit_1 df_fit_1 snr_fit_1 id_fit_1}
             print "fit_2.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_2 dec_fit_2 f_fit_2 df_fit_2 snr_fit_2 id_fit_2}
+            print "fit_2.result.ra.dec.Maj.Min.PA.id" '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15s\n' {ra_fit_2 dec_fit_2 Maj Maj_err Min Min_err PA PA_err id_fit_2} #<20170514><dzliu>#
         } else {
             data "getpix.result" read {f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 5.f}
             data "getpix.input" read {x_getpix 1.f y_getpix 2.f}
@@ -533,6 +535,7 @@ print_result_final_on_negative_image 00
             data "fit_n0.result" read {x_fit_n0 1.f y_fit_n0 2.f f_fit_n0 3.f df_fit_n0 4.f cid_fit_n0 13.f}
             data "fit_n1.result" read {x_fit_n1 1.f y_fit_n1 2.f f_fit_n1 3.f df_fit_n1 4.f cid_fit_n1 13.f}
             data "fit_n2.result" read {x_fit_n2 1.f y_fit_n2 2.f f_fit_n2 3.f df_fit_n2 4.f cid_fit_n2 13.f}
+            data "fit_n2.result" read {Maj 7.f Maj_err 8.f Min 9.f Min_err 10.f PA 11.f PA_err 12.f} #<20170514><dzliu># Maj Min are already arcsec unit
             define print_noheader 1
             print "getpix_on_negative_image.sky2xy.input" '%15.4f %15.4f\n' {x_getpix y_getpix}
             print "fit_n0.sky2xy.input" '%15.4f %15.4f\n' {x_fit_n0 y_fit_n0}
@@ -570,6 +573,7 @@ print_result_final_on_negative_image 00
             print "fit_n0.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_n0 dec_fit_n0 f_fit_n0 df_fit_n0 snr_fit_n0 id_fit_n0}
             print "fit_n1.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_n1 dec_fit_n1 f_fit_n1 df_fit_n1 snr_fit_n1 id_fit_n1}
             print "fit_n2.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_n2 dec_fit_n2 f_fit_n2 df_fit_n2 snr_fit_n2 id_fit_n2}
+            print "fit_n2.result.ra.dec.Maj.Min.PA.id" '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15s\n' {ra_fit_n2 dec_fit_n2 Maj Maj_err Min Min_err PA PA_err id_fit_n2} #<20170514><dzliu>#
         } else {
             data "getpix_on_negative_image.result" read {f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 5.f}
             data "getpix_on_negative_image.input" read {x_getpix 1.f y_getpix 2.f}
