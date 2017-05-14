@@ -914,7 +914,8 @@ Rebuild_XXX
 		
 		foreach var runid {
 		###<DZLIU><Modified>### 
-		if($?doPostParallel) { if($doPostParallel==1) { echo "boxgalfit/box"$var } }
+		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==0) { echo "boxgalfit/box"$var } } }
+		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) { echo "boxgalfit_vary/box"$var } } }
 		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==0) { chdir "boxgalfit/box"$var } } }  ###<Added><DZLIU>### doPostParallel
 		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) { chdir "boxgalfit_vary/box"$var } } }  ###<Added><DZLIU>### doPostParallel
 		#<TODO><20170510># #if($?doPostParallel) { if($doPostParallel==1) { !cp fit.log fit$var".log" } } ###<DZLIU><Modified><20161028><for_Gaussian>###

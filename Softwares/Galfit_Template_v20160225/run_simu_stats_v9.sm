@@ -165,7 +165,9 @@ run_simu_stats_v9 02
         define FinalScaling 1.00 # 0.95
     }
     if('$imax'=='850') {
-        #<20170104># define FinalScaling 0.95 -- this is before 20170104
+        define FinalScaling 0.95
+    }
+    if('$imax'=='850_NMF') {
         define FinalScaling 1.00
     }
     
@@ -201,7 +203,7 @@ run_simu_stats_v9 02
     #define NumberSteps 6
     
     #<20170111># 
-    #define NumberSteps 3 # -- for 20cm and 24um
+    define NumberSteps 3 # -- for 20cm and 24um
     
     
     
@@ -429,7 +431,27 @@ go_analyze_step 01
             if(index('$1','3')==0) {
                 if('$imax'=='20cm') {set binVolume = <400 30 15 10 7>}
                 if('$imax'=='24') {set binVolume = <30 70 100 70 50 30 7>}
-                if('$imax'=='850_NMF') {set binVolume = <400 30 15 10 7>}
+            }
+            # 
+            # <TODO><20170513> 850um
+            if('$imax'=='850') {
+                if('$1'=='1') {
+                    set binVolume = <0.1 1 4 4 2 1 0.5 0.1>
+                    set binVolume = 2.71828**binVolume
+                }
+                if('$1'=='3') { 
+                    set binVolume = <3 2 1 1 1 1>
+                    set binVolume = 2.71828**binVolume
+                }
+            }
+            if('$imax'=='850_NMF') {
+                if('$1'=='1') {
+                    #set binVolume = -7
+                    set binVolume = <1000 1000 50 50 30 10>
+                }
+                if('$1'=='3') { 
+                    set binVolume = <1589 300 300 300 40>
+                }
             }
         }
         if(dimen(binVolume)>0) {
@@ -979,6 +1001,7 @@ go_plot_fbias 02
     set rangeY1 = (f)          if(fbias_coo)
     set rangeY2 = (f+fbias_$1) if(fbias_coo)
     set rangeY = rangeY1 concat rangeY2
+    set rangeY = rangeY concat 0.0
     #<lg>#set rangeY = (lg(rangeY1)) concat (lg(rangeY2))
     determinePlotLocation
     determinePlotTicksize $1
@@ -1206,6 +1229,9 @@ go_correct_three_step_recipes
     if(!is_vector(crow$imax)) {
         load crowdedness.sm
         set fit_crow = crowdedness(fit_ra, fit_de, $rBeam_$imax, 1.5)
+        set fit_crow_beam = fit_ra*0.0 + $rBeam_$imax
+        set fit_crow_radius = fit_ra*0.0 + 1.5
+        print "aaa_crowdedness_calculation.txt" '%15g%15.7f%15.7f%15.3f%15.3f\n' <fit_crow fit_ra fit_de fit_crow_beam fit_crow_radius>
         set crow$imax = float(ra$imax)*0.0-99
         set crow$imax[fit_sid] = fit_crow
         print "aaa_crowdedness.txt" '%15g%15.0f%15.3f%15.3f%15g%15g\n' <crow$imax id$imax x$imax y$imax f$imax df$imax>
@@ -1318,6 +1344,7 @@ go_correct_fbias 03
     # do the correction for only good data points
     load crabStat.sm
     set fbias_coo = (f$imax>0.1*df$imax) #<TODO># we only correct S/N>0.1 data -- S/N limit -- SNR limit <TODO>
+    #<20170513><test>#if($?2) {set fbias_coo = fbias_coo && (($2)!=-99)}
     set fbias_cid = 0,dimen(f$imax)-1 
     set fbias_cid = fbias_cid if(fbias_coo)
     set f$imax""_uncorr_$1 = f$imax
@@ -1329,8 +1356,8 @@ go_correct_fbias 03
         ### data $outdir"/FUN_fbias_"$1".txt"
         ### read FUN_fbias_$1 1
         set fbias_var = $2
-        set VAR_fbias_$1 = fbias_var[fbias_cid]
-        set fbias_$1[fbias_cid] = get_PolyLine(FUN_fbias_$1, VAR_fbias_$1)
+        set VAR_fbias_$1 = fbias_var
+        set fbias_$1[fbias_cid] = get_PolyLine(FUN_fbias_$1, VAR_fbias_$1[fbias_cid])
         go_constrain_fbias $1
     }
     # 
@@ -1417,6 +1444,7 @@ go_correct_df 03
     # do the correction for only good data points
     load crabStat.sm
     set dfcorr_coo = (df$imax>0 && df$imax<1e10)
+    #<20170513><test>#if($?2) {set dfcorr_coo = dfcorr_coo && (($2)!=-99)}
     set dfcorr_cid = 0,dimen(df$imax)-1
     set dfcorr_cid = dfcorr_cid if(dfcorr_coo)
     #<CORRECTED><BUG><20151230># set dfcorr_cid = dfcorr_cid if(f$imax>0.1*df$imax) #<TODO># we only correct S/N>0.1 data
@@ -1506,10 +1534,10 @@ go_constrain_fbias 01
             #    set fbias_$1 = (VAR_fbias_$1"">fbias_$1""_last_bin_center && abs(fbias_$1)>abs(fbias_$1""_last_bin_value)) ? fbias_$1""_last_bin_value : fbias_$1
             #} 
             #if(fbias_$1""_last_bin_trend == -1) {
-            if( ('$imax'=='850' && '$1'=='2') || \
-                ('$imax'=='1160' && '$1'=='2') || \
-                ('$imax'=='850' && index('$1','2')==0) || \
-                ('$imax'=='1160' && index('$1','2')==0) \
+            if( (index('$imax','850')==0 && '$1'=='2') || \
+                (index('$imax','1160')==0 && '$1'=='2') || \
+                (index('$imax','850')==0 && index('$1','2')==0) || \
+                (index('$imax','1160')==0 && index('$1','2')==0) \
               ) {
                 echo ""
                 echo ""
@@ -1604,10 +1632,19 @@ go_constrain_dfcorr 01
             #    set dfcorr_$1 = (VAR_dfcorr_$1""<dfcorr_$1""_first_bin_center && dfcorr_$1<dfcorr_$1""_first_bin_value) ? dfcorr_$1""_first_bin_value : dfcorr_$1
             #}
             #if() {
+            if( (index('$imax','850')==0 && index('$1','3')==0) \
+              ) {
+                echo ""
+                echo ""
+                echo "We do not do left edge constraining for Band "$imax" Step "$1" dfcorr correction!"
+                echo ""
+                echo ""
+            } else {
                 # if same sign, constrain the abs(dfcorr) to be in between 1.0 and abs(last_bin_value)
                 # if diff sign, constrain the dfcorr to be 1.0
                 set dfcorr_$1 = (VAR_dfcorr_$1<dfcorr_$1""_first_bin_center && lg(dfcorr_$1)*lg(dfcorr_$1""_first_bin_value)>0 && abs(lg(dfcorr_$1))>abs(lg(dfcorr_$1""_first_bin_value))) ? dfcorr_$1""_first_bin_value : dfcorr_$1
                 set dfcorr_$1 = (VAR_dfcorr_$1<dfcorr_$1""_first_bin_center && lg(dfcorr_$1)*lg(dfcorr_$1""_first_bin_value)<0) ? 1.0 : dfcorr_$1
+            }
             #}
         }
     }

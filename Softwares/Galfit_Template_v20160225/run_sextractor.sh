@@ -7,6 +7,8 @@
 # Usage:
 #    ./run_sextractor.sh -band 250 -catalog-old Residual_priors_Band160_Revised.txt -catalog-output Residual_priors_Band250_Trial.txt -fitresults-map FIT_goodsn_250_Map_201601.fits -rms-map spire250_rms_3p6_v0_100615.fits -detect-thresh 1.5 -detect-minarea 2
 # 
+#    ./run_sextractor.sh -band 850 -catalog-old Residual_priors_before_850.txt -catalog-output Residual_priors_850_Trial.txt -fitresults-map FIT_goodsn_850_Map_20170506_vary.fits -rms-map S2CLS_GOODSN_MF_RMS_DR1_NoNaN.fits -detect-thresh 2.5 -detect-minarea 2
+# 
 
 # 
 # Prepare Variables
@@ -182,8 +184,8 @@ fi
 # 
 # Run do_sextract_mask.pro
 # 
-echo "cd into $(dirname ${BASH_SOURCE})/run_sextractor/"; echo "idlsg -e 'do_SExtract_Mask, FITPhoto = \"$GALFIT_RESULTS_MAP\", RMSPhoto = \"$GALFIT_FITTING_RMS\"'"; echo "-----------------------------------------------------------------------------"
-bash -c "cd $(dirname ${BASH_SOURCE})/run_sextractor/; idlsg -e 'do_SExtract_Mask, FITPhoto = \"$GALFIT_RESULTS_MAP\", RMSPhoto = \"$GALFIT_FITTING_RMS\"'"; echo "-----------------------------------------------------------------------------"
+echo "cd into $(dirname ${BASH_SOURCE})/run_sextractor/"; echo "idl -e 'do_SExtract_Mask, FITPhoto = \"$GALFIT_RESULTS_MAP\", RMSPhoto = \"$GALFIT_FITTING_RMS\"'"; echo "-----------------------------------------------------------------------------"
+bash -c "cd $(dirname ${BASH_SOURCE})/run_sextractor/; idl -e 'do_SExtract_Mask, FITPhoto = \"$GALFIT_RESULTS_MAP\", RMSPhoto = \"$GALFIT_FITTING_RMS\"'"; echo "-----------------------------------------------------------------------------"
 
 # 
 # Show ds9

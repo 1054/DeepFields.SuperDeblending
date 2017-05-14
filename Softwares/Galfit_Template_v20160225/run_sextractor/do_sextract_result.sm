@@ -93,7 +93,7 @@ go 01
     # compute noise24 for goodArea
     set n24_rad = n24_px*0.0+3.0
     print "zzz_aperphot_input" '%15.3f%15.3f%15g\n' {n24_px n24_py n24_rad}
-    !CrabPhotAperPhot $(rmsfits24) noinfo "zzz_aperphot_input" > "zzz_aperphot_output"
+    !CrabPhotAperPhot -header-no-comment $(rmsfits24) noinfo "zzz_aperphot_input" > "zzz_aperphot_output"
     !CrabTableReadColumn "zzz_aperphot_output" "max" > "zzz_aperphot_output_colmax"
     data "zzz_aperphot_output_colmax" lines 2 0
     read noi24 1

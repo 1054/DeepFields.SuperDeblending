@@ -428,6 +428,7 @@ if [[ x"$Superdeblending_Field" == x"GOODSN" || \
           "$Superdeblending_Band" == "350" || \
           "$Superdeblending_Band" == "500" || \
           "$Superdeblending_Band" == "850" || \
+          "$Superdeblending_Band" == "850_NMF" || \
           "$Superdeblending_Band" == "1160" || \
           "$Superdeblending_Band" == "16" || \
           "$Superdeblending_Band" == "24" || \
@@ -928,6 +929,7 @@ fi
 if [[ "$Superdeblending_Band" == "100" || \
       "$Superdeblending_Band" == "160" || \
       "$Superdeblending_Band" == "850" || \
+      "$Superdeblending_Band" == "850_NMF" || \
       "$Superdeblending_Band" == "16" || \
       "$Superdeblending_Band" == "24" || \
       "$Superdeblending_Band" == "20cm" ]]; then
