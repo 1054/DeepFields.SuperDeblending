@@ -1,10 +1,16 @@
 ; 
+; Aim
+;              -- make montage/stamps/cutouts for deep field galaxy
+; 
 ; Main Program 
 ;              -- AstroDepthFaireMontage
 ;              -- ; old name: 
 ;              -- ; AstroDepthMakeStamp
 ;                 (See code below)
 ;  
+; Last update
+;              -- 20170228 dzliu 
+; 
 
 
 
