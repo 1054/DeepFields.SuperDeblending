@@ -68,7 +68,7 @@ plotColorBar 07
     # 
     #     macro read plotColorBar.sm plotColorBar
     # 
-    if(!$?1) {print 'plotColorBar: Error! No input data!\n' {} 
+    if(!$?5) {print 'plotColorBar: Error! No input data!\n' {} 
               print '       usage: plotColorBar DevicePosX DevicePosY DeviceWidth DeviceHeight DataArray DataMin DataMax\n' {}
               print '       set 0 for DevicePosX DevicePosY DeviceWidth DeviceHeight will force the macro ' {}
               print 'to use default values 19000 7000 9000 2000\n' {}
@@ -80,7 +80,7 @@ plotColorBar 07
               return}
     if($?6) {set plotColorBarDataMin=$6} else {unset plotColorBarDataMin}
     if($?7) {set plotColorBarDataMax=$7} else {unset plotColorBarDataMax}
-    plotColorBar_value2tickets $5 set $5""_Colors = pcbg_colors
+    plotColorBar_value2tickets $5 set $5""_Colors = pcbg_colors set $5""_Values = $5
     plotColorBar_init $1 $2 $3 $4 pcbg_tickets
     plotColorBar_gcolours
     plotColorBar_gsave
@@ -103,7 +103,7 @@ plotColorBar 07
             set pcbg_tx = plotColorBarTickSize
             set pcbg_tf = plotColorBarTickFormat
             set pcbg_tk = plotColorBarTickets[$pcbg_i]
-            expand $(pcbg_tx) relocate 0.4 0.0 putlabel 2 $(sprintf('$(pcbg_tf)',float(pcbg_tk)))
+            expand $(pcbg_tx) lweight 3.5 relocate 0.4 0.0 putlabel 2 $(sprintf('$(pcbg_tf)',float(pcbg_tk)))
         }
     }
     plotColorBar_grestore

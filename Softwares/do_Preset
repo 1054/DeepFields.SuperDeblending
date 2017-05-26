@@ -300,7 +300,7 @@ if [[ x"$DG_FMSK" != x"NONE" ]]; then
         echo ; echo "Error! Fits file $DG_FMSK.fits does not exist! Abort!"; exit 1
     fi
 else
-    echo ; echo "We do not set fitsname-psf and will use the default psf fits image!"
+    echo ; echo "We do not set goodArea mask map and will use the default mask fits image!"
 fi
 # 
 if [[ x"$DG_CATB" != x"NONE" ]]; then

@@ -105,9 +105,50 @@ calc_Bethermin2014_U 02
     set _Bethermin2014_z = $1
     set _Bethermin2014_opz = 1.0 + _Bethermin2014_z
     set _Bethermin2014_U = 3.0 * _Bethermin2014_opz**1.8
+    set _Bethermin2014_U = _Bethermin2014_U<=50.0? _Bethermin2014_U: 50.0
     if($?2) {if($2>=1) {set _Bethermin2014_U = 31.0} }
     set $0 = _Bethermin2014_U
     return
+
+calc_Schechter 04
+    # compute Schechter function
+    # input arguments are Phi, Mchar, alpha
+    if(!$?3) {print 'Usage: calc_Schechter_Muzzin lgMchar Phi alpha \# => output vector: Schechter_M, Schechter_P, Schechter_M_log10, Schechter_P_log10\n' {} return}
+    set Schechter_Mchar_log10 = ($1) # should be in log10 space
+    set Schechter_Pchar = ($2) # should be in linear space
+    set Schechter_alpha = ($3)
+    set Schechter_style = 'default' # == 'grazian'
+    set Schechter_Mstep = 0.10
+    # the 4th argument is style: Muzzin, 
+    if($?4) {
+        verbose 0 
+        !echo $4 | tr '[:upper:]' '[:lower:]' > ".calc_Schechter.tmp"
+        data ".calc_Schechter.tmp" read Schechter_style 1.s
+        verbose 1
+    }
+    set Schechter_M_log10 = 7.0,13.0,$(Schechter_Mstep) # default log10 stellar mass range, down to 8.0 <TODO>
+    set Schechter_M = 10**Schechter_M_log10
+    set Schechter_D_log10 = Schechter_M_log10 - Schechter_Mchar_log10 # in log10 space
+    set Schechter_E = 10**Schechter_D_log10 # in linear space
+    set Schechter_S = Schechter_Pchar * Schechter_E**(1.0+Schechter_alpha) # https://arxiv.org/pdf/1507.05636v2.pdf -- Page 14 right bottom
+    #if(Schechter_style=='muzzin' || Schechter_style=='grazian') {
+    #    set Schechter_S = Schechter_Pchar * 10**(Schechter_D_log10*(1.0+Schechter_alpha)) # Muzzin, Grazian
+    #    #              == Schechter_Pchar * (10**(Schechter_D_log10))**(1.0+Schechter_alpha)
+    #    #              == Schechter_Pchar * Schechter_E**(1.0+Schechter_alpha)
+    #}
+    set Schechter_P = exp(-Schechter_E) * Schechter_S
+    set Schechter_P = Schechter_P * ln(10)
+    #if(Schechter_style=='muzzin' || Schechter_style=='grazian' || Schechter_style=='baldry' || Schechter_style=='default' || Schechter_style=='pengyingjie') {
+    #    set Schechter_P = Schechter_P * ln(10) # Muzzin2013 needs to multiply ln(10) to account for (1+alpha) dM_*
+    #}
+    # 
+    # -- <TODO><dzliu> -- add a sharp end at lgMstar ~ 7.5
+    #set Schechter_P = (Schechter_M_log10<7.5) ? Schechter_P * exp(-((Schechter_M_log10-7.5)/(2.0*0.25))**2) : Schechter_P
+    # 
+    set Schechter_P = Schechter_P>0 ? Schechter_P : 1e-99
+    set Schechter_P_log10 = lg(Schechter_P) # output in log10 space with unit [1/Mpc^3/dex]
+    # 
+    print 'calc_Schechter: output vector: Schechter_M, Schechter_P, Schechter_M_log10, Schechter_P_log10\n' {}
 
 calc_z_bin_center_weighted_by_stellar_mass 02
     # 
@@ -1007,7 +1048,9 @@ calc_Gladders2013_CSFRD 03
         !lumdist $(_cosmic_z[$_cosmic_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
     }
     if(is_file(.cosmic.comoving.distance.tmp)) {
+        verbose 0
         data .cosmic.comoving.distance.tmp read {_cosmic_t_age 3} # Gyr
+        verbose 1
     } else { print 'Error! Failed to run lumdist!\n' {} return }
     set Gladders2013_t0 = 1.64 # Gyr
     set Gladders2013_tau = 0.66 # Gyr
@@ -1033,7 +1076,9 @@ calc_Abramson2016_CSFRD 03
         !lumdist $(_cosmic_z[$_cosmic_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
     }
     if(is_file(.cosmic.comoving.distance.tmp)) {
+        verbose 0
         data .cosmic.comoving.distance.tmp read {_cosmic_t_age 3} # Gyr
+        verbose 1
     } else { print 'Error! Failed to run lumdist!\n' {} return }
     set Abramson2016_t0 = 1.64 # Gyr
     set Abramson2016_tau = 0.66 # Gyr
@@ -1071,6 +1116,50 @@ calc_MadauDickinson2014_CSFRD 04
     set $0 = MadauDickinson2014_SFR
     return
 
+calc_Liu2017_CSFRD 04
+    # input z
+    # output cosmic SFR Density, in Chabrier IMF
+    # ref: https://ned.ipac.caltech.edu/level5/March14/Madau/Madau5.html#Table%201 Eq(15)
+    if($?1==0){print 'Usage: set CSFRD = calc_Liu2017_CSFRD(z)\n' {} return}
+    set Liu2017_z = float($1)
+    set Liu2017_a = 3.45
+    set Liu2017_b = 2.70
+    set Liu2017_c = 5.60
+    if($?2) {set Liu2017_a = float($2)}
+    if($?3) {set Liu2017_b = float($3)}
+    if($?4) {set Liu2017_c = float($4)}
+    set Liu2017_SFR = 0.0071 * (1+Liu2017_z)**Liu2017_a / (1.0 + ((1+Liu2017_z)/Liu2017_b)**Liu2017_c )
+    set $0 = Liu2017_SFR
+    return
+
+calc_Liu2017_CSFRD_lognormal 04
+    # input z
+    # input arg2 T0 -- an age parameter in unit of Gyr
+    # input arg3 tau -- an age width parameter in unit of Gyr
+    # output cosmic SFR Density, in Chabrier IMF
+    # paper: Abramson - 2016 - lognormalcy Rethinking Quenching SF-MS and More - 1604.00016.pdf  Eq.(1)
+    if($?1==0){print 'Usage: set CSFRD = calc_Liu2017_CSFRD_lognormal(z)\n' {} return}
+    set _cosmic_z = float($1)
+    !rm .cosmic.comoving.distance.tmp 2>/dev/null
+    do _cosmic_j=0,dimen(_cosmic_z)-1 {
+        #if($verbose) {echo Computing lumdist $(_cosmic_z[$_cosmic_j]) -verbose}
+        !lumdist $(_cosmic_z[$_cosmic_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
+    }
+    if(is_file(.cosmic.comoving.distance.tmp)) {
+        verbose 0
+        data .cosmic.comoving.distance.tmp read {_cosmic_t_age 3} # Gyr
+        verbose 1
+    } else { print 'Error! Failed to run lumdist!\n' {} return }
+    set Liu2017_t0 = 1.60 # Gyr
+    set Liu2017_tau = 0.70 # Gyr
+    if($?2) {set Liu2017_t0 = float($2)}
+    if($?3) {set Liu2017_tau = float($3)}
+    set Liu2017_SFR_1 = 0.624/(_cosmic_t_age*sqrt(2*pi*Liu2017_tau**2))
+    set Liu2017_SFR_2 = exp(-(ln(_cosmic_t_age)-Liu2017_t0)**2/(2*Liu2017_tau**2))
+    set _cosmic_SFR = Liu2017_SFR_1 * Liu2017_SFR_2
+    set $0 = _cosmic_SFR
+    return
+
 calc_comoving_volume 03
     # http://www.astro.ufl.edu/~guzman/ast7939/projects/project01.html Eq(27)
     # https://ned.ipac.caltech.edu/level5/Hogg/Hogg9.html Eq(27)
@@ -1079,6 +1168,7 @@ calc_comoving_volume 03
     #        set dVc = calc_comoving_volume($((2.5+4.0)/2),$(4.0-2.5),165)
     #        set dVc = calc_comoving_volume($((5.0+3.5)/2),$(5.0-3.5),165) # http://arxiv.org/pdf/0901.3341.pdf
     #        set dVc = calc_comoving_volume(5.7,0.1,320) # http://arxiv.org/pdf/astro-ph/0510672.pdf
+    #        set dVc = calc_comoving_volume(4.5,0.5,134)
     # 
     if(!$?3) {
         print 'Usage: set dVc = calc_comoving_volume(z_bin_center,z_bin_wdith,survey_area_square_arcmin)\n' {}
@@ -1127,8 +1217,10 @@ calc_comoving_volume 03
                 !lumdist -verbose $(_cosmic_Sz[$_cosmic_j]) | grep 'lumdist d_L=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
             }
             if(is_file(.cosmic.comoving.distance.tmp)) {
+                verbose 0
                 data .cosmic.comoving.distance.tmp read {_cosmic_DL 3 _cosmic_DC 6 _cosmic_DA 9}
                 !rm .cosmic.comoving.distance.tmp
+                verbose 1
             } else {
                 print 'Error! Failed to run lumdist!\n' {}
                 return
@@ -1172,7 +1264,9 @@ calc_cosmic_age 01
         !lumdist $(_calc_cosmic_age_z[$_calc_cosmic_age_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
     }
     if(is_file(.cosmic.comoving.distance.tmp)) {
+        verbose 0
         data .cosmic.comoving.distance.tmp read {_calc_cosmic_age_age 3} # Gyr
+        verbose 1
     } else { print 'Error! Failed to run lumdist!\n' {} return }
     set $0 = _calc_cosmic_age_age
     return
@@ -1188,7 +1282,9 @@ calc_cosmic_lookbacktime 01
         !lumdist $(_calc_cosmic_age_z[$_calc_cosmic_age_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
     }
     if(is_file(.cosmic.comoving.distance.tmp)) {
+        verbose 0
         data .cosmic.comoving.distance.tmp read {_calc_cosmic_age_lookbacktime 6} # Gyr
+        verbose 1
     } else { print 'Error! Failed to run lumdist!\n' {} return }
     set $0 = _calc_cosmic_age_lookbacktime
     return

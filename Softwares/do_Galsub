@@ -109,7 +109,7 @@ sm << EOF | tee "$DG_FLOG.smlog"
     !date +'%F %B %T %Z' >> history.txt
     !echo "Subtracted "\$(dimen(idF))" sources that are predicted to be very faint at $DG_IMAX um." >> history.txt
     !echo "When subtracting these sources, Xback = 0, and prior magnitude from " >> history.txt
-    !echo "SED_predictions_goodsn_$DG_FSED.txt" >> history.txt 
+    !echo "$DG_FSED.txt" >> history.txt 
     !echo " " >> history.txt
     ###### FIT & REBUILD
     define use_prior_mags 1
