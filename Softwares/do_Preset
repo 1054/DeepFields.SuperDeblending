@@ -331,8 +331,8 @@ fi
 echo ; echo "We will log into $DG_FLOG.smlog"
 # 
 # more -- checking files
-if [[ ! -f "goFine.sm" ]]; then ln -fs "../goFine.sm"; fi
-if [[ ! -f "goSimu.sm" ]]; then ln -fs "../goSimu.sm"; fi
+if [[ ! -f "goFine.sm" && -f "../goFine.sm" ]]; then ln -fs "../goFine.sm"; fi
+if [[ ! -f "goSimu.sm" && -f "../goSimu.sm" ]]; then ln -fs "../goSimu.sm"; fi
 # if [[ ! -f "run_image_util.sm" ]]; then ln -fs "../run_image_util.sm"; fi
 # if [[ ! -f "run_update_catalog.sm" ]]; then ln -fs "../run_update_catalog.sm"; fi
 # 

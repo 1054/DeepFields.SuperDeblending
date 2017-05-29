@@ -5,6 +5,8 @@ set -e
 
 . do_Preset Galsub $*
 
+if [[ ! -f "goFine.sm" ]]; then echo "Error! \"goFine.sm\" was not found!"; exit; fi
+
 sm << EOF | tee "$DG_FLOG.smlog"
     
     ##### EDIT goFine.sm xSet_$DG_IMAX

@@ -5,6 +5,8 @@ set -e
 
 . do_Preset Galsim $*
 
+if [[ ! -f "goFine.sm" ]]; then echo "Error! \"goFine.sm\" was not found!"; exit; fi
+
 # 
 # 
 DG_FAKE=0
