@@ -179,6 +179,14 @@ while [[ $# -gt 0 ]]; do
                         done
                         ;;
                        
+       "-sed-predict"*) shift
+                        while [[ $# -gt 0 ]]; do
+                            if [[ "$1" != "-"* ]]; then
+                                DG_FSED="$(echo $1 | sed 's/\.txt$//g')"
+                            else break; fi; shift
+                        done
+                        ;;
+                       
            "-fitsname") shift
                         while [[ $# -gt 0 ]]; do
                             if [[ "$1" != "-"* ]]; then
