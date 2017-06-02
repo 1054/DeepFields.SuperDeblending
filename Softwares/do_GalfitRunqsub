@@ -150,8 +150,8 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
                 echo               "$PWD/${GalfitRunList[i]}.$(hostname).sh"
                 echo Adding screen task "${GalfitRunList[i]}.$(hostname).sh"
                 screen -d -S "galfit_$(date +%s)_$i" -m bash -c "$PWD/${GalfitRunList[i]}.$(hostname).sh"
-                echo Sleeping 1s
-                sleep 1
+                echo Sleeping 0.25s
+                sleep 0.25
             else
                 echo Checking hostname $(hostname)
                 cp  "${GalfitRunList[i]}"                  "${GalfitRunList[i]}.$(hostname).sh"
