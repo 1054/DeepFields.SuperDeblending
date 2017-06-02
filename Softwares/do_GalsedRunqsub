@@ -201,12 +201,12 @@ for i in $runsedid; do
                     qsub -l walltime=3:15:00 "fit_parallel_HDFN/run_$i.sh"
                     echo Sleeping 3s
                     sleep 3
-                elif [[ $(hostname) == *"astro-node4"* ]]; then 
+                elif [[ $(hostname) == *"astro-node"* ]]; then 
                     echo $(hostname)
-                    echo Counting screen task "$(screen -ls | grep "galsed_" | wc -l)"
-                    while        [[   12  -le "$(screen -ls | grep "galsed_" | wc -l)" ]]; do
-                    sleep             30
-                    echo Counting screen task "$(screen -ls | grep "galsed_" | wc -l)"
+                    echo "Counting screen task "$(screen -ls | grep "galsed_" | wc -l)
+                    while       [[   12  -le    $(screen -ls | grep "galsed_" | wc -l) ]]; do
+                    sleep            30
+                    echo "Counting screen task "$(screen -ls | grep "galsed_" | wc -l)
                     done
                     echo               "$PWD/fit_parallel_HDFN/run_$i.sh"
                     echo Adding screen task "fit_parallel_HDFN/run_$i.sh"

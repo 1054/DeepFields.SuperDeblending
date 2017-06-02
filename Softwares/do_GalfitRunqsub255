@@ -139,25 +139,28 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
                 echo Checking hostname $(hostname)
                 cp  "${GalfitRunList[i]}"                           "${GalfitRunList[i]}.$(hostname).sh"
                 sed -i -e "2 i export PATH=$SUPERDEBLENDDIR:\$PATH" "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> prepend the $PATH where one can find galfit
-                sed -i -e "s%^cd .*/boxgalfit_vary/%cd %g"          "${GalfitRunList[i]}.$(hostname).sh"
-                sed -i -e "s%^cd .*/boxgalfit/%cd %g"               "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "s%^cd .*/boxgalfit_vary/%cd $PWD/%g"     "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "s%^cd .*/boxgalfit/%cd $PWD/%g"          "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "s%^cd boxgalfit_vary/%cd $PWD/%g"        "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "s%^cd boxgalfit/%cd $PWD/%g"             "${GalfitRunList[i]}.$(hostname).sh"
                 sed -i -e "s%^.*/galfit %galfit255 -imax 1000 %g"   "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> assume the galfit is already in your $PATH
-                chmod a+x "${GalfitRunList[i]}.$(hostname).sh"
-                echo Counting screen task "$(screen -ls | grep "galfit_" | wc -l)"
-                while        [[   20  -le "$(screen -ls | grep "galfit_" | wc -l)" ]]; do
-                sleep             10
-                echo Counting screen task "$(screen -ls | grep "galfit_" | wc -l)"
+                sed -i -e "s%^galfit %galfit255 -imax 1000 %g"      "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> assume the galfit is already in your $PATH
+                chmod a+x                                           "${GalfitRunList[i]}.$(hostname).sh"
+                echo "Counting screen task "$(screen -ls | grep "galfit_" | wc -l)
+                while       [[   20  -le    $(screen -ls | grep "galfit_" | wc -l) ]]; do
+                sleep            10
+                echo "Counting screen task "$(screen -ls | grep "galfit_" | wc -l)
                 done
-                echo               "$PWD/${GalfitRunList[i]}.$(hostname).sh"
-                echo Adding screen task "${GalfitRunList[i]}.$(hostname).sh"
+                echo                                            "$PWD/${GalfitRunList[i]}.$(hostname).sh"
+                echo                              "Adding screen task ${GalfitRunList[i]}.$(hostname).sh"
                 screen -d -S "galfit_$(date +%s)_$i" -m bash -c "$PWD/${GalfitRunList[i]}.$(hostname).sh"
                 echo Sleeping 0.25s
                 sleep 0.25
             else
                 echo Checking hostname $(hostname)
-                cp  "${GalfitRunList[i]}"                         "${GalfitRunList[i]}.$(hostname).sh"
-                sed -i -e "s%^cd .*/boxgalfit_vary/%cd %g"        "${GalfitRunList[i]}.$(hostname).sh"
-                sed -i -e "s%^cd .*/boxgalfit/%cd %g"             "${GalfitRunList[i]}.$(hostname).sh"
+                cp  "${GalfitRunList[i]}"                  "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "s%^cd .*/boxgalfit_vary/%cd %g" "${GalfitRunList[i]}.$(hostname).sh"
+                sed -i -e "s%^cd .*/boxgalfit/%cd %g"      "${GalfitRunList[i]}.$(hostname).sh"
                 sed -i -e "s%^.*/galfit %galfit255 -imax 1000 %g" "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> assume the galfit is already in your $PATH
                 chmod a+x "${GalfitRunList[i]}.$(hostname).sh"
                 echo "$PWD/${GalfitRunList[i]}.$(hostname).sh"
