@@ -657,7 +657,13 @@ Fit_XXX
 		#noise_XXX
 		#}
 		
-		if($use_prior_mags) {set m$imax = xm$imax} else {set m$imax = x$imax*0+$mag_start}
+		if($use_prior_mags) {
+			set m$imax = xm$imax
+			#<20170603><bug><dzliu># prevent m$imax to be fainter than $mag_start
+			set m$imax = m$imax<$mag_start ? m$imax : $mag_start
+		} else {
+			set m$imax = x$imax*0+$mag_start
+		}
 		
 		
 		###<DZLIU><Modified>### 
