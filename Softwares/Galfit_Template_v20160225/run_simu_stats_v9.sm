@@ -137,7 +137,7 @@ run_simu_stats_v9 02
         echo "i.e. magnitude between "$(m$imax""_$loSigma""Sigma)" and "$(m$imax""_$hiSigma""Sigma)
         echo ""
         echo ""
-        set flag_outlier = (sm<=m$imax""_$loSigma""Sigma && sm>=m$imax""_$hiSigma""Sigma) # && mm<2.0
+        set flag_outlier = (sm<=m$imax""_$loSigma""Sigma && sm>=m$imax""_$hiSigma""Sigma && mm!=99 && em!=99) # && mm<2.0
         foreach var {px py sm mm em noise fres closdist crowdedness faper strx stry strm id} {
             set ex_$var = $var if(!flag_outlier)
         }

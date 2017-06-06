@@ -118,8 +118,8 @@ calc_Schechter 04
     set Schechter_Pchar = ($2) # should be in linear space
     set Schechter_alpha = ($3)
     set Schechter_style = 'default' # == 'grazian'
-    set Schechter_Mstep = 0.10
-    # the 4th argument is style: Muzzin, 
+    set Schechter_Mstep = 0.10 # dlogM = dM/(M*ln10)
+    # the 4th argument is style: Muzzin, Ilbert, Grazian, Song, etc.
     if($?4) {
         verbose 0 
         !echo $4 | tr '[:upper:]' '[:lower:]' > ".calc_Schechter.tmp"
@@ -138,6 +138,15 @@ calc_Schechter 04
     #}
     set Schechter_P = exp(-Schechter_E) * Schechter_S
     set Schechter_P = Schechter_P * ln(10)
+    # --
+    #    P * dM =  exp(-M/Mchar) * Pchar * (M/Mchar)**alpha * d(M/Mchar)
+    #    E = M/Mchar
+    #    P * dM = exp(-E) * Pchar * E**alpha / Mchar * dM
+    #           = exp(-E) * Pchar * E**(1+alpha) / M * dM
+    #    dlogM = dM / (M*ln10)
+    #    P = exp(-E) * Pchar * E**(1+alpha) / M * dlogM * (M*ln10)
+    #      = exp(-E) * Pchar * E**(1+alpha) * ln10 * dlogM
+    # --
     #if(Schechter_style=='muzzin' || Schechter_style=='grazian' || Schechter_style=='baldry' || Schechter_style=='default' || Schechter_style=='pengyingjie') {
     #    set Schechter_P = Schechter_P * ln(10) # Muzzin2013 needs to multiply ln(10) to account for (1+alpha) dM_*
     #}

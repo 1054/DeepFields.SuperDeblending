@@ -220,17 +220,19 @@ convert_id_ra_dec_flux_to_ds9_reg 07
         }
         print $7 'global color=yellow width=1\n' {}
         print +$7 'fk5\n' {}
+        set convert_to_ds9_reg_snr_max = 10.0
         set convert_to_ds9_reg_zoom = 1.0
         if('$2'=='100') { set convert_to_ds9_reg_zoom = 6.0 }
         if('$2'=='160') { set convert_to_ds9_reg_zoom = 3.0 }
-        if('$2'=='850') { set convert_to_ds9_reg_zoom = 3.0 }
+        if('$2'=='350') { set convert_to_ds9_reg_snr_max = 30.0 }
+        #if('$2'=='850') { set convert_to_ds9_reg_zoom = 3.0 } #<commented><20170605><dzliu># 
         if('$2'=='1160') { set convert_to_ds9_reg_zoom = 6.0 }
         set convert_to_ds9_reg_id = ($3)
         set convert_to_ds9_reg_ra = ($4)
         set convert_to_ds9_reg_de = ($5)
         set convert_to_ds9_reg_flux = ($6)
         set convert_to_ds9_reg_dash = convert_to_ds9_reg_flux>3.0*($fSigma_$2) ? 0 : 1 # 3-sigma detection limit: dash=1
-        set convert_to_ds9_reg_r = convert_to_ds9_reg_flux/10.0*($fSigma_$2) #<TODO># scale from flux to circle radius, normalize to 10-sigma
+        set convert_to_ds9_reg_r = convert_to_ds9_reg_flux/convert_to_ds9_reg_snr_max*($fSigma_$2) #<TODO># scale from flux to circle radius, normalize to 10-sigma
         set convert_to_ds9_reg_r = convert_to_ds9_reg_r<0.0 ? 1e-20 : convert_to_ds9_reg_r # prevent floating nan
         set convert_to_ds9_reg_r = convert_to_ds9_reg_r**0.5 #<TODO># scale from flux to circle radius, using a power index of 0.5
         set convert_to_ds9_reg_r = convert_to_ds9_reg_r>1.0 ? 1.0 : convert_to_ds9_reg_r #<TODO># set maximum circle radius of 1 times beam size as radius

@@ -660,7 +660,10 @@ Fit_XXX
 		if($use_prior_mags) {
 			set m$imax = xm$imax
 			#<20170603><bug><dzliu># prevent m$imax to be fainter than $mag_start
-			set m$imax = m$imax<$mag_start ? m$imax : $mag_start
+			#<20170605><bug><dzliu># should only apply the $mag_start constraint for vary_positions==1
+			if($vary_positions) {
+				set m$imax = m$imax<$mag_start ? m$imax : $mag_start
+			}
 		} else {
 			set m$imax = x$imax*0+$mag_start
 		}
@@ -1582,7 +1585,7 @@ xSet_850_NMF	define imax 850_NMF
 		define max_noise 1e30   # DZLIU 20160909
 		define max_noise 1e20   # DZLIU 20160909
 		define mag_start 5
-		define Xback 0.0    # TODO: background value
+		define Xback -0.414    # TODO: background value
 		
 		define ystep 75
 		define xstep 75

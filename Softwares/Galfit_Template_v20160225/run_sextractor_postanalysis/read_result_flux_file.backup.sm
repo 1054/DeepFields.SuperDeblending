@@ -38,8 +38,7 @@ read_result_flux_file 01
         if(is_vector(txtfile)>0) {
             set txtfile = {"}+txtfile+{"}
             echo "Reading "$(txtfile)
-            #rfile $(txtfile)
-            data $(txtfile) read <id$1 1.f f$1 2.f df$1 3.f>
+            rfile $(txtfile)
         }
         define txti $($txti+1)
         unset txtfile # read only one line
