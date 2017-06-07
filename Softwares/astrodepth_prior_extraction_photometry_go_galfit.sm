@@ -175,7 +175,7 @@ go_galfit_0
         writeGalfitParam fit_0.param
         writeGalfitLimit fit_0.limit
         writeGalfitInput fit_0.input image_sci.fits fit_0.fits image_rms.fits image_psf.fits fit_0.limit
-        !galfit fit_0.input > fit_0.out
+        !galfit30 fit_0.input > fit_0.out
         if(is_file("fit.log")) {!mv "fit.log" "fit_0.log"}
         if(is_file("fit_0.fits")) {
             readGalfitResult "fit_0.fits"
@@ -205,7 +205,7 @@ go_galfit_1
         writeGalfitParam fit_1.param
         writeGalfitLimit fit_1.limit
         writeGalfitInput fit_1.input image_sci.fits fit_1.fits image_rms.fits image_psf.fits fit_1.limit
-        !galfit fit_1.input > fit_1.out
+        !galfit30 fit_1.input > fit_1.out
         if(is_file("fit.log")) {!mv "fit.log" "fit_1.log"}
         if(is_file("fit_1.fits")) {
             readGalfitResult "fit_1.fits"
@@ -248,7 +248,7 @@ go_galfit_2
         writeGalfitParam fit_2.param
         writeGalfitLimit fit_2.limit
         writeGalfitInput fit_2.input image_sci.fits fit_2.fits image_rms.fits image_psf.fits fit_2.limit
-        !galfit fit_2.input > fit_2.out
+        !galfit30 fit_2.input > fit_2.out
         if(is_file("fit.log")) {!mv "fit.log" "fit_2.log"}
         if(is_file("fit_2.fits")) {
             readGalfitResult "fit_2.fits"
@@ -278,7 +278,7 @@ go_galfit_n0
         writeGalfitParam fit_n0.param
         writeGalfitLimit fit_n0.limit
         writeGalfitInput fit_n0.input image_negative.fits fit_n0.fits image_rms.fits image_psf.fits fit_n0.limit
-        !galfit fit_n0.input > fit_n0.out
+        !galfit30 fit_n0.input > fit_n0.out
         if(is_file("fit.log")) {!mv "fit.log" "fit_n0.log"}
         if(is_file("fit_n0.fits")) {
             readGalfitResult "fit_n0.fits"
@@ -308,7 +308,7 @@ go_galfit_n1
         writeGalfitParam fit_n1.param
         writeGalfitLimit fit_n1.limit
         writeGalfitInput fit_n1.input image_negative.fits fit_n1.fits image_rms.fits image_psf.fits fit_n1.limit
-        !galfit fit_n1.input > fit_n1.out
+        !galfit30 fit_n1.input > fit_n1.out
         if(is_file("fit.log")) {!mv "fit.log" "fit_n1.log"}
         if(is_file("fit_n1.fits")) {
             readGalfitResult "fit_n1.fits"
@@ -351,7 +351,7 @@ go_galfit_n2
         writeGalfitParam fit_n2.param
         writeGalfitLimit fit_n2.limit
         writeGalfitInput fit_n2.input image_negative.fits fit_n2.fits image_rms.fits image_psf.fits fit_n2.limit
-        !galfit fit_n2.input > fit_n2.out
+        !galfit30 fit_n2.input > fit_n2.out
         if(is_file("fit.log")) {!mv "fit.log" "fit_n2.log"}
         if(is_file("fit_n2.fits")) {
             readGalfitResult "fit_n2.fits"
