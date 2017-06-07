@@ -166,7 +166,16 @@ go_getpix
     set radius = 1.5 / pixscale
     set rad = px * 0.0 + radius
     set cat_index = float(id) # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
-    print "getpix.input" '%15.3f %15.3f %15.3f %15.0f\n' {px py rad cat_index}
+    # 
+    #<20170606># added outputing cat_id
+    if(is_file("prior_id.txt")) {
+        data "prior_id.txt" read {cat_id_full 1.s}
+        set cat_id = cat_id_full[cat_index]
+    } else {
+        set cat_id = cat_index>=0 ? '-99' : '-99'
+    }
+    print "getpix.input" '%15.3f %15.3f %15.3f %15.0f %15s\n' {px py rad cat_index cat_id}
+    
     !CrabPhotAperPhot -header-in-comment "image_sci.fits" "null" "getpix.input" > "getpix.output"
     #!cat "getpix.input"
     #!cat "getpix.output"
@@ -174,7 +183,7 @@ go_getpix
     if(dimen(pix_num)>0) {
         # 
         # print results
-        print "getpix.txt" '%15g %15g %15g %15.3f %15.3f %15.3f %15.0f\n' {pix_max pix_sum pix_num px py rad cat_index}
+        print "getpix.txt" '%15g %15g %15g %15.3f %15.3f %15.3f %15.0f %15s\n' {pix_max pix_sum pix_num px py rad cat_index cat_id}
         # 
         # # 
         # # prepare big array for output
@@ -213,7 +222,16 @@ go_getpix_on_negative_image
     set radius = 1.5 / pixscale
     set rad = px * 0.0 + radius
     set cat_index = float(id) # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
-    print "getpix_on_negative_image.input" '%15.3f %15.3f %15.3f %15.0f\n' {px py rad cat_index}
+    # 
+    #<20170606># added outputing cat_id
+    if(is_file("prior_id.txt")) {
+        data "prior_id.txt" read {cat_id_full 1.s}
+        set cat_id = cat_id_full[cat_index]
+    } else {
+        set cat_id = cat_index>=0 ? '-99' : '-99'
+    }
+    print "getpix_on_negative_image.input" '%15.3f %15.3f %15.3f %15.0f %15s\n' {px py rad cat_index cat_id}
+    
     !CrabPhotAperPhot -header-in-comment "image_negative.fits" "null" "getpix_on_negative_image.input" > "getpix_on_negative_image.output"
     #!cat "getpix_on_negative_image.input"
     #!cat "getpix_on_negative_image.output"
@@ -221,7 +239,7 @@ go_getpix_on_negative_image
     if(dimen(pix_num)>0) {
         # 
         # print results
-        print "getpix_on_negative_image.txt" '%15g %15g %15g %15.3f %15.3f %15.3f %15.0f\n' {pix_max pix_sum pix_num px py rad cat_index}
+        print "getpix_on_negative_image.txt" '%15g %15g %15g %15.3f %15.3f %15.3f %15.0f %15s\n' {pix_max pix_sum pix_num px py rad cat_index cat_id}
     }
 
 
@@ -243,7 +261,7 @@ print_result
         }
         # 
         if(is_file("getpix.txt")) {
-            data "getpix.txt" read {pix_max 1.f pix_sum 2.f pix_num 3.f cat_index 7.f}
+            data "getpix.txt" read {pix_max 1.f pix_sum 2.f pix_num 3.f cat_index 7.f cat_id 8.s}
             # 
             # print further results with flux unit Jy/beam (f_peak) or Jy (f_int)
             if(is_vector(pixscale) && is_vector(beamarea)) {
@@ -254,7 +272,7 @@ print_result
                     set err_int = pixnoise * sqrt(pix_num) / beamarea * (pixscale*pixscale)
                     set snr_peak = (f_peak>0) ? (f_peak / err_peak) : 0.0
                     set snr_int = (f_int>0) ? (f_int / err_int) : 0.0
-                    print "getpix.result" '%15g %15g %15g %15g %15.0f\n' {f_peak f_int snr_peak snr_int cat_index}
+                    print "getpix.result" '%15g %15g %15g %15g %15.0f %15s\n' {f_peak f_int snr_peak snr_int cat_index cat_id}
                 } else {
                     print 'Error! Negative pixscale or beamarea value! Failed to run \"go_getpix.sm\" subroutine \"print_result\"!\n' {}
                 }
@@ -278,7 +296,7 @@ print_result_on_negative_image
         }
         # 
         if(is_file("getpix_on_negative_image.txt")) {
-            data "getpix_on_negative_image.txt" read {pix_max 1.f pix_sum 2.f pix_num 3.f cat_index 7.f}
+            data "getpix_on_negative_image.txt" read {pix_max 1.f pix_sum 2.f pix_num 3.f cat_index 7.f cat_id 8.s}
             # 
             # print further results with flux unit Jy/beam (f_peak) or Jy (f_int)
             if(is_vector(pixscale) && is_vector(beamarea)) {
@@ -289,7 +307,7 @@ print_result_on_negative_image
                     set err_int = pixnoise * sqrt(pix_num) / beamarea * (pixscale*pixscale)
                     set snr_peak = (f_peak>0) ? (f_peak / err_peak) : 0.0
                     set snr_int = (f_int>0) ? (f_int / err_int) : 0.0
-                    print "getpix_on_negative_image.result" '%15g %15g %15g %15g %15.0f\n' {f_peak f_int snr_peak snr_int cat_index}
+                    print "getpix_on_negative_image.result" '%15g %15g %15g %15g %15.0f %15s\n' {f_peak f_int snr_peak snr_int cat_index cat_id}
                 } else {
                     print 'Error! Negative pixscale or beamarea value! Failed to run \"go_getpix.sm\" subroutine \"print_result_on_negative_image\"!\n' {}
                 }
