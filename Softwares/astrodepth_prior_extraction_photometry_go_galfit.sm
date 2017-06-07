@@ -108,10 +108,11 @@ mask_prior_sources
     }
     if(is_file("getpix.result") && is_vector(px) && is_vector(py)) {
         data "getpix.result" read {f_peak 1.f f_int 2.f snr_peak 3.f snr_int 4.f id 5.f}
-        set mask = (snr_int>=1.0 && snr_peak>=2.0) #<before><20170403><dzliu>#
+        #set mask = (snr_int>=1.0 && snr_peak>=2.0) #<before><20170403><dzliu>#
         set threshold_int = 2.0
         set threshold_peak = 3.6
-        set mask = ((snr_int/threshold_int>=0.35 && snr_peak/threshold_peak>=0.35) || (snr_int/threshold_int>=0.75) || (snr_peak/threshold_peak>=0.75))
+        #set mask = ((snr_int/threshold_int>=0.35 && snr_peak/threshold_peak>=0.35) || (snr_int/threshold_int>=0.75) || (snr_peak/threshold_peak>=0.75)) #<before><20170607><dzliu>#
+        set mask = ((snr_int/threshold_int>=0.30 && snr_peak/threshold_peak>=0.30) || (snr_int/threshold_int>=0.70) || (snr_peak/threshold_peak>=0.70))
         if(sum(mask)>0) {
             set px = px if(mask)
             set py = py if(mask)
@@ -134,10 +135,11 @@ mask_prior_sources_on_negative_image
     }
     if(is_file("getpix_on_negative_image.result") && is_vector(px) && is_vector(py)) {
         data "getpix_on_negative_image.result" read {f_peak 1.f f_int 2.f snr_peak 3.f snr_int 4.f id 5.f}
-        set mask = (snr_int>=1.0 && snr_peak>=2.0) #<before><20170403><dzliu>#
+        #set mask = (snr_int>=1.0 && snr_peak>=2.0) #<before><20170403><dzliu>#
         set threshold_int = 2.0
         set threshold_peak = 3.6
-        set mask = ((snr_int/threshold_int>=0.35 && snr_peak/threshold_peak>=0.35) || (snr_int/threshold_int>=0.75) || (snr_peak/threshold_peak>=0.75))
+        #set mask = ((snr_int/threshold_int>=0.35 && snr_peak/threshold_peak>=0.35) || (snr_int/threshold_int>=0.75) || (snr_peak/threshold_peak>=0.75)) #<before><20170607><dzliu>#
+        set mask = ((snr_int/threshold_int>=0.30 && snr_peak/threshold_peak>=0.30) || (snr_int/threshold_int>=0.70) || (snr_peak/threshold_peak>=0.70))
         if(sum(mask)>0) {
             set px = px if(mask)
             set py = py if(mask)
@@ -229,6 +231,8 @@ go_galfit_2
         set Pos_Y = (ResultMagsErr<0.25) ? ResultPosY : py
         set Vary_X = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
         set Vary_Y = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
+        set Vary_X = (ResultMagsErr<0.25 && Vary_X>20) ? 20 : Vary_X # maximum 20 pixel, i.e. only valid when pixscale < 0.025 arcsec. #<added><20170607><dzliu>#
+        set Vary_Y = (ResultMagsErr<0.25 && Vary_Y>20) ? 20 : Vary_Y # maximum 20 pixel, i.e. only valid when pixscale < 0.025 arcsec. #<added><20170607><dzliu>#
         initGalfitParam Pos_X Pos_Y Vary_X Vary_Y
         set Note = id
         set Mags = ResultMags # (ResultMagsErr<0.25) ? ResultMags : Mags
@@ -236,11 +240,12 @@ go_galfit_2
         set Rads = (ResultMagsErr<0.25) ?  0.5/abs(pixscale) : Rads
         set ParamMaxMags = float(id)*0.0 + 30.0
         set ParamFitRads = (ResultMagsErr<0.25) ? 1                 : ParamFitRads
-        set ParamMinRads = (ResultMagsErr<0.25) ? 0.50              : ParamMinRads
-        set ParamMaxRads = (ResultMagsErr<0.25) ? 3.0/abs(pixscale) : ParamMaxRads # maximum 3.0 arcsec FWHM
+        set ParamMinRads = (ResultMagsErr<0.25) ? 0.50              : ParamMinRads # minimum 0.5 pixel
+        set ParamMaxRads = (ResultMagsErr<0.25) ? 3.5/abs(pixscale) : ParamMaxRads # maximum 3.5 arcsec FWHM
         set ParamFitElli = (ResultMagsErr<0.25) ? 1                 : ParamFitElli
-        set ParamMinElli = (ResultMagsErr<0.25) ? 0.20              : ParamMinElli
-        set ParamMaxElli = (ResultMagsErr<0.25) ? 10.0              : ParamMaxElli
+        set ParamMinElli = (ResultMagsErr<0.25) ? 0.10              : ParamMinElli # b/a ratio, i.e. q in galfit input file
+        #set ParamMaxElli = (ResultMagsErr<0.25) ? 10               : ParamMaxElli # b/a ratio, i.e. q in galfit input file #<before><20170607><dzliu>#
+        set ParamMaxElli = (ResultMagsErr<0.25) ? 1.0               : ParamMaxElli # b/a ratio, i.e. q in galfit input file
         set ParamFitRoti = (ResultMagsErr<0.25) ? 1                 : ParamFitRoti
         set ParamMinRoti = (ResultMagsErr<0.25) ? 0                 : ParamMinRoti
         set ParamMaxRoti = (ResultMagsErr<0.25) ? 360.0             : ParamMaxRoti
@@ -332,6 +337,8 @@ go_galfit_n2
         set Pos_Y = (ResultMagsErr<0.25) ? ResultPosY : py
         set Vary_X = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
         set Vary_Y = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
+        set Vary_X = (ResultMagsErr<0.25 && Vary_X>20) ? 20 : Vary_X # maximum 20 pixel, i.e. only valid when pixscale < 0.025 arcsec. #<added><20170607><dzliu>#
+        set Vary_Y = (ResultMagsErr<0.25 && Vary_Y>20) ? 20 : Vary_Y # maximum 20 pixel, i.e. only valid when pixscale < 0.025 arcsec. #<added><20170607><dzliu>#
         initGalfitParam Pos_X Pos_Y Vary_X Vary_Y
         set Note = id
         set Mags = ResultMags # (ResultMagsErr<0.25) ? ResultMags : Mags
@@ -339,11 +346,12 @@ go_galfit_n2
         set Rads = (ResultMagsErr<0.25) ?  0.5/abs(pixscale) : Rads
         set ParamMaxMags = float(id)*0.0 + 30.0
         set ParamFitRads = (ResultMagsErr<0.25) ? 1                 : ParamFitRads
-        set ParamMinRads = (ResultMagsErr<0.25) ? 0.50              : ParamMinRads
-        set ParamMaxRads = (ResultMagsErr<0.25) ? 3.0/abs(pixscale) : ParamMaxRads # maximum 3.0 arcsec FWHM
+        set ParamMinRads = (ResultMagsErr<0.25) ? 0.50              : ParamMinRads # minimum 0.5 pixel
+        set ParamMaxRads = (ResultMagsErr<0.25) ? 3.5/abs(pixscale) : ParamMaxRads # maximum 3.5 arcsec FWHM
         set ParamFitElli = (ResultMagsErr<0.25) ? 1                 : ParamFitElli
-        set ParamMinElli = (ResultMagsErr<0.25) ? 0.20              : ParamMinElli
-        set ParamMaxElli = (ResultMagsErr<0.25) ? 10.0              : ParamMaxElli
+        set ParamMinElli = (ResultMagsErr<0.25) ? 0.10              : ParamMinElli # b/a ratio, i.e. q in galfit input file
+        #set ParamMaxElli = (ResultMagsErr<0.25) ? 10               : ParamMaxElli # b/a ratio, i.e. q in galfit input file #<before><20170607><dzliu>#
+        set ParamMaxElli = (ResultMagsErr<0.25) ? 1.0               : ParamMaxElli # b/a ratio, i.e. q in galfit input file
         set ParamFitRoti = (ResultMagsErr<0.25) ? 1                 : ParamFitRoti
         set ParamMinRoti = (ResultMagsErr<0.25) ? 0                 : ParamMinRoti
         set ParamMaxRoti = (ResultMagsErr<0.25) ? 360.0             : ParamMaxRoti
