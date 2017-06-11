@@ -146,7 +146,7 @@ calc_primary_beam_correction 00
         set primary_beam_attenuation = exp((-primary_beam_disq)/(primary_beam_fwhm**2))
         set primary_beam_correction = 1.0/primary_beam_attenuation
         define print_noheader 1
-        print "image_sci_primary_beam_correction.txt" '%15.10f %15.10f %15.10f\n' {primary_beam_correction primary_beam_dist primary_beam_fwhm}
+        print "image_sci_primary_beam_correction.txt" '%20g %20g %20g\n' {primary_beam_correction primary_beam_dist primary_beam_fwhm}
         define print_noheader 0
     }
 
