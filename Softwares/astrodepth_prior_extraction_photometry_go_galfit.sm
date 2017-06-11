@@ -387,7 +387,11 @@ go_galfit_n2
 
 
 print_result_fit_2
+    # this is for bug fix purpose, ran once on 20170611
     load astroGalfit.sm
+    read_data
+    read_pixscale
+    mask_prior_sources
     if(is_file("fit_2.fits")) {
         readGalfitResult "fit_2.fits"
         print_result "fit_2"
@@ -395,6 +399,9 @@ print_result_fit_2
 
 print_result_fit_n2
     load astroGalfit.sm
+    read_data
+    read_pixscale
+    mask_prior_sources
     if(is_file("fit_n2.fits")) {
         readGalfitResult "fit_n2.fits"
         print_result "fit_n2"
