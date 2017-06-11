@@ -111,7 +111,7 @@ calc_phase_center 00
         if(is_vector(phase_center_x)) {unset phase_center_x}
         if(is_vector(phase_center_y)) {unset phase_center_y}
         data "image_sci_phase_center.tmp" 
-        read {phase_center_type1 1.s phase_center_x 2.f phase_center_ra 3 phase_center_type2 4.s phase_center_y 5.f phase_center_dec 6}
+        read {phase_center_type1 1.s phase_center_x 2.f phase_center_ra 3.f phase_center_type2 4.s phase_center_y 5.f phase_center_dec 6.f}
         if(is_vector(phase_center_ra) && is_vector(phase_center_dec)) {
             if(index(phase_center_type1,'RA')==0 && index(phase_center_type2,'DEC')==0) {
                 define print_noheader 1
@@ -134,7 +134,8 @@ calc_primary_beam_correction 00
         # or by Equation 4.13 in Baars (2007) book:
         # where b = 1.269 - 0.566*tau + 0.534*(tau)**2 - 0.208*(tau)**3
         # 
-        set primary_beam_disq = ((phase_center_x-px)**2 + (phase_center_y-py)**2) * pixscale**2
+        set primary_beam_disq = ((phase_center_x-px)**2 + (phase_center_y-py)**2) * pixscale**2 # arcsec
+        set primary_beam_dist = sqrt(primary_beam_disq) # arcsec
         # 
         set sky_wavelength = 2.99792458e5/sky_frequency # um
         set primary_beam_diam = 12.0 # ALMA 12m
@@ -145,7 +146,7 @@ calc_primary_beam_correction 00
         set primary_beam_attenuation = exp((-primary_beam_disq)/(primary_beam_fwhm**2))
         set primary_beam_correction = 1.0/primary_beam_attenuation
         define print_noheader 1
-        print "image_sci_primary_beam_correction.txt" '%15.10f\n' {primary_beam_correction}
+        print "image_sci_primary_beam_correction.txt" '%15.10f %15.10f %15.10f\n' {primary_beam_correction primary_beam_dist primary_beam_fwhm}
         define print_noheader 0
     }
 
