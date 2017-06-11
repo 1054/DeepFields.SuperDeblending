@@ -385,6 +385,22 @@ go_galfit_n2
 
 
 
+
+print_result_fit_2
+    load astroGalfit.sm
+    if(is_file("fit_2.fits")) {
+        readGalfitResult "fit_2.fits"
+        print_result "fit_2"
+    }
+
+print_result_fit_n2
+    load astroGalfit.sm
+    if(is_file("fit_n2.fits")) {
+        readGalfitResult "fit_n2.fits"
+        print_result "fit_n2"
+    }
+
+
 print_result 01
     #<before><20170304># if(!is_file("No_catalog_source_within_image")) {
     #<before><20170304>#     if(is_file($1.result)) {!mv $1.result $1.result.backup}
