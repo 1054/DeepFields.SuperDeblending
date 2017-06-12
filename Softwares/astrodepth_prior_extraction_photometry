@@ -478,7 +478,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
         # 
         # now we run photometry in Scoville way, i.e. measure peak and total flux within a radius=1.5 arcsec circle for each prior source
         if [[ ! -f "No_catalog_source_within_image" ]]; then
-            if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"go_getpix"* || ! -f "getpix.txt" ]]; then
+            if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"getpix"* || ! -f "getpix.txt" ]]; then
                 echo "Running Supermongo script \"astrodepth_go_getpix.sm\" subroutine \"go_getpix\""
                 echo "macro read astrodepth_go_getpix.sm go_getpix" | sm > "astrodepth_go_getpix.log"
                 # check output successful or not
