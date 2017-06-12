@@ -439,12 +439,13 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
         # fi
         # 
         # get pixnoise
-        if [[ ! -f "image_sci_pixnoise.txt" ]]; then
+        if [[ 1 == 1 || ! -f "image_sci_pixnoise.txt" ]]; then
             tmp_pixel_statistics_txt=$(readlink -f "${AstroDepth_INP_IMAGE_SCI[j]}" | sed -e 's/\.cut_[^\.]*//g')".pixel.statistics.txt"
             if [[ -f "$tmp_pixel_statistics_txt" ]]; then
                 cat "$tmp_pixel_statistics_txt" | grep "Gaussian_sigma =" | perl -p -e 's/(.*) *= *(.*)/\2/g' > "image_sci_pixnoise.txt"
             else
                 echo "Warning! \"$tmp_pixel_statistics_txt\" was not found! Will compute image pixel noise by the CrabPhotImageStatistics tool!"
+                echo "Warning! \"$tmp_pixel_statistics_txt\" was not found! Will compute image pixel noise by the CrabPhotImageStatistics tool!" > "image_sci_pixnoise.warning.txt"
             fi
         fi
         # 

@@ -392,20 +392,18 @@ print_result_fit_2
     read_data
     read_pixscale
     mask_prior_sources
-    #if(is_file("fit_2.fits")) {
-    #    readGalfitResult "fit_2.fits"
-    #    print_result "fit_2"
-    #}
-
-print_result_fit_n2
-    load astroGalfit.sm
-    read_data
-    read_pixscale
-    mask_prior_sources
-    #if(is_file("fit_n2.fits")) {
-    #    readGalfitResult "fit_n2.fits"
-    #    print_result "fit_n2"
-    #}
+    if(is_file("fit_0.fits")) {
+        readGalfitResult "fit_0.fits"
+        print_result "fit_0"
+    }
+    if(is_file("fit_1.fits")) {
+        readGalfitResult "fit_1.fits"
+        print_result "fit_1"
+    }
+    if(is_file("fit_2.fits")) {
+        readGalfitResult "fit_2.fits"
+        print_result "fit_2"
+    }
 
 
 print_result 01
