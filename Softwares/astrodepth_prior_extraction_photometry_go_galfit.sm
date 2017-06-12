@@ -113,11 +113,11 @@ mask_prior_sources
         set threshold_peak = 3.6
         #set mask = ((snr_int/threshold_int>=0.35 && snr_peak/threshold_peak>=0.35) || (snr_int/threshold_int>=0.75) || (snr_peak/threshold_peak>=0.75)) #<before><20170607><dzliu>#
         set mask = ((snr_int/threshold_int>=0.30 && snr_peak/threshold_peak>=0.30) || (snr_int/threshold_int>=0.70) || (snr_peak/threshold_peak>=0.70))
+        print "getpix.mask" {mask id}
         if(sum(mask)>0) {
             set px = px if(mask)
             set py = py if(mask)
             set id = id if(mask)
-            print "getpix.mask" {mask}
         } else {
             declare px 0.f
             declare py 0.f
@@ -141,11 +141,11 @@ mask_prior_sources_on_negative_image
         set threshold_peak = 3.6
         #set mask = ((snr_int/threshold_int>=0.35 && snr_peak/threshold_peak>=0.35) || (snr_int/threshold_int>=0.75) || (snr_peak/threshold_peak>=0.75)) #<before><20170607><dzliu>#
         set mask = ((snr_int/threshold_int>=0.30 && snr_peak/threshold_peak>=0.30) || (snr_int/threshold_int>=0.70) || (snr_peak/threshold_peak>=0.70))
+        print "getpix.mask" {mask id}
         if(sum(mask)>0) {
             set px = px if(mask)
             set py = py if(mask)
             set id = id if(mask)
-            print "getpix.mask" {mask}
         } else {
             declare px 0.f
             declare py 0.f
@@ -392,20 +392,20 @@ print_result_fit_2
     read_data
     read_pixscale
     mask_prior_sources
-    if(is_file("fit_2.fits")) {
-        readGalfitResult "fit_2.fits"
-        print_result "fit_2"
-    }
+    #if(is_file("fit_2.fits")) {
+    #    readGalfitResult "fit_2.fits"
+    #    print_result "fit_2"
+    #}
 
 print_result_fit_n2
     load astroGalfit.sm
     read_data
     read_pixscale
     mask_prior_sources
-    if(is_file("fit_n2.fits")) {
-        readGalfitResult "fit_n2.fits"
-        print_result "fit_n2"
-    }
+    #if(is_file("fit_n2.fits")) {
+    #    readGalfitResult "fit_n2.fits"
+    #    print_result "fit_n2"
+    #}
 
 
 print_result 01
