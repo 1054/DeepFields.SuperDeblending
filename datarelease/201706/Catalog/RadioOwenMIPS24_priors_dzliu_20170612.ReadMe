@@ -1,0 +1,9 @@
+This version includes 
+    band 850 photometry and simulation correction done on NMF (non-matched-filter) image data, already checked that NMF and MF give consistent flux measurements and uncertainties. 
+    band 850 photometry and simulation correction
+    corrected 850 Galsub
+    corrected 850 sim_vary
+    newly merged radio results (/Users/dzliu/aida40238/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016/S01_24_Radio_Catalog/20161120_merge_radio_results)
+    -- A new column "source_radio" has been added, 1=Galfit, 2=OwenNew, 3=Morrison. 
+    -- We have applied a factor of 1.065191464 to account for Owen's image frequency of 1.515 GHz instead of 1.4 GHz. 
+

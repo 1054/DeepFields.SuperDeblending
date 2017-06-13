@@ -1,0 +1,37 @@
+Version: 
+    201706
+
+
+LastUpdate: 
+    2017-06-12 done band 850 photometry and simulation correction on NMF (non-matched-filter) image data, already checked that NMF and MF give consistent flux measurements and uncertainties. 
+    2016-12-19 cross-matched Owen's 2016 radio photometry catalog, considered converting frequency from 1.515 GHz to 1.4 GHz. (See $HOME/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016/S01_24_Radio_Catalog/20161219_update_full_catalog_with_newly_merged_radio_results/a_dzliu_note_20161219.txt)
+    2016-12-10 considered redshift-evolving qIR in the SED fitting (See $HOME/aida40238/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016/S02_Superdeblending_FIR/Galsed_20161210_change_qIR_for_Mark_Sargent/Galsed_AfterBand1160_AfterBand850_NewRadioAGNClassification/)
+    2016-09-09 corrected 850 Galsub and sim_vary
+
+
+Usage: 
+    Please use supermongo to read this catalog as follows
+
+
+Example 1:
+    bash
+    sm
+    chdir "catalog_daddi_dzliu_goodsn_201706”
+    macro read CatalogReader.sm go
+
+
+Example 2:
+    bash
+    source ../../../Softwares/SETUP
+    sm
+    load crabDir.sm
+    set CurDir = GetDirPathVector()
+    set CatDir = GetDirPathVector("/home/dzliu/Cloud/Github/DeepFields.SuperDeblending/")
+    set CatDir = CatDir concat 'datarelease'
+    set CatDir = CatDir concat '201706'
+    VisitDirPathVector CatDir
+    macro read CatalogReader.sm go
+    VisitDirPathVector CurDir
+    define hasReadData 1
+
+

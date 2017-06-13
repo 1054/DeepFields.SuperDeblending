@@ -114,7 +114,8 @@ mask_prior_sources
         #set mask = ((snr_int/threshold_int>=0.35 && snr_peak/threshold_peak>=0.35) || (snr_int/threshold_int>=0.75) || (snr_peak/threshold_peak>=0.75)) #<before><20170607><dzliu>#
         set mask = ((snr_int/threshold_int>=0.30 && snr_peak/threshold_peak>=0.30) || (snr_int/threshold_int>=0.70) || (snr_peak/threshold_peak>=0.70))
         set mask = int(mask)
-        print "getpix.mask" '%15d %15.0f\n' {mask id}
+        set cat_index = id
+        print "getpix.mask" '%15d %15.0f\n' {mask cat_index}
         if(sum(mask)>0) {
             set px = px if(mask)
             set py = py if(mask)
@@ -143,7 +144,8 @@ mask_prior_sources_on_negative_image
         #set mask = ((snr_int/threshold_int>=0.35 && snr_peak/threshold_peak>=0.35) || (snr_int/threshold_int>=0.75) || (snr_peak/threshold_peak>=0.75)) #<before><20170607><dzliu>#
         set mask = ((snr_int/threshold_int>=0.30 && snr_peak/threshold_peak>=0.30) || (snr_int/threshold_int>=0.70) || (snr_peak/threshold_peak>=0.70))
         set mask = int(mask)
-        print "getpix.mask" '%15d %15.0f\n' {mask id}
+        set cat_index = id
+        print "getpix.mask" '%15d %15.0f\n' {mask cat_index}
         if(sum(mask)>0) {
             set px = px if(mask)
             set py = py if(mask)
@@ -244,8 +246,8 @@ go_galfit_2
         set Rads = (ResultMagsErr<0.25) ?  0.5/abs(pixscale) : Rads
         set ParamMaxMags = float(id)*0.0 + 30.0
         set ParamFitRads = (ResultMagsErr<0.25) ? 1                 : ParamFitRads
-        set ParamMinRads = (ResultMagsErr<0.25) ? 0.50              : ParamMinRads # minimum 0.5 pixel
-        set ParamMaxRads = (ResultMagsErr<0.25) ? 3.5/abs(pixscale) : ParamMaxRads # maximum 3.5 arcsec FWHM
+        set ParamMinRads = (ResultMagsErr<0.25) ? 1.00              : ParamMinRads # minimum 1.0 pixel FWHM #<20170613># prev. using 0.5 pix causes 'nan' error!
+        set ParamMaxRads = (ResultMagsErr<0.25) ? 5.0/abs(pixscale) : ParamMaxRads # maximum 5.0 arcsec FWHM #<20170613># prev. using 3.5 arcsec
         set ParamFitElli = (ResultMagsErr<0.25) ? 1                 : ParamFitElli
         set ParamMinElli = (ResultMagsErr<0.25) ? 0.10              : ParamMinElli # b/a ratio, i.e. q in galfit input file
         #set ParamMaxElli = (ResultMagsErr<0.25) ? 10               : ParamMaxElli # b/a ratio, i.e. q in galfit input file #<before><20170607><dzliu>#
@@ -350,8 +352,8 @@ go_galfit_n2
         set Rads = (ResultMagsErr<0.25) ?  0.5/abs(pixscale) : Rads
         set ParamMaxMags = float(id)*0.0 + 30.0
         set ParamFitRads = (ResultMagsErr<0.25) ? 1                 : ParamFitRads
-        set ParamMinRads = (ResultMagsErr<0.25) ? 0.50              : ParamMinRads # minimum 0.5 pixel
-        set ParamMaxRads = (ResultMagsErr<0.25) ? 3.5/abs(pixscale) : ParamMaxRads # maximum 3.5 arcsec FWHM
+        set ParamMinRads = (ResultMagsErr<0.25) ? 1.00              : ParamMinRads # minimum 1.0 pixel FWHM #<20170613># prev. using 0.5 pix causes 'nan' error!
+        set ParamMaxRads = (ResultMagsErr<0.25) ? 5.0/abs(pixscale) : ParamMaxRads # maximum 5.0 arcsec FWHM #<20170613># prev. using 3.5 arcsec
         set ParamFitElli = (ResultMagsErr<0.25) ? 1                 : ParamFitElli
         set ParamMinElli = (ResultMagsErr<0.25) ? 0.10              : ParamMinElli # b/a ratio, i.e. q in galfit input file
         #set ParamMaxElli = (ResultMagsErr<0.25) ? 10               : ParamMaxElli # b/a ratio, i.e. q in galfit input file #<before><20170607><dzliu>#

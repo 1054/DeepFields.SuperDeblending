@@ -1,0 +1,346 @@
+go
+    # 
+    #  macro read CatalogConvert.sm go
+    #  
+    #  here we read the catalog and correct PACS HPF and then correct MassX to Chabrier IMF and write the output catalog
+    # 
+    load rfile.sm
+    rfile "Catalog/RadioOwenMIPS24_priors_dzliu_20161219.txt"
+    
+    # 
+    # apply PACS high-pass filtering corretion HPF correction
+    if(is_vector(f100) && is_vector(df100) && is_vector(f24) && is_vector(df24)) {
+        foreach var {f100 df100} {set $var=f24>60 && f24/df24>3 ? $var*1.12 : $var*1.19} 
+        set f100 = f100<-99 ? -99 : f100
+        set df100 = df100>1e10 ? 1e10 : df100
+    }
+    if(is_vector(f160) && is_vector(df160) && is_vector(f24) && is_vector(df24)) {
+        foreach var {f160 df160} {set $var=f24>60 && f24/df24>3 ? $var*1.12 : $var*1.19}
+        set f160 = f160<-99 ? -99 : f160
+        set df160 = df160>1e10 ? 1e10 : df160
+    }
+    
+    # 
+    # calc Mstar
+    set Mstar_Salpeter = MassX # log
+    set Mstar_Chabrier = MassX>0? MassX-lg(1.73) : -99 # converting to Chabrier IMF for SFR 
+                                       #lg(1.4) # http://www.eso.org/~hkuntsch/papers/MNRAS_432_492.pdf
+    set Mstar = MassX>0? Mstar_Chabrier : -99
+    
+    # 
+    # output
+    if(1) {
+        print "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_ChabrierIMF_PACSCorrected.txt" '%-9.0f %12.7f %12.7f %9g\n' \
+        {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 f160 df160 f250 df250 f350 df350 \
+            f500 df500 f850 df850 f1160 df1160 radio eradio _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 \
+            _fch4 _dfch4 KtotX Mstar distX spezX zq source distz idz goodArea}
+    }
+    
+    
+    # 
+    # rename columns
+    set xUJ = {id ra de}
+    foreach UJ xUJ { set $UJ = _$UJ }
+    
+    # 
+    # read SED fitting redshifts and xfSFR
+    rfile "Catalog/ResLMT_RadioOwenMIPS24_priors_dzliu_20161211.txt"
+    set z = xf_zz
+    set ez = xe_zz
+    set z_op = zp_X
+    set z_sp = spezX
+    
+    # 
+    # compute combined SNR
+    load vecSNR.sm
+    foreach imax {24 16 100 160 250 350 500 850 1160} {
+        set snr$imax = vecSNR(f$imax, df$imax)
+        set snr$imax = (snr$imax<0) ? 0 : snr$imax
+    }
+    foreach imax {Radio} {
+        set snr$imax = vecSNR(radio,eradio)
+        set snr$imax = (snr$imax<0) ? 0 : snr$imax
+    }
+    set snrFIRSMM = sqrt(snr100**2 + snr160**2 + snr250**2 + snr350**2 + snr500**2 + snr850**2 + snr1160**2)
+    set zFIRSMM = z
+    print "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_SignalNoiseRatio.txt" \
+        '%-9.0f %15.3f %15.3f %15.3f %15.3f %15.3f %15.3f %15.3f %15.3f %15.3f %15.3f %15.3f %15.3f\n' \
+        {_id snrFIRSMM zFIRSMM snr24 snrRadio snr16 snr100 snr160 snr250 snr350 snr500 snr850 snr1160}
+    
+    # 
+    # read snrIRMM
+    data "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_SignalNoiseRatio.txt" read {snrIRMM 2}
+    set SNR = snrIRMM
+    
+    # 
+    # correct SED fitting zero redshift error values <TODO>
+    echo How many have zero redshift error? $(sum((ez==0 && spezX<=0))) # 23 sources: 314, 
+    echo How many have zero redshift error but good SNR? $(sum((ez==0 && spezX<=0 && SNR>=5))) # 3 sources: 2489, 3417, 11499
+    #
+    set check_id = id if((ez==0 && spezX<=0 && SNR>=5))
+    print '%.0f\n' {check_id}
+    #
+    #set ez = (ez==0 && spezX<=0) ? 1e10 : ez
+    set ez = (ez==0 && spezX>0) ? -1 : ez
+    
+    # 
+    # correct SED fitting zero SFR error values <TODO>
+    echo How many have zero SFR error? $(sum((xeSFR==0))) # 23 sources: 314, 
+    echo How many have zero SFR error but good SNR? $(sum((xeSFR==0 && SNR>=5))) # 3 sources: 2489, 3417, 11499
+    #
+    set check_id = id if((xeSFR==0))
+    print '%.0f\n' {check_id}
+    # <TODO> 
+    set xeSFR = (xeSFR==0) ? 1e10 : xeSFR
+    
+    # 
+    # calc SFR, eSFR, sSFR
+    set SFR = xfSFR
+    set eSFR = xeSFR
+    set snrSFR = vecSNR(xfSFR,xeSFR)
+    set iiiSFR = 0,dimen(snrSFR)-1 set iiiSFR = iiiSFR if(snrSFR>snrIRMM && snrIRMM>0)
+    set eSFR[iiiSFR] = xfSFR[iiiSFR]/snrIRMM[iiiSFR]  #<FIXED><20160306><dzliu># i.e. snrSFR will always <= snrIRMM <TODO>
+    set eSFR = (eSFR<=0 || snrIRMM<=0) ? xfSFR : eSFR #<FIXED><20160306><dzliu># i.e. ID13974 specz=5.6 but eSFR=0
+    set SFR = (SFR<=1e-5) ? 0.0 : SFR  #<FIXED><20160306><dzliu># i.e. ID7205 24um S/N=20 but snrIR=0
+    set snrSFR = vecSNR(SFR,eSFR)
+    set sSFR = Mstar>0? xfSFR / 10**Mstar * 1e9 : -99
+    #echo prepared data array: SFR, eSFR, sSFR
+    
+    # 
+    # convert all flux to mJy (from AGN_N.sm)
+    set xUJ = {fch1 dfch1 fch2 dfch2 fch3 dfch3 fch4 dfch4}
+    foreach UJ xUJ { set $UJ = _$UJ }
+    if(is_vector(f16) && is_vector(df16)) { set xUJ = xUJ concat 'f16' concat 'df16' }
+    if(is_vector(f24) && is_vector(df24)) { set xUJ = xUJ concat 'f24' concat 'df24' }
+    if(is_vector(radio) && is_vector(eradio)) { set xUJ = xUJ concat 'radio' concat 'eradio' }
+    foreach UJ xUJ { set $UJ = ($UJ!=-99 && $UJ!=1e10) ? ($UJ/1000) : ($UJ) } ### convert unit uJy to mJy ### NO NEED FOR PACS&SPIRES
+    
+    set xUJ = {dfch1 dfch2 dfch3 dfch4}
+    foreach UJ xUJ { set $UJ = ($UJ==-99) ? 1e10 : ($UJ) }
+    
+    # 
+    # convert K magnitude (from AGN_N.sm)
+    set fK = (KtotX!=-99) ? 10**(-0.4*(KtotX-23.9)-3.0) : -99   ###<20140326><DZLIU>### now fK is mJy
+    set dfK = (KtotX!=-99) ? fK/10.0 : 1e10 # assumed S/N=10
+    
+    set f20cm = radio
+    set df20cm = eradio
+    
+    # 
+    # calc starburstiness
+    load astroSfig.sm
+    set LTIR = SFR * 1e10
+    set lgSFR_MS_Sargent = calc_Sargent2014_SFR(z,Mstar)
+    set lgSFR_MS_Sargent = (Mstar==-99) ? -99 : lgSFR_MS_Sargent
+    set MSIR = 10**(lgSFR_MS_Sargent+10.0) # Using Chabrier IMF, convert SFR to LIR, conversion equation see Daddi 2010 apjl
+    set MSIR = (Mstar==-99) ? -99 : MSIR
+    set EMS = LTIR/MSIR
+    set EMS = (Mstar==-99) ? -99 : EMS
+    set excessMS = EMS
+    set TSB = EMS>4 ? <"SB"> : <"MS">
+    set TSB = EMS==-99 ? <"unknown"> : TSB
+    #echo prepared data array: excessMS, MSIR, EMS, TSB
+    #echo DEBUG: 
+    set temp_i = 0,dimen(LTIR)-1 set temp_i=temp_i if(LTIR>0&&MSIR>0)
+    set dis_to_MS = LTIR*0.0-99 set dis_to_MS[temp_i] = lg(LTIR[temp_i]/MSIR[temp_i])
+    set name_SB = TSB
+    unset temp_i
+    print "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_Starburstiness.txt" '%15.0f%15g%15s%15g%15g%15g%20g%20g\n' {id dis_to_MS name_SB LTIR MSIR SFR lgSFR_MS_Sargent Mstar}
+    #echo DEBUG: 
+    
+    # 
+    # read Type_ parameters
+    data "Catalog/coo_AGN.txt" read {Type_AGN 1}
+    data "Catalog/coo_SED.txt" read {Type_SED 1}
+    data "Catalog/coo_FIR.txt" read {Type_FIR 1}
+    
+    # 
+    # convert Mstar to linear space
+    set lgMstar = Mstar
+    set Mstar = 10**lgMstar # Chabrier IMF
+    
+    # 
+    # output
+    if(1) {
+        print "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_ChabrierIMF_PACSCorrected_FmJy.txt" '%-9.0f %12.7f %12.7f %9g %9g %9g %9g \n' \
+        {id ra de z ez z_sp z_op fK dfK fch1 dfch1 fch2 dfch2 fch3 dfch3 fch4 dfch4 f24 df24 f16 df16 \
+            f100 df100 f160 df160 f250 df250 f350 df350 f500 df500 f850 df850 f1160 df1160 f20cm df20cm \
+            SNR Mstar SFR eSFR sSFR goodArea Type_AGN Type_SED Type_FIR}
+    }
+    
+    !cp "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_ChabrierIMF_PACSCorrected_FmJy.txt" "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_CPFmJy.txt"
+    
+
+
+
+
+
+
+
+
+
+
+
+go_make_latex_table
+    # 
+    #  echo "macro read CatalogConvert.sm go_make_latex_table" | sm
+    # 
+    load rfile.sm
+    rfile "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_CPFmJy.txt"
+    set lgMstar = lg(Mstar)
+    # 
+    set coo = (z>=3.0 && SNR>=10.0)
+    foreach var rfile_headers {
+        set $var = $var if(coo)
+    }
+    set coo = -SNR
+    foreach var rfile_headers {
+        set coosort = coo
+        sort <coosort $var>
+    }
+    # 
+    set latex_headers = {id ra de z ez f500 df500 SNR lgMstar SFR eSFR goodArea Type_AGN Type_SED}
+    set latex_header_T = < \
+        "ID"                         \
+        "R.A."                       \
+        "Dec."                       \
+        "$z$"                        \
+        "$\sigma_{z}$"               \
+        "$f_{500}$"                  \
+        "$\sigma_{f_{500}}$"         \
+        "SNR"                        \
+        "$\log{M_{*}}$"              \
+        "SFR"                        \
+        "$\sigma_{\mathrm{SFR}}$"    \
+        "${\mathrm{goodArea}}$"      \
+        "T$_{\mathrm{20cm}}$"        \
+        "T$_{\mathrm{SED}}$"         \
+    > # header text
+    set latex_header_i1 = 0,dimen(latex_headers)-2
+    set latex_header_i2 = dimen(latex_headers)-1,dimen(latex_headers)-1
+    set latex_header_n1 = latex_header_i1+1
+    set latex_header_n2 = latex_header_i2+1
+    set latex_header_T1 = latex_header_T[latex_header_i1]
+    set latex_header_T2 = latex_header_T[latex_header_i2]
+    set latex_header_1 = latex_headers[latex_header_i1]
+    set latex_header_2 = latex_headers[latex_header_i2]
+    set latex_header_c = 'c'
+    foreach var latex_header_1 {
+        set latex_header_c = latex_header_c + 'c'
+        set fmt_$var = '%10.4g &'
+        if('$var'=='id') {
+            set fmt_$var = '%12.0f &'
+        }
+        if('$var'=='ra' || '$var'=='de') {
+            set fmt_$var = '%12.7f &'
+        }
+        if('$var'=='z' || '$var'=='ez' || '$var'=='z_sp') {
+            #set fmt_$var = '%7g &'
+            set fmt_$var = '%7.3f &'
+        }
+        if('$var'=='goodArea' || index('$var','Type')==0) {
+            set fmt_$var = '%7g &'
+        }
+        if('$var'=='Mstar') {
+            set fmt_$var = '%10.4g &'
+        }
+        if('$var'=='lgMstar') {
+            set fmt_$var = '%8.2f &'
+        }
+        if('$var'=='SFR' || '$var'=='eSFR') {
+            set fmt_$var = '%10.4g &'
+        }
+        if('$var'=='SNR') {
+            set fmt_$var = '%8.1f &'
+        }
+    }
+    foreach var latex_header_2 {
+        set fmt_$var = '%9g \\\\\\\\ \n'
+    }
+    # 
+    define print_noheader 1
+    print  "aaa.tex" '%see \n' {}
+    print +"aaa.tex" '%/home/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201612/CatalogConvert.sm \n' {}
+    print +"aaa.tex" '%go_make_latex_table \n' {}
+    print +"aaa.tex" '%set coo = (z>=3.0 && SNR>=10.0) \n' {}
+    print +"aaa.tex" '%/home/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201612/Table_2.tex \n' {}
+    print +"aaa.tex" '% \n' {}
+    print +"aaa.tex" '\\begin{table*}\n\n' {}
+    print +"aaa.tex" '\\begin{center}\n\n' {}
+    print +"aaa.tex" '\\caption{ %\n' {}
+    print +"aaa.tex" '    GOODS-N Superdebleding Photometry Catalog (Example) %\n' {}
+    print +"aaa.tex" '    \\label{Table_2} %\n' {}
+    print +"aaa.tex" '}\n\n' {}
+    print +"aaa.tex" '\\begin{tabular}{ $(latex_header_c) }\n\n' {}
+    print +"aaa.tex" '    \\hline\n\n' {}
+    print +"aaa.tex" '        %s & \n' {latex_header_T1}
+    print +"aaa.tex" '        %s \\\\ \n' {latex_header_T2}
+    print +"aaa.tex" '        \n' {}
+    print +"aaa.tex" '        (%d) & \n' {latex_header_n1}
+    print +"aaa.tex" '        (%d) \\\\ \n' {latex_header_n2}
+    print +"aaa.tex" '    \n' {}
+    print +"aaa.tex" '    \\hline\n\n' {}
+    do sid=0,dimen(id)-1 {
+        do cid=0,dimen(latex_headers)-1 {
+            set var = latex_headers[$cid]
+            set cvar = $(var)[$sid]
+            print +"aaa.tex" '$(fmt_$(var))' {cvar}
+        }
+        echo "Writing source sid "$sid
+    }
+    print +"aaa.tex" '    \n' {}
+    print +"aaa.tex" '    \\hline\n\n' {}
+    print +"aaa.tex" '    \\vspace{-0.5ex}\n\n' {}
+    print +"aaa.tex" '\n' {}
+    print +"aaa.tex" '\\end{tabular}\n\n' {}
+    print +"aaa.tex" '\\begin{minipage}{0.95\\textwidth}\n' {}
+    print +"aaa.tex" '    \n' {}
+    print +"aaa.tex" '    Table~\\ref{Table_2} is published in its entirety in the machine-readable format. \n' {}
+    print +"aaa.tex" '    A portion is shown here for guidance regarding its form and content. \n' {}
+    print +"aaa.tex" '    Here we show \$z \\ge 3\$ and \$S/N \\ge 10\$ sources sorting by the \$S/N\$. \n' {}
+    print +"aaa.tex" '    Column (1), (2) and (3) are the IRAC catalog from GOODS-\\textit{Spitzer} Legacy Program \n' {}
+    print +"aaa.tex" '    (see Section~\\ref{Section_Initial_IRAC_Catalog}). \n' {}
+    print +"aaa.tex" '    Column (4) is the spec-\$z\$ when available,  \n' {}
+    print +"aaa.tex" '    otherwise the FIR+mm SED fitting photo-\$z\$.  \n' {}
+    print +"aaa.tex" '    Column (5) is -1 when spec-\$z\$ is available,  \n' {}
+    print +"aaa.tex" '    or the uncertainty of photo-\$z\$.  \n' {}
+    print +"aaa.tex" '    Column (6) and (7) are flux and uncertainty in unit of mJy.  \n' {}
+    print +"aaa.tex" '    Column (8) is the FIR+mm combined \$S/N\$ in Equation~\\ref{Equation_SNR}.  \n' {}
+    print +"aaa.tex" '    Column (9) is the stellar mass from 3D-HST program or \\citet{Pannella2015},  \n' {}
+    print +"aaa.tex" '    converted to Chabrier IMF when needed.  \n' {}
+    print +"aaa.tex" '    Column (10) and (11) are the SFR and uncertainty from FIR+mm SED fitting  \n' {}
+    print +"aaa.tex" '    (see Figure~\\ref{Fig_CatalogAnalyze_diagram_z_phot_vs_SFR}  \n' {}
+    print +"aaa.tex" '    caption for deriving SFR from \$L_{\\mathrm{IR}}\$).  \n' {}
+    print +"aaa.tex" '    Column (12) is the \'\'goodArea\'\' parameter,  \n' {}
+    print +"aaa.tex" '    equals 1 if the source is in the inner lower r.m.s. area in 24\${\\mu}m\$  \n' {}
+    print +"aaa.tex" '    (has deeper prior catalog for surrounding sources),  \n' {}
+    print +"aaa.tex" '    otherwise 0 (has shallower or even incomplete prior catalog for surrounding sources).  \n' {}
+    print +"aaa.tex" '    Column (13) is the \'\'Type\\_AGN\'\' parameter,  \n' {}
+    print +"aaa.tex" '    equals 1 if the source is classified as radio excess and  \n' {}
+    print +"aaa.tex" '    its radio data point is not fitted in SED fitting, otherwise 0.  \n' {}
+    print +"aaa.tex" '    Column (14) is the \'\'Type\\_SED\'\' parameter,  \n' {}
+    print +"aaa.tex" '    equals 1 if the source is classified as starburst type  \n' {}
+    print +"aaa.tex" '    (its SED is fixed to using starburst templates),  \n' {}
+    print +"aaa.tex" '    or -1 if classified as main-sequence type  \n' {}
+    print +"aaa.tex" '    (its SED is fixed to using main-sequence templates), \n' {}
+    print +"aaa.tex" '    otherwise 0 (allowing fitting all SED templates). \n' {}
+    print +"aaa.tex" '    \n' {}
+    print +"aaa.tex" '\\end{minipage}\n\n' {}
+    print +"aaa.tex" '\\end{center}\n\n' {}
+    print +"aaa.tex" '\\end{table*}\n\n' {}
+    define print_noheader 0
+    
+    !cp "aaa.tex" "Table_2.tex"
+
+
+
+
+
+
+
+
+
+
+
+
+
