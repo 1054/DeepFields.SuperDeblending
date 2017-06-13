@@ -485,6 +485,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                 if [[ ! -f "No_catalog_source_within_image" && ! -f "getpix.txt" ]]; then 
                     echo "Error! Failed to run Supermongo script \"astrodepth_go_getpix.sm\" subroutine go_getpix! Sorry!"
                     echo "Log file: \"astrodepth_go_getpix.log\""; cat "astrodepth_go_getpix.log"
+                    rm "astrodepth_lock_getpix"
                     exit 1
                 fi
             else
@@ -498,6 +499,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                 if [[ ! -f "No_catalog_source_within_image" && ! -f "getpix.result" ]]; then 
                     echo "Error! Failed to run Supermongo script \"astrodepth_go_getpix.sm\" subroutine \"print_result\"! Sorry!"
                     echo "Log file: \"astrodepth_go_getpix_print_result.log\""; cat "astrodepth_go_getpix_print_result.log"
+                    rm "astrodepth_lock_getpix"
                     exit 1
                 fi
             else
@@ -544,6 +546,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     if [[ ! -f "No_catalog_source_within_image" && ! -f "getpix_on_negative_image.txt" ]]; then 
                         echo "Error! Failed to run Supermongo script \"astrodepth_go_getpix.sm\" subroutine go_getpix_on_negative_image! Sorry!"
                         echo "Log file: \"astrodepth_go_getpix_on_negative_image.log\""; cat "astrodepth_go_getpix_on_negative_image.log"
+                        rm "astrodepth_lock_negative"
                         exit 1
                     fi
                 else
@@ -557,6 +560,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     if [[ ! -f "No_catalog_source_within_image" && ! -f "getpix_on_negative_image.result" ]]; then 
                         echo "Error! Failed to run Supermongo script \"astrodepth_go_getpix.sm\" subroutine \"print_result_on_negative_image\"! Sorry!"
                         echo "Log file: \"astrodepth_go_getpix_print_result_on_negative_image.log\""; cat "astrodepth_go_getpix_print_result_on_negative_image.log"
+                        rm "astrodepth_lock_negative"
                         exit 1
                     fi
                 else
@@ -577,6 +581,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     if [[ ! -f "No_catalog_source_within_image" && ! -f "fit_n0.fits" ]]; then 
                         echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_n0\"! Sorry!"
                         echo "Log file: \"astrodepth_go_galfit_n0.log\""; cat "astrodepth_go_galfit_n0.log"
+                        rm "astrodepth_lock_negative"
                         exit 1
                     fi
                 else
@@ -589,6 +594,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     if [[ ! -f "No_catalog_source_within_image" && ! -f "fit_n1.fits" ]]; then 
                         echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_n1\"! Sorry!"
                         echo "Log file: \"astrodepth_go_galfit_n1.log\""; cat "astrodepth_go_galfit_n1.log"
+                        rm "astrodepth_lock_negative"
                         exit 1
                     fi
                 else
@@ -601,6 +607,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     if [[ ! -f "No_catalog_source_within_image" && ! -f "fit_n2.fits" ]]; then 
                         echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_n2\"! Sorry!"
                         echo "Log file: \"astrodepth_go_galfit_n2.log\""; cat "astrodepth_go_galfit_n2.log"
+                        rm "astrodepth_lock_negative"
                         exit 1
                     fi
                 else
@@ -613,6 +620,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     if [[ ! -f "final_on_negative_image.result" ]]; then 
                         echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"print_result_final_on_negative_image\"! Sorry!"
                         echo "Log file: \"astrodepth_go_galfit_print_result_final_on_negative_image.log\""; cat "astrodepth_go_galfit_print_result_final_on_negative_image.log"
+                        rm "astrodepth_lock_negative"
                         exit 1
                     fi
                 else
@@ -649,6 +657,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     if [[ ! -f "No_catalog_source_within_image" && ! -f "fit_0.fits" ]]; then 
                         echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_0\"! Sorry!"
                         echo "Log file: \"astrodepth_go_galfit_0.log\""; cat "astrodepth_go_galfit_0.log"
+                        rm "astrodepth_lock_galfit"
                         exit 1
                     fi
                 else
@@ -661,6 +670,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     if [[ ! -f "No_catalog_source_within_image" && ! -f "fit_1.fits" ]]; then 
                         echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_1\"! Sorry!"
                         echo "Log file: \"astrodepth_go_galfit_1.log\""; cat "astrodepth_go_galfit_1.log"
+                        rm "astrodepth_lock_galfit"
                         exit 1
                     fi
                 else
@@ -698,6 +708,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     if [[ ! -f "fit_2.fits" ]]; then 
                         echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_2\"! Sorry!"
                         echo "Log file: \"astrodepth_go_galfit_2.log\""; cat "astrodepth_go_galfit_2.log"
+                        rm "astrodepth_lock_gaussian"
                         exit 1
                     fi
                 else
@@ -735,6 +746,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     if [[ ! -f "final.result" ]]; then 
                         echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"print_result_final\"! Sorry!"
                         echo "Log file: \"astrodepth_go_galfit_print_result_final.log\""; cat "astrodepth_go_galfit_print_result_final.log"
+                        rm "astrodepth_lock_final"
                         exit 1
                     fi
                 else
