@@ -460,7 +460,7 @@ print_result 01
                     !getpix '%15.10e' $1.model.fits $(ResultPosX[$i]) $(ResultPosY[$i]) > aaa.getpix.tmp
                     verbose 0 data aaa.getpix.tmp read {fluxpeak 1.f}
                     verbose 1
-                    set ResultFluxPeak[$i] = fluxpeak
+                    set ResultFluxPeak[$i] = fluxpeak / 1e3 # convert Jy/beam to mJy/beam <20170613>
                 }
                 if(ResultMags[$i]>=30) {
                     set ResultFlux[$i] = 1e-30 #<20170303><dzliu># 
