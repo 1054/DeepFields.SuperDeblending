@@ -8,5 +8,10 @@ if [[ $# -gt 0 ]]; then
     echo "# ResultType ResultPosX ResultPosXErr ResultPosY ResultPosYErr ResultMags ResultMagsErr " > "fit.result"
     echo "# " >> "fit.result"
     cat "$readgresult_tmp" |while read line;do if [[ "$line" != "COMMENT"* ]];then echo -n "$line ";else echo "";fi;done >> "fit.result"
+    #<20170613># fixing "nan" problem, which occurs when prior sources are too many (perhaps...)
+    if grep -i -w -q "nan" "fit.result"; then
+        sed -i.bak -e 's/ nan/ -99/g' "fit.result"
+    fi
 fi
+
 

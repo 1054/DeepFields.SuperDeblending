@@ -1,10 +1,10 @@
 read_data 00
     load astroGalfit.sm
-    data "prior_x_y.txt" read {_px 1 _py 2}
-    set _id = 0,dimen(_px)-1
+    data "prior_x_y.txt" read {_px 1.f _py 2.f}
+    set _id = 0,dimen(_px)-1 # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
     set _se = (_px>0 && _py>0)
     if(sum(_se) > 0) {
-        set id = _id if(_se)
+        set id = _id if(_se) # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
         set px = _px if(_se)
         set py = _py if(_se)
         if(is_file("No_catalog_source_within_image")) {!rm "No_catalog_source_within_image"}
@@ -127,6 +127,33 @@ calc_primary_beam_correction 00
     if(is_file("image_sci_primary_beam_correction.txt")) {
         !mv "image_sci_primary_beam_correction.txt" "image_sci_primary_beam_correction.txt.backup"
     }
+    if(!is_vector(phase_center_x) || !is_vector(phase_center_y)) {
+        if(!is_file("image_sci_phase_center.txt")) {
+            calc_phase_center
+        }
+        if(is_file("image_sci_phase_center.txt")) {
+            data "image_sci_phase_center.txt" read {phase_center_ra 1.f phase_center_dec 2.f phase_center_x 3.f phase_center_y 4.f}
+        }
+    }
+    if(!is_vector(sky_frequency)) {
+        if(!is_file("image_sci_sky_frequency.txt")) {
+            calc_sky_frequency
+        }
+        if(is_file("image_sci_sky_frequency.txt")) {
+            data "image_sci_sky_frequency.txt" read {sky_frequency 1.f}
+        }
+    }
+    if(!is_vector(pixscale)) {
+        if(!is_file("image_sci_pixscale.txt")) {
+            read_pixscale
+        }
+        if(is_file("image_sci_pixscale.txt")) {
+            data "image_sci_pixscale.txt" read {pixscale 1}
+        }
+    }
+    if(!is_vector(px) || !is_vector(py)) {
+        read_data
+    }
     if(is_vector(phase_center_x) && is_vector(phase_center_y) && is_vector(sky_frequency) && is_vector(px) && is_vector(py) && is_vector(pixscale)) {
         # https://safe.nrao.edu/wiki/bin/view/ALMA/PrimaryBeamArcsec
         # Computes the expected FWHM of a single dish beam by implementing the Baars formula (b*lambda / D), where b is taken either from Equation 18 in ALMA Memo 456 (http://legacy.nrao.edu/alma/memos/html-memos/abstracts/abs456.html):
@@ -142,8 +169,11 @@ calc_primary_beam_correction 00
         #set primary_beam_tape = 10.0 # https://safe.nrao.edu/wiki/bin/view/ALMA/AlmaPrimaryBeamCorrection
         #set primary_beam_bpar = 1.243 - 0.343 * primary_beam_tape + 0.12 * primary_beam_tape**2 # http://legacy.nrao.edu/alma/memos/html-memos/alma456/memo456.pdf -- Eq(18)
         set primary_beam_bpar = 1.13
-        set primary_beam_fwhm = primary_beam_bpar * sky_wavelength / (primary_beam_diam*1e6) / pi * 180.0 * 3600.0 # arcsec
-        set primary_beam_attenuation = exp((-primary_beam_disq)/(primary_beam_fwhm**2))
+        set primary_beam_fwhm = primary_beam_disq*0.0 + primary_beam_bpar * sky_wavelength / (primary_beam_diam*1e6) / pi * 180.0 * 3600.0 # arcsec
+        set primary_beam_sigm = primary_beam_disq*0.0 + primary_beam_fwhm/(2.0*sqrt(2.0*ln(2)))
+                                                                                                                      #<TODO><20170613># 
+        set primary_beam_attenuation = exp((-primary_beam_disq)/(2.0*((primary_beam_sigm)**2))) #<TODO><20170613># 
+                                                                                                                      #<TODO><20170613># 
         set primary_beam_correction = 1.0/primary_beam_attenuation
         define print_noheader 1
         print "image_sci_primary_beam_correction.txt" '%20g %20g %20g\n' {primary_beam_correction primary_beam_dist primary_beam_fwhm}
@@ -257,12 +287,19 @@ print_result
         read_pixnoise
         calc_beamarea
         # 
+        # <TODO><20170613> fixing bug <TODO>
+        calc_primary_beam_correction
+        # 
         if(is_file("getpix.result")) {
             !mv "getpix.result" "getpix.result.backup"
         }
         # 
         if(is_file("getpix.txt")) {
             data "getpix.txt" read {pix_max 1.f pix_sum 2.f pix_num 3.f cat_index 7.f cat_id 8.s}
+            # 
+            # read pb_corr
+            if(!is_file("image_sci_primary_beam_correction.txt")) { calc_primary_beam_correction }
+            data "image_sci_primary_beam_correction.txt" read {pb_corr 1.f}
             # 
             # print further results with flux unit Jy/beam (f_peak) or Jy (f_int)
             if(is_vector(pixscale) && is_vector(beamarea)) {
@@ -273,7 +310,8 @@ print_result
                     set err_int = pixnoise * sqrt(pix_num) / beamarea * (pixscale*pixscale)
                     set snr_peak = (f_peak>0) ? (f_peak / err_peak) : 0.0
                     set snr_int = (f_int>0) ? (f_int / err_int) : 0.0
-                    print "getpix.result" '%15g %15g %15g %15g %15.0f %15s\n' {f_peak f_int snr_peak snr_int cat_index cat_id}
+                    set rms_noise = f_peak*0.0 + pixnoise
+                    print "getpix.result" '%15g %15g %15g %15g %15g %15g %15.0f %15s\n' {f_peak f_int snr_peak snr_int rms_noise pb_corr cat_index cat_id}
                 } else {
                     print 'Error! Negative pixscale or beamarea value! Failed to run \"go_getpix.sm\" subroutine \"print_result\"!\n' {}
                 }
@@ -299,6 +337,10 @@ print_result_on_negative_image
         if(is_file("getpix_on_negative_image.txt")) {
             data "getpix_on_negative_image.txt" read {pix_max 1.f pix_sum 2.f pix_num 3.f cat_index 7.f cat_id 8.s}
             # 
+            # read pb_corr
+            if(!is_file("image_sci_primary_beam_correction.txt")) { calc_primary_beam_correction }
+            data "image_sci_primary_beam_correction.txt" read {pb_corr 1.f}
+            # 
             # print further results with flux unit Jy/beam (f_peak) or Jy (f_int)
             if(is_vector(pixscale) && is_vector(beamarea)) {
                 if(pixscale>0 && beamarea>0) {
@@ -308,7 +350,8 @@ print_result_on_negative_image
                     set err_int = pixnoise * sqrt(pix_num) / beamarea * (pixscale*pixscale)
                     set snr_peak = (f_peak>0) ? (f_peak / err_peak) : 0.0
                     set snr_int = (f_int>0) ? (f_int / err_int) : 0.0
-                    print "getpix_on_negative_image.result" '%15g %15g %15g %15g %15.0f %15s\n' {f_peak f_int snr_peak snr_int cat_index cat_id}
+                    set rms_noise = f_peak*0.0 + pixnoise
+                    print "getpix_on_negative_image.result" '%15g %15g %15g %15g %15g %15g %15.0f %15s\n' {f_peak f_int snr_peak snr_int rms_noise pb_corr cat_index cat_id}
                 } else {
                     print 'Error! Negative pixscale or beamarea value! Failed to run \"go_getpix.sm\" subroutine \"print_result_on_negative_image\"!\n' {}
                 }
