@@ -460,7 +460,7 @@ print_result 01
                     !getpix '%15.10e' $1.model.fits $(ResultPosX[$i]) $(ResultPosY[$i]) > aaa.getpix.tmp
                     verbose 0 data aaa.getpix.tmp read {fluxpeak 1.f}
                     verbose 1
-                    set ResultFluxPeak[$i] = fluxpeak * 1e3 # convert Jy/beam to mJy/beam <20170613>
+                    set ResultFluxPeak[$i] = fluxpeak # Jy/beam <20170613>
                 }
                 if(ResultMags[$i]>=30) {
                     set ResultFlux[$i] = 1e-30 #<20170303><dzliu># 
@@ -540,6 +540,7 @@ print_result_final 00
             data "fit_1.sky2xy.output" read {ra_fit_1 1.f dec_fit_1 2.f}
             data "fit_2.sky2xy.output" read {ra_fit_2 1.f dec_fit_2 2.f}
             foreach var {f_peak f_int rms f_fit_0 f_fit_1 f_fit_2 df_fit_0 df_fit_1 df_fit_2} {set $var = $var * 1e3} # mJy
+            foreach var {fpeak_fit_2} {set $var = $var * 1e3} # mJy <20170613>
             set id_getpix = cat_id_full[cid_getpix]
             set id_fit_0 = cat_id_full[cid_fit_0]
             set id_fit_1 = cat_id_full[cid_fit_1]
@@ -624,6 +625,7 @@ print_result_final_on_negative_image 00
             data "fit_n1.sky2xy.output" read {ra_fit_n1 1.f dec_fit_n1 2.f}
             data "fit_n2.sky2xy.output" read {ra_fit_n2 1.f dec_fit_n2 2.f}
             foreach var {f_peak f_int rms f_fit_n0 f_fit_n1 f_fit_n2 df_fit_n0 df_fit_n1 df_fit_n2} {set $var = $var * 1e3} # mJy
+            foreach var {fpeak_fit_n2} {set $var = $var * 1e3} # mJy <20170613>
             set id_getpix = cat_id_full[cid_getpix]
             set id_fit_n0 = cat_id_full[cid_fit_n0]
             set id_fit_n1 = cat_id_full[cid_fit_n1]
