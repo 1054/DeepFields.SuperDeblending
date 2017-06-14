@@ -408,6 +408,7 @@ print_result_fit_2
         readGalfitResult "fit_2.fits"
         print_result "fit_2"
     }
+    print_result_final
 
 
 print_result 01
