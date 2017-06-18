@@ -171,13 +171,11 @@ calc_primary_beam_correction 00
         set primary_beam_bpar = 1.13
         set primary_beam_fwhm = primary_beam_disq*0.0 + primary_beam_bpar * sky_wavelength / (primary_beam_diam*1e6) / pi * 180.0 * 3600.0 # arcsec
         set primary_beam_sigm = primary_beam_disq*0.0 + primary_beam_fwhm/(2.0*sqrt(2.0*ln(2)))
-                                                                                                                      #<TODO><20170613># 
         set primary_beam_attenuation = exp((-primary_beam_disq)/(2.0*((primary_beam_sigm)**2))) #<TODO><20170613># 
-                                                                                                                      #<TODO><20170613># 
         set primary_beam_correction = 1.0/primary_beam_attenuation
-        define print_noheader 1
-        print "image_sci_primary_beam_correction.txt" '%20g %20g %20g\n' {primary_beam_correction primary_beam_dist primary_beam_fwhm}
-        define print_noheader 0
+        #define print_noheader 1
+        print "image_sci_primary_beam_correction.txt" '%26g %26g %20g %20g\n' {primary_beam_correction primary_beam_attenuation primary_beam_dist primary_beam_fwhm}
+        #define print_noheader 0
     }
 
 

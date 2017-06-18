@@ -278,7 +278,7 @@ go_galfit_2
 go_galfit_n0
     read_data
     read_pixscale
-    mask_prior_sources
+    mask_prior_sources_on_negative_image
     if(dimen(px)>0 && dimen(py)==dimen(px)) {
         initGalfitParam px py
         set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
@@ -293,7 +293,7 @@ go_galfit_n0
         if(is_file("fit.log")) {!mv "fit.log" "fit_n0.log"}
         if(is_file("fit_n0.fits")) {
             readGalfitResult "fit_n0.fits"
-            print_result "fit_n0"
+            print_result "fit_n0" "getpix_on_negative_image.mask"
         }
     }
     
@@ -301,13 +301,13 @@ go_galfit_n0
 go_galfit_n1
     read_data
     read_pixscale
-    mask_prior_sources
+    mask_prior_sources_on_negative_image
     if(dimen(px)>0 && dimen(py)==dimen(px)) {
         if(is_file("fit_n0.result")) {
             data "fit_n0.result" read {ResultPosX 1.f ResultPosY 2.f ResultMags 6.f ResultMagsErr 7.f}
         } else {
             readGalfitResult "fit_n0.fits"
-            print_result "fit_n0"
+            print_result "fit_n0" "getpix_on_negative_image.mask"
         }
         set Vary_X = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
         set Vary_Y = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
@@ -323,7 +323,7 @@ go_galfit_n1
         if(is_file("fit.log")) {!mv "fit.log" "fit_n1.log"}
         if(is_file("fit_n1.fits")) {
             readGalfitResult "fit_n1.fits"
-            print_result "fit_n1"
+            print_result "fit_n1" "getpix_on_negative_image.mask"
         }
     }
     
@@ -331,13 +331,13 @@ go_galfit_n1
 go_galfit_n2
     read_data
     read_pixscale
-    mask_prior_sources
+    mask_prior_sources_on_negative_image
     if(dimen(px)>0 && dimen(py)==dimen(px)) {
         if(is_file("fit_n1.result")) {
             data "fit_n1.result" read {ResultPosX 1.f ResultPosY 2.f ResultMags 6.f ResultMagsErr 7.f}
         } else {
             readGalfitResult "fit_n1.fits"
-            print_result "fit_n1"
+            print_result "fit_n1" "getpix_on_negative_image.mask"
         }
         set Pos_X = (ResultMagsErr<0.25) ? ResultPosX : px
         set Pos_Y = (ResultMagsErr<0.25) ? ResultPosY : py
@@ -369,7 +369,7 @@ go_galfit_n2
         if(is_file("fit.log")) {!mv "fit.log" "fit_n2.log"}
         if(is_file("fit_n2.fits")) {
             readGalfitResult "fit_n2.fits"
-            print_result "fit_n2"
+            print_result "fit_n2" "getpix_on_negative_image.mask"
         }
     }
 
@@ -411,20 +411,9 @@ print_result_fit_2
     print_result_final
 
 
-print_result 01
-    #<before><20170304># if(!is_file("No_catalog_source_within_image")) {
-    #<before><20170304>#     if(is_file($1.result)) {!mv $1.result $1.result.backup}
-    #<before><20170304>#     if(is_file("image_psf_peak2total.txt") && is_vector(ResultMags) && is_vector(ResultMagsErr) && is_vector(ResultPosX) && is_vector(ResultPosY) && $?1) {
-    #<before><20170304>#         data "image_psf_peak2total.txt" read {peak2total 1.f}
-    #<before><20170304>#         set ResultFlux = (10**(ResultMags/(-2.5))) * peak2total
-    #<before><20170304>#         set ResultFluxErr = ResultMagsErr*ResultFlux/1.08
-    #<before><20170304>#         set ResultFlux = (ResultMags<30) ? ResultFlux : 1e-30 #<20170303><dzliu># 
-    #<before><20170304>#         if(is_file($1.param)) {
-    #<before><20170304>#             data $1.param read {id 31.f}
-    #<before><20170304>#         }
-    #<before><20170304>#         print $1.result '%12.3f %12.3f %15g %15g %15.3f %15.3f %15.0f\n' {ResultPosX ResultPosY ResultFlux ResultFluxErr ResultMags ResultMagsErr id}
-    #<before><20170304>#     }
-    #<before><20170304># }
+print_result 02
+    # read galfit output "fit_X.fits" and print results to "fit_X.result" text file. 
+    # <20170618><dzliu> added argument $2 -- where to read "getpix.mask" file
     if(!is_file("No_catalog_source_within_image")) {
         read_pixscale
         read_pixnoise
@@ -499,7 +488,7 @@ print_result 01
             # 
             if(is_file("image_sci_primary_beam_correction.txt")) {
                 data "image_sci_primary_beam_correction.txt" read {pb_corr 1.f}
-                data "getpix.mask" read {mask 1.f}
+                if($?2) {data $2} else {data "getpix.mask"} read {mask 1.f} #<20170618><fixed><bug># 
                 set pb_corr = pb_corr if(mask)
             } else {
                 set pb_corr = f*0.0-99
