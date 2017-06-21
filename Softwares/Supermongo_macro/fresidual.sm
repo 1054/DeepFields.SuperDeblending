@@ -66,7 +66,7 @@ fresidual 04
     # prepare aperture list file and run aperture photometry on residual image <TODO> residual image extension number "-ext 2" <DONE> now read from input str
     print "aaa_fresidual_aperphot_input" '%15g%15g%17g\n' {_fresi_px _fresi_py _fresi_radius}
     if($verbose) {
-        print 'fresidual: Running CrabPhotAperPhot $(_fresi_fits) -ext $(_fresi_fext) none "aaa_fresidual_aperphot_input" > "aaa_fresidual_aperphot_output"\n' {}
+        echo "fresidual: Running CrabPhotAperPhot "$(_fresi_fits)" -ext "$(_fresi_fext)" none \"aaa_fresidual_aperphot_input\" > \"aaa_fresidual_aperphot_output\""
     }
     !CrabPhotAperPhot -header-no-comment $(_fresi_fits) -ext $(_fresi_fext) none "aaa_fresidual_aperphot_input" > "aaa_fresidual_aperphot_output"
     !CrabTableReadColumn "aaa_fresidual_aperphot_output" "sumabs_int" > "aaa_fresidual_aperphot_output_sumabs"
@@ -123,7 +123,7 @@ fresidual_inPixel 04
     # prepare aperture list file and run aperture photometry on residual image <TODO> residual image extension number "-ext 2" <DONE> now read from input str
     print "aaa_fresidual_aperphot_input" '%15g%15g%17g\n' {_fresipix_px _fresipix_py _fresipix_radius}
     if($verbose) {
-        print 'fresidual_inPixel: Running CrabPhotAperPhot $(_fresi_fits) -ext $(_fresi_fext) none "aaa_fresidual_aperphot_input" > "aaa_fresidual_aperphot_output"\n' {}
+        echo "fresidual_inPixel: Running CrabPhotAperPhot "$(_fresi_fits)" -ext "$(_fresi_fext)" none \"aaa_fresidual_aperphot_input\" > \"aaa_fresidual_aperphot_output\""
     }
     !CrabPhotAperPhot -header-no-comment $(_fresi_fits) -ext $(_fresi_fext) none "aaa_fresidual_aperphot_input" > "aaa_fresidual_aperphot_output"
     !CrabTableReadColumn "aaa_fresidual_aperphot_output" "sumabs_int" > "aaa_fresidual_aperphot_output_sumabs"

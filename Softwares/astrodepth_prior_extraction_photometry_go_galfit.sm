@@ -133,8 +133,8 @@ mask_prior_sources
 
 
 mask_prior_sources_on_negative_image
-    if(is_file("No_catalog_source_with_enough_getpix_SNR")) {
-        !rm "No_catalog_source_with_enough_getpix_SNR"
+    if(is_file("No_catalog_source_with_enough_getpix_SNR_on_negative_image")) {
+        !rm "No_catalog_source_with_enough_getpix_SNR_on_negative_image"
     }
     if(is_file("getpix_on_negative_image.result") && is_vector(px) && is_vector(py)) {
         data "getpix_on_negative_image.result" read {f_peak 1.f f_int 2.f snr_peak 3.f snr_int 4.f cat_index 7.f cat_id 8.f}
@@ -154,7 +154,7 @@ mask_prior_sources_on_negative_image
             declare px 0.f
             declare py 0.f
             declare id 0.f
-            print "No_catalog_source_with_enough_getpix_SNR" 'No catalog source with enough getpix SNR.\n' {}
+            print "No_catalog_source_with_enough_getpix_SNR_on_negative_image" 'No catalog source with enough getpix SNR on negative image.\n' {}
             return # exit
         }
     } else {
@@ -591,7 +591,7 @@ print_result_final_on_negative_image 00
         data "image_sci_pixnoise.txt" read {rms 1.f}
         data "prior_id.txt" read {cat_id_full 1.s}
         # 
-        if(!is_file("No_catalog_source_with_enough_getpix_SNR")) {
+        if(!is_file("No_catalog_source_with_enough_getpix_SNR_on_negative_image")) {
             data "getpix_on_negative_image.result" read {f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 7}
             data "getpix_on_negative_image.input" read {x_getpix 1.f y_getpix 2.f}
             data "fit_n0.result" read {x_fit_n0 1.f y_fit_n0 2.f f_fit_n0 3.f df_fit_n0 4.f fpeak_fit_n0 5.f cid_fit_n0 18} #<TODO># make sure cat_index column number is correct

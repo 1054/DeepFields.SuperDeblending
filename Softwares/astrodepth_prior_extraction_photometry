@@ -573,7 +573,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             fi
             # 
             # now we run galfit in negative image
-            if [[ ! -f "No_catalog_source_within_image" && ! -f "No_catalog_source_with_enough_getpix_SNR" ]]; then
+            if [[ ! -f "No_catalog_source_within_image" && ! -f "No_catalog_source_with_enough_getpix_SNR_on_negative_image" ]]; then
                 if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"negative"* || ! -f "fit_n0.fits" ]]; then
                     echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_n0\""
                     echo "macro read astrodepth_go_galfit.sm go_galfit_n0" | sm > "astrodepth_go_galfit_n0.log"

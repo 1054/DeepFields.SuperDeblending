@@ -314,8 +314,9 @@ writeGalfitInput 06
             data $(wginput_tmp) read {PSF_Lx2 1 PSF_Ly2 2}
             !\rm $(wginput_tmp)
             # 
-            set ParamCoB = ((PSF_Lx2-PSF_Lx1)) concat ((PSF_Ly2-PSF_Ly1))
-            set ParamCoB = 0 #<TODO># 
+            #set ParamCoB = ((PSF_Lx2-PSF_Lx1)) concat ((PSF_Ly2-PSF_Ly1))
+            #set ParamCoB = 0 #<TODO># 
+            set ParamCoB = (3.0*(PSF_Lx2-PSF_Lx1)) concat (3.0*(PSF_Ly2-PSF_Ly1))
         }
         if(dimen(ParamCoB)==1) {
             set ParamCoB = ParamCoB concat ParamCoB
