@@ -5,7 +5,7 @@ go
     #  here we read the catalog and correct PACS HPF and then correct MassX to Chabrier IMF and write the output catalog
     # 
     load rfile.sm
-    rfile "Catalog/RadioOwenMIPS24_priors_dzliu_20161219.txt"
+    rfile "Catalog/RadioOwenMIPS24_priors_dzliu_20170612.txt"
     
     # 
     # apply PACS high-pass filtering corretion HPF correction

@@ -107,7 +107,7 @@ mask_prior_sources
         !rm "No_catalog_source_with_enough_getpix_SNR"
     }
     if(is_file("getpix.result") && is_vector(px) && is_vector(py)) {
-        data "getpix.result" read {f_peak 1.f f_int 2.f snr_peak 3.f snr_int 4.f cat_index 7.f cat_id 8.f}
+        data "getpix.result" read {f_peak 1.f f_int 2.f snr_peak 3.f snr_int 4.f cat_index 7.f cat_id 8.s}
         #set mask = (snr_int>=1.0 && snr_peak>=2.0) #<before><20170403><dzliu>#
         set threshold_int = 2.0
         set threshold_peak = 3.6
@@ -115,7 +115,7 @@ mask_prior_sources
         set mask = ((snr_int/threshold_int>=0.30 && snr_peak/threshold_peak>=0.30) || (snr_int/threshold_int>=0.70) || (snr_peak/threshold_peak>=0.70))
         set mask = int(mask)
         set id = float(id)
-        print "getpix.mask" '%15d %15.0f %15.0f %15.0f\n' {mask id cat_index cat_id} # TODO Check: id == cat_index = cat_id-1
+        print "getpix.mask" '%15d %15.0f %15.0f %20s\n' {mask id cat_index cat_id} # TODO Check: id == cat_index = cat_id-1
         if(sum(mask)>0) {
             set px = px if(mask)
             set py = py if(mask)
@@ -137,7 +137,7 @@ mask_prior_sources_on_negative_image
         !rm "No_catalog_source_with_enough_getpix_SNR_on_negative_image"
     }
     if(is_file("getpix_on_negative_image.result") && is_vector(px) && is_vector(py)) {
-        data "getpix_on_negative_image.result" read {f_peak 1.f f_int 2.f snr_peak 3.f snr_int 4.f cat_index 7.f cat_id 8.f}
+        data "getpix_on_negative_image.result" read {f_peak 1.f f_int 2.f snr_peak 3.f snr_int 4.f cat_index 7.f cat_id 8.s}
         #set mask = (snr_int>=1.0 && snr_peak>=2.0) #<before><20170403><dzliu>#
         set threshold_int = 2.0
         set threshold_peak = 3.6
@@ -145,7 +145,7 @@ mask_prior_sources_on_negative_image
         set mask = ((snr_int/threshold_int>=0.30 && snr_peak/threshold_peak>=0.30) || (snr_int/threshold_int>=0.70) || (snr_peak/threshold_peak>=0.70))
         set mask = int(mask)
         set id = float(id)
-        print "getpix_on_negative_image.mask" '%15d %15.0f %15.0f %15.0f\n' {mask id cat_index cat_id} # TODO Check: id == cat_index = cat_id-1
+        print "getpix_on_negative_image.mask" '%15d %15.0f %15.0f %20s\n' {mask id cat_index cat_id}
         if(sum(mask)>0) {
             set px = px if(mask)
             set py = py if(mask)
@@ -175,7 +175,13 @@ go_galfit_0
     mask_prior_sources
     if(dimen(px)>0 && dimen(py)==dimen(px)) {
         initGalfitParam px py
-        set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+        # 
+        #<20170626><BUG># 
+        #<20170626><BUG># set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+        print "fit_0.cat_index" '%.0f\n' {id}
+        data "fit_0.cat_index" read {Note 1.s}
+        #<20170626><BUG># 
+        # 
         set Mags = float(px) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
         set ParamMaxMags = float(Mags)*0.0 + 30.0
         set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
@@ -206,7 +212,13 @@ go_galfit_1
         set Vary_X = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
         set Vary_Y = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
         initGalfitParam px py Vary_X Vary_Y
-        set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+        # 
+        #<20170626><BUG># 
+        #<20170626><BUG># set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+        print "fit_1.cat_index" '%.0f\n' {id}
+        data "fit_1.cat_index" read {Note 1.s}
+        #<20170626><BUG># 
+        # 
         set Mags = ResultMags # (ResultMagsErr<0.5) ? ResultMags : Mags
         set ParamMaxMags = float(Mags)*0.0 + 30.0
         set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
@@ -240,7 +252,13 @@ go_galfit_2
         set Vary_X = (ResultMagsErr<0.25 && Vary_X>20) ? 20 : Vary_X # maximum 20 pixel, i.e. only valid when pixscale < 0.025 arcsec. #<added><20170607><dzliu>#
         set Vary_Y = (ResultMagsErr<0.25 && Vary_Y>20) ? 20 : Vary_Y # maximum 20 pixel, i.e. only valid when pixscale < 0.025 arcsec. #<added><20170607><dzliu>#
         initGalfitParam Pos_X Pos_Y Vary_X Vary_Y
-        set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+        # 
+        #<20170626><BUG># 
+        #<20170626><BUG># set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+        print "fit_2.cat_index" '%.0f\n' {id}
+        data "fit_2.cat_index" read {Note 1.s}
+        #<20170626><BUG># 
+        # 
         set Mags = ResultMags # (ResultMagsErr<0.25) ? ResultMags : Mags
         set Type = (ResultMagsErr<0.25) ? 'gaussian' : Type
         set Rads = (ResultMagsErr<0.25) ?  0.5/abs(pixscale) : Rads
@@ -281,7 +299,13 @@ go_galfit_n0
     mask_prior_sources_on_negative_image
     if(dimen(px)>0 && dimen(py)==dimen(px)) {
         initGalfitParam px py
-        set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+        # 
+        #<20170626><BUG># 
+        #<20170626><BUG># set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+        print "fit_n0.cat_index" '%.0f\n' {id}
+        data "fit_n0.cat_index" read {Note 1.s}
+        #<20170626><BUG># 
+        # 
         set Mags = float(px) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
         set ParamMaxMags = float(Mags)*0.0 + 30.0
         set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
@@ -312,7 +336,13 @@ go_galfit_n1
         set Vary_X = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
         set Vary_Y = (ResultMagsErr<0.5) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
         initGalfitParam px py Vary_X Vary_Y
-        set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+        # 
+        #<20170626><BUG># 
+        #<20170626><BUG># set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+        print "fit_n1.cat_index" '%.0f\n' {id}
+        data "fit_n1.cat_index" read {Note 1.s}
+        #<20170626><BUG># 
+        # 
         set Mags = ResultMags # (ResultMagsErr<0.5) ? ResultMags : Mags
         set ParamMaxMags = float(Mags)*0.0 + 30.0
         set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
@@ -346,7 +376,13 @@ go_galfit_n2
         set Vary_X = (ResultMagsErr<0.25 && Vary_X>20) ? 20 : Vary_X # maximum 20 pixel, i.e. only valid when pixscale < 0.025 arcsec. #<added><20170607><dzliu>#
         set Vary_Y = (ResultMagsErr<0.25 && Vary_Y>20) ? 20 : Vary_Y # maximum 20 pixel, i.e. only valid when pixscale < 0.025 arcsec. #<added><20170607><dzliu>#
         initGalfitParam Pos_X Pos_Y Vary_X Vary_Y
-        set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+        # 
+        #<20170626><BUG># 
+        #<20170626><BUG># set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+        print "fit_n2.cat_index" '%.0f\n' {id}
+        data "fit_n2.cat_index" read {Note 1.s}
+        #<20170626><BUG># 
+        # 
         set Mags = ResultMags # (ResultMagsErr<0.25) ? ResultMags : Mags
         set Type = (ResultMagsErr<0.25) ? 'gaussian' : Type
         set Rads = (ResultMagsErr<0.25) ?  0.5/abs(pixscale) : Rads
@@ -455,13 +491,22 @@ print_result 02
                     set ResultFlux[$i] = 1e-30 #<20170303><dzliu># 
                 }
             }
+            # 
+            #<20170626><BUG># 
             if(is_file($1.param)) {
                 data $1.param read {cat_index 31.f}
             }
-            if(is_file("prior_id.txt")) {
-                data "prior_id.txt" read {cat_id_full 1.s}
-                set cat_id = cat_id_full[cat_index]
+            set cat_index_buggy = cat_index
+            if($?2) {data $2} else {data "getpix.mask"} read {mask 1.f cat_index 3.f} #<20170626><fixed><bug># 
+            set cat_index = cat_index if(mask)
+            if(dimen(cat_index)!=dimen(cat_index_buggy)) {
+                print '\nError! cat_index from getpix.mask and $1.param have different length!\n\n' {}
+                exit
             }
+            #<20170626><BUG># 
+            # 
+            data "prior_id.txt" read {cat_id_full 1.s}
+            set cat_id = cat_id_full[cat_index]
             set x = ResultPosX
             set y = ResultPosY
             set f = ResultFlux
