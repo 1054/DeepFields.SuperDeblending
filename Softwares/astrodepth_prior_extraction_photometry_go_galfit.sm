@@ -549,6 +549,7 @@ print_result_final 00
     if(!is_file("No_catalog_source_within_image")) {
         if(is_file("final.result")) {!mv "final.result" "final.result.backup"}
         data "image_sci_pixnoise.txt" read {rms 1.f}
+        data "image_sci_sky_frequency.txt" read {sky_freq 1.f}
         data "prior_id.txt" read {cat_id_full 1.s}
         # 
         if(!is_file("No_catalog_source_with_enough_getpix_SNR")) {
@@ -591,6 +592,8 @@ print_result_final 00
             set Nfit_fit_1 = int(dimen(cid_fit_1)) set Ndet_fit_1 = int(sum(det_fit_1))
             set Nfit_fit_2 = int(dimen(cid_fit_2)) set Ndet_fit_2 = int(sum(det_fit_2))
             set rms_fit_2 = f_fit_2*0.0 + rms
+            set obs_freq = f_fit_2*0.0 + sky_freq # GHz
+            set obs_lambda = 2.99792458e5 / obs_freq # um
             print "getpix.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_getpix dec_getpix det_getpix id_getpix}
             print "fit_0.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_0 dec_fit_0 det_fit_0 id_fit_0}
             print "fit_1.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_1 dec_fit_1 det_fit_1 id_fit_1}
@@ -599,7 +602,7 @@ print_result_final 00
             print "fit_1.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_1 dec_fit_1 f_fit_1 df_fit_1 snr_fit_1 id_fit_1}
             print "fit_2.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_2 dec_fit_2 f_fit_2 df_fit_2 snr_fit_2 id_fit_2}
             print "fit_2.result.ra.dec.Maj.Min.PA.id" '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15s\n' {ra_fit_2 dec_fit_2 Maj Maj_err Min Min_err PA PA_err id_fit_2} #<20170514><dzliu>#
-            print "fit_2.result.ra.dec.rms.pix.pbc.id" '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15g %15g %15s\n' {ra_fit_2 dec_fit_2 f_fit_2 df_fit_2 fpeak_fit_2 rms_fit_2 snr_fit_2 pix_area beam_area pb_corr id_fit_2} #<20170606><dzliu>#
+            print "fit_2.result.ra.dec.rms.pix.pbc.id" '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15s\n' {ra_fit_2 dec_fit_2 f_fit_2 df_fit_2 fpeak_fit_2 rms_fit_2 snr_fit_2 pix_area beam_area pb_corr obs_freq obs_lambda id_fit_2} #<20170606><dzliu>#
         } else {
             data "getpix.result" read {f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 5.f}
             data "getpix.input" read {x_getpix 1.f y_getpix 2.f}
@@ -634,6 +637,7 @@ print_result_final_on_negative_image 00
     if(!is_file("No_catalog_source_within_image")) {
         if(is_file("final_on_negative_image.result")) {!mv "final_on_negative_image.result" "final_on_negative_image.result.backup"}
         data "image_sci_pixnoise.txt" read {rms 1.f}
+        data "image_sci_sky_frequency.txt" read {sky_freq 1.f}
         data "prior_id.txt" read {cat_id_full 1.s}
         # 
         if(!is_file("No_catalog_source_with_enough_getpix_SNR_on_negative_image")) {
@@ -676,6 +680,8 @@ print_result_final_on_negative_image 00
             set Nfit_fit_n1 = int(dimen(cid_fit_n1)) set Ndet_fit_n1 = int(sum(det_fit_n1))
             set Nfit_fit_n2 = int(dimen(cid_fit_n2)) set Ndet_fit_n2 = int(sum(det_fit_n2))
             set rms_fit_n2 = f_fit_n2*0.0 + rms
+            set obs_freq = f_fit_n2*0.0 + sky_freq # GHz
+            set obs_lambda = 2.99792458e5 / obs_freq # um
             print "getpix_on_negative_image.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_getpix dec_getpix det_getpix id_getpix}
             print "fit_n0.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_n0 dec_fit_n0 det_fit_n0 id_fit_n0}
             print "fit_n1.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_n1 dec_fit_n1 det_fit_n1 id_fit_n1}
@@ -684,7 +690,7 @@ print_result_final_on_negative_image 00
             print "fit_n1.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_n1 dec_fit_n1 f_fit_n1 df_fit_n1 snr_fit_n1 id_fit_n1}
             print "fit_n2.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_n2 dec_fit_n2 f_fit_n2 df_fit_n2 snr_fit_n2 id_fit_n2}
             print "fit_n2.result.ra.dec.Maj.Min.PA.id" '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15s\n' {ra_fit_n2 dec_fit_n2 Maj Maj_err Min Min_err PA PA_err id_fit_n2} #<20170514><dzliu>#
-            print "fit_n2.result.ra.dec.rms.pix.pbc.id" '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15g %15g %15s\n' {ra_fit_n2 dec_fit_n2 f_fit_n2 df_fit_n2 fpeak_fit_n2 rms_fit_n2 snr_fit_n2 pix_area beam_area pb_corr id_fit_n2} #<20170606><dzliu>#
+            print "fit_n2.result.ra.dec.rms.pix.pbc.id" '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15s\n' {ra_fit_n2 dec_fit_n2 f_fit_n2 df_fit_n2 fpeak_fit_n2 rms_fit_n2 snr_fit_n2 pix_area beam_area pb_corr obs_freq obs_lambda id_fit_n2} #<20170606><dzliu>#
         } else {
             data "getpix_on_negative_image.result" read {f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 7}
             data "getpix_on_negative_image.input" read {x_getpix 1.f y_getpix 2.f}

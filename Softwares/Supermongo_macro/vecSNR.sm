@@ -1,6 +1,11 @@
-vecSNR 02
+vecSNR 03
     # calculate the vectors signal-to-noise ratio
-    # example: load vecSNR.sm set snratio = vecSNR(flux,error)
+    # example: 
+    #   load vecSNR.sm 
+    #   set snratio = vecSNR(flux,error)
+    # 20170629: 
+    #   the 3rd input argument is the blank value, in default is -99
+    # 
     if($?1==0||$?2==0){print 'usage: vecSNR fluxvector errorvector\n' {} return}
     set vecSNR_inf = $1
     set vecSNR_ine = $2
@@ -14,9 +19,14 @@ vecSNR 02
       set vecSNR_sid = vecSNR_fid if(vecSNR_inf>0&&vecSNR_ine>0)
       set vecSNR_snr[vecSNR_sid] = vecSNR_inf[vecSNR_sid] / vecSNR_ine[vecSNR_sid]
     }
-    if(sum(vecSNR_inf==-99)) {
-      set vecSNR_sid = vecSNR_fid if(vecSNR_inf==-99)
-      set vecSNR_snr[vecSNR_sid] = -99
+    #<20170629># if(sum(vecSNR_inf==-99)) {
+    #<20170629>#   set vecSNR_sid = vecSNR_fid if(vecSNR_inf==-99)
+    #<20170629>#   set vecSNR_snr[vecSNR_sid] = -99
+    #<20170629># }
+    if($?3) {set vecSNR_bad = $3} else {set vecSNR_bad = -99}
+    if(sum(vecSNR_inf<0||vecSNR_ine<0)) {
+      set vecSNR_sid = vecSNR_fid if(vecSNR_inf<0||vecSNR_ine<0)
+      set vecSNR_snr[vecSNR_sid] = vecSNR_bad
     }
     set $0 = vecSNR_snr
     return
