@@ -716,17 +716,17 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                 fi
                 # 
                 #<20170626># additional check
-                if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"final"* || ! -f "fit_2.result.ra.dec.f.df.snr.id" ]]; then
-                    echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"print_result_fit_2\""
-                    echo "macro read astrodepth_go_galfit.sm print_result_fit_2" | sm > "astrodepth_go_galfit_print_result_fit_2.log"
-                    # check output successful or not
-                    if [[ ! -f "fit_2.result.ra.dec.f.df.snr.id" ]]; then 
-                        echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"print_result_fit_2\"! Sorry!"
-                        echo "Log file: \"astrodepth_go_galfit_print_result_fit_2.log\""; cat "astrodepth_go_galfit_print_result_fit_2.log"
-                        rm "astrodepth_lock_final"
-                        exit 1
-                    fi
-                fi
+                #if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"final"* || ! -f "fit_2.result.ra.dec.f.df.snr.id" ]]; then
+                #    echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"print_result_fit_2\""
+                #    echo "macro read astrodepth_go_galfit.sm print_result_fit_2" | sm > "astrodepth_go_galfit_print_result_fit_2.log"
+                #    # check output successful or not
+                #    if [[ ! -f "fit_2.result.ra.dec.f.df.snr.id" ]]; then 
+                #        echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"print_result_fit_2\"! Sorry!"
+                #        echo "Log file: \"astrodepth_go_galfit_print_result_fit_2.log\""; cat "astrodepth_go_galfit_print_result_fit_2.log"
+                #        rm "astrodepth_lock_final"
+                #        exit 1
+                #    fi
+                #fi
                 # 
                 #echo "Done!"
             else
