@@ -64,12 +64,12 @@ plotColorBar_init 07
     if(!is_vector(plotColorBarTickSize))   {set plotColorBarTickSize = 0.95     }
     if(!is_vector(plotColorBarTickFormat)) {set plotColorBarTickFormat = {%0.1f}}
 
-plotColorBar 07
+plotColorBar 08
     # 
     #     macro read plotColorBar.sm plotColorBar
     # 
     if(!$?5) {print 'plotColorBar: Error! No input data!\n' {} 
-              print '       usage: plotColorBar DevicePosX DevicePosY DeviceWidth DeviceHeight DataArray DataMin DataMax\n' {}
+              print '       usage: plotColorBar DevicePosX DevicePosY DeviceWidth DeviceHeight DataArray DataMin DataMax TitleString\n' {}
               print '       set 0 for DevicePosX DevicePosY DeviceWidth DeviceHeight will force the macro ' {}
               print 'to use default values 19000 7000 9000 2000\n' {}
               print '       additionally we can set these vectors:\n' {} 
@@ -80,7 +80,13 @@ plotColorBar 07
               return}
     if($?6) {set plotColorBarDataMin=$6} else {unset plotColorBarDataMin}
     if($?7) {set plotColorBarDataMax=$7} else {unset plotColorBarDataMax}
-    plotColorBar_value2tickets $5 set $5""_Colors = pcbg_colors set $5""_Values = $5
+    if(is_vector(plotColorBarDataMin) && is_vector(plotColorBarDataMax)) {
+        if(plotColorBarDataMax==plotColorBarDataMin) {
+            unset plotColorBarDataMin
+            unset plotColorBarDataMax
+        }
+    }
+    plotColorBar_value2tickets $5 set $5""_Indexes = pcbg_index set $5""_Colors = pcbg_colors set $5""_Values = $5
     plotColorBar_init $1 $2 $3 $4 pcbg_tickets
     plotColorBar_gcolours
     plotColorBar_gsave
@@ -106,6 +112,10 @@ plotColorBar 07
             expand $(pcbg_tx) lweight 3.5 relocate 0.4 0.0 putlabel 2 $(sprintf('$(pcbg_tf)',float(pcbg_tk)))
         }
     }
+    if($?8) {
+        relocate ($(plotColorBarCenX) $(plotColorBarCenY-plotColorBarH*1.2))
+        expand 1.2 lweight 3.5 ctype default putlabel 5 $8
+    }
     plotColorBar_grestore
     plotColorBar_gdefault
     
@@ -127,16 +137,16 @@ plotColorBar_gsave
     }
 
 plotColorBar_grestore
-    define gx1 $(pcbg_gx1)
-    define gx2 $(pcbg_gx2)
-    define gy1 $(pcbg_gy1)
-    define gy2 $(pcbg_gy2)
-    define fx1 $(pcbg_fx1)
-    define fx2 $(pcbg_fx2)
-    define fy1 $(pcbg_fy1)
-    define fy2 $(pcbg_fy2)
-    location $gx1 $gx2 $gy1 $gy2
-    limits $fx1 $fx2 $fy1 $fy2
+    #define gx1 $(pcbg_gx1) #<BUG><20170724># can not directly operate on gx
+    #define gx2 $(pcbg_gx2) #<BUG><20170724># can not directly operate on gx
+    #define gy1 $(pcbg_gy1) #<BUG><20170724># can not directly operate on gx
+    #define gy2 $(pcbg_gy2) #<BUG><20170724># can not directly operate on gx
+    #define fx1 $(pcbg_fx1) #<BUG><20170724># can not directly operate on gx
+    #define fx2 $(pcbg_fx2) #<BUG><20170724># can not directly operate on gx
+    #define fy1 $(pcbg_fy1) #<BUG><20170724># can not directly operate on gx
+    #define fy2 $(pcbg_fy2) #<BUG><20170724># can not directly operate on gx
+    location $(pcbg_gx1) $(pcbg_gx2) $(pcbg_gy1) $(pcbg_gy2)
+    limits $(pcbg_fx1) $(pcbg_fx2) $(pcbg_fy1) $(pcbg_fy2)
     if($verbose) {
         echo plotColorBar_grestore: location $gx1 $gx2 $gy1 $gy2
         echo plotColorBar_grestore: limits $fx1 $fx2 $fy1 $fy2
@@ -195,6 +205,19 @@ plotColorBar_roundvalue 01
     set pcbg_rdval = float(pcbg_rdval)
     set $0 = pcbg_rdval
 
+plotColorBar_value2color 01
+    # this function is used to convert value to color after plotColorBar_init
+    if($?1) {
+        if(is_vector(pcbg_indexes) && is_vector(pcbg_values) && is_vector(pcbg_colors)) {
+            set pcbg_value_input = float($1)
+            spline pcbg_values pcbg_indexes pcbg_value_input pcbg_index_output
+            set pcbg_color_output = 'pcbg_'+sprintf('%.0f',pcbg_index_output)
+            ctype $(pcbg_color_output)
+            set $0 = pcbg_color_output
+        }
+    }
+    return
+
 plotColorBar_value2index_demo
     #   macro read plotColorBar.sm plotColorBar_value2index_demo
     set pcbg_value_demo1 = 7.9,9.3,0.25
@@ -233,6 +256,8 @@ plotColorBar_value2tickets 01
         set pcbg_index = plotColorBar_roundvalue(pcbg_index)
         set pcbg_index = pcbg_index<=15 ? pcbg_index : 15 #<fixed><20150421><dzliu>#
         set pcbg_colors = 'pcbg_'+sprintf('%.0f',pcbg_index)
+        set pcbg_values = $pcbg_vMIN,$pcbg_vMAX,$(float($pcbg_vMAX-$pcbg_vMIN)/(16.0-1.0)) # == pcbg_tickets
+        set pcbg_indexes = 0,15,1
     }
 
 plotColorBar_fin 00

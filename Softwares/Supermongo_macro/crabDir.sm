@@ -370,7 +370,7 @@ PrintDirPathVector 02
     print '\"' {}
     do _DirPathInd=0,dimen(_DirPathVec)-1 {
         set _DirPathRow = _DirPathVec[$_DirPathInd]
-        if($_DirPathInd==0 && _DirPathRow==_DirPathRoo) {
+        if($_DirPathInd==0 && (_DirPathRow==_DirPathRoo || _DirPathRow=='/')) {
             print '/' {}
         } else {
             if($_DirPathInd!=dimen(_DirPathVec)-1) {
@@ -410,7 +410,73 @@ CopyDirPathVectorFile 02
     #!tr \'\\\\n\' ' ' < ".CopyDirPathVectorFile.tmp" > ".CopyDirPathVectorFile.tmp"
     
 
-
+ReadDirPathVectorFromFile 01
+    # input a file path, read it and store as a DirPath Vector. 
+    # each line of the input file is one directory, except that the last one is a file or directory. 
+    # usage: 
+    #  load crabDir.sm
+    #  !echo "/tmp/" > "dirpath.txt"
+    #  !echo "asdf/" >> "dirpath.txt"
+    #  !echo "aa bb cc dd" >> "dirpath.txt"
+    #  !echo "aaa.dat" >> "dirpath.txt"
+    #  set DirPath = ReadDirPathVectorFromFile("dirpath.txt")
+    #  PrintDirPathVector DirPath
+    #  
+    if($?1==0) {print 'ReadDirPathVectorFromFile: No input DirPath file!\n' {} return}
+    declare _CrabDirReadVector 0.s
+    if($?verbose) {define _CrabDirVerbose $verbose} else {define _CrabDirVerbose 1}
+    verbose 0 data $1
+    define _CrabDirReadLineNumber 1
+    while { $_CrabDirReadLineNumber>0 } {
+        if(is_vector(_CrabDirTempVector)) {unset _CrabDirTempVector}
+        read row _CrabDirTempVector $_CrabDirReadLineNumber.s
+        if(is_vector(_CrabDirTempVector)) {
+            if(dimen(_CrabDirTempVector)>0) {
+                #echo dimen(_CrabDirTempVector) = $(dimen(_CrabDirTempVector)), $(_CrabDirTempVector) #<DEBUG>#
+                if(dimen(_CrabDirTempVector)>1) {
+                    do _CrabDirReadColumnNumber=1,dimen(_CrabDirTempVector)-1 {
+                        set _CrabDirTempVector[0] = _CrabDirTempVector[0] + ' ' + _CrabDirTempVector[$_CrabDirReadColumnNumber]
+                    }
+                }
+                # check root '/', must be the first character of the first line, otherwise prepend current directory DirPath. 
+                if($_CrabDirReadLineNumber==1) {
+                    #echo index($(_CrabDirTempVector[0]),'/') = $(index(_CrabDirTempVector[0],'/')) #<DEBUG>#
+                    if(index(_CrabDirTempVector[0],'/')!=0) {
+                        set _CrabDirReadVector = GetDirPathVector()
+                    }
+                }
+                # skip single '/'
+                if(_CrabDirTempVector[0]!='/') {
+                    # check no leading '/' if it is not the first line
+                    #echo index($(_CrabDirTempVector[0]),'/') = $(index(_CrabDirTempVector[0],'/')) #<DEBUG>#
+                    if(index(_CrabDirTempVector[0],'/')==0) {
+                        set _CrabDirTempVector[0] = substr(_CrabDirTempVector[0],1,0)
+                    }
+                    # check no trailing '/'
+                    #echo index($(_CrabDirTempVector[0]),'/') = $(index(_CrabDirTempVector[0],'/')) #<DEBUG>#
+                    if(index(_CrabDirTempVector[0],'/')==strlen(_CrabDirTempVector[0])-1) {
+                        set _CrabDirTempVector[0] = substr(_CrabDirTempVector[0],0,strlen(_CrabDirTempVector[0])-1)
+                    }
+                    set _CrabDirReadVector = _CrabDirReadVector concat _CrabDirTempVector[0]
+                }
+                define _CrabDirReadLineNumber $($_CrabDirReadLineNumber+1)
+            } else {
+                define _CrabDirReadLineNumber -1
+            }
+        } else {
+            define _CrabDirReadLineNumber -1
+        }
+    }
+    verbose $_CrabDirVerbose undef _CrabDirVerbose
+    # check root '/', must be the first character of the first line, if not then prepend
+    if(dimen(_CrabDirReadVector)>0) {
+        if(index(_CrabDirReadVector[0],'/')!=0) {
+            set _CrabDirReadVector[0] = '/' + _CrabDirReadVector[0]
+        }
+    }
+    set $0 = _CrabDirReadVector
+    #print  {_CrabDirReadVector}
+    return
 
 
 

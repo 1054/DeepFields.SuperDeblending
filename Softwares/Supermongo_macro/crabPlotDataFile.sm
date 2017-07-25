@@ -1,9 +1,10 @@
 crabPlotDataFile
     # 
     print 'Usage: \n' {}
+    print '    \# make sure we have "aaa.plt" ready\n' {}
     print '    load crabPlotDataFile.sm\n' {}
-    print '    open_PS "aaa.eps"\n' {}
-    print '    plot_Data "aaa.plt"\n' {}
+    print '    open_PS "aaa"\n' {}
+    print '    plot_Data "bbb.plt"\n' {}
     print '    close_PS\n' {}
     print '\n' {}
     print 'Example of aaa.plt\n' {}
@@ -75,6 +76,7 @@ plot_Data 01
             #<DEBUG># print {temp_iline temp_sline}
             #
             if(dimen(temp_sline)>2) {
+                #<DEBUG># echo $(temp_sline[1])
                 # 
                 # define plot ctype
                 if(temp_sline[0]=='\#' && temp_sline[1]=='ctype') {
@@ -279,14 +281,20 @@ plot_Data 01
             # plot data points (if has cdat vector, then plot data points one by one with their own color)
             #<20160721># color each data point
             if(!is_vector(cdat)) {
-                points xdat ydat
-                if(temp_connect>-1) { ltype $(temp_connect) connect xdat ydat ltype 0}
-            } else {
-                do idat=0,dimen(xdat)-1 {
-                    ctype_by_value $(cdat[$idat]) $(temp_crange[0]) $(temp_crange[1])
-                    points $(xdat[$idat]) $(ydat[$idat])
+                if(temp_connect<0) { 
+                    points xdat ydat 
+                } else { 
+                    ltype $(temp_connect) connect xdat ydat ltype 0 
                 }
-                if(temp_connect>-1) { ltype $(temp_connect) xdat ydat ltype 0}
+            } else {
+                if(temp_connect<0) { 
+                    do idat=0,dimen(xdat)-1 {
+                        ctype_by_value $(cdat[$idat]) $(temp_crange[0]) $(temp_crange[1])
+                        points $(xdat[$idat]) $(ydat[$idat])
+                    }
+                } else { 
+                    ltype $(temp_connect) xdat ydat ltype 0 
+                }
             }
             # 
             # restore angle
@@ -425,7 +433,7 @@ plot_Data 01
                 do temp_ichar=0,dimen(temp_legend)-1 {
                     if($temp_ichar<dimen(plot_legend_px)) {set _crabPlot_legend_px=plot_legend_px[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_px)) {set _crabPlot_legend_px=0.05}}
                     if($temp_ichar<dimen(plot_legend_py)) {set _crabPlot_legend_py=plot_legend_py[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_py)) {set _crabPlot_legend_py=0.92}}
-                    if($temp_ichar<dimen(plot_legend_pt)) {set _crabPlot_legend_pt=plot_legend_pt[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_pt)) {set _crabPlot_legend_pt=2.4}}
+                    if($temp_ichar<dimen(plot_legend_pt)) {set _crabPlot_legend_pt=plot_legend_pt[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_pt)) {set _crabPlot_legend_pt=3.0}}
                     if($temp_ichar<dimen(plot_legend_ps)) {set _crabPlot_legend_ps=plot_legend_ps[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_ps)) {set _crabPlot_legend_ps=1.2}}
                     if($temp_ichar<dimen(plot_legend_pa)) {set _crabPlot_legend_pa=plot_legend_pa[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_pa)) {set _crabPlot_legend_pa=6}} # 6 mean align left
                     if($temp_ichar<dimen(plot_legend_dy)) {set _crabPlot_legend_dy=plot_legend_dy[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_dy)) {set _crabPlot_legend_dy=0.055*_crabPlot_legend_ps**1.5}} # line spacing or line height
@@ -570,7 +578,7 @@ open_PS 01
     expand 1.50 lweight 3.5
     ctype default box
     # 
-    expand 1.75 lweight 3.0
+    expand 1.65 lweight 3.5
     # 
     if(dimen(temp_xtitle)>0) {
         echo xlabel $(temp_xtitle)

@@ -47,8 +47,11 @@ crabPlotOpenPS 01
     add_ctype gray 230 230 230
     add_ctype midgray 210 210 210
     add_ctype darkgray 170 170 170
+    #echo gx1 = $gx1, gx2 = $gx2, gy1 = $gy1, gy2 = $gy2
     if($gx1==3500 && $gx2==31000 && $gy1==3500 && $gy2==31000) {
         location 5500 31500 9500 31500
+        #define gx1 5500 define gx2 31500 define gy1 5500 define gy2 31500
+        #location 4500 30500 9500 29500 #<20170724>#
     }
     define TeX_strings 1
     echo "crabPlotOpenPS: Opening "\"$(__crabPlot__PSFILE)\" # "
@@ -78,10 +81,11 @@ crabPlotClosePS 00
             # 
             # crop according to location $gx1 $gx2 $gy1 $gy2 #<20170105>#
             set __crabPlot__EPSBOX = {0.0 0.0 0.0 0.0}
-            set __crabPlot__EPSBOX[0] = $gx1 / 32767.0 * float(592-18)  + 18   - 100 # margin 100
-            set __crabPlot__EPSBOX[1] = $gy1 / 32767.0 * float(718-144) + 144  -  80 # margin 80
+            set __crabPlot__EPSBOX[0] = $gx1 / 32767.0 * float(592-18)  + 18   -  80 # margin -100 #<20170724># -80
+            set __crabPlot__EPSBOX[1] = $gy1 / 32767.0 * float(718-144) + 144  -  60 # margin -80 #<20170724># -60
             set __crabPlot__EPSBOX[2] = $gx2 / 32767.0 * float(592-18)  + 18   +  80 # margin 80 (-60 if no Y2 axis)
             set __crabPlot__EPSBOX[3] = $gy2 / 32767.0 * float(718-144) + 144  +  80 # margin 80 (-60 if no X2 axis)
+            #--> 18 144 592 718 is the default Supermongo EPS BoundingBox
             if($gx1>=10000) {
                 # add margin
                 set __crabPlot__EPSBOX[0] = __crabPlot__EPSBOX[0] - 45
@@ -197,16 +201,21 @@ crabPlotResetPen 00
     expand 1.5 lweight 3.0 ltype 0 ltype expand 1.1 ptype 4 1 ctype default 
 
 crabPlotResetAll 00
+    crabPlotResetPen
     limits 0 1 0 1
     ticksize 0 0 0 0
-    location 3500 31000 3500 31000
     notation 0 0 0 0
-    limits 0 1 0 1
+    location 3500 31000 3500 31000
+    #echo crabPlotResetAll: location $gx1 $gx2 $gy1 $gy2
+    #define gx1 3500
+    #define gx2 31000
+    #define gy1 3500
+    #define gy2 31000
+    #limits 0 1 0 1
     #define fx1 0 # one must not directly define these variables!
     #define fx2 1
     #define fy1 0
     #define fy2 1
-    crabPlotResetPen
     # 
     if(is_vector(_crabPlot_legend_ws))    {unset _crabPlot_legend_ws}
     if(is_vector(_crabPlot_legend_ws_ps)) {unset _crabPlot_legend_ws_ps}

@@ -1,6 +1,7 @@
 #!/bin/bash
 # 
 # common caller for wcstools:
+#=  cphead
 #=  imhead
 #=  edhead
 #=  gethead
@@ -9,7 +10,7 @@
 #=  sky2xy
 #=  xy2sky
 # 
-# for ff in $(cat imhead | grep "^#= " | tr -s ' ' | cut -d ' ' -f 2); do cp imhead $ff; done
+# for ff in $(cat gethead | grep "^#= " | tr -s ' ' | cut -d ' ' -f 2); do cp gethead $ff; done
 #   
 # 
 # Linux
