@@ -617,6 +617,8 @@ print_result 02
             set min_pix = min / pixscale
             set pa = ResultRoti
             set pa_err = ResultRotiErr
+            set sersic_n = ResultSers
+            set sersic_n_err = ResultSersErr
             #<below><added><20170606><dzliu>#
             set pix_scale = f*0.0 + pixscale
             set pix_area = pi/(4*ln(2)) * maj_pix*min_pix # or -- pi/4 * maj_pix*min_pix
@@ -637,9 +639,18 @@ print_result 02
             }
             # 
             #<above><added><20170606><dzliu>#
+            # 
             print $1.result '%12.4f %12.4f %14g %14g %14g %14g %10.4f %13g %10.4f %13g %10.4f %13g %10.4f %13g %12g %12g %12g %12g %15.0f %15s\n' \
                 {x y f f_err f_peak f_resabs mag mag_err maj maj_err min min_err pa pa_err pix_scale pix_area beam_area pb_corr cat_index cat_id}
                 #1.2.3.4.    5.     6.       7.  8.      9.  10.     11. 12.     13.14.    15.       16.      17.       18.     19.       20.   
+            # 
+            #<below><added><20170727><dzliu>#
+            if(sum(sersic_n>0)>0) {
+                print $1.result.sersic_n.txt '%15g %15g %15.0f %15s\n' \
+                    {sersic_n sersic_n_err cat_index cat_id}
+            }
+            #<above><added><20170727><dzliu>#
+            # 
         }
     }
 
