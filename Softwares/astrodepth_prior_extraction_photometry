@@ -360,49 +360,58 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # 
     # 
     # 
+    # make sure images do not contain NaN -- <20170226><dzliu> -- use CrabFitsImageArithmetic
+    # and create negative image and rms image if not given -- <20170226><dzliu> -- use CrabFitsImageArithmetic
+    if [[ ! -f "image_check.sh" ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " image_check " ]]; then
+        echo "#!/bin/bash" > "image_check.sh"
+        echo "source \"$AstroDepth_ScriptDir/SETUP\"" >> "image_check.sh"
+        echo "CrabFitsImageArithmetic image_sci_input.fits '*' '+1.0' image_sci.fits      -remove-nan" >> "image_check.sh"
+        echo "CrabFitsImageArithmetic image_sci_input.fits '*' '-1.0' image_negative.fits -remove-nan" >> "image_check.sh"
+        # 
+        if [[ ! -f "image_rms_input.fits" ]]; then
+            echo "CrabFitsImageArithmetic image_sci.fits '*' 0.0 image_zero.fits -remove-nan"  >> "image_check.sh"
+            if [[ ! -f "image_rms_input.txt" ]]; then
+                echo "CrabFitsImageArithmetic image_zero.fits '+' 1.0 image_rms.fits -remove-nan" >> "image_check.sh"
+            else
+                echo "CrabFitsImageArithmetic image_zero.fits '+' $(head -n 1 image_rms_input.txt) image_rms.fits -remove-nan" >> "image_check.sh"
+            fi
+        else
+            #<20170727># echo "CrabFitsImageArithmetic image_rms_input.fits '*' 1.0 image_rms.fits -remove-nan" >> "image_check.sh"
+            #<20170727># -->
+            echo "CrabFitsImageArithmetic image_rms_input.fits '*' 1.0 image_rms.fits -replace-nan '1e30'" >> "image_check.sh"
+        fi
+        # 
+        echo "CrabFitsImageArithmetic image_psf_input.fits '*' 1.0 image_psf.fits -remove-nan" >> "image_check.sh"
+        echo "" >> "image_check.sh"
+        chmod +x "image_check.sh"
+        ./"image_check.sh" > "image_check.log"
+    fi
+    # 
+    if [[ ! -f "image_sci.fits" ]]; then
+        echo "***************************************************************************"
+        echo "Error! Failed to run CrabFitsImageArithmetic and create \"image_sci.fits\"!"
+        echo "***************************************************************************"
+        exit 1
+    fi
+    # 
+    if [[ ! -f "image_rms.fits" ]]; then
+        echo "***************************************************************************"
+        echo "Error! Failed to run CrabFitsImageArithmetic and create \"image_rms.fits\"!"
+        echo "***************************************************************************"
+        exit 1
+    fi
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
     # now prepare image products and supermongo scripts and run "getpix"
     if [[ ! -f "astrodepth_done_getpix" || ! -f "astrodepth_lock_getpix" || "${AstroDepth_INP_UNLOCK[@]}" == *"getpix"* ]]; then
         # 
         touch "astrodepth_lock_getpix"
-        # 
-        # make sure images do not contain NaN -- <20170226><dzliu> -- use CrabFitsImageArithmetic
-        # and create negative image and rms image if not given -- <20170226><dzliu> -- use CrabFitsImageArithmetic
-        if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"image_check"* || ! -f "image_check.sh" ]]; then
-            echo "#!/bin/bash" > "image_check.sh"
-            echo "source \"$AstroDepth_ScriptDir/SETUP\"" >> "image_check.sh"
-            echo "CrabFitsImageArithmetic image_sci_input.fits '*' '+1.0' image_sci.fits      -remove-nan" >> "image_check.sh"
-            echo "CrabFitsImageArithmetic image_sci_input.fits '*' '-1.0' image_negative.fits -remove-nan" >> "image_check.sh"
-            # 
-            if [[ ! -f "image_rms_input.fits" ]]; then
-                echo "CrabFitsImageArithmetic image_sci.fits '*' 0.0 image_zero.fits -remove-nan"  >> "image_check.sh"
-                if [[ ! -f "image_rms_input.txt" ]]; then
-                    echo "CrabFitsImageArithmetic image_zero.fits '+' 1.0 image_rms.fits -remove-nan" >> "image_check.sh"
-                else
-                    echo "CrabFitsImageArithmetic image_zero.fits '+' $(head -n 1 image_rms_input.txt) image_rms.fits -remove-nan" >> "image_check.sh"
-                fi
-            else
-                echo "CrabFitsImageArithmetic image_rms_input.fits '*' 1.0 image_rms.fits -remove-nan" >> "image_check.sh"
-            fi
-            # 
-            echo "CrabFitsImageArithmetic image_psf_input.fits '*' 1.0 image_psf.fits -remove-nan" >> "image_check.sh"
-            echo "" >> "image_check.sh"
-            chmod +x "image_check.sh"
-            ./"image_check.sh" > "image_check.log"
-        fi
-        # 
-        if [[ ! -f "image_sci.fits" ]]; then
-            echo "***************************************************************************"
-            echo "Error! Failed to run CrabFitsImageArithmetic and create \"image_sci.fits\"!"
-            echo "***************************************************************************"
-            exit 1
-        fi
-        # 
-        if [[ ! -f "image_rms.fits" ]]; then
-            echo "***************************************************************************"
-            echo "Error! Failed to run CrabFitsImageArithmetic and create \"image_rms.fits\"!"
-            echo "***************************************************************************"
-            exit 1
-        fi
         # # 
         # # compute PSF peak/total ratio
         # if [[ ! -f "image_psf_peak2total.txt" ]]; then
@@ -449,7 +458,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
         # fi
         # 
         # get pixnoise
-        if [[ 1 == 1 || ! -f "image_sci_pixnoise.txt" ]]; then
+        if [[ ! -f "image_sci_pixnoise.txt" ]]; then
             tmp_pixel_statistics_txt=$(readlink -f "${AstroDepth_INP_IMAGE_SCI[j]}" | sed -e 's/\.cut_[^\.]*//g')".pixel.statistics.txt"
             if [[ -f "$tmp_pixel_statistics_txt" ]]; then
                 cat "$tmp_pixel_statistics_txt" | grep "Gaussian_sigma =" | perl -p -e 's/(.*) *= *(.*)/\2/g' > "image_sci_pixnoise.txt"
