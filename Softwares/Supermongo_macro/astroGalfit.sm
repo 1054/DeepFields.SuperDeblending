@@ -610,7 +610,7 @@ initGalfitParam 05
         set ParamMaxElli = float(PosX*0)+99.0
         set         Roti = float(PosX*0)+0.0
         set ParamFitRoti = float(PosX*0)+0
-        set ParamMinRoti = float(PosX*0)+0.000
+        set ParamMinRoti = float(PosX*0)-360.0
         set ParamMaxRoti = float(PosX*0)+360.0
         unset VaryX # <added><20150607><dzliu> 
         unset VaryY # <added><20150607><dzliu> 
