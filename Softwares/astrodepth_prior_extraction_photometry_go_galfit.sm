@@ -249,13 +249,11 @@ go_galfit_2
             readGalfitResult "fit_1.fits"
             print_result "fit_1"
         }
-        set Pos_X = (ResultMagsErr<0.25) ? ResultPosX : px
-        set Pos_Y = (ResultMagsErr<0.25) ? ResultPosY : py
         set Vary_X = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
         set Vary_Y = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
         set Vary_X = (ResultMagsErr<0.25 && Vary_X>20) ? 20 : Vary_X # maximum 20 pixel, i.e. only valid when pixscale < 0.025 arcsec. #<added><20170607><dzliu>#
         set Vary_Y = (ResultMagsErr<0.25 && Vary_Y>20) ? 20 : Vary_Y # maximum 20 pixel, i.e. only valid when pixscale < 0.025 arcsec. #<added><20170607><dzliu>#
-        initGalfitParam Pos_X Pos_Y Vary_X Vary_Y
+        initGalfitParam px py Vary_X Vary_Y
         # 
         #<20170626><BUG># 
         #<20170626><BUG># set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
@@ -287,6 +285,72 @@ go_galfit_2
             readGalfitResult "fit_2.fits"
             print_result "fit_2"
         }
+    }
+    
+
+go_galfit_3
+    # sersic fitting
+    load astroGalfit.sm
+    read_pixscale
+    read_pixnoise
+    # read previous fitting files, fit_2 is VaryPos Gaussian fitting, fit_1 is VaryPos PSF fitting
+    load rfile.sm
+    if(is_file("fit_2.param") && is_file("fit_2.result")) {
+        rfile "fit_2.param"
+        data "fit_2.result"
+        read {ResultPosX 1.f ResultPosY 2.f ResultFlux 3.f ResultMags 7.f ResultMagsErr 8.f ResultRads 9.f ResultRoti 13.f ResultPixScale 15.f ResultPixArea 16.f}
+    } else {
+        if(is_file("fit_1.param") && is_file("fit_1.result")) {
+            rfile "fit_1.param"
+            data "fit_1.result"
+            read {ResultPosX 1.f ResultPosY 2.f ResultFlux 3.f ResultMags 7.f ResultMagsErr 8.f ResultRads 9.f ResultRoti 13.f ResultPixScale 15.f ResultPixArea 16.f}
+        }
+    }
+    # load previous fitted PosX, PosY, Mags and Rads
+    #<20170726># set PosX = ResultPosX
+    #<20170726># set PosY = ResultPosY
+    set Mags = ResultMags
+    set Rads = ResultRads/ResultPixScale # in pixel
+    set Sers = ResultRads*0.0+1.0 # re-initialize
+    set Elli = ResultRads*0.0+1.0 # re-initialize
+    set Roti = ResultRads*0.0+0.0 # re-initialize
+    # update sersic fitting
+    set coo = (ResultMagsErr<0.25 && ResultFlux>pixnoise)
+    set Type = (coo)                  ? 'sersic'          : Type
+    set Rads = (coo && ResultRads<=0) ? 0.5/abs(pixscale) : Rads
+    set Sers = (coo)                  ? 2.0               : Sers
+    set ParamFitPosX = (coo && ResultRads<=0)                     ? 1                  : ParamFitPosX
+    set ParamMinPosX = (coo && ResultRads<=0)                     ? -0.5/abs(pixscale) : ParamMinPosX
+    set ParamMaxPosX = (coo && ResultRads<=0)                     ? +0.5/abs(pixscale) : ParamMaxPosX
+    set ParamMinPosX = (coo && ResultRads<=0 && ParamMinPosX<-20) ? -20                : ParamMinPosX
+    set ParamMaxPosX = (coo && ResultRads<=0 && ParamMaxPosX>+20) ? +20                : ParamMaxPosX
+    set ParamFitPosY = (coo && ResultRads<=0)                     ? 1                  : ParamFitPosY
+    set ParamMinPosY = (coo && ResultRads<=0)                     ? -0.5/abs(pixscale) : ParamMinPosY
+    set ParamMaxPosY = (coo && ResultRads<=0)                     ? +0.5/abs(pixscale) : ParamMaxPosY
+    set ParamMinPosY = (coo && ResultRads<=0 && ParamMinPosY<-20) ? -20                : ParamMinPosY
+    set ParamMaxPosY = (coo && ResultRads<=0 && ParamMaxPosY>+20) ? +20                : ParamMaxPosY
+    set ParamFitRads = (coo && ResultRads<=0) ? 1                 : ParamFitRads
+    set ParamMinRads = (coo && ResultRads<=0) ? 1.00              : ParamMinRads # minimum 1.0 pixel FWHM #<20170613># prev. using 0.5 pix causes 'nan' error!
+    set ParamMaxRads = (coo && ResultRads<=0) ? 3.0/abs(pixscale) : ParamMaxRads # maximum 3.0 arcsec FWHM #<20170613># prev. using 5.0 arcsec
+    set ParamFitSers = (coo)                  ? 1                 : ParamFitSers
+    set ParamMinSers = (coo)                  ? 1.0               : ParamMinSers
+    set ParamMaxSers = (coo)                  ? 4.0               : ParamMaxSers
+    set ParamFitElli = (coo && ResultRads<=0) ? 1                 : ParamFitElli
+    set ParamMinElli = (coo && ResultRads<=0) ? 0.20              : ParamMinElli # b/a ratio, i.e. q in galfit input file
+    set ParamMaxElli = (coo && ResultRads<=0) ? 1.0               : ParamMaxElli # b/a ratio, i.e. q in galfit input file
+    set ParamFitRoti = (coo && ResultRads<=0) ? 1                 : ParamFitRoti
+    set ParamMinRoti = (coo && ResultRads<=0) ? -360.0            : ParamMinRoti #<20170719># 0 --> -360.0
+    set ParamMaxRoti = (coo && ResultRads<=0) ? 360.0             : ParamMaxRoti
+    set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+    if(ParamCoB>350) {set ParamCoB = 350}
+    writeGalfitParam fit_3.param
+    writeGalfitLimit fit_3.limit
+    writeGalfitInput fit_3.input image_sci.fits fit_3.fits image_rms.fits image_psf.fits fit_3.limit
+    !galfit fit_3.input > fit_3.out
+    if(is_file("fit.log")) {!mv "fit.log" "fit_3.log"}
+    if(is_file("fit_3.fits")) {
+        readGalfitResult "fit_3.fits"
+        print_result "fit_3"
     }
 
 
@@ -373,13 +437,11 @@ go_galfit_n2
             readGalfitResult "fit_n1.fits"
             print_result "fit_n1" "getpix_on_negative_image.mask"
         }
-        set Pos_X = (ResultMagsErr<0.25) ? ResultPosX : px
-        set Pos_Y = (ResultMagsErr<0.25) ? ResultPosY : py
         set Vary_X = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
         set Vary_Y = (ResultMagsErr<0.25) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
         set Vary_X = (ResultMagsErr<0.25 && Vary_X>20) ? 20 : Vary_X # maximum 20 pixel, i.e. only valid when pixscale < 0.025 arcsec. #<added><20170607><dzliu>#
         set Vary_Y = (ResultMagsErr<0.25 && Vary_Y>20) ? 20 : Vary_Y # maximum 20 pixel, i.e. only valid when pixscale < 0.025 arcsec. #<added><20170607><dzliu>#
-        initGalfitParam Pos_X Pos_Y Vary_X Vary_Y
+        initGalfitParam px py Vary_X Vary_Y
         # 
         #<20170626><BUG># 
         #<20170626><BUG># set Note = id # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
@@ -467,6 +529,7 @@ print_result 02
         # <20170613> getpix f_peak
         if(is_file($1.fits)) {
             !CrabFitsImageArithmetic $1.fits -ext 2 times 1.0 $1.model.fits > $1.model.fits.log
+            !cphead -v image_sci.fits $1.model.fits "CTYPE1" "CRVAL1" "CDELT1" "CRPIX1" "CUNIT1" "CTYPE2" "CRVAL2" "CDELT2" "CRPIX2" "CUNIT2" > $1.residual.fits.model.log 2>&1
         }
         # 
         # <20170719> getpix f_res
@@ -489,7 +552,7 @@ print_result 02
                     # Set peak flux
                     set ResultFluxPeak[$i] = ResultFlux[$i]
                 }
-                if(ResultType[$i]=='gaussian') {
+                if(ResultType[$i]=='gaussian' || ResultType[$i]=='sersic') {
                     # In this case (10**(ResultMags/(-2.5))) equals the (pix_sum)
                     set ResultFlux[$i] = (10**(ResultMags[$i]/(-2.5))) / beamarea * (pixscale*pixscale) # * (pi/(4*ln(2))*ResultRads[$i]*ResultRads[$i]*ResultElli[$i]) #<20170303><dzliu># must correct Jy/beam -> Jy/pixel for Gaussian fitting
                     set ResultFluxErr[$i] = ResultMagsErr[$i]*ResultFlux[$i]/1.08
@@ -521,8 +584,25 @@ print_result 02
             }
             #<20170626><BUG><fixed># 
             # 
-            data "prior_id.txt" read {cat_id_full 1.s}
-            set cat_id = cat_id_full[cat_index]
+            if(is_file("prior_id.txt")) {
+                data "prior_id.txt" read {cat_id_full 1.s}
+                set cat_id = cat_id_full[cat_index]
+            } else {
+                if(is_file("fit_2.result")) {
+                    data "fit_2.result" read {cat_id 20.s}
+                } else {
+                    if(is_file("fit_1.result")) {
+                        data "fit_1.result" read {cat_id 20.s}
+                    } else {
+                        if(is_file("fit_0.result")) {
+                            data "fit_0.result" read {cat_id 20.s}
+                        } else {
+                            print 'print_result: Error! Could not find \"prior_id.txt\" or \"fit_2.result\" or \"fit_1.result\" or \"fit_0.result\"!\n' {}
+                            exit
+                        }
+                    }
+                }
+            }
             set x = ResultPosX
             set y = ResultPosY
             set f = ResultFlux
@@ -559,6 +639,7 @@ print_result 02
             #<above><added><20170606><dzliu>#
             print $1.result '%12.4f %12.4f %14g %14g %14g %14g %10.4f %13g %10.4f %13g %10.4f %13g %10.4f %13g %12g %12g %12g %12g %15.0f %15s\n' \
                 {x y f f_err f_peak f_resabs mag mag_err maj maj_err min min_err pa pa_err pix_scale pix_area beam_area pb_corr cat_index cat_id}
+                #1.2.3.4.    5.     6.       7.  8.      9.  10.     11. 12.     13.14.    15.       16.      17.       18.     19.       20.   
         }
     }
 

@@ -371,6 +371,7 @@ set_default_photometry_constants 01
     define rBeam_$1     1.0         # FWHM of PSF in arcsec
     define BeamSize_$1  1.0         # FWHM of PSF in arcsec
     define PixScale_$1  1.0         # Pixel Scale in arcsec
+    define SkyValue_$1  0.0         # pixel unit
     define xStep_$1     80          # x length of the inner region of each box
     define yStep_$1     80          # y length of the inner region of each box
     define gBuff_$1     19          # length of the buffer region of each box
@@ -1323,6 +1324,30 @@ set_cosmos_photometry_constants_AdamMuzzin2013 00
     define mJy_AdamMuzzin2013 1       # converting pixel flux from 0.363 mJy to mJy
     define mBias_AdamMuzzin2013 0.0   # Muzzin et al. 2013 uses mag = -2.5 lg flux + 25.0, this means a flux unit of 0.363 mJy, see Damen et al. 2011 -- http://vizier.china-vo.org/ftp/cats/J_ApJ/727/1/ReadMe
     define fBias_AdamMuzzin2013 0.0   # 
+
+
+
+
+
+
+
+
+
+set_uds_photometry_constants_24 00
+    set_default_photometry_constants 24
+    define h_24         1.0                         # PSF image total/peak if pixel unit is Jy/beam, or 1.0 if Jy/pixel. 
+    define mJy_24     $(23.5045*1.2*1.2*1e-3)       # a factor converting MJy/sr to mJy: MJy/sr -- * 23.5045 -:> uJy/arcsec**2 -- * 1.2*1.2 -:> uJy/pixel -- * 1e-3 -:> mJy/pixel
+    define fSigma_24    5.165e-3                    # mJy
+    define xStep_24     35                          # x length of the inner region of each box
+    define yStep_24     35                          # y length of the inner region of each box
+    define gBuff_24     20                          # length of the buffer region of each box
+    define fBuff_24     1                           # additional length of the buffer region of each box, historical variable, always 1
+    define SciPhoto_24 "mips_mosaic"
+    define RmsPhoto_24 "mips_mosaic_unc"
+    define PsfPhoto_24 "hdfn_dao_mipspsf"
+    define DirPhoto_24 "/Users/dzliu/Work/DeepFields/Works/Photometry_UDS/Images/MIPS/"
+
+
 
 
 

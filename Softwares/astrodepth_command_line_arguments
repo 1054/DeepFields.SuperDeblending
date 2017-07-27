@@ -113,9 +113,9 @@ while [[ "$#" -gt 0 ]]; do
    "catalog-mask") if [[ $# -gt 0 ]]; then AstroDepth_INP_CATALOG_MASK+=("$1"); fi;;
      "output-dir") if [[ $# -gt 0 ]]; then AstroDepth_INP_OUTPUT_DIR+=("$1"); fi;;
     "output-name") if [[ $# -gt 0 ]]; then AstroDepth_INP_OUTPUT_NAME+=("$1"); fi;;
-          "steps") if [[ $# -gt 0 ]]; then AstroDepth_INP_STEPS+=("$1"); fi;;
-      "overwrite") if [[ $# -gt 0 ]]; then AstroDepth_INP_OVERWRITE+=($(echo "$1" | tr '[:upper:]' '[:lower:]')); fi;;
+          "steps") if [[ $# -gt 0 ]]; then AstroDepth_INP_STEPS+=($(echo "$1" | tr '[:upper:]' '[:lower:]')); fi;;
          "unlock") if [[ $# -gt 0 ]]; then AstroDepth_INP_UNLOCK+=($(echo "$1" | tr '[:upper:]' '[:lower:]')); fi;;
+      "overwrite") if [[ $# -gt 0 ]]; then AstroDepth_INP_OVERWRITE+=($(echo "$1" | tr '[:upper:]' '[:lower:]')); fi;;
             "yes")                         AstroDepth_INP_YES=1;;
              "no")                         AstroDepth_INP_NO=1;;
     esac

@@ -196,6 +196,9 @@ sm << EOF | tee $DG_FLOG".smlog"
     define vary_positions $DG_VARY
     define fix_astrometry 1
     define make_residuals 0
+    define fit_gaussian 0
+    define fit_sky 0
+    define psf_resampl 1
     if(dimen(idF)>0 && \$doFit==0) {
         Fit_XXX
         Rebuild_XXX

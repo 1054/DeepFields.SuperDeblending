@@ -392,9 +392,21 @@ writeGalfitInput 06
                 define _asfm5_  "5) %.3f %.0f \# Sers\n"
                 define _asfm9_  "9) %.3f %.0f \# Elli\n"
                 define _asfm10_ "10) %.3f %.0f \# Roti\n"
-                print +$1 \
-                '$_asfmm_""$_asfm0_""$_asfm1_""$_asfm3_""$_asfm4_""$_asfm5_""$_asfm9_""$_asfm10_""Z) 0 \n\n' \
-                {selX selY selPX selPY selM selPM selR selPR selS selPS selE selPE selT selPT}
+                define _asfmz_  "Z) 0 \n\n"
+                #<20170726><PROBLEM># -- String is too long in lexan: 
+                #<20170726><PROBLEM># print +$1 \
+                #<20170726><PROBLEM># '$_asfmm_""$_asfm0_""$_asfm1_""$_asfm3_""$_asfm4_""$_asfm5_""$_asfm9_""$_asfm10_""Z) 0 \n\n' \
+                #<20170726><PROBLEM># {selX selY selPX selPY selM selPM selR selPR selS selPS selE selPE selT selPT}
+                #<20170726><PROBLEM># -- 
+                print +$1 '$_asfmm_'  {}
+                print +$1 '$_asfm0_'  {}
+                print +$1 '$_asfm1_'  {selX selY selPX selPY}
+                print +$1 '$_asfm3_'  {selM selPM}
+                print +$1 '$_asfm4_'  {selR selPR}
+                print +$1 '$_asfm5_'  {selS selPS}
+                print +$1 '$_asfm9_'  {selE selPE}
+                print +$1 '$_asfm10_' {selT selPT}
+                print +$1 '$_asfmz_'  {}
             }
             unset selX 
             unset selY 
@@ -746,6 +758,7 @@ readGalfitResult 01
                         read {TempResultElli 10 TempResultElliErr 11}
                         read {TempResultRoti 12 TempResultRotiErr 13}
                     } else {
+                        # including sersic etc
                         read {TempResultRads 8  TempResultRadsErr 9 }
                         read {TempResultSers 10 TempResultSersErr 11}
                         read {TempResultElli 12 TempResultElliErr 13}

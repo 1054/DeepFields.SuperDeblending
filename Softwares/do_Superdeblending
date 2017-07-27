@@ -457,7 +457,7 @@ elif [[ x"$Superdeblending_Field" == x"GOODSS" || \
         echo ""
     else
         echo " Error..."
-        echo " do_Superdeblending can only deal with band 100 160 250 350 500 1160 24 16 20cm for the deep field goodsn."
+        echo " do_Superdeblending can only deal with band 100 160 250 350 500 1160 24 16 20cm for the deep field goodss."
         echo ""
         exit
     fi
@@ -475,6 +475,18 @@ elif [[ x"$Superdeblending_Field" == x"COSMOS" || \
     else
         echo " Error..."
         echo " do_Superdeblending can only deal with band 100 160 250 350 500 24 20cm for the deep field cosmos."
+        echo ""
+        exit
+    fi
+elif [[ x"$Superdeblending_Field" == x"UDS" || \
+      x"$Superdeblending_Field" == x"uds" ]]; then
+    Superdeblending_Field="uds"
+    if [[ "$Superdeblending_Band" == "24" || \
+          "$Superdeblending_Band" == "20cm" ]]; then
+        echo ""
+    else
+        echo " Error..."
+        echo " do_Superdeblending can only deal with band 24 20cm for the deep field uds."
         echo ""
         exit
     fi
@@ -559,23 +571,15 @@ if [[ $(echo $Superdeblending_Step | awk '{print toupper($0)}') == "GALFIT"* || 
     echo "######################################"
     echo "ln -fs ../goFine.sm"
     echo "ln -fs ../goSimu.sm"
-    echo "ln -fs ../run_simu_stats_v9.sm"
+    echo "ln -fs ../run_simu_stats_v11.sm"
     echo "ln -fs ../run_update_catalog_v7.sm"
     echo ""
-    if [[ ! -f "goFine.sm" || ! -f "goSimu.sm" || ! -f "run_simu_stats_v9.sm" || ! -f "run_update_catalog_v7.sm" ]]; then
-        #echo "***************************************************************************************************************************"
-        ##echo "pwd: $(pwd)/"
-        ##ls "goFine.sm" "goSimu.sm" "run_simu_stats_v7.sm" "run_update_catalog_v7.sm"
+    if [[ ! -f "goFine.sm" || ! -f "goSimu.sm" || ! -f "run_simu_stats_v11.sm" || ! -f "run_update_catalog_v7.sm" ]]; then
         echo "# Warning! The supermongo macros could not be found under current dir $(readlink -f .)/!"
-        #ls "goFine.sm" 
-        #ls "goSimu.sm" 
-        #ls "run_simu_stats_v7.sm" 
-        #ls "run_update_catalog_v7.sm"
         echo "# We will copy these files from $Superdeblending_SrcDir/Galfit_Template_v20160225/"
         cp "$Superdeblending_SrcDir/Galfit_Template_v20160225/goFineDL.sm"  "goFine.sm"   #<TODO><20160930>#
         cp "$Superdeblending_SrcDir/Galfit_Template_v20160225/goSimu.sm"  .
-        #cp "$Superdeblending_SrcDir/Galfit_Template_v20160225/run_simu_stats_v7.sm"  .
-        cp "$Superdeblending_SrcDir/Galsim_Template_v20170104/run_simu_stats_v9.sm"  .
+        cp "$Superdeblending_SrcDir/Galfit_Template_v20160225/run_simu_stats_v11.sm"  .
         cp "$Superdeblending_SrcDir/Galfit_Template_v20160225/run_update_catalog_v7.sm" .
         #echo "***************************************************************************************************************************"
         echo ""
@@ -1019,7 +1023,7 @@ echo "# OK, the galfit output fits image and ascii tables are: #"
 echo "##########################################################"
 echo "ls FIT_*.fits results_*"
 if [[ -d "Galsim_${Superdeblending_Band}" ]]; then
-    echo "cp -r ../Galsim_${Superdeblending_Band}/sim_diagram_output_v9 ." # TODO
+    echo "cp -r ../Galsim_${Superdeblending_Band}/sim_diagram_output_v11 ." # TODO
 else
     echo "# *******"
     echo "# Warning! The simulation data dir \"Galsim_${Superdeblending_Band}\" was not found!"

@@ -1,0 +1,35 @@
+
+
+run_simu_stats_v10.sm
+
+This code can compute the correction recipes for flux bias and uncertainty from simulation data. 
+
+For example, the input should be:
+    
+    xpriorGN_RAD_160_20151201.txt   (3 columns: id ra dec)
+    xpriorGN_MAG_160_20151201.txt   (5 columns: ra dec x_sim y_sim mag_sim)
+    xsimuGN_OUT_160_20151201.txt    (11 columns: x_fit y_fit mag_sim mag_fit err_fit rms fresidual crowdedness crowdedness2 fresidual2 id)
+
+Then just run the code in supermongo:
+    
+    bash
+    source $HOME/Cloud/Github/DeepFields.SuperDeblending/Softwares/SETUP
+    sm
+    macro read run_simu_stats_v10.sm run_simu_stats_v10 cosmos 500 201611
+    
+Or directly echo the command into supermongo:
+    
+    bash
+    source $HOME/Cloud/Github/DeepFields.SuperDeblending/Softwares/SETUP
+    echo "macro read run_simu_stats_v10.sm run_simu_stats_v10 cosmos 500 201611" | sm
+
+Then the output will be:
+    
+    sim_diagram_output_v10/*.pdf
+
+
+
+IMPORTANT NOTES:
+    
+    (1) set_goodsn_photometry_constants_$imax
+

@@ -134,7 +134,7 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
                 qsub -l walltime=3:15:00 "${GalfitRunList[i]}.$(hostname).sh"
                 echo Sleeping 4s
                 sleep 4
-            elif [[ $(hostname) == *"astro-node"* ]]; then
+            elif [[ $(hostname) == "astro-node"* || $(hostname) == "aida"* ]]; then
                 echo Checking hostname $(hostname)
                 cp  "${GalfitRunList[i]}"                           "${GalfitRunList[i]}.$(hostname).sh"
                 sed -i -e "2 i export PATH=$SUPERDEBLENDDIR:\$PATH" "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> prepend the $PATH where one can find galfit
