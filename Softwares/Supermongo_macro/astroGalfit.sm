@@ -600,10 +600,10 @@ initGalfitParam 05
         set ParamFitRads = float(PosX*0)+0
         set ParamMinRads = float(PosX*0)+0.20
         set ParamMaxRads = float(PosX*0)+99.0
-        set         Sers = float(PosX*0)+1.0
+        set         Sers = float(PosX*0)+0.0 #<20170727># 1.0 -> 0.0
         set ParamFitSers = float(PosX*0)+0
-        set ParamMinSers = float(PosX*0)+0.10
-        set ParamMaxSers = float(PosX*0)+99.0
+        set ParamMinSers = float(PosX*0)+0.00 #<20170727># 0.10 -> 0.00
+        set ParamMaxSers = float(PosX*0)+0.00 #<20170727># 99.0 -> 0.00
         set         Elli = float(PosX*0)+1.0 # a/b ratio
         set ParamFitElli = float(PosX*0)+0
         set ParamMinElli = float(PosX*0)+0.10
@@ -741,7 +741,7 @@ readGalfitResult 01
             do readgresi = 0,dimen(ResultType)-1 {
                 set TempResultRads    = 0.0
                 set TempResultRadsErr = 0.0
-                set TempResultSers    = 1.0
+                set TempResultSers    = 0.0
                 set TempResultSersErr = 0.0
                 set TempResultElli    = 1.0
                 set TempResultElliErr = 0.0
