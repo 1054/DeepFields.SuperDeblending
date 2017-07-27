@@ -645,7 +645,7 @@ print_result 02
                 #1.2.3.4.    5.     6.       7.  8.      9.  10.     11. 12.     13.14.    15.       16.      17.       18.     19.       20.   
             # 
             #<below><added><20170727><dzliu>#
-            if(sum(sersic_n>1)>0) {
+            if(sum(sersic_n>0)>0) {
                 print $1.result.sersic_n.txt '%15g %15g %15.0f %15s\n' \
                     {sersic_n sersic_n_err cat_index cat_id}
             }
