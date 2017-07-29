@@ -50,7 +50,10 @@ fi
 # 
 export DG_IMAX=$2
 export DG_DATE=$3
+export DG_FIEL="goodsn" # field
 export DG_VARY=0
+export DG_GAUS=0 # Gaussian fitting
+export DG_SERS=0 # Sersic fitting
 export DG_PRIM=0 # PRIORMAG
 export DG_PARA=1 # PARALLEL
 export DG_PFIT=0 # fit full catalog? 0=fitAll 1=fitInclSubIncl 2=fitExclSubExcl
@@ -99,21 +102,38 @@ echo ""
 # 
 while [[ $# -gt 0 ]]; do
     
-    case "$1" in
+    DG_COMM=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+    
+    case "$DG_COMM" in
                         
                "-vary") shift
                         DG_VARY=1
                         DG_PRIM=1 #<Fixed><201700507><dzliu># 
-                        DG_FSED=$DG_FSED # "_vary"
                         DG_FLOG=$DG_FLOG"_Vary"
                         echo ; echo We are varying prior positions!
                         ;;
                         
       "-vary-position") shift
                         DG_VARY=1
-                        DG_FSED=$DG_FSED # "_vary"
+                        DG_PRIM=1 #<Fixed><201700507><dzliu># 
                         DG_FLOG=$DG_FLOG"_Vary"
                         echo ; echo We are varying prior positions!
+                        ;;
+                        
+           "-gaussian") shift
+                        DG_GAUS=1
+                        DG_PRIM=1 #<Fixed><201700507><dzliu># 
+                        DG_VARY=1 # must vary position as well
+                        DG_FLOG=$DG_FLOG"_Gaussian"
+                        echo ; echo We are fitting Gaussian models!
+                        ;;
+                        
+             "-sersic") shift
+                        DG_SERS=1
+                        DG_PRIM=1 #<Fixed><201700507><dzliu># 
+                        DG_VARY=1 # must vary position as well
+                        DG_FLOG=$DG_FLOG"_Sersic"
+                        echo ; echo We are fitting Sersic models!
                         ;;
                         
            "-priormag") shift
@@ -137,6 +157,14 @@ while [[ $# -gt 0 ]]; do
                         DG_PARA=2
                         DG_FLOG=$DG_FLOG"_PostParallel"
                         echo ; echo We are doing post parallel!
+                        ;;
+                       
+              "-field") shift
+                        while [[ $# -gt 0 ]]; do
+                            if [[ "$1" != "-"* ]]; then
+                                DG_FIEL=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+                            else break; fi; shift
+                        done
                         ;;
                        
             "-catalog") shift

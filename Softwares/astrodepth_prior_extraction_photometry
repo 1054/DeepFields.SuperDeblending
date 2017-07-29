@@ -310,16 +310,16 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # 
     # check SCI, PSF, RMS images, get full link by readlink command, and make links by ln command
     if [[ $j -lt ${#AstroDepth_INP_IMAGE_SCI[@]} ]]; then 
-        ln -fs $(readlink -f "${AstroDepth_INP_IMAGE_SCI[j]}") "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_sci_input.fits"
+        ln -fs $(astrodepth_abs_path "${AstroDepth_INP_IMAGE_SCI[j]}") "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_sci_input.fits"
     fi
     if [[ $j -lt ${#AstroDepth_INP_IMAGE_PSF[@]} ]]; then 
-        ln -fs $(readlink -f "${AstroDepth_INP_IMAGE_PSF[j]}") "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_psf_input.fits"
+        ln -fs $(astrodepth_abs_path "${AstroDepth_INP_IMAGE_PSF[j]}") "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_psf_input.fits"
     else 
         echo "Error! No PSF image was given for the SCI image \"${AstroDepth_INP_IMAGE_SCI[j]}\"!"
         exit 1
     fi
     if [[ $j -lt ${#AstroDepth_INP_IMAGE_RMS[@]} ]]; then 
-        ln -fs $(readlink -f "${AstroDepth_INP_IMAGE_RMS[j]}") "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_rms_input.fits"
+        ln -fs $(astrodepth_abs_path "${AstroDepth_INP_IMAGE_RMS[j]}") "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_rms_input.fits"
     else 
         echo -n "Warning! No RMS image was given! " # for the SCI image \"${AstroDepth_INP_IMAGE_SCI[j]}\"! "
         if [[ $j -lt ${#AstroDepth_INP_VALUE_RMS[@]} ]]; then 
@@ -457,9 +457,28 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
         #     exit 1
         # fi
         # 
+        # get pixnoise (overwrite)
+        if [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " pixnoise " ]]; then
+            mv "image_sci_pixnoise.txt" "image_sci_pixnoise.txt.backup"
+            rm "image_sci_pixnoise."* 2>/dev/null
+        fi
+        # 
+        # get pixscale (overwrite)
+        if [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " pixscale " ]]; then
+            mv "image_sci_pixscale.txt" "image_sci_pixscale.txt.backup"
+            rm "image_sci_pixscale."* 2>/dev/null
+        fi
+        # 
+        # get beamarea (overwrite)
+        if [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " beamarea " ]]; then
+            mv "image_sci_beamarea.txt" "image_sci_beamarea.txt.backup"
+            rm "image_sci_beamarea."* 2>/dev/null
+        fi
+        # 
         # get pixnoise
         if [[ ! -f "image_sci_pixnoise.txt" ]]; then
-            tmp_pixel_statistics_txt=$(readlink -f "${AstroDepth_INP_IMAGE_SCI[j]}" | sed -e 's/\.cut_[^\.]*//g')".pixel.statistics.txt"
+            #tmp_pixel_statistics_txt=$(readlink -f "${AstroDepth_INP_IMAGE_SCI[j]}" | sed -e 's/\.cut_[^\.]*//g')".pixel.statistics.txt"
+            tmp_pixel_statistics_txt=$(astrodepth_abs_path "${AstroDepth_INP_IMAGE_SCI[j]}" | sed -e 's/\.cut_[^\.]*//g')".pixel.statistics.txt"
             if [[ -f "$tmp_pixel_statistics_txt" ]]; then
                 cat "$tmp_pixel_statistics_txt" | grep "Gaussian_sigma =" | perl -p -e 's/(.*) *= *(.*)/\2/g' > "image_sci_pixnoise.txt"
             else

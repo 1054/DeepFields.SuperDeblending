@@ -52,51 +52,100 @@ read_pixnoise
 
 calc_beamarea
     if(is_file("image_sci_beamarea.txt")) {
-        !mv "image_sci_beamarea.txt" "image_sci_beamarea.txt.backup"
+        #!mv "image_sci_beamarea.txt" "image_sci_beamarea.txt.backup"
+        if(is_vector(beamarea)) {unset beamarea}
+        verbose 0 data "image_sci_beamarea.txt" read {beamarea 1.f} verbose 1
+        if(!is_vector(beamarea)) {
+            !rm image_sci_beamarea.* 2>/dev/null
+            !rm image_sci_beamarea_sinc.* 2>/dev/null
+        } # added a check here
     }
-    if(is_vector(beamarea)) {
-        unset beamarea
+    if(!is_file("image_sci_beamarea.txt")) {
+        if(is_vector(beamarea)) {unset beamarea}
+        if(is_file("image_sci.fits")) {
+            !gethead "image_sci.fits" "BMAJ" "BMIN" "BPA" > "image_sci_beamarea.tmp"
+            if(is_vector(tmp_bmaj)) {unset tmp_bmaj}
+            if(is_vector(tmp_bmin)) {unset tmp_bmin}
+            if(is_vector(tmp_bpa)) {unset tmp_bpa}
+            verbose 0 data "image_sci_beamarea.tmp" read {tmp_bmaj 1 tmp_bmin 2 tmp_bpa 3} verbose 1
+            !rm "image_sci_beamarea.tmp"
+            if(is_vector(tmp_bmaj) && is_vector(tmp_bmin) && is_vector(tmp_bpa)) {
+                set beamarea = pi/(4.0*ln(2)) * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
+                set beamarea_sinc = pi * (tmp_bmaj/1.89549*3600.0 * tmp_bmin/1.89549*3600.0) # arcsec-square
+                define print_noheader 1
+                print "image_sci_beamarea.txt" '%g\n' {beamarea}
+                print "image_sci_beamarea_sinc.txt" '%g\n' {beamarea_sinc}
+                define print_noheader 0
+            }
+        }
     }
-    if(is_file("image_sci.fits")) {
-        !gethead "image_sci.fits" "BMAJ" "BMIN" "BPA" > "image_sci_beamarea.tmp"
-        verbose 0
-        if(is_vector(tmp_bmaj)) {unset tmp_bmaj}
-        if(is_vector(tmp_bmin)) {unset tmp_bmin}
-        if(is_vector(tmp_bpa)) {unset tmp_bpa}
-        data "image_sci_beamarea.tmp" read {tmp_bmaj 1 tmp_bmin 2 tmp_bpa 3}
-        if(is_vector(tmp_bmaj) && is_vector(tmp_bmin) && is_vector(tmp_bpa)) {
-            set beamarea = pi/(4.0*ln(2)) * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
-            set beamarea_sinc = pi * (tmp_bmaj/1.89549*3600.0 * tmp_bmin/1.89549*3600.0) # arcsec-square
+    if(!is_file("image_sci_beamarea.txt")) {
+        if(is_vector(beamarea)) {unset beamarea}
+        if(is_file("image_psf.fits")) {
+            !gethead "image_psf.fits" "BMAJ" "BMIN" "BPA" > "image_psf_beamarea.tmp"
+            if(is_vector(tmp_bmaj)) {unset tmp_bmaj}
+            if(is_vector(tmp_bmin)) {unset tmp_bmin}
+            if(is_vector(tmp_bpa)) {unset tmp_bpa}
+            verbose 0 data "image_psf_beamarea.tmp" read {tmp_bmaj 1 tmp_bmin 2 tmp_bpa 3} verbose 1
+            !rm "image_psf_beamarea.tmp"
+            if(is_vector(tmp_bmaj) && is_vector(tmp_bmin) && is_vector(tmp_bpa)) {
+                set beamarea = pi/(4.0*ln(2)) * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
+                set beamarea_sinc = pi * (tmp_bmaj/1.89549*3600.0 * tmp_bmin/1.89549*3600.0) # arcsec-square
+                define print_noheader 1
+                print "image_sci_beamarea.txt" '%g\n' {beamarea}
+                print "image_sci_beamarea_sinc.txt" '%g\n' {beamarea_sinc}
+                define print_noheader 0
+            }
+        }
+    }
+    if(!is_file("image_sci_beamarea.txt")) {
+        if(is_vector(beamarea)) {unset beamarea}
+        if(is_file("image_psf.fits")) {
+            # measure at which radius an aperture has half of the total flux in image_psf.fits
+            #!CrabPhotImageStatistics image_psf.fits > image_psf.fits.statistics.txt
+            #verbose 0 data image_psf.fits.statistics.txt read {image_psf_f_peak 5 image_psf_f_total 6}
+            !gethead image_psf.fits NAXIS1 NAXIS2 > image_psf.fits.gethead.naxis.txt
+            verbose 0 data image_psf.fits.gethead.naxis.txt read {image_psf_naxis1 1 image_psf_naxis2 2} verbose 1
+            !getpix -n 1 %.15g image_psf.fits 1-$(image_psf_naxis1) 1-$(image_psf_naxis2) > image_psf.fits.getpix.all.pixels.txt
+            verbose 0 data image_psf.fits.getpix.all.pixels.txt read {image_psf_pixel_values 1} verbose 1
+            vecminmax image_psf_pixel_values image_psf_pixel_min image_psf_pixel_max
+            if(!is_vector(pixscale)) {read_pixscale}
+            set beamarea = float(sum(image_psf_pixel_values>=$image_psf_pixel_max*0.5))*pixscale*pixscale # arcsec-square
             define print_noheader 1
             print "image_sci_beamarea.txt" '%g\n' {beamarea}
-            print "image_sci_beamarea_sinc.txt" '%g\n' {beamarea_sinc}
+            print "image_sci_beamarea.warning.txt" 'Warning! No BMAJ BMIN BPA keywords in image_sci.fits or image_psf.fits, taking half maximum pixel count.\n' {}
             define print_noheader 0
         }
-        verbose 1
     }
 
 
 calc_peak2total
     if(is_file("image_psf_peak2total.txt")) {
-        !mv "image_psf_peak2total.txt" "image_psf_peak2total.txt.backup"
+        #!mv "image_psf_peak2total.txt" "image_psf_peak2total.txt.backup"
+        if(is_vector(peak2total)) {unset peak2total}
+        verbose 0 data "image_psf_peak2total.txt" read {peak2total 1.f} verbose 1
+        if(!is_vector(peak2total)) {!rm "image_psf_peak2total.txt"} # added a check here
     }
-    if(is_vector(peak2total)) {
-        unset peak2total
-    }
-    if(is_file("image_psf.fits")) {
-        !CrabPhotImageStatistics -header-in-comment image_psf.fits > "image_psf_peak2total.tmp"
-        verbose 0
-        if(is_vector(tmp_pix_max)) {unset tmp_pix_max}
-        if(is_vector(tmp_pix_sum)) {unset tmp_pix_sum}
-        data "image_psf_peak2total.tmp" read {tmp_pix_max 5 tmp_pix_sum 6}
-        if(is_vector(tmp_pix_max) && is_vector(tmp_pix_sum)) {
-            set peak2total = tmp_pix_max / tmp_pix_sum
-            define print_noheader 1
-            print "image_psf_peak2total.txt" '%g\n' {peak2total}
-            define print_noheader 0
+    if(!is_file("image_psf_peak2total.txt")) {
+        if(is_vector(peak2total)) {unset peak2total}
+        if(is_file("image_psf.fits")) {
+            !CrabPhotImageStatistics -header-in-comment image_psf.fits > "image_psf_peak2total.tmp"
+            if(is_vector(tmp_pix_max)) {unset tmp_pix_max}
+            if(is_vector(tmp_pix_sum)) {unset tmp_pix_sum}
+            verbose 0 data "image_psf_peak2total.tmp" read {tmp_pix_max 5 tmp_pix_sum 6} verbose 1
+            if(is_vector(tmp_pix_max) && is_vector(tmp_pix_sum)) {
+                set peak2total = tmp_pix_max / tmp_pix_sum
+                define print_noheader 1
+                print "image_psf_peak2total.txt" '%g\n' {peak2total}
+                define print_noheader 0
+            }
         }
-        verbose 1
     }
+
+
+
+
+
 
 
 
@@ -164,6 +213,7 @@ mask_prior_sources_on_negative_image
     } else {
         print 'Warning! \"getpix_on_negative_image.result\" was not found! We will not mask the prior sources!\n' {}
     }
+
 
 
 
@@ -311,14 +361,15 @@ go_galfit_3
     #<20170726># set PosY = ResultPosY
     set Mags = ResultMags
     set Rads = ResultRads/ResultPixScale # in pixel
-    set Sers = ResultRads*0.0+1.0 # re-initialize
+    set Sers = ResultRads*0.0+0.0 # re-initialize
     set Elli = ResultRads*0.0+1.0 # re-initialize
     set Roti = ResultRads*0.0+0.0 # re-initialize
     # update sersic fitting
     set coo = (ResultMagsErr<0.25 && ResultFlux>pixnoise)
-    set Type = (coo)                  ? 'sersic'          : Type
-    set Rads = (coo && ResultRads<=0) ? 0.5/abs(pixscale) : Rads
-    set Sers = (coo)                  ? 2.0               : Sers
+    set Type = (coo)                  ? 'sersic'           : Type
+    set Rads = (coo && ResultRads>0)  ? ResultRads/2.0     : Rads # if perviously fitted with gaussian, then sersic radius = gaussian FWHM/2.0
+    set Rads = (coo && ResultRads<=0) ? 0.25/abs(pixscale) : Rads # initial guess 0.25 arcsec radius
+    set Sers = (coo)                  ? 1.0                : Sers # initial guess n=1.0 disk
     set ParamFitPosX = (coo && ResultRads<=0)                     ? 1                  : ParamFitPosX
     set ParamMinPosX = (coo && ResultRads<=0)                     ? -0.5/abs(pixscale) : ParamMinPosX
     set ParamMaxPosX = (coo && ResultRads<=0)                     ? +0.5/abs(pixscale) : ParamMaxPosX
@@ -329,11 +380,11 @@ go_galfit_3
     set ParamMaxPosY = (coo && ResultRads<=0)                     ? +0.5/abs(pixscale) : ParamMaxPosY
     set ParamMinPosY = (coo && ResultRads<=0 && ParamMinPosY<-20) ? -20                : ParamMinPosY
     set ParamMaxPosY = (coo && ResultRads<=0 && ParamMaxPosY>+20) ? +20                : ParamMaxPosY
-    set ParamFitRads = (coo && ResultRads<=0) ? 1                 : ParamFitRads
-    set ParamMinRads = (coo && ResultRads<=0) ? 1.00              : ParamMinRads # minimum 1.0 pixel FWHM #<20170613># prev. using 0.5 pix causes 'nan' error!
-    set ParamMaxRads = (coo && ResultRads<=0) ? 3.0/abs(pixscale) : ParamMaxRads # maximum 3.0 arcsec FWHM #<20170613># prev. using 5.0 arcsec
+    set ParamFitRads = (coo)                  ? 1                 : ParamFitRads
+    set ParamMinRads = (coo)                  ? 0.5               : ParamMinRads # minimum 0.5 pixel RADIUS for sersic
+    set ParamMaxRads = (coo)                  ? 3.0/abs(pixscale) : ParamMaxRads # maximum 3.0 arcsec RADIUS for sersic
     set ParamFitSers = (coo)                  ? 1                 : ParamFitSers
-    set ParamMinSers = (coo)                  ? 1.0               : ParamMinSers
+    set ParamMinSers = (coo)                  ? 0.2               : ParamMinSers #<20170728># 1.0->0.2
     set ParamMaxSers = (coo)                  ? 4.0               : ParamMaxSers
     set ParamFitElli = (coo && ResultRads<=0) ? 1                 : ParamFitElli
     set ParamMinElli = (coo && ResultRads<=0) ? 0.20              : ParamMinElli # b/a ratio, i.e. q in galfit input file
@@ -619,6 +670,14 @@ print_result 02
             set pa_err = ResultRotiErr
             set sersic_n = ResultSers
             set sersic_n_err = ResultSersErr
+            if(sum(sersic_n>0)>0) {
+                set maj     = (sersic_n>0) ? maj*2.0     : maj
+                set maj_err = (sersic_n>0) ? maj_err*2.0 : maj_err
+                set maj_pix = (sersic_n>0) ? maj_pix*2.0 : maj_pix
+                set min     = (sersic_n>0) ? min*2.0     : min
+                set min_err = (sersic_n>0) ? min_err*2.0 : min_err
+                set min_pix = (sersic_n>0) ? min_pix*2.0 : min_pix
+            }
             #<below><added><20170606><dzliu>#
             set pix_scale = f*0.0 + pixscale
             set pix_area = pi/(4*ln(2)) * maj_pix*min_pix # or -- pi/4 * maj_pix*min_pix

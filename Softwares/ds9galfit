@@ -21,23 +21,53 @@ if [ $# -eq 0 ] ; then
 fi
 # 
 # 
-DS9GALFIT_FILEP="$1"
+DS9GALFIT_TITLE=""
+DS9GALFIT_FILEP=()
+DS9GALFIT_COMMP=()
+DS9GALFIT_SCALES=()
+DS9GALFIT_HAS_TITLE=0
+DS9GALFIT_HAS_SCALE=0
+DS9GALFIT_HAS_CMAP=0
+while [[ $# -gt 0 ]]; do
+    TempStr=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+    if [[ "$TempStr" == *"-title" ]]; then
+        DS9GALFIT_HAS_TITLE=1
+    fi
+    if [[ "$TempStr" == *"-scale" ]]; then
+        DS9GALFIT_HAS_SCALE=1
+    fi
+    if [[ "$TempStr" == *"-cmap" ]]; then
+        DS9GALFIT_HAS_CMAP=1
+    fi
+    if [[ "$TempStr" == *"-title" ]]; then
+        if [[ $# -gt 1 ]]; then
+            shift
+            DS9GALFIT_TITLE="$1"
+        fi
+        continue
+    fi
+    if [[ "$TempStr" == *".fits" ]]; then
+        DS9GALFIT_FILEP+=("$1")
+    fi
+    DS9GALFIT_COMMP+=("$1")
+    shift
+done
 # 
 # 
-if [[ $* == *-title* ]]; then
-    DS9GALFIT_TITLE=`expr "$*" : '.*-title \([^\ \-]*\)'`
-    ds9 -geometry 1200x600 -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no $* &
-else
+if [[ "$DS9GALFIT_TITLE"x == ""x ]]; then
     # first define title
-    DS9GALFIT_TNUMB=1 
+    DS9GALFIT_TNUMB=1
     DS9GALFIT_ISDUP=`ps aux | grep "ds9 -title ds9galfit_$DS9GALFIT_TNUMB" | wc -l | tr -d " "`
     while [[ $DS9GALFIT_ISDUP -gt 1 ]]; do
         DS9GALFIT_TNUMB=`expr $DS9GALFIT_TNUMB + 1`
         DS9GALFIT_ISDUP=`ps aux | grep "ds9 -title ds9galfit_$DS9GALFIT_TNUMB" | wc -l | tr -d " "`
     done
     DS9GALFIT_TITLE="ds9galfit_$DS9GALFIT_TNUMB"
-    ds9 -title $DS9GALFIT_TITLE -geometry 1200x600 -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no "$@" &
 fi
+# 
+# 
+echo ds9 -title $DS9GALFIT_TITLE -geometry 1300x600 -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no ${DS9GALFIT_COMMP[@]}
+     ds9 -title $DS9GALFIT_TITLE -geometry 1300x600 -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no ${DS9GALFIT_COMMP[@]} &
 # 
 # 
 #DS9GALFIT_FILEP=$(echo " $* " | sed -E 's#.* +([a-z.]*fits) +.*#\1#g')
@@ -144,12 +174,17 @@ xpaset -p $DS9GALFIT_TITLE frame 3
 # Set scale limits
 # 
 
-xpaset -p $DS9GALFIT_TITLE cmap aips0
-xpaset -p $DS9GALFIT_TITLE scale mode 99.8
-xpaset -p $DS9GALFIT_TITLE scale limits $(xpaget $DS9GALFIT_TITLE scale limits)
+if [[ $DS9GALFIT_HAS_CMAP -eq 0 ]]; then
+    xpaset -p $DS9GALFIT_TITLE cmap aips0
+fi
 
-if [[ ${#DS9GALFIT_SCALES[@]} -eq 2 ]]; then
-    xpaset -p $DS9GALFIT_TITLE scale limits ${DS9GALFIT_SCALES[0]} $(awk "BEGIN { print (${DS9GALFIT_SCALES[1]})*5.0 }")
+if [[ $DS9GALFIT_HAS_SCALE -eq 0 ]]; then
+    if [[ ${#DS9GALFIT_SCALES[@]} -eq 2 ]]; then
+        xpaset -p $DS9GALFIT_TITLE scale limits ${DS9GALFIT_SCALES[0]} $(awk "BEGIN { print (${DS9GALFIT_SCALES[1]})*5.0 }")
+    else
+        xpaset -p $DS9GALFIT_TITLE scale mode 99.8
+        xpaset -p $DS9GALFIT_TITLE scale limits $(xpaget $DS9GALFIT_TITLE scale limits)
+    fi
 fi
 
 
@@ -199,11 +234,11 @@ for (( i=1; i<=$FITNUMB; i++ )); do
         continue
     fi
     
-    echo "COMP = $TC"
-    echo "MAG = $MAG"
-    echo "FWHM = $FWHM"
-    echo "ELLI = $ELLI"
-    echo "PA = $PA"
+    #echo "COMP = $TC"
+    #echo "MAG = $MAG"
+    #echo "FWHM = $FWHM"
+    #echo "ELLI = $ELLI"
+    #echo "PA = $PA"
     
     FITMAG=$(echo $MAG | grep -v "\[" | grep -v "\]" | wc -l) # whether the magnitude are fitted or fixed
     

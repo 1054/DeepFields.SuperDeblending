@@ -171,38 +171,19 @@ xSet_20cm
 
 
 
-Fit_XXX		
-		###<DZLIU><Modified>### foreach par {0 1 2 3 4 5 6 7 8 9} { ###<Commented><DZLIU>### 
-		###<DZLIU><Modified>### !\rm galfit.""$par""*               ###<Commented><DZLIU>### 
-		###<DZLIU><Modified>### !\rm tmp$par""*fits                 ###<Commented><DZLIU>### 
-		###<DZLIU><Modified>### !\rm fit""$par*""log                ###<Commented><DZLIU>### 
-		###<DZLIU><Modified>### }                                   ###<Commented><DZLIU>### 
-		###<DZLIU><Modified>### 
-		if($?doPostParallel==0){                ###<Modified><DZLIU>### doParallel
+Fit_XXX 00
+		if($?doPostParallel==0) {
 			if(is_file(summary_run)) {
-				echo !rm summary_run
-				!\rm summary_run
+				!mv summary_run summary_run.backup
 			}
-		} else {                                ###<Modified><DZLIU>### doParallel
 		}
-		echo Doing Fit_XXX
-		###<DZLIU><Modified>### !\rm galfit.*
-		###<DZLIU><Modified>### !\rm tmp*fits
-		###<DZLIU><Modified>### !\rm HSO_$imax".CONSTRAINTS"
-		###<DZLIU><Modified>### !\rm summary_run
-		###<DZLIU><Modified>### !\rm fit*log
-		###<DZLIU><Modified>### 
-
+		echo "Doing Fit_XXX"
+		
 		define print_noheader 1
-
+		
 		xdo_sizes
 		macro read goSimu.sm gPriors
 		if('$imax' != '20cm' ) {noise_XXX} else {echo 20cm does not do noise}
-		#define aaa ?
-		if($fit_gaussian) {
-		set nxA = x$imax set nxB=y$imax
-		print URGtmp {raF deF nxA nxB m1392 WFC3_fwhm WFC3_axis_ratio WFC3_XPA}
-		}
 		
 		
 		if($use_prior_mags) {
@@ -242,7 +223,6 @@ Fit_XXX
 		
 		define runid 0
 		echo RUNS $(dimen(y_pos)*dimen(x_pos))
-		#define aaa ?
 		
 		
 		foreach xar yy {
@@ -251,27 +231,15 @@ Fit_XXX
 		if(sum(coo)) {
 		set coo = y$imax <y_pos[$var]+$g_buff && y$imax >y_pos[$var-1]-$g_buff && x$imax <x_pos[$xar]+$g_buff && x$imax >x_pos[$xar-1]-$g_buff && noi$imax <$max_noise # allow for ext objects
 		define runid $($runid+1)
-		set xx$imax  = x$imax  if(coo)
-		set yy$imax  = y$imax  if(coo)
-		set nn$imax  = noi$imax  if(coo)
-		set mm$imax  = m$imax  if(coo)
-		set Xfix1    = fix1    if(coo)
-		set Xfix2    = fix2    if(coo)
-		if($fit_gaussian) {
-		if(dimen(coo)!=dimen(WFC3_fwhm)) {echo ERROR setting parameters for Gaussian fit --> give ctrl-C
-		define aaa ?
-		}
-		set Xfwhm  = WFC3_fwhm if(coo)
-		set Xaxis_ratio = WFC3_axis_ratio if(coo)
-		set XPA = WFC3_XPA if(coo)
-		} # end if($fit_gaussian)
+		set xx$imax  = x$imax   if(coo)
+		set yy$imax  = y$imax   if(coo)
+		set nn$imax  = noi$imax if(coo)
+		set mm$imax  = m$imax   if(coo)
+		set Xfix1    = fix1     if(coo)
+		set Xfix2    = fix2     if(coo)
 		
-		###<DZLIU><Modified>### echo $(dimen(xx$imax))
-		###<DZLIU><Modified>### #define aaa ?
-		###<DZLIU><Modified>### ## to here
-		###<DZLIU><Modified>### 
-		echo $runid [$(x_pos[$xar-1]):$(x_pos[$xar]),$(y_pos[$var-1]):$(y_pos[$var])] [$(Lx1[$xar-1]):$(Lx2[$xar]),$(Ly1[$var-1]):$(Ly2[$var])] ($xar*$var=$($xar*$var)~/~$(dimen(y_pos)*dimen(x_pos)))
-		###<DZLIU><Modified>### 
+		
+		echo $runid [$(x_pos[$xar-1]):$(x_pos[$xar]),$(y_pos[$var-1]):$(y_pos[$var])] [$(Lx1[$xar-1]):$(Lx2[$xar]),$(Ly1[$var-1]):$(Ly2[$var])] ($xar,$var=$(dimen(y_pos)*$xar+$var)~/~$(dimen(y_pos)*dimen(x_pos)))
 		
 		
 		define aa_file "HSO_$imax"".INPUT"
@@ -289,45 +257,91 @@ Fit_XXX
 		
 		!cat $aa_file
 		
-		# entering the objects to fit (and bckgrnd
-		set p1 = xx$imax set p2 = yy$imax set p3 =  mm$imax
+		# entering the objects to fit
+		set p1 = xx$imax
+		set p2 = yy$imax
+		set p3 = mm$imax
 		set Xresi = Xfix1*0+1
-		if($make_residuals) {set Xresi=Xresi*0}
-		if(!$fit_gaussian) { # psf
-		###<DZLIU><Modified>### 
-		###<DZLIU><Modified>### print +$aa_file '\n 0) psf \n 1) %.3f %.3f %.0f %.0f \n 3) %.3f  %d \n Z) 0  \n \n' {p1 p2 Xfix1 Xfix2 p3 Xresi} # 3) put to 0 --> this one fixes the mags #  --> RESIDUALS
-		print +$aa_file '\n 0) psf \n 1) %.3f %.3f %.0f %.0f \n 3) %.3f  %.0f \n Z) 0  \n \n' {p1 p2 Xfix1 Xfix2 p3 Xresi} # 3) put to 0 --> this one fixes the mags #  --> RESIDUALS  ###<Modified><20140402><DZLIU>### %d => %.0f
-		###<DZLIU><Modified>### 
-		} else { #gaussian with 3 parameters (fixed), fit only total magnitude
-		print +$aa_file '\n 0) gaussian \n 1) %.3f %.3f %.0f %.0f \n 3) %.3f  %d \n 4) %.3f 0 \n 8) %.3f 0 \n 9) %.3f 0 \n 10) 0 0 \n Z) 0  \n \n' {p1 p2 Xfix1 Xfix2 p3 Xresi Xfwhm Xaxis_ratio XPA} # 3) put to 0 --> this one fixes the mags #  --> RESIDUALS     4) -->1 fit FWHM     8) -->1 fit b/a
-		}
-		if(!$fit_sky) {
-		print +$aa_file '\n 0) sky \n 1) $Xback 0 \n 2) 0 0 \n 3) 0 0 \n Z) 0  \n \n' {}      
-		} else {
-		print +$aa_file '\n 0) sky \n 1) $Xback 1 \n 2) 0 0 \n 3) 0 0 \n Z) 0  \n \n' {}      # 1) to 1 --> allow sky to vary
+		if($make_residuals) {
+			set Xresi=Xresi*0
 		}
 		
-		print +summary_run '$runid $(dimen(xx$imax)) $(x_pos[$xar-1]) $(x_pos[$xar]) $(y_pos[$var-1]) $(y_pos[$var]) $(Lx1[$xar-1]) $(Lx2[$xar]) $(Ly1[$var-1]) $(Ly2[$var]) \n' {}
-
-		set oo=1,dimen(xx$imax) 
-		print HSO_$imax".CONSTRAINTS" '   %d   mag -10 to $mag_toofaint  \n' {oo}
-		if($vary_positions) {
-		define max_vary 1
-		if('$imax'=='16') {define max_vary 1}
-		if('$imax'=='24') {define max_vary 1}
-		if('$imax'=='100') {define max_vary 1}
-		if('$imax'=='160') {define max_vary 1}
-		if('$imax'== '20cm') {define max_vary 2}
-		print +HSO_$imax".CONSTRAINTS" '   %d   x -$max_vary $max_vary  \n' {oo}
-		print +HSO_$imax".CONSTRAINTS" '   %d   y -$max_vary $max_vary  \n' {oo}
+		if(!$?fit_gaussian) {define fit_gaussian 0}
+		if(!$?fit_sersic) {define fit_sersic 0}
+		if(!$?field) {define field goodsn}
+		if(!$fit_gaussian && !$fit_sersic) {
+			print +$aa_file '\n 0) psf \n 1) %.3f %.3f %.0f %.0f \n 3) %.3f %.0f \n Z) 0  \n \n' {p1 p2 Xfix1 Xfix2 p3 Xresi} # 3) put to 0 --> this one fixes the mags #  --> RESIDUALS  ###<Modified><20140402><DZLIU>### %d => %.0f
 		} else {
-		define max_vary 0
+			load astroPhot.sm
+			set_$field""_photometry_constants_""$imax
+			if($fit_gaussian) {
+				declare fit_gaussian_type 0.s
+				set fit_gaussian_mask = (Xfix1==1 && Xfix2==1)
+				set fit_gaussian_type = fit_gaussian_mask ? 'gaussian' : 'psf'
+				set fit_gaussian_re_min = 0.2
+				set fit_gaussian_re_max = 5.0/$PixScale_$imax
+				set fit_gaussian_re = fit_gaussian_mask*0 + 0.50/$PixScale_$imax
+				set fit_gaussian_re = (fit_gaussian_re<fit_gaussian_re_min) ? fit_gaussian_re_min : fit_gaussian_re
+				set fit_gaussian_q = fit_gaussian_mask*0 + 1.0
+				set fit_gaussian_pa = fit_gaussian_mask*0 + 0.0
+				print +$aa_file '\n 0) %s \n 1) %.3f %.3f %.0f %.0f \n 3) %.3f %.0f \n 4) %.3f 1 \n 9) %.3f 1 \n 10) %.3f 1 \n Z) 0 \n \n' \
+									{fit_gaussian_type p1 p2 Xfix1 Xfix2 p3 Xresi fit_gaussian_re fit_gaussian_q fit_gaussian_re_pa}
+			}
+			if($fit_sersic) {
+				declare fit_sersic_type 0.s
+				set fit_sersic_mask = (Xfix1==1 && Xfix2==1)
+				set fit_sersic_type = fit_sersic_mask ? 'sersic' : 'psf'
+				set fit_sersic_re_min = 0.1
+				set fit_sersic_re_max = 2.5/$PixScale_$imax
+				set fit_sersic_re = fit_sersic_mask*0 + 0.25/$PixScale_$imax
+				set fit_sersic_re = (fit_sersic_re<fit_sersic_re_min) ? fit_sersic_re_min : fit_sersic_re
+				set fit_sersic_n = fit_sersic_mask*0 + 1.0
+				set fit_sersic_q = fit_sersic_mask*0 + 1.0
+				set fit_sersic_pa = fit_sersic_mask*0 + 0.0
+				print +$aa_file '\n 0) %s \n 1) %.3f %.3f %.0f %.0f \n 3) %.3f %.0f \n 4) %.3f 1 \n 5) %.3f 1 \n 9) %.3f 1 \n 10) %.3f 1 \n Z) 0 \n \n' \
+									{fit_sersic_type p1 p2 Xfix1 Xfix2 p3 Xresi fit_sersic_re fit_sersic_n fit_sersic_q fit_sersic_pa}
+			}
 		}
-		if($fit_gaussian) {
-		set mXfwhm = Xfwhm*3+10
-		print +HSO_$imax".CONSTRAINTS" '   %d   4) 0.1 to %.2f  \n' {oo Xfwhm}
-		print +HSO_$imax".CONSTRAINTS" '   %d   8) 0.05 to 1  \n' {oo}
+		
+		if(!$fit_sky) {
+			print +$aa_file '\n 0) sky \n 1) $Xback 0 \n 2) 0 0 \n 3) 0 0 \n Z) 0  \n \n' {}      
+		} else {
+			print +$aa_file '\n 0) sky \n 1) $Xback 1 \n 2) 0 0 \n 3) 0 0 \n Z) 0  \n \n' {}      # 1) to 1 --> allow sky to vary
 		}
+		
+		set x_pos_cen = (x_pos[$xar]+x_pos[$xar-1])/2.0
+		set y_pos_cen = (y_pos[$var]+y_pos[$var-1])/2.0
+		set x_pos_len = (x_pos[$xar]-x_pos[$xar-1])+0.0
+		set y_pos_len = (y_pos[$var]-y_pos[$var-1])+0.0
+		
+		print +summary_run '$runid $(dimen(xx$imax)) $(x_pos[$xar-1]) $(x_pos[$xar]) $(y_pos[$var-1]) $(y_pos[$var]) $(Lx1[$xar-1]) $(Lx2[$xar]) $(Ly1[$var-1]) $(Ly2[$var]) \n' {}
+		print +summary_run.ds9.reg 'image; box($(x_pos_cen),$(y_pos_cen),$(x_pos_len),$(y_pos_len)) \# text={$runid} \n' {}
+		
+		set oo=1,dimen(xx$imax)
+		
+		print HSO_$imax".CONSTRAINTS" '   %d   mag -10 to $mag_toofaint  \n' {oo}
+		
+		if($vary_positions) {
+			define max_vary 1
+			if('$imax'=='16') {define max_vary 1}
+			if('$imax'=='24') {define max_vary 1}
+			if('$imax'=='100') {define max_vary 1}
+			if('$imax'=='160') {define max_vary 1}
+			if('$imax'== '20cm') {define max_vary 2}
+			print +HSO_$imax".CONSTRAINTS" '   %d   x -$max_vary $max_vary  \n' {oo}
+			print +HSO_$imax".CONSTRAINTS" '   %d   y -$max_vary $max_vary  \n' {oo}
+			if($fit_sersic) {
+				set fit_sersic_re_min = 0.1
+				set fit_sersic_re_max = 2.5/$PixScale_$imax
+				print +HSO_$imax".CONSTRAINTS" '   %d   re $(fit_sersic_re_min) to $(fit_sersic_re_max) \n' {oo}
+				print +HSO_$imax".CONSTRAINTS" '   %d   n 0.2 to 4 \n' {oo}
+				print +HSO_$imax".CONSTRAINTS" '   %d   q 0.2 to 1 \n' {oo}
+				print +HSO_$imax".CONSTRAINTS" '   %d   pa -360 to 360 \n' {oo}
+			}
+		} else {
+			define max_vary 0
+		}
+		
 
 		###<DZLIU><Modified>### #!/dsm/upgal/data/edaddi/galfit/galfit $aa_file
 		###<DZLIU><Modified>### !/Users/edaddi/software/galfit $aa_file
@@ -362,15 +376,28 @@ Fit_XXX
 				echo CRASH !!!!!!!
 				define aaa ? 
 			}
-		} else {                                                                  ###<Added><DZLIU>### doParallel
-			if($vary_positions) {                                                 ###<Added><DZLIU>### doParallel
-				define idBox "boxgalfit_vary/box"$runid                           ###<Added><DZLIU>### doParallel
-				define idRun "boxgalfit_vary/runbox"$runid".sh"                   ###<Added><DZLIU>### doParallel
-				define idTar "../doing"$imax".box.galfit_vary"                    ###<Added><DZLIU>### doParallel
-			} else {                                                              ###<Added><DZLIU>### doParallel
-				define idBox "boxgalfit/box"$runid                                ###<Added><DZLIU>### doParallel
-				define idRun "boxgalfit/runbox"$runid".sh"                        ###<Added><DZLIU>### doParallel
-				define idTar "../doing"$imax".box.galfit"                         ###<Added><DZLIU>### doParallel
+		} else {
+			if(!$vary_positions) {
+				define idBox "boxgalfit/box"$runid
+				define idRun "boxgalfit/runbox"$runid".sh"
+				define idTar "../doing"$imax".box.galfit"
+			} else {
+				if(!$fit_gaussian && !$fit_sersic) {
+					define idBox "boxgalfit_vary/box"$runid
+					define idRun "boxgalfit_vary/runbox"$runid".sh"
+					define idTar "../doing"$imax".box.galfit_vary"
+				} else {
+					if($fit_gaussian) {
+						define idBox "boxgalfit_vary_gaussian/box"$runid
+						define idRun "boxgalfit_vary_gaussian/runbox"$runid".sh"
+						define idTar "../doing"$imax".box.galfit_vary_gaussian"	
+					}
+					if($fit_sersic) {
+						define idBox "boxgalfit_vary_sersic/box"$runid
+						define idRun "boxgalfit_vary_sersic/runbox"$runid".sh"
+						define idTar "../doing"$imax".box.galfit_vary_sersic"	
+					}
+				}
 			}                                                                     ###<Added><DZLIU>### doParallel
 			if($?doParallel==1) {                                                 ###<Added><DZLIU>### doParallel
 				!rm -rf                        $idBox                             ###<Added><DZLIU>### doParallel
@@ -408,230 +435,247 @@ Fit_XXX
 
 Rebuild_XXX	
 		if($?doParallel) {if($doParallel==1) {return}} ###<Added><20141204><DzLIU>###
+		if(!$?fit_gaussian) {define fit_gaussian 0}
+		if(!$?fit_sersic) {define fit_sersic 0}
 		echo Doing Rebuild_XXX
 		data summary_run read {runid 1 nobj 2 x1 3 x2 4 y1 5 y2 6 Lx1 7 Lx2 8 Ly1 9 Ly2 10}
-		echo makeBigMap -> creating FIT_goodsn_$imax"_Map.fits"
+		!rm FIT_$imax""_Map.fits 2>/dev/null
+		echo makeBigMap -> creating FIT_$imax""_Map.fits
 		makeBigMap
 		set Tx1 = x1-Lx1+1 set Tx2 = x2-Lx1+1
 		set Ty1 = y1-Ly1+1 set Ty2 = y2-Ly1+1
-		!\rm do.cl
-		print +do.cl 'images\n imutil\nreset use_new_imt = no\n' {}
-		print +do.cl 'imcopy fit%.0f[1][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[0][%.0f:%.0f,%.0f:%.0f]\n' {runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141030><DzLIU>###
-		print +do.cl 'imcopy fit%.0f[2][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[1][%.0f:%.0f,%.0f:%.0f]\n' {runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141030><DzLIU>###
-		print +do.cl 'imcopy fit%.0f[3][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[2][%.0f:%.0f,%.0f:%.0f]\n' {runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141030><DzLIU>###
+		#!\rm do.cl
+		#print +do.cl 'images\n imutil\nreset use_new_imt = no\n' {}
+		#print +do.cl 'imcopy fit%.0f[1][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[0][%.0f:%.0f,%.0f:%.0f]\n' {runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141030><DzLIU>###
+		#print +do.cl 'imcopy fit%.0f[2][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[1][%.0f:%.0f,%.0f:%.0f]\n' {runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141030><DzLIU>###
+		#print +do.cl 'imcopy fit%.0f[3][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[2][%.0f:%.0f,%.0f:%.0f]\n' {runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141030><DzLIU>###
 		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==0) {
 		!\rm do.cl
-		print +do.cl 'images\n imutil\nreset use_new_imt = no\n' {}
-		print +do.cl 'imcopy boxgalfit/box%.0f/tmp[1][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[0][%.0f:%.0f,%.0f:%.0f]\n' \
+		print +do.cl 'images\nimutil\nreset use_new_imt = no\n' {}
+		print +do.cl 'imcopy boxgalfit/box%.0f/tmp[1][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[0][%.0f:%.0f,%.0f:%.0f]\n' \
 											{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141130><DzLIU>###
-		print +do.cl 'imcopy boxgalfit/box%.0f/tmp[2][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[1][%.0f:%.0f,%.0f:%.0f]\n' \
+		print +do.cl 'imcopy boxgalfit/box%.0f/tmp[2][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[1][%.0f:%.0f,%.0f:%.0f]\n' \
 											{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141130><DzLIU>###
-		print +do.cl 'imcopy boxgalfit/box%.0f/tmp[3][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[2][%.0f:%.0f,%.0f:%.0f]\n' \
+		print +do.cl 'imcopy boxgalfit/box%.0f/tmp[3][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[2][%.0f:%.0f,%.0f:%.0f]\n' \
 											{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141130><DzLIU>###
 		}}}
-		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) {
+		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) { if(!$fit_gaussian && !$fit_sersic) {
 		!\rm do.cl
-		print +do.cl 'images\n imutil\nreset use_new_imt = no\n' {}
-		print +do.cl 'imcopy boxgalfit_vary/box%.0f/tmp[1][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[0][%.0f:%.0f,%.0f:%.0f]\n' \
+		print +do.cl 'images\nimutil\nreset use_new_imt = no\n' {}
+		print +do.cl 'imcopy boxgalfit_vary/box%.0f/tmp[1][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[0][%.0f:%.0f,%.0f:%.0f]\n' \
 											{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141130><DzLIU>###
-		print +do.cl 'imcopy boxgalfit_vary/box%.0f/tmp[2][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[1][%.0f:%.0f,%.0f:%.0f]\n' \
+		print +do.cl 'imcopy boxgalfit_vary/box%.0f/tmp[2][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[1][%.0f:%.0f,%.0f:%.0f]\n' \
 											{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141130><DzLIU>###
-		print +do.cl 'imcopy boxgalfit_vary/box%.0f/tmp[3][%.0f:%.0f,%.0f:%.0f] FIT_goodsn_$imax""_Map[2][%.0f:%.0f,%.0f:%.0f]\n' \
+		print +do.cl 'imcopy boxgalfit_vary/box%.0f/tmp[3][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[2][%.0f:%.0f,%.0f:%.0f]\n' \
 											{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2} ###<Modified><20141130><DzLIU>###
-		}}}
-		### print +do.cl 'imdel tmp*fits\n' {} ###<Modified><20141030><DzLIU>###
-		print +do.cl 'logout\n\n' {}       ###<Modified><DZLIU>### double \n\n
-		!cl -old < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
-		###<DZLIU><Modified>### 
+		}}}}
+		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) { if($fit_gaussian) {
+		!\rm do.cl
+		print +do.cl 'images\nimutil\nreset use_new_imt = no\n' {}
+		print +do.cl 'imcopy boxgalfit_vary_gaussian/box%.0f/tmp[1][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[0][%.0f:%.0f,%.0f:%.0f]\n' \
+											{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2}
+		print +do.cl 'imcopy boxgalfit_vary_gaussian/box%.0f/tmp[2][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[1][%.0f:%.0f,%.0f:%.0f]\n' \
+											{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2}
+		print +do.cl 'imcopy boxgalfit_vary_gaussian/box%.0f/tmp[3][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[2][%.0f:%.0f,%.0f:%.0f]\n' \
+											{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2}
+		}}}}
+		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) { if($fit_sersic) {
+		!\rm do.cl
+		print +do.cl 'images\nimutil\nreset use_new_imt = no\n' {}
+		print +do.cl 'imcopy boxgalfit_vary_sersic/box%.0f/tmp[1][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[0][%.0f:%.0f,%.0f:%.0f]\n' \
+											{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2}
+		print +do.cl 'imcopy boxgalfit_vary_sersic/box%.0f/tmp[2][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[1][%.0f:%.0f,%.0f:%.0f]\n' \
+											{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2}
+		print +do.cl 'imcopy boxgalfit_vary_sersic/box%.0f/tmp[3][%.0f:%.0f,%.0f:%.0f] FIT_$imax""_Map[2][%.0f:%.0f,%.0f:%.0f]\n' \
+											{runid Tx1 Tx2 Ty1 Ty2 x1 x2 y1 y2}
+		}}}}
+		print +do.cl 'logout\n\n' {}
+		!cl -old < do.cl > do.cl.log 2>&1
 		
 		set m$imax  = x$imax*0+99
 		set e$imax  = -m$imax
 		set nx$imax = -m$imax
 		set ny$imax = -m$imax
 		if($fit_gaussian) {
-		set FW$imax = -m$imax
-		set ba$imax = -m$imax
-		set eFW$imax = -m$imax
-		set eba$imax = -m$imax
+			set gaussian_maj = -m$imax # major axis FWHM
+			set gaussian_bar = -m$imax # b/a ratio
+			set gaussian_pan = -m$imax # position angle
+			set gaussian_maj_err = -m$imax
+			set gaussian_bar_err = -m$imax
+			set gaussian_pan_err = -m$imax
+		}
+		if($fit_sersic) {
+			set sersic_re = -m$imax # effective radius, half-light radius
+			set sersic_n = -m$imax # sersic index n
+			set sersic_q = -m$imax # b/a ratio
+			set sersic_pa = -m$imax # position angle
+			set sersic_re_err = -m$imax
+			set sersic_n_err = -m$imax
+			set sersic_q_err = -m$imax
+			set sersic_pa_err = -m$imax
 		}
 		
-		
 		verbose 0
+		
+		echo fit_gaussian = $fit_gaussian
+		echo fit_sersic = $fit_sersic
 		
 		foreach var runid {
-		###<DZLIU><Modified>### 
-		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==0) { echo "boxgalfit/box"$var } } }
-		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) { echo "boxgalfit_vary/box"$var } } }
-		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==0) { chdir "boxgalfit/box"$var } } }  ###<Added><DZLIU>### doPostParallel
-		if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) { chdir "boxgalfit_vary/box"$var } } }  ###<Added><DZLIU>### doPostParallel
-		#<TODO><20170510># #if($?doPostParallel) { if($doPostParallel==1) { !cp fit.log fit$var".log" } } ###<DZLIU><Modified><20161028><for_Gaussian>###
-		#<TODO><20170510># if($?doPostParallel) { if($doPostParallel==1) { 
-		#<TODO><20170510># 	###<DZLIU><Modified><20161102><for_Gaussian>###
-		#<TODO><20170510># 	!grep -n -e"--" "fit.log" | cut -d ':' -f 1 | tail -n 2 | head -n 1 > fit$var".log.start.line.number"
-		#<TODO><20170510># 	!awk 'NR >= \$(cat fit$var".log.start.line.number")' "fit.log" > fit$var".log"
-		#<TODO><20170510># 	echo fit$var".log"
-		#<TODO><20170510>#   }
-		#<TODO><20170510># } ###<DZLIU><Modified><20161102><for_Gaussian>###
-		#<TODO><20170510># ###<DZLIU><Modified>### 
-		if(is_file("fit"$var".log")) {
-		!\rm aaa1 >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
-		!\rm aaa2 >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
-		!\rm aaa3 >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
-		#!more fit$var".log" | grep "'0, 0'" > aaa1
-		#!more fit$var".log" | grep "'(0'" | grep "', 0'"  > aaa1    # old galfit 2.0
-		#!more fit$var".log" |grep "(   " |grep ")   "  > aaa1   # this version was for linux csh, doesn't work in bash
+			if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==0) {
+				echo "boxgalfit/box"$var
+				chdir "boxgalfit/box"$var
+			}}}
+			if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) { if(!$fit_gaussian && !$fit_sersic) {
+				echo "boxgalfit_vary/box"$var
+				chdir "boxgalfit_vary/box"$var
+			}}}}
+			if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) { if($fit_gaussian) {
+				echo "boxgalfit_vary_gaussian/box"$var
+				chdir "boxgalfit_vary_gaussian/box"$var
+			}}}}
+			if($?doPostParallel) { if($doPostParallel==1) { if($vary_positions==1) { if($fit_sersic) {
+				echo "boxgalfit_vary_sersic/box"$var
+				chdir "boxgalfit_vary_sersic/box"$var
+			}}}}
+			
+			if(is_file("fit"$var".log")) {
+				!rm aaa1 aaa2 aaa3 2>/dev/null
+				
+				if($?verbose==1) {define rebuild_verbose $verbose} else {define rebuild_verbose 1} verbose 0
+				load astroGalfit.sm
+				readGalfitResult tmp.fits
+				set xg = ResultPosX set xg_err = ResultPosXErr
+				set yg = ResultPosY set yg_err = ResultPosYErr
+				set _mag = ResultMags set _err = ResultMagsErr
+				if($?rebuild_verbose==1) {verbose $rebuild_verbose}
+				
+				if(dimen(_err)!=dimen(_mag)) {echo PROBLEMI DI LETTURA FILES GALFIT --> BREAK with ctrl-C
+					define aaa ?
+					exit
+				}
+				
+				###<DZLIU><Modified>### just moved the vary_positions condition to here
+				if($vary_positions) {
+					define max_vary 1
+					if('$imax'=='16') {define max_vary 1}
+					if('$imax'=='24') {define max_vary 1}
+					if('$imax'=='100') {define max_vary 1}
+					if('$imax'=='160') {define max_vary 1}
+					if('$imax'=='20cm') {define max_vary 2}
+				} else {
+					define max_vary 0
+				}
+				###<DZLIU><Modified>### 
+				
+				set yy =0,dimen(_mag)-1
+				foreach xar yy {
+					set inxi = x$imax > x1[$var-1] && x$imax <= x2[$var-1] && y$imax > y1[$var-1] && y$imax <= y2[$var-1] # source within box
+					set inxi2 = abs(x$imax - xg[$xar])<.1+fix1*$max_vary && abs(y$imax - yg[$xar])<.1 +fix2*$max_vary # position ok
+					set m$imax  = (inxi2 && inxi) ? _mag[$xar] : m$imax
+					set e$imax  = (inxi2 && inxi) ? _err[$xar] : e$imax
+					set nx$imax = (inxi2 && inxi) ? xg[$xar] : nx$imax
+					set ny$imax = (inxi2 && inxi) ? yg[$xar] : ny$imax
+					if($fit_gaussian) {
+						set gaussian_maj     = (inxi2 && inxi) ? ResultRads[$xar]    : gaussian_maj
+						set gaussian_maj_err = (inxi2 && inxi) ? ResultRadsErr[$xar] : gaussian_maj_err
+						set gaussian_bar     = (inxi2 && inxi) ? ResultElli[$xar]    : gaussian_bar
+						set gaussian_bar_err = (inxi2 && inxi) ? ResultElliErr[$xar] : gaussian_bar_err
+						set gaussian_pan     = (inxi2 && inxi) ? ResultRoti[$xar]    : gaussian_pan
+						set gaussian_pan_err = (inxi2 && inxi) ? ResultRotiErr[$xar] : gaussian_pan_err
+					}
+					if($fit_sersic) {
+						set sersic_re     = (inxi2 && inxi) ? ResultRads[$xar]    : sersic_re
+						set sersic_re_err = (inxi2 && inxi) ? ResultRadsErr[$xar] : sersic_re_err
+						set sersic_n      = (inxi2 && inxi) ? ResultSers[$xar]    : sersic_n
+						set sersic_n_err  = (inxi2 && inxi) ? ResultSersErr[$xar] : sersic_n_err
+						set sersic_q      = (inxi2 && inxi) ? ResultElli[$xar]    : sersic_q
+						set sersic_q_err  = (inxi2 && inxi) ? ResultElliErr[$xar] : sersic_q_err
+						set sersic_pa     = (inxi2 && inxi) ? ResultRoti[$xar]    : sersic_pa
+						set sersic_pa_err = (inxi2 && inxi) ? ResultRotiErr[$xar] : sersic_pa_err
+					}
+				}
 		
-		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### !sed -i -e's/\[//g' -e's/\]//g' -e's/,]//g' -e's/\,//g' -e's/)//g' -e's/(//g' fit$var".log"
-		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### 
-		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### !sed -e 's/\[//g' -e 's/\]//g' -e 's/,]//g' -e 's/\,//g' -e 's/)//g' -e 's/(//g' fit$var.log > fit$var.log.s
-		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### !rm fit$var.log
-		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### !mv fit$var.log.s fit$var.log
-		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### sed got rename() error, see http://stackoverflow.com/questions/21441289/confusing-error-from-xargs-sed
-		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### ###<DZLIU><Modified>### 
-		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### 
-		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### !grep -A1 psf fit$var".log" | grep -e"--" -v > aaa3
-		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### !grep psf aaa3 > aaa2
-		#<TODO><20170510># ###<DZLIU><Modified><20161028><for_Gaussian>### !grep psf -v aaa3 > aaa1
-		#<TODO><20170510># !grep -A1 "': ('" fit$var".log" | grep -e"--" -v > aaa3
-		#<TODO><20170510># !grep "': ('" aaa3 | sed -e 's/[][,()]//g' > aaa2
-		#<TODO><20170510># !grep "': ('" -v aaa3 | sed -e 's/[][,()]//g' > aaa1
-		
-		#<TODO><20170510># if($fit_gaussian) {
-		#<TODO><20170510># 	!more fit$var".log" |grep gaussian > aaa2
-		#<TODO><20170510># } else {
-		#<TODO><20170510># 	#!more fit$var".log" |grep psf > aaa2
-		#<TODO><20170510># }
-		#<TODO><20170510># if($fit_gaussian) {
-		#<TODO><20170510># 	data aaa1 read {_err 3.s _err_fw 4.s _err_ba 5.s}
-		#<TODO><20170510># 	set _err = atof(_err) set _err_fw=atof(_err_fw) set _err_ba=atof(_err_ba)
-		#<TODO><20170510># 	data aaa2 read ' %s %s (%f, %f) %f %f %f' {_aa _bb xg yg _mag _xxfw _xxba}
-		#<TODO><20170510># 	set yy =0,dimen(_mag)-1 foreach xar yy {
-		#<TODO><20170510># 		set inxi = x$imax  > x1[$var-1] && x$imax  <= x2[$var-1] && y$imax  > y1[$var-1] && y$imax  <= y2[$var-1]
-		#<TODO><20170510># 		set FW$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _xxfw[$xar] : FW$imax 
-		#<TODO><20170510># 		set ba$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _xxba[$xar] : ba$imax 
-		#<TODO><20170510># 		set eFW$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _err_fw[$xar] : eFW$imax 
-		#<TODO><20170510># 		set eba$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _err_ba[$xar] : eba$imax 
-		#<TODO><20170510># 	}
-		#<TODO><20170510># } else {
-		#<TODO><20170510># 	data aaa1 read _err 3
-		#<TODO><20170510># 	data aaa2 read '%s %s %f %f %f'  {_aa _bb xg yg _mag}
-		#<TODO><20170510># }
-		
-		# Read fit$var.log
-		#!grep -A1 "psf" fit$var.log | perl -p -e 's/[^0-9. +-]//g' | perl -p -e 's/--/\\n/g' > "fit.txt" # only works on Mac!
-		#!galfit_fit_log_to_fit_txt
-		#data "fit.txt" read {xg 1.f yg 2.f _mag 3.f xg_err 4.f yg_err 5.f _err 6.f}
-		# 
-		if($?verbose==1) {define rebuild_verbose $verbose} else {define rebuild_verbose 1} verbose 0
-		load astroGalfit.sm
-		readGalfitResult tmp.fits
-		set xg = ResultPosX set xg_err = ResultPosXErr
-		set yg = ResultPosY set yg_err = ResultPosYErr
-		set _mag = ResultMags set _err = ResultMagsErr
-		if($?rebuild_verbose==1) {verbose $rebuild_verbose}
-		
-		if(dimen(_err)!=dimen(_mag)) {echo PROBLEMI DI LETTURA FILES GALFIT --> BREAK with ctrl-C
-			define aaa ?
-			exit
-		}
-		
-		
-		###<DZLIU><Modified>### just moved the vary_positions condition to here
-		if($vary_positions) {
-		define max_vary 1
-		if('$imax'=='16') {define max_vary 1}
-		if('$imax'=='24') {define max_vary 1}
-		if('$imax'=='100') {define max_vary 1}
-		if('$imax'=='160') {define max_vary 1}
-		if('$imax'=='20cm') {define max_vary 2}
-		} else {
-		define max_vary 0
-		}
-		###<DZLIU><Modified>### 
-		
-		set yy =0,dimen(_mag)-1 foreach xar yy {
-		set inxi = x$imax  > x1[$var-1] && x$imax  <= x2[$var-1] && y$imax  > y1[$var-1] && y$imax  <= y2[$var-1]
-		set m$imax  = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _mag[$xar] : m$imax 
-		set e$imax  = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? _err[$xar] : e$imax 
-		set nx$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? xg[$xar] : nx$imax 
-		set ny$imax = abs(x$imax -xg[$xar])<.1+fix1*$max_vary && abs(y$imax -yg[$xar])<.1 +fix2*$max_vary && inxi ? yg[$xar] : ny$imax 
-		}
-		
-		} # end IF is file
-		###<DZLIU><Modified>### 
-		if($?doPostParallel) { if($doPostParallel==1) { chdir "../../" } }  ###<Added><DZLIU>### doPostParallel
-		###<DZLIU><Modified>### 
+			} # end IF is file
+			
+			###<DZLIU><Modified>### 
+			if($?doPostParallel) { if($doPostParallel==1) { chdir "../../" } }  ###<Added><DZLIU>### doPostParallel
+			###<DZLIU><Modified>### 
 		
 		} # end FOREACH var runid
-		verbose 0
-		#set m$imax  = noi$imax  < $max_noise ? m$imax  : 99    # if noi>maxnoise --> the object was not fitted; but was already set m=99 e=-99
-		#set e$imax  = m$imax  <$mag_toofaint ? e$imax  : -1
 		
-		set x1 = nx$imax set y1 = ny$imax set m1 = m$imax set e1=e$imax set noi1 = noi$imax
-		if($fit_gaussian) {
-		set fw1 = FW$imax set ba1 = ba$imax set efw1 = eFW$imax set eba1 = eba$imax
-		print results_$imax '%.3f %.3f  %.3e  %.2f %.2f %.2f %.2f %.2f %.2f \n'  {x1 y1 noi1 m1 e1 fw1 ba1 efw1 eba1}
-		} else {
-		###<DZLIU><Modified>### 
-		###<DZLIU><Modified>### print results_$imax '%.3f %.3f  %.3e  %.2f %.2f \n'  {x1 y1 noi1 m1 e1}
-		###<DZLIU><Modified>### 
+		verbose 0
 		define print_noheader 0
-		print results_$imax '%16.3f %16.3f %16.3e %16.3f %16.3f %26.7f %18.7f %15.0f\n' {x1 y1 noi1 m1 e1 raF deF idF} ###<Modified><DZLIU>###
-		###<DZLIU><Modified>### output final results
-		###<DZLIU><Modified>### 
+		set x1 = nx$imax set y1 = ny$imax set m1 = m$imax set e1=e$imax set noi1 = noi$imax
+		
+		
+		if(!$fit_gaussian && !$fit_sersic) {
+			print results_$imax '%16.3f %16.3f %16.3e %16.3f %16.3f %26.7f %18.7f %15.0f\n' {x1 y1 noi1 m1 e1 raF deF idF}
+		} else {
+			if($fit_gaussian) {
+				set maj     = (gaussian_maj>0) ? gaussian_maj           : -99
+				set maj_err = (gaussian_maj>0) ? gaussian_maj_err       : -99
+				set min     = (gaussian_maj>0) ? gaussian_bar * maj     : -99
+				set min_err = (gaussian_maj>0) ? gaussian_bar_err * maj : -99
+				print results_$imax '%16.3f %16.3f %16.3e %16.3f %16.3f %26.7f %18.7f %15.0f %15g %15g %15g %15g\n' {x1 y1 noi1 m1 e1 raF deF idF maj maj_err min min_err}
+			}
+			if($fit_sersic) {
+				set maj     = (sersic_re>0 && sersic_n>0) ? sersic_re * 2.0     : -99
+				set maj_err = (sersic_re>0 && sersic_n>0) ? sersic_re_err * 2.0 : -99
+				set min     = (sersic_re>0 && sersic_n>0) ? sersic_q * maj      : -99
+				set min_err = (sersic_re>0 && sersic_n>0) ? sersic_q_err * maj  : -99
+				print results_$imax '%16.3f %16.3f %16.3e %16.3f %16.3f %26.7f %18.7f %15.0f %15g %15g %15g %15g %15g %15g\n' {x1 y1 noi1 m1 e1 raF deF idF maj maj_err min min_err sersic_n sersic_n_err}
+			}
 		}
 		
-		define RaR $imax
-		!\mv results_$RaR results_$RaR"_"$xdate
-		!\mv FIT_goodsn_$RaR"_Map.fits" FIT_goodsn_$RaR"_Map_"$xdate".fits"
 		
-		###<DZLIU><Modified>### output final result info
-		###<DZLIU><Modified>### print  results_$RaR"_"$xdate".info"  'imax $imax \n imax_name $imax_name \n imax_name_rms $imax_name_rms \n' {}
-		###<DZLIU><Modified>### print +results_$RaR"_"$xdate".info"  'imax_name_psf $imax_name_psf \n psf_resampl $psf_resampl \n xdate $xdate \n \n mag_toofaint $mag_toofaint \n max_noise $max_noise \n' {}
-		###<DZLIU><Modified>### print +results_$RaR"_"$xdate".info"  'mag_start $mag_start \n Xback $Xback \n \n ystep $ystep \n xstep $xstep \n g_buff $g_buff \n f_buff $f_buff \n use_prior_mags $use_prior_mags \n' {}
-		###<DZLIU><Modified>### print +results_$RaR"_"$xdate".info"  'vary_position $vary_positions \n max_vary $max_vary \n fix_astrometry $fix_astrometry \n make_residuals $make_residuals \n fit_gaussian $fit_gaussian \n fit_sky $fit_sky\n' {}
-		print  results_$RaR"_"$xdate".info"  ' imax $imax \n' {}
-		print +results_$RaR"_"$xdate".info"  ' imax_name $imax_name \n' {}
-		print +results_$RaR"_"$xdate".info"  ' imax_name_rms $imax_name_rms \n' {}
-		print +results_$RaR"_"$xdate".info"  ' imax_name_psf $imax_name_psf \n' {}
-		print +results_$RaR"_"$xdate".info"  ' psf_resampl $psf_resampl \n xdate $xdate \n \n mag_toofaint $mag_toofaint \n max_noise $max_noise \n' {}
-		print +results_$RaR"_"$xdate".info"  ' mag_start $mag_start \n Xback $Xback \n \n ystep $ystep \n xstep $xstep \n g_buff $g_buff \n f_buff $f_buff \n use_prior_mags $use_prior_mags \n' {}
-		print +results_$RaR"_"$xdate".info"  ' vary_position $vary_positions \n max_vary $max_vary \n fix_astrometry $fix_astrometry \n' {}
-		print +results_$RaR"_"$xdate".info"  ' make_residuals $make_residuals \n fit_gaussian $fit_gaussian \n fit_sky $fit_sky\n' {}
+		print  results_$imax.info ' imax $imax \n' {}
+		print +results_$imax.info ' imax_name $imax_name \n' {}
+		print +results_$imax.info ' imax_name_rms $imax_name_rms \n' {}
+		print +results_$imax.info ' imax_name_psf $imax_name_psf \n' {}
+		print +results_$imax.info ' psf_resampl $psf_resampl \n xdate $xdate \n \n mag_toofaint $mag_toofaint \n max_noise $max_noise \n' {}
+		print +results_$imax.info ' mag_start $mag_start \n Xback $Xback \n \n ystep $ystep \n xstep $xstep \n g_buff $g_buff \n f_buff $f_buff \n use_prior_mags $use_prior_mags \n' {}
+		print +results_$imax.info ' vary_position $vary_positions \n max_vary $max_vary \n fix_astrometry $fix_astrometry \n' {}
+		print +results_$imax.info ' make_residuals $make_residuals \n fit_gaussian $fit_gaussian \n fit_sersic $fit_sersic \n fit_sky $fit_sky\n' {}
+		
+		if($?suffix) {undef suffix}
+		if($vary_positions) {
+			if(!$fit_gaussian && !$fit_sersic) {
+				define suffix "vary"
+			}
+			if($fit_gaussian) {
+				define suffix "vary_gaussian"
+			}
+			if($fit_sersic) {
+				define suffix "vary_sersic"
+			}
+		}
+		if($?suffix) {
+			define suffix "_sersic"
+			!mv results_$imax 		 results_$imax""_$xdate""_$suffix
+			!mv results_$imax.info 	 results_$imax""_$xdate""_$suffix.info
+			!mv FIT_$imax""_Map.fits FIT_$imax""_Map_$xdate""_$suffix.fits
+		}
+		
 		echo Done  Rebuild_XXX
-		###<DZLIU><Modified>### 
 
 
 makeBigMap	00
 		define print_noheader 1
-		print do.cl 'images \n' {}
+		print  do.cl 'images \n' {}
 		print +do.cl 'imutil \n' {}
 		print +do.cl 'imdel null \n' {}
-		print +do.cl 'imdel FIT_goodsn_$imax"_Map.fits"  \n' {}
+		print +do.cl 'imdel FIT_$imax""_Map.fits \n' {}
 		print +do.cl 'imarith $imax_name * 0 null.fits \n' {}
-		print +do.cl 'imarith null.fits + 0 null.fits\n logout\n' {}
-		!cl -old < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+		print +do.cl 'imarith null.fits + 0 null.fits \n' {}
+		print +do.cl 'logout\n' {}
+		!cl -old < do.cl > do.cl.log 2>&1
 		
-		#define aa_file "HSO_$imax"".INPUT"
-		##print $aa_file 'A) null.fits \n B) FIT_goodsn_$imax"_Map.fits" \n C) none \n D) none \n E) 1 \n F) none \n G) none \n I) 1   1 \n J) 0 \n K) 0.06   0.06 \n O) both \n P) 0 \n S) 0 \n' {}   # old 2.0 version
-		#print $aa_file 'A) null.fits \n B) FIT_goodsn_$imax"_Map.fits" \n C) none \n D) none \n E) 1 \n F) none \n G) none \n I) 1   1 \n J) 0 \n K) 0.06   0.06 \n O) regular \n P) 0 \n ' {}
-		#print +$aa_file 'H) 1 $imax_xsize 1 $imax_ysize \n' {}
-		#print +$aa_file '\n 0) sky \n 1) $Xback  1 \n 2) 0 0 \n 3) 0 0 \n Z) 0  \n \n' {}
-		#
-		#!/Users/edaddi/software/galfit $aa_file    # obsolete, try imcopy with append
-		
-		if(is_file(null.fits)) {
-		#print do.cl 'images \n imutil \n imcopy $imax_name FIT_goodsn_$imax"_Map.fits"[1][*,*] \n imcopy $imax_name FIT_goodsn_$imax"_Map.fits"[3][*,*] \n imcopy null FIT_goodsn_$imax"_Map.fits"[2][*,*] \n imdel null.fits \n logout\n' {}
-		print do.cl  'images \n imutil \n' {}
-		#print +do.cl 'imcopy $imax_name FIT_goodsn_$imax"_Map.fits"[1][overwrite+] \n' {}
-		#print +do.cl 'imcopy $imax_name FIT_goodsn_$imax"_Map.fits"[3][overwrite+] \n' {}
-		#print +do.cl 'imcopy null FIT_goodsn_$imax"_Map.fits"[2][overwrite+] \n imdel null.fits \n logout\n' {}
-		print +do.cl 'imcopy $imax_name FIT_goodsn_$imax"_Map.fits"\n' {}
-		print +do.cl 'imcopy null FIT_goodsn_$imax"_Map.fits"[append]\n' {}
-		print +do.cl 'imcopy $imax_name FIT_goodsn_$imax"_Map.fits"[1,append]\nlogout\n' {}
-		!cl < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
-		} else {echo CRASH   galfit did not work in makeBigMap
-		define aaa ?}
+		print  do.cl 'images \n' {}
+		print  do.cl 'imutil \n' {}
+		print +do.cl 'imcopy $imax_name FIT_$imax""_Map.fits\n' {}
+		print +do.cl 'imcopy null FIT_$imax""_Map.fits[append]\n' {}
+		print +do.cl 'imcopy $imax_name FIT_$imax""_Map.fits[1,append]\nlogout\n' {}
+		!cl -old < do.cl > do.cl.log 2>&1
 
 
 noise_XXX 00
