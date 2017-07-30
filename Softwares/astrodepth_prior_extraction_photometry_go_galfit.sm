@@ -239,6 +239,8 @@ go_galfit_0
         set Mags = float(px) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
         set ParamMaxMags = float(Mags)*0.0 + 30.0
         set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+        set ParamCoB = (ParamCoB<25) ? 25 : ParamCoB #<20170730><dzliu># prevent too small value
+        set ParamCoB = (ParamCoB>350) ? 350 : ParamCoB #<20170730><dzliu># prevent too small value
         if(is_file("galfit.01")) {!rm galfit.*}
         writeGalfitParam fit_0.param
         writeGalfitLimit fit_0.limit
@@ -276,6 +278,8 @@ go_galfit_1
         set Mags = ResultMags # (ResultMagsErr<0.5) ? ResultMags : Mags
         set ParamMaxMags = float(Mags)*0.0 + 30.0
         set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+        set ParamCoB = (ParamCoB<25) ? 25 : ParamCoB #<20170730><dzliu># prevent too small value
+        set ParamCoB = (ParamCoB>350) ? 350 : ParamCoB #<20170730><dzliu># prevent too small value
         writeGalfitParam fit_1.param
         writeGalfitLimit fit_1.limit
         writeGalfitInput fit_1.input image_sci.fits fit_1.fits image_rms.fits image_psf.fits fit_1.limit
@@ -326,6 +330,8 @@ go_galfit_2
         set ParamMinRoti = (ResultMagsErr<0.25) ? -360.0            : ParamMinRoti #<20170719># 0 --> -360.0
         set ParamMaxRoti = (ResultMagsErr<0.25) ? 360.0             : ParamMaxRoti
         set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+        set ParamCoB = (ParamCoB<25) ? 25 : ParamCoB #<20170730><dzliu># prevent too small value
+        set ParamCoB = (ParamCoB>350) ? 350 : ParamCoB #<20170730><dzliu># prevent too small value
         writeGalfitParam fit_2.param
         writeGalfitLimit fit_2.limit
         writeGalfitInput fit_2.input image_sci.fits fit_2.fits image_rms.fits image_psf.fits fit_2.limit
@@ -393,7 +399,8 @@ go_galfit_3
     set ParamMinRoti = (coo && ResultRads<=0) ? -360.0            : ParamMinRoti #<20170719># 0 --> -360.0
     set ParamMaxRoti = (coo && ResultRads<=0) ? 360.0             : ParamMaxRoti
     set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
-    if(ParamCoB>350) {set ParamCoB = 350}
+    set ParamCoB = (ParamCoB<25) ? 25 : ParamCoB #<20170730><dzliu># prevent too small value
+    set ParamCoB = (ParamCoB>350) ? 350 : ParamCoB #<20170730><dzliu># prevent too small value
     writeGalfitParam fit_3.param
     writeGalfitLimit fit_3.limit
     writeGalfitInput fit_3.input image_sci.fits fit_3.fits image_rms.fits image_psf.fits fit_3.limit
@@ -428,6 +435,8 @@ go_galfit_n0
         set Mags = float(px) * 0.0 + 8.0 #<20170228># initial magnitude ~8.0
         set ParamMaxMags = float(Mags)*0.0 + 30.0
         set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+        set ParamCoB = (ParamCoB<25) ? 25 : ParamCoB #<20170730><dzliu># prevent too small value
+        set ParamCoB = (ParamCoB>350) ? 350 : ParamCoB #<20170730><dzliu># prevent too small value
         if(is_file("galfit.01")) {!rm galfit.*}
         writeGalfitParam fit_n0.param
         writeGalfitLimit fit_n0.limit
@@ -465,6 +474,8 @@ go_galfit_n1
         set Mags = ResultMags # (ResultMagsErr<0.5) ? ResultMags : Mags
         set ParamMaxMags = float(Mags)*0.0 + 30.0
         set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+        set ParamCoB = (ParamCoB<25) ? 25 : ParamCoB #<20170730><dzliu># prevent too small value
+        set ParamCoB = (ParamCoB>350) ? 350 : ParamCoB #<20170730><dzliu># prevent too small value
         writeGalfitParam fit_n1.param
         writeGalfitLimit fit_n1.limit
         writeGalfitInput fit_n1.input image_negative.fits fit_n1.fits image_rms.fits image_psf.fits fit_n1.limit
@@ -515,6 +526,8 @@ go_galfit_n2
         set ParamMinRoti = (ResultMagsErr<0.25) ? -360.0            : ParamMinRoti #<20170719> 0 --> -360.0
         set ParamMaxRoti = (ResultMagsErr<0.25) ? 360.0             : ParamMaxRoti
         set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+        set ParamCoB = (ParamCoB<25) ? 25 : ParamCoB #<20170730><dzliu># prevent too small value
+        set ParamCoB = (ParamCoB>350) ? 350 : ParamCoB #<20170730><dzliu># prevent too small value
         writeGalfitParam fit_n2.param
         writeGalfitLimit fit_n2.limit
         writeGalfitInput fit_n2.input image_negative.fits fit_n2.fits image_rms.fits image_psf.fits fit_n2.limit
@@ -579,14 +592,14 @@ print_result 02
         # 
         # <20170613> getpix f_peak
         if(is_file($1.fits)) {
-            !CrabFitsImageArithmetic $1.fits -ext 2 times 1.0 $1.model.fits > $1.model.fits.log
-            !cphead -v image_sci.fits $1.model.fits "CTYPE1" "CRVAL1" "CDELT1" "CRPIX1" "CUNIT1" "CTYPE2" "CRVAL2" "CDELT2" "CRPIX2" "CUNIT2" > $1.residual.fits.model.log 2>&1
+            !CrabFitsImageArithmetic $1.fits -ext 2 times 1.0 $1.model.fits -copy-wcs > $1.model.fits.log
+            #!cphead -v image_sci.fits $1.model.fits "CTYPE1" "CRVAL1" "CDELT1" "CRPIX1" "CUNIT1" "CTYPE2" "CRVAL2" "CDELT2" "CRPIX2" "CUNIT2" > $1.model.fits.cphead.log 2>&1
         }
         # 
         # <20170719> getpix f_res
         if(is_file($1.fits)) {
-            !CrabFitsImageArithmetic $1.fits -ext 3 times 1.0 $1.residual.fits > $1.residual.fits.log
-            !cphead -v image_sci.fits $1.residual.fits "CTYPE1" "CRVAL1" "CDELT1" "CRPIX1" "CUNIT1" "CTYPE2" "CRVAL2" "CDELT2" "CRPIX2" "CUNIT2" > $1.residual.fits.cphead.log 2>&1
+            !CrabFitsImageArithmetic $1.fits -ext 3 times 1.0 $1.residual.fits -copy-wcs > $1.residual.fits.log
+            #!cphead -v image_sci.fits $1.residual.fits "CTYPE1" "CRVAL1" "CDELT1" "CRPIX1" "CUNIT1" "CTYPE2" "CRVAL2" "CDELT2" "CRPIX2" "CUNIT2" > $1.residual.fits.cphead.log 2>&1
         }
         # 
         if(is_vector(ResultMags) && is_vector(ResultMagsErr) && is_vector(ResultPosX) && is_vector(ResultPosY) && $?1) {
