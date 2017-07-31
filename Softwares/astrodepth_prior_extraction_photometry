@@ -255,11 +255,27 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     fi
     # 
     # 
+    # check whether overwrite prior_x_y
+    if [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " prior_x_y " ]]; then
+        if [[ -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_x_y.txt" ]]; then
+            rm "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_x_y.txt"
+        fi
+        if [[ -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" ]]; then
+            rm "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_sky2xy.txt"
+        fi
+        if [[ -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_x_y.txt" ]]; then
+            rm "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_x_y.txt"
+        fi
+    fi
+    # 
+    # 
     # check whether catalog sources at within the image area, convert RA Dec to X Y
     if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_x_y.txt" ]]; then
         for (( i=0; i<${#AstroDepth_INP_CATALOG[@]}; i++ )); do
             if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" ]]; then
                 echo "Converting catalog RA Dec to pixel coordinates"
+                echo sky2xy -n 3 "${AstroDepth_INP_IMAGE_SCI[j]}" @"$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" \
+                                                               ">" "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_sky2xy.txt"
                 sky2xy -n 3 "${AstroDepth_INP_IMAGE_SCI[j]}" @"$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" \
                                                             > "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_sky2xy.txt"
                 # check the output line count
@@ -300,7 +316,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # 
     # 
     # check and copy catalog source id
-    if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_id.txt" ]]; then
+    if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_id.txt" ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " prior_id " ]]; then
         for (( i=0; i<${#AstroDepth_INP_CATALOG[@]}; i++ )); do
             # also save prior id into prior_id.txt
             cat "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_mask.txt" | sed -e 's/^ *//g' | grep -v "^#" | cut -d ' ' -f 1 >> "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_id.txt"
@@ -409,7 +425,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # 
     # 
     # now prepare image products and supermongo scripts and run "getpix"
-    if [[ ! -f "astrodepth_done_getpix" || ! -f "astrodepth_lock_getpix" || "${AstroDepth_INP_UNLOCK[@]}" == *"getpix"* ]]; then
+    if [[ ! -f "astrodepth_done_getpix" || ! -f "astrodepth_lock_getpix" || "${AstroDepth_INP_UNLOCK[@]}" == *"getpix"* || "${AstroDepth_INP_OVERWRITE[@]}" == *"getpix"* ]]; then
         # 
         touch "astrodepth_lock_getpix"
         # # 
@@ -515,8 +531,8 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
         fi
         # 
         # now we run photometry in Scoville way, i.e. measure peak and total flux within a radius=1.5 arcsec circle for each prior source
-        if [[ ! -f "No_catalog_source_within_image" ]]; then
-            if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"getpix"* || ! -f "getpix.txt" ]]; then
+        if [[ ! -f "No_catalog_source_within_image" ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " getpix " ]]; then
+            if [[ ! -f "getpix.txt" ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " getpix " ]]; then
                 echo "Running Supermongo script \"astrodepth_go_getpix.sm\" subroutine \"go_getpix\""
                 echo "macro read astrodepth_go_getpix.sm go_getpix" | sm > "astrodepth_go_getpix.log"
                 # check output successful or not
@@ -530,7 +546,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                 echo "Found existing \"getpix.txt\"! We will not overwrite it unless given \"-overwrite go_getpix\" option!"
             fi
             # 
-            if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"getpix"* || ! -f "getpix.result" ]]; then
+            if [[ ! -f "getpix.result" ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " getpix " ]]; then
                 echo "Running Supermongo script \"astrodepth_go_getpix.sm\" subroutine \"print_result\""
                 echo "macro read astrodepth_go_getpix.sm print_result" | sm > "astrodepth_go_getpix_print_result.log"
                 # check output successful or not

@@ -569,8 +569,10 @@ crabPlotLegend 04
     expand $(_crabPlot_legend_ps) lweight $(_crabPlot_legend_pt) angle 0
     # check again input arguments, plot the string
     if($?3) {
+        lweight $(_crabPlot_legend_pt*1.5)
         putlabel $(_crabPlot_legend_pa) $3
     } else {
+        lweight $(_crabPlot_legend_pt*1.5)
         putlabel $(_crabPlot_legend_pa) $1
     }
     # move to next line

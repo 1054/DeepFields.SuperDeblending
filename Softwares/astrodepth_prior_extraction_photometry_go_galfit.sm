@@ -634,6 +634,10 @@ print_result 02
             # <20170719> getpix f_res -- FWHM 1.0 arcsec
             load fresidual.sm
             set ResultFluxResAbs = fresidual_inPixel($1.residual.fits, ResultPosX, ResultPosY, $(1.0/pixscale))
+            if(dimen(ResultFluxResAbs)!=dimen(ResultPosX)) {
+                print '\nError! Failed to call fresidual_inPixel()! Maybe it is because of multiple running supermongo! Please re-run!\n\n' {}
+                exit
+            }
             # 
             #<20170626><BUG><fixed># 
             if(is_file($1.param)) {

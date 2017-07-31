@@ -1,0 +1,19 @@
+#!/bin/bash
+# 
+
+if [[ $# -lt 1 ]]; then 
+    echo Usage: rsyncfile file1 [file2 ["IncludeNamePattern" ["IncludeNamePattern2" ["IncludeNamePattern3"]]]]
+    exit
+fi
+
+if [[ $# -eq 1 ]]; then 
+    if [[ "$1" == *".7z" ]]; then
+        rsync -vhe ssh --progress --partial "$1" .
+    else
+        rsync -vzhe ssh --progress --partial "$1" .
+    fi
+else
+    rsync -vzhe ssh --progress --partial $@
+fi
+
+
