@@ -623,7 +623,7 @@ print_result 02
                     # Get peak flux from source model fits image
                     !getpix '%15.10e' $1.model.fits $(ResultPosX[$i]) $(ResultPosY[$i]) > aaa.getpix.tmp
                     verbose 0 data aaa.getpix.tmp read {fluxpeak 1.f}
-                    verbose 1
+                    verbose 1 !rm aaa.getpix.tmp
                     set ResultFluxPeak[$i] = fluxpeak # Jy/beam <20170613>
                 }
                 if(ResultMags[$i]>=30) {

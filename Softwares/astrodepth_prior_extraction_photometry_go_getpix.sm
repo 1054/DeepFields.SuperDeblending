@@ -279,6 +279,7 @@ go_getpix
     set pix_sum = px * 0.0 - 99 # sum of pixel values
     set pix_num = px * 0.0 - 99
     set pix_000 = px * 0.0 - 99 # the pixel value at the right source position
+    set pix_scl = px * 0.0 + pixscale
     set pix_yes = 0
     do rai=0,dimen(radius)-1 {
         if(radius[$rai]==0.00) {
@@ -311,7 +312,8 @@ go_getpix
     if(pix_yes==1) {
         # 
         # print results
-        print "getpix.txt" '%15g %15g %15g %15g %15.3f %15.3f %15.3f %15.0f %15s\n' {pix_000 pix_max pix_sum pix_num px py pix_rad cat_index cat_id}
+        print "getpix.txt" '%15g %15g %15g %15g %15.3f %15.3f %15.3f %15g %15.0f %15s\n' \
+                {pix_000 pix_max pix_sum pix_num px py pix_rad pix_scl cat_index cat_id}
         # 
         # # 
         # # prepare big array for output
@@ -364,6 +366,7 @@ go_getpix_on_negative_image
     set pix_sum = px * 0.0 - 99
     set pix_num = px * 0.0 - 99
     set pix_000 = px * 0.0 - 99 # the pixel value at the right source position
+    set pix_scl = px * 0.0 + pixscale
     set pix_yes = 0
     do rai=0,dimen(radius)-1 {
         if(radius[$rai]==0.00) {
@@ -396,7 +399,8 @@ go_getpix_on_negative_image
     if(pix_yes==1) { 
         # 
         # print results
-        print "getpix_on_negative_image.txt" '%15g %15g %15g %15g %15.3f %15.3f %15.3f %15.0f %15s\n' {pix_000 pix_max pix_sum pix_num px py pix_rad cat_index cat_id}
+        print "getpix_on_negative_image.txt" '%15g %15g %15g %15g %15.3f %15.3f %15.3f %15g %15.0f %15s\n' \
+                {pix_000 pix_max pix_sum pix_num px py pix_rad pix_scl cat_index cat_id}
     }
 
 
@@ -421,7 +425,7 @@ print_result
         }
         # 
         if(is_file("getpix.txt")) {
-            data "getpix.txt" read {pix_max 2.f pix_sum 3.f pix_num 4.f cat_index 8.f cat_id 9.s}
+            data "getpix.txt" read {pix_max 2.f pix_sum 3.f pix_num 4.f cat_index 9.f cat_id 10.s}
             # 
             # read pb_corr
             if(!is_file("image_sci_primary_beam_correction.txt")) { calc_primary_beam_correction }
@@ -461,7 +465,7 @@ print_result_on_negative_image
         }
         # 
         if(is_file("getpix_on_negative_image.txt")) {
-            data "getpix_on_negative_image.txt" read {pix_max 2.f pix_sum 3.f pix_num 4.f cat_index 8.f cat_id 9.s}
+            data "getpix_on_negative_image.txt" read {pix_max 2.f pix_sum 3.f pix_num 4.f cat_index 9.f cat_id 10.s}
             # 
             # read pb_corr
             if(!is_file("image_sci_primary_beam_correction.txt")) { calc_primary_beam_correction }

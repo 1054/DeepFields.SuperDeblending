@@ -209,8 +209,8 @@ sm << EOF | tee $DG_FLOG".smlog"
         define mag0  $DG_MAG0 ###<TODO><20140321><DZLIU>### median(df)=7.36uJy thus 10-sigma-mag=-1.47
         define mag1  $DG_MAG1 ###<TODO><20140321><DZLIU>### median(df)=7.36uJy thus 1-sigma-mag=+1.03
         ###### 
-        define g_buff 74 ###<TODO><20160815><DZLIU>### for 850um ONLY!
-        define f_buff 1  ###<TODO><20160815><DZLIU>### for 850um ONLY!
+        #define g_buff 74 ###<TODO><20160815><DZLIU>### for 850um ONLY!
+        #define f_buff 1  ###<TODO><20160815><DZLIU>### for 850um ONLY!
         ###### 
         
         

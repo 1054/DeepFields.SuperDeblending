@@ -14,10 +14,19 @@ if [[ $(uname) == *"Darwin"* ]]; then
 fi
 
 type readlink > /dev/null
-type dirname > /dev/null
+type dirname  > /dev/null
+type date     > /dev/null
 
 SMPATH=$(dirname $(dirname $(readlink -f $0)))
 SMDATE=$(date +%s.$(date +%N|cut -b 1,2,3,4)) # SMDATE=$(date +%Y%m%d.%H%M%S.%N.%Z)
+
+if [[ $(uname) == *"Darwin"* ]]; then
+    if [[ $(type gdate 2>/dev/null | wc -l) -eq 1 ]]; then
+        SMDATE=$(gdate +%s.$(gdate +%N|cut -b 1-4)) # SMDATE=$(date +%Y%m%d.%H%M%S.%N.%Z)
+    else
+        SMDATE=$(date +%s.$(perl -MTime::HiRes -e 'print((Time::HiRes::gettimeofday())[1])'|cut -b 1-4)) # SMDATE=$(date +%Y%m%d.%H%M%S.%N.%Z)
+    fi
+fi
 
 mkdir                                             "/tmp/sm.$SMDATE" 2>/dev/null
 echo "fonts		$SMPATH/lib/sm/fonts.bin"      >  "/tmp/sm.$SMDATE/.sm"

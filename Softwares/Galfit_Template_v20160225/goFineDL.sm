@@ -749,12 +749,16 @@ noise_XXX 00
 
 
 
-xOut_24	00
-		define imax 24
-		define xdate 201500
+writeFinalFluxes 03
+		# Usage: echo "macro read goFine.sm writeFlux \$field \$imax \$xdate" | sm
+		if(!$?3) {print 'Usage: macro read goFine.sm writeFinalFluxes \$field \$imax \$xdate\n' {} return}
+		define field $1
+		define imax $2
+		define xdate $3
 		define rrrr_name "results_"$imax"_"$xdate
-		if($?vary_positions==0) { define vary_positions 1 }
-		if($vary_positions) { define rrrr_name $rrrr_name""_vary }
+		if($?vary_positions==0) { define vary_positions 0 }
+		if(index('$xdate','_vary')>=0) { define vary_positions 1 }
+		#if($vary_positions) { define rrrr_name $rrrr_name""_vary }
 		data $rrrr_name read {x24 1 y24 2 noi24 3 m24 4 e24 5 ra24 6 de24 7 id24 8}
 		load astroPhot.sm
 		if(!$?field) { define field goodsn }

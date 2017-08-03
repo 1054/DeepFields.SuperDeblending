@@ -565,6 +565,9 @@ checkTooCloseToLargeLocalGalaxies 03
     set checkclose_localRA  = {189.42923 189.33849 189.22009 189.27719 189.25615 189.40804 189.3840 189.13526 189.35630 189.22074}
     set checkclose_localDec = {62.316883 62.212736 62.302124 62.286389 62.311912 62.275457 62.28283 62.283570 62.327734 62.124015}
     set checkclose_localRad = {20.000000 20.000000 16.000000 20.000000 16.000000 20.000000 10.00000 20.000000 16.000000 10.000000}
+    set checkclose_localRA  = checkclose_localRA  concat ({34.627322  34.628574  34.911526  34.931399  34.851179  34.953106  34.511843  33.973672  34.176684  34.160209  34.367412  34.004326})
+    set checkclose_localDec = checkclose_localDec concat ({-4.8707150 -4.9202488 -4.9995985 -5.0279646 -5.1475464 -5.2102606 -5.2749142 -5.0810261 -4.8419144 -5.2652140 -5.5731018 -5.1781155})
+    set checkclose_localRad = checkclose_localRad concat ({10.000000  10.000000  10.000000  10.000000  10.000000  10.000000  10.000000  10.000000  10.000000  10.000000  10.000000  10.000000})
     do checkclose_i=0,dimen(checkclose_ra)-1 {
         set checkclose_dix2 = (checkclose_localRA-checkclose_ra[$checkclose_i])**2
         set checkclose_diy2 = (checkclose_localDec-checkclose_dec[$checkclose_i])**2

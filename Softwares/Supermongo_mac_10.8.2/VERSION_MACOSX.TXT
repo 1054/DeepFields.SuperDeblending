@@ -1,3 +1,0 @@
-10.8.2
-
-Note: please source ../SETUP first, otherwise "readlink -f" could not work well. 
