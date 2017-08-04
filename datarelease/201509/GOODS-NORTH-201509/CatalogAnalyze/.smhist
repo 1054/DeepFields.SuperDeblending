@@ -1,4 +1,0 @@
-macro read analyze_snr.sm calc_snr
-macro read analyze_dis2ms.sm analyze_Distance_to_MS
-echo yes
-QUIT

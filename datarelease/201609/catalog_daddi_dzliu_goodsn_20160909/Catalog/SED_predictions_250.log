@@ -1,9 +1,0 @@
-# 2016-02-20 18:59:07 CST
-band: 250
-fcut: 5.2   # mJy # the cutting value of f+2df
-fsig: 1.77   # mJy # the 1-sigma detection limit
-Total source number: 3306
-Fitting source number: 1540
-Fitting source number (SED prediction selection): 1184
-Fitting source number (previous band S/N selection): 1152
-Subtract source number: 1766

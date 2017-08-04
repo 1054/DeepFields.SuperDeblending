@@ -1,7 +1,0 @@
-# 2016-02-16 19:49:05 CST
-band: 160
-fcut: 1.1   # mJy # the cutting value of f+2df
-fsig: 0.7   # mJy # the 1-sigma detection limit
-Total source number: 3306
-Fitting source number: 3137
-Subtract source number: 169
