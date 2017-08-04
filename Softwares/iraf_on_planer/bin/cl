@@ -1,6 +1,0 @@
-#!/bin/bash
-#
-#This is a wrapper for cl.e (IRAF) on planer
-
-cl.e $*
-

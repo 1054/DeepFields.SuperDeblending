@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+#${BASH_SOURCE[0]}
+#
+# Linux
+if [[ $(uname -s) == Linux ]]; then
+    if [[ $(bc <<< "$(ldd --version | head -n 1 | tr -s ' ' | cut -d ' ' -f 4 | cut -d '.' -f 2)<14") -eq 1 ]]; then
+        # planer has an old GLIBC version 2.5
+        # sapher has an old GLIBC version 2.5
+        # hubble has an old GLIBC version 2.12
+        $(dirname $(readlink -f $0))/psfex_linux_Glibc_2.12/psfex "$@"
+    else
+        $(dirname $(readlink -f $0))/psfex_linux_Glibc_2.14/psfex "$@"
+    fi
+fi
+# Darwin
+if [[ $(uname -s) == Darwin ]]; then
+    $(dirname $0)/psfex_mac/psfex "$@"
+fi
+
