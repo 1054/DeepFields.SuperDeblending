@@ -3,7 +3,10 @@
 # on aida machine, we can not directly launch ds9 with fits images on mounted disk, but we can first launch a ds9 from home directory then use "cat input.fits | xpaset ds9 fits"
 # 
 
-# check xpaset
+# check ds9 and xpaset
+if [[ $(type ds9 2>/dev/null | wc -l) -eq 0 ]]; then
+    echo "Error! ds9 was not a valid command! Please install SAOImage ds9!"
+fi
 if [[ $(type xpaset 2>/dev/null | wc -l) -eq 0 ]]; then
     echo "Error! xpaset was not a valid command! Please install wcstools!"
 fi
@@ -55,7 +58,7 @@ if [[ $(xpaget "$ds9aida_title" version 2>/dev/null | wc -l) -eq 0 ]]; then
     done
 fi
 
-# 
+# fits
 if [[ ${#ds9aida_fits[@]} -gt 0 ]]; then
     for (( i=0; i<${#ds9aida_fits[@]}; i++ )); do
         if [[ $i -ge 1 ]]; then 
