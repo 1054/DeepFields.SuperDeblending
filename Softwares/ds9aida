@@ -1,0 +1,74 @@
+#!/bin/bash
+# 
+# on aida machine, we can not directly launch ds9 with fits images on mounted disk, but we can first launch a ds9 from home directory then use "cat input.fits | xpaset ds9 fits"
+# 
+
+# check xpaset
+if [[ $(type xpaset 2>/dev/null | wc -l) -eq 0 ]]; then
+    echo "Error! xpaset was not a valid command! Please install wcstools!"
+fi
+if [[ $(type xpaget 2>/dev/null | wc -l) -eq 0 ]]; then
+    echo "Error! xpaget was not a valid command! Please install wcstools!"
+fi
+
+# read input arguments
+ds9aida_title="ds9aida"
+ds9aida_fits=()
+ds9aida_multiframe=()
+ds9aida_scale=()
+ds9aida_zoom=()
+ds9aida_misc=()
+ds9aida_CMD_TYPE="n/a"
+while [[ $# -gt 0 ]]; do
+    # echo $1
+    TempStr=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+    # echo $TempStr
+    case "$TempStr" in
+              "-title") ds9aida_CMD_TEXT="$1"; shift; ds9aida_CMD_TYPE="ds9-title";;
+               "-fits") ds9aida_CMD_TEXT="$1"; shift; ds9aida_CMD_TYPE="ds9-fits";;
+         "-multiframe") ds9aida_CMD_TEXT="$1"; shift; ds9aida_CMD_TYPE="ds9-multiframe";;
+              "-scale") ds9aida_CMD_TEXT="$1"; shift; ds9aida_CMD_TYPE="ds9-scale";;
+               "-zoom") ds9aida_CMD_TEXT="$1"; shift; ds9aida_CMD_TYPE="ds9-zoom";;
+    esac
+    # echo "$ds9aida_CMD_TYPE"
+    case "$ds9aida_CMD_TYPE" in 
+              "ds9-title") if [[ $# -gt 0 ]]; then ds9aida_title="$1"; fi;;
+               "ds9-fits") if [[ $# -gt 0 ]]; then ds9aida_fits+=("$1"); fi;;
+         "ds9-multiframe") if [[ $# -gt 0 ]]; then ds9aida_multiframe+=("$1"); fi;;
+              "ds9-scale") if [[ $# -gt 0 ]]; then ds9aida_scale+=("$1"); fi;;
+               "ds9-zoom") if [[ $# -gt 0 ]]; then ds9aida_zoom+=("$1"); fi;;
+    esac
+    # 
+    if [[ "$ds9aida_CMD_TYPE" == "n/a" ]];  then 
+        ds9aida_misc+=("$1")
+    fi
+    # 
+    if [[ $# -gt 0 ]]; then shift; fi
+done
+
+# check current ds9aida
+if [[ $(xpaget "$ds9aida_title" version 2>/dev/null | wc -l) -eq 0 ]]; then
+    ds9 -title "$ds9aida_title" &
+    sleep 1.0 
+    while [[ $(xpaget "$ds9aida_title" version 2>/dev/null | wc -l) -eq 0 ]]; do
+        sleep 1.0
+    done
+fi
+
+# 
+if [[ ${#ds9aida_fits[@]} -gt 0 ]]; then
+    for (( i=0; i<${#ds9aida_fits[@]}; i++ )); do
+        if [[ $i -ge 1 ]]; then 
+            xpaset -p "$ds9aida_title" frame new
+        fi
+        cat "${ds9aida_fits[i]}" | xpaset "$ds9aida_title" fits
+    done
+fi
+
+
+
+
+
+
+
+
