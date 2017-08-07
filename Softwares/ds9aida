@@ -78,6 +78,16 @@ if [[ ${#ds9aida_multiframe[@]} -gt 0 ]]; then
     done
 fi
 
+# scale
+if [[ ${#ds9aida_scale[@]} -gt 0 ]]; then
+      xpaset -p "$ds9aida_title" scale ${ds9aida_scale[@]}
+fi
+
+# zoom
+if [[ ${#ds9aida_zoom[@]} -gt 0 ]]; then
+      xpaset -p "$ds9aida_title" zoom ${ds9aida_zoom[@]}
+fi
+
 
 
 

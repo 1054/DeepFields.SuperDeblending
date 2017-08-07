@@ -538,6 +538,74 @@ go_galfit_n2
             print_result "fit_n2" "getpix_on_negative_image.mask"
         }
     }
+    
+
+go_galfit_n3
+    # sersic fitting
+    load astroGalfit.sm
+    read_pixscale
+    read_pixnoise
+    # read previous fitting files, fit_n2 is VaryPos Gaussian fitting, fit_n1 is VaryPos PSF fitting
+    load rfile.sm
+    if(is_file("fit_n2.param") && is_file("fit_n2.result")) {
+        rfile "fit_n2.param"
+        data "fit_n2.result"
+        read {ResultPosX 1.f ResultPosY 2.f ResultFlux 3.f ResultMags 7.f ResultMagsErr 8.f ResultRads 9.f ResultRoti 13.f ResultPixScale 15.f ResultPixArea 16.f}
+    } else {
+        if(is_file("fit_n1.param") && is_file("fit_n1.result")) {
+            rfile "fit_n1.param"
+            data "fit_n1.result"
+            read {ResultPosX 1.f ResultPosY 2.f ResultFlux 3.f ResultMags 7.f ResultMagsErr 8.f ResultRads 9.f ResultRoti 13.f ResultPixScale 15.f ResultPixArea 16.f}
+        }
+    }
+    # load previous fitted PosX, PosY, Mags and Rads
+    #<20170726># set PosX = ResultPosX
+    #<20170726># set PosY = ResultPosY
+    set Mags = ResultMags
+    set Rads = ResultRads/ResultPixScale # in pixel
+    set Sers = ResultRads*0.0+0.0 # re-initialize
+    set Elli = ResultRads*0.0+1.0 # re-initialize
+    set Roti = ResultRads*0.0+0.0 # re-initialize
+    # update sersic fitting
+    set coo = (ResultMagsErr<0.25 && ResultFlux>pixnoise)
+    set Type = (coo)                  ? 'sersic'           : Type
+    set Rads = (coo && ResultRads>0)  ? ResultRads/2.0     : Rads # if perviously fitted with gaussian, then sersic radius = gaussian FWHM/2.0
+    set Rads = (coo && ResultRads<=0) ? 0.25/abs(pixscale) : Rads # initial guess 0.25 arcsec radius
+    set Sers = (coo)                  ? 1.0                : Sers # initial guess n=1.0 disk
+    set ParamFitPosX = (coo && ResultRads<=0)                     ? 1                  : ParamFitPosX
+    set ParamMinPosX = (coo && ResultRads<=0)                     ? -0.5/abs(pixscale) : ParamMinPosX
+    set ParamMaxPosX = (coo && ResultRads<=0)                     ? +0.5/abs(pixscale) : ParamMaxPosX
+    set ParamMinPosX = (coo && ResultRads<=0 && ParamMinPosX<-20) ? -20                : ParamMinPosX
+    set ParamMaxPosX = (coo && ResultRads<=0 && ParamMaxPosX>+20) ? +20                : ParamMaxPosX
+    set ParamFitPosY = (coo && ResultRads<=0)                     ? 1                  : ParamFitPosY
+    set ParamMinPosY = (coo && ResultRads<=0)                     ? -0.5/abs(pixscale) : ParamMinPosY
+    set ParamMaxPosY = (coo && ResultRads<=0)                     ? +0.5/abs(pixscale) : ParamMaxPosY
+    set ParamMinPosY = (coo && ResultRads<=0 && ParamMinPosY<-20) ? -20                : ParamMinPosY
+    set ParamMaxPosY = (coo && ResultRads<=0 && ParamMaxPosY>+20) ? +20                : ParamMaxPosY
+    set ParamFitRads = (coo)                  ? 1                 : ParamFitRads
+    set ParamMinRads = (coo)                  ? 0.5               : ParamMinRads # minimum 0.5 pixel RADIUS for sersic
+    set ParamMaxRads = (coo)                  ? 3.0/abs(pixscale) : ParamMaxRads # maximum 3.0 arcsec RADIUS for sersic
+    set ParamFitSers = (coo)                  ? 1                 : ParamFitSers
+    set ParamMinSers = (coo)                  ? 0.2               : ParamMinSers #<20170728># 1.0->0.2
+    set ParamMaxSers = (coo)                  ? 4.0               : ParamMaxSers
+    set ParamFitElli = (coo && ResultRads<=0) ? 1                 : ParamFitElli
+    set ParamMinElli = (coo && ResultRads<=0) ? 0.20              : ParamMinElli # b/a ratio, i.e. q in galfit input file
+    set ParamMaxElli = (coo && ResultRads<=0) ? 1.0               : ParamMaxElli # b/a ratio, i.e. q in galfit input file
+    set ParamFitRoti = (coo && ResultRads<=0) ? 1                 : ParamFitRoti
+    set ParamMinRoti = (coo && ResultRads<=0) ? -360.0            : ParamMinRoti #<20170719># 0 --> -360.0
+    set ParamMaxRoti = (coo && ResultRads<=0) ? 360.0             : ParamMaxRoti
+    set ParamCoB = 5.0/abs(pixscale) #<20170303><dzliu><plang># set convolution box of about 5 arcsec
+    set ParamCoB = (ParamCoB<25) ? 25 : ParamCoB #<20170730><dzliu># prevent too small value
+    set ParamCoB = (ParamCoB>350) ? 350 : ParamCoB #<20170730><dzliu># prevent too small value
+    writeGalfitParam fit_n3.param
+    writeGalfitLimit fit_n3.limit
+    writeGalfitInput fit_n3.input image_negative.fits fit_n3.fits image_rms.fits image_psf.fits fit_n3.limit
+    !galfit fit_n3.input > fit_n3.out
+    if(is_file("fit.log")) {!mv "fit.log" "fit_n3.log"}
+    if(is_file("fit_n3.fits")) {
+        readGalfitResult "fit_n3.fits"
+        print_result "fit_n3" "getpix_on_negative_image.mask"
+    }
 
 
 
