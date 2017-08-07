@@ -51,7 +51,7 @@ done
 
 # check current ds9aida
 if [[ $(xpaget "$ds9aida_title" version 2>/dev/null | wc -l) -eq 0 ]]; then
-    basc -c 'cd ; ds9 -title "$ds9aida_title" &'
+    bash -c 'cd ; ds9 -title "$ds9aida_title" &'
     sleep 1.0
     while [[ $(xpaget "$ds9aida_title" version 2>/dev/null | wc -l) -eq 0 ]]; do
         sleep 1.0
