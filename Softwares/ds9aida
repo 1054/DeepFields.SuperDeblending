@@ -66,6 +66,7 @@ if [[ ${#ds9aida_fits[@]} -gt 0 ]]; then
             xpaset -p "$ds9aida_title" frame new
         fi
         if [[ -f "${ds9aida_fits[i]}" ]]; then
+          echo "cat \"${ds9aida_fits[i]}\" | xpaset \"$ds9aida_title\" fits"
           cat "${ds9aida_fits[i]}" | xpaset "$ds9aida_title" fits
         fi
     done
@@ -78,6 +79,7 @@ if [[ ${#ds9aida_multiframe[@]} -gt 0 ]]; then
             xpaset -p "$ds9aida_title" frame new
         fi
         if [[ -f "${ds9aida_fits[i]}" ]]; then
+          echo "cat \"${ds9aida_fits[i]}\" | xpaset \"$ds9aida_title\" multiframe"
           cat "${ds9aida_fits[i]}" | xpaset "$ds9aida_title" multiframe
         fi
     done
@@ -85,11 +87,13 @@ fi
 
 # scale
 if [[ ${#ds9aida_scale[@]} -gt 0 ]]; then
+      echo "xpaset -p \"$ds9aida_title\" scale ${ds9aida_scale[@]}"
       xpaset -p "$ds9aida_title" scale ${ds9aida_scale[@]}
 fi
 
 # zoom
 if [[ ${#ds9aida_zoom[@]} -gt 0 ]]; then
+      echo "xpaset -p \"$ds9aida_title\" zoom ${ds9aida_zoom[@]}"
       xpaset -p "$ds9aida_title" zoom ${ds9aida_zoom[@]}
 fi
 
