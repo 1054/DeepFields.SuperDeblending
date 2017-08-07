@@ -78,9 +78,9 @@ if [[ ${#ds9aida_multiframe[@]} -gt 0 ]]; then
         if [[ $i -ge 1 ]]; then 
             xpaset -p "$ds9aida_title" frame new
         fi
-        if [[ -f "${ds9aida_fits[i]}" ]]; then
-          echo "cat \"${ds9aida_fits[i]}\" | xpaset \"$ds9aida_title\" multiframe"
-          cat "${ds9aida_fits[i]}" | xpaset "$ds9aida_title" multiframe
+        if [[ -f "${ds9aida_multiframe[i]}" ]]; then
+          echo "cat \"${ds9aida_multiframe[i]}\" | xpaset \"$ds9aida_title\" multiframe"
+          cat "${ds9aida_multiframe[i]}" | xpaset "$ds9aida_title" multiframe
         fi
     done
 fi
