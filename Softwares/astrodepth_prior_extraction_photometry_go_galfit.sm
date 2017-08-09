@@ -825,6 +825,7 @@ print_result_final 01
         define print_noheader 1
         print $(getpix_basename).sky2xy.input '%15.4f %15.4f\n' {x_getpix y_getpix}
         define print_noheader 0
+        echo sky2xy -d -n 10 "image_sci.fits" @$(getpix_basename).sky2xy.input > $(getpix_basename).sky2xy.output
         !sky2xy -d -n 10 "image_sci.fits" @$(getpix_basename).sky2xy.input > $(getpix_basename).sky2xy.output
         set id_getpix = cat_id_full[cid_getpix]
         set det_getpix = int(snr_peak>=3.6 || snr_int>=2.0)
@@ -850,6 +851,7 @@ print_result_final 01
                     # sky2xy
                     define print_noheader 1
                     print $var.sky2xy.input '%15.4f %15.4f\n' <x_$var y_$var>
+                    echo xy2sky -d -n 10 "image_sci.fits" @$var.sky2xy.input > $var.sky2xy.output
                     !xy2sky -d -n 10 "image_sci.fits" @$var.sky2xy.input > $var.sky2xy.output
                     data $var.sky2xy.output read <ra_$var 1.f dec_$var 2.f>
                     define print_noheader 0
