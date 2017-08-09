@@ -799,194 +799,105 @@ print_result 02
     }
 
 
-print_result_final 00
+print_result_final 01
+    #<20170808># now allow input argument $1, if no input of $1, we print 'final' results, otherwise if has input of $1, we print 'final_on_negative_image' results. 
+    if(!$?1) {
+        set final_basename = 'final'
+        set getpix_basename = 'getpix'
+        set galfit_basenames = { fit_0 fit_1 fit_2 fit_3 }
+    } else { 
+        set final_basename = 'final_on_negative_image'
+        set getpix_basename = 'getpix_on_negative_image'
+        set galfit_basenames = { fit_n0 fit_n1 fit_n2 fit_n3 }
+    }
     if(!is_file("No_catalog_source_within_image")) {
-        if(is_file("final.result")) {!mv "final.result" "final.result.backup"}
-        data "image_sci_pixnoise.txt" read {rms 1.f}
-        data "image_sci_sky_frequency.txt" read {sky_freq 1.f}
-        data "prior_id.txt" read {cat_id_full 1.s}
+        if(is_file($(final_basename).result)) { !mv $(final_basename).result $(final_basename).result.backup }
+        data "image_sci_pixnoise.txt" read { rms 1.f }
+        set rms = rms * 1e3 # mJy
+        data "image_sci_sky_frequency.txt" read { sky_freq 1.f }
+        data "prior_id.txt" read { cat_id_full 1.s }
         # 
+        # read getpix
+        data $(getpix_basename).txt read { x_getpix 5.f y_getpix 6.f }
+        data $(getpix_basename).result read { f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 7 }
+        set f_peak = f_peak * 1e3 # mJy
+        set f_int = f_int * 1e3 # mJy
+        define print_noheader 1
+        print $(getpix_basename).sky2xy.input '%15.4f %15.4f\n' {x_getpix y_getpix}
+        define print_noheader 0
+        !sky2xy -d -n 10 "image_sci.fits" @$(getpix_basename).sky2xy.input > $(getpix_basename).sky2xy.output
+        set id_getpix = cat_id_full[cid_getpix]
+        set det_getpix = int(snr_peak>=3.6 || snr_int>=2.0)
+        set Nfit_getpix = int(dimen(cid_getpix))
+        set Ndet_getpix = int(sum(det_getpix))
+        print $(getpix_basename).result.ra.dec.detect.id '%15.7f %15.7f %15d %15s\n' {ra_getpix dec_getpix det_getpix id_getpix}
+        echo "Output to \""$(getpix_basename)".result.ra.dec.detect.id\"!"
+        # 
+        # initialize galfit must output variable
+        foreach var galfit_basenames { set Nfit_$var = 0 set Ndet_$var = 0 }
+        # 
+        # read galfit if not 'No_catalog_source_with_enough_getpix_SNR'
         if(!is_file("No_catalog_source_with_enough_getpix_SNR")) {
-            data "getpix.txt" read {x_getpix 5.f y_getpix 6.f}
-            data "getpix.result" read {f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 7}
-            data "fit_0.result" read {x_fit_0 1.f y_fit_0 2.f f_fit_0 3.f df_fit_0 4.f fpeak_fit_0 5.f fres_fit_0 6.f cid_fit_0 19} #<TODO># make sure cat_index column number is correct
-            data "fit_1.result" read {x_fit_1 1.f y_fit_1 2.f f_fit_1 3.f df_fit_1 4.f fpeak_fit_1 5.f fres_fit_1 6.f cid_fit_1 19} #<TODO># make sure cat_index column number is correct
-            data "fit_2.result" read {x_fit_2 1.f y_fit_2 2.f f_fit_2 3.f df_fit_2 4.f fpeak_fit_2 5.f fres_fit_2 6.f cid_fit_2 19} #<TODO># make sure cat_index column number is correct
-            data "fit_2.result" read {Maj 9.f Maj_err 10.f Min 11.f Min_err 12.f PA 13.f PA_err 14.f} #<20170514><dzliu># Maj Min are already arcsec unit
-            data "fit_2.result" read {pix_scale 15.f pix_area 16.f beam_area 17.f pb_corr 18.f} #<20170606><dzliu># for fpeak ftotal
-            define print_noheader 1
-            print "getpix.sky2xy.input" '%15.4f %15.4f\n' {x_getpix y_getpix}
-            print "fit_0.sky2xy.input" '%15.4f %15.4f\n' {x_fit_0 y_fit_0}
-            print "fit_1.sky2xy.input" '%15.4f %15.4f\n' {x_fit_1 y_fit_1}
-            print "fit_2.sky2xy.input" '%15.4f %15.4f\n' {x_fit_2 y_fit_2}
-            define print_noheader 0
-            !xy2sky -d -n 10 "image_sci.fits" @"getpix.sky2xy.input" > "getpix.sky2xy.output"
-            !xy2sky -d -n 10 "image_sci.fits" @"fit_0.sky2xy.input" > "fit_0.sky2xy.output"
-            !xy2sky -d -n 10 "image_sci.fits" @"fit_1.sky2xy.input" > "fit_1.sky2xy.output"
-            !xy2sky -d -n 10 "image_sci.fits" @"fit_2.sky2xy.input" > "fit_2.sky2xy.output"
-            data "getpix.sky2xy.output" read {ra_getpix 1.f dec_getpix 2.f}
-            data "fit_0.sky2xy.output" read {ra_fit_0 1.f dec_fit_0 2.f}
-            data "fit_1.sky2xy.output" read {ra_fit_1 1.f dec_fit_1 2.f}
-            data "fit_2.sky2xy.output" read {ra_fit_2 1.f dec_fit_2 2.f}
-            foreach var {f_peak f_int rms f_fit_0 f_fit_1 f_fit_2 df_fit_0 df_fit_1 df_fit_2} {set $var = $var * 1e3} # mJy
-            foreach var {fpeak_fit_2} {set $var = $var * 1e3} # mJy <20170613>
-            verbose 0
-            set id_getpix = cat_id_full[cid_getpix]
-            set id_fit_0 = cat_id_full[cid_fit_0]
-            set id_fit_1 = cat_id_full[cid_fit_1]
-            set id_fit_2 = cat_id_full[cid_fit_2]
-            set snr_fit_0 = (df_fit_0>rms) ? (f_fit_0/df_fit_0) : (f_fit_0/rms)
-            set snr_fit_1 = (df_fit_1>rms) ? (f_fit_1/df_fit_1) : (f_fit_1/rms)
-            set snr_fit_2 = (df_fit_2>rms) ? (f_fit_2/df_fit_2) : (f_fit_2/rms)
-            set det_getpix = int(snr_peak>=3.6 || snr_int>=2.0)
-            set det_fit_0 = int(snr_fit_0>=3.0)
-            set det_fit_1 = int(snr_fit_1>=3.0)
-            set det_fit_2 = int(snr_fit_2>=3.0)
-            set Nfit_getpix = int(dimen(cid_getpix)) set Ndet_getpix = int(sum(det_getpix))
-            set Nfit_fit_0 = int(dimen(cid_fit_0)) set Ndet_fit_0 = int(sum(det_fit_0))
-            set Nfit_fit_1 = int(dimen(cid_fit_1)) set Ndet_fit_1 = int(sum(det_fit_1))
-            set Nfit_fit_2 = int(dimen(cid_fit_2)) set Ndet_fit_2 = int(sum(det_fit_2))
-            set rms_fit_2 = f_fit_2*0.0 + rms
-            set obs_freq = f_fit_2*0.0 + sky_freq # GHz
-            set obs_lambda = 2.99792458e5 / obs_freq # um
-            verbose 1
-            print "getpix.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_getpix dec_getpix det_getpix id_getpix}
-            print "fit_0.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_0 dec_fit_0 det_fit_0 id_fit_0}
-            print "fit_1.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_1 dec_fit_1 det_fit_1 id_fit_1}
-            print "fit_2.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_2 dec_fit_2 det_fit_2 id_fit_2}
-            print "fit_0.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_0 dec_fit_0 f_fit_0 df_fit_0 snr_fit_0 id_fit_0}
-            print "fit_1.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_1 dec_fit_1 f_fit_1 df_fit_1 snr_fit_1 id_fit_1}
-            print "fit_2.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_2 dec_fit_2 f_fit_2 df_fit_2 snr_fit_2 id_fit_2}
-            print "fit_2.result.ra.dec.Maj.Min.PA.id" '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15s\n' {ra_fit_2 dec_fit_2 Maj Maj_err Min Min_err PA PA_err id_fit_2} #<20170514><dzliu>#
-            print "fit_2.result.ra.dec.rms.pix.pbc.id" '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15s\n' {ra_fit_2 dec_fit_2 f_fit_2 df_fit_2 fpeak_fit_2 fres_fit_2 rms_fit_2 snr_fit_2 pix_area beam_area pb_corr obs_freq obs_lambda id_fit_2} #<20170606><dzliu>#
-            echo "Output to \"getpix.result.ra.dec.detect.id\"!"
-            echo "Output to \"fit_2.result.ra.dec.f.df.snr.id\"!"
-            echo "Output to \"fit_2.result.ra.dec.Maj.Min.PA.id\"!"
-            echo "Output to \"fit_2.result.ra.dec.rms.pix.pbc.id\"!"
-        } else {
-            data "getpix.txt" read {x_getpix 5.f y_getpix 6.f}
-            data "getpix.result" read {f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 7}
-            define print_noheader 1
-            print "getpix.sky2xy.input" '%15.4f %15.4f\n' {x_getpix y_getpix}
-            define print_noheader 0
-            !sky2xy -d -n 10 "image_sci.fits" @"getpix.sky2xy.input" > "getpix.sky2xy.output"
-            set id_getpix = cat_id_full[cid_getpix]
-            set id_fit_0 = 0
-            set id_fit_1 = 0
-            set id_fit_2 = 0
-            set snr_fit_0 = 0
-            set snr_fit_1 = 0
-            set snr_fit_2 = 0
-            set det_getpix = (snr_peak>=3.6 || snr_int>=2.0)
-            set Nfit_fit_0 = 0 set Ndet_fit_0 = 0
-            set Nfit_fit_1 = 0 set Ndet_fit_1 = 0
-            set Nfit_fit_2 = 0 set Ndet_fit_2 = 0
-            set Nfit_getpix = dimen(cid_getpix) set Ndet_getpix = sum(det_getpix)
-            print "getpix.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_getpix dec_getpix det_getpix id_getpix}
-            echo "Output to \"getpix.result.ra.dec.detect.id\"!"
+            foreach var galfit_basenames {
+                if(is_file($var.result)) {
+                    define has_$var 1
+                    data $var.result
+                    read < x_$var 1.f y_$var 2.f f_$var 3.f df_$var 4.f fpeak_$var 5.f fres_$var 6.f cid_$var 19 > #<TODO># make sure cat_index column number is correct
+                    read < Maj_$var 9.f Maj_err_$var 10.f Min_$var 11.f Min_err_$var 12.f PA_$var 13.f PA_err_$var 14.f > #<20170514><dzliu># Maj Min are already arcsec unit
+                    read < pix_scale 15.f pix_area 16.f beam_area 17.f pb_corr 18.f > #<20170606><dzliu># for fpeak ftotal
+                    # Jy -> mJy
+                    foreach bar { f df fpeak fres } { set $bar"_"$var = ($bar"_"$var!=-99) ? $bar"_"$var * 1e3 : -99 }
+                    # sky2xy
+                    define print_noheader 1
+                    print $var.sky2xy.input '%15.4f %15.4f\n' <x_$var y_$var>
+                    !xy2sky -d -n 10 "image_sci.fits" @$var.sky2xy.input > $var.sky2xy.output
+                    data $var.sky2xy.output read <ra_$var 1.f dec_$var 2.f>
+                    define print_noheader 0
+                    # catalog id
+                    set id_$var = cat_id_full[cid_$var]
+                    # obs freq
+                    set obs_freq = f_$var*0.0 + sky_freq # GHz
+                    set obs_lambda = 2.99792458e5 / obs_freq # um
+                    # rms
+                    set rms_$var = f_$var*0.0 + rms # mJy
+                    # snr
+                    set snr_$var = (df_$var>rms) ? (f_$var/df_$var) : (f_$var/rms)
+                    # detection
+                    set det_$var = int(snr_$var>=3.0)
+                    # Nfit and Ndet
+                    set Nfit_$var = int(dimen(cid_$var))
+                    set Ndet_$var = int(sum(det_$var))
+                    # print
+                    print $var.result.ra.dec.detect.id '%15.7f %15.7f %15d %15s\n' <ra_$var dec_$var det_$var id_$var>
+                    echo "Output to \""$var".result.ra.dec.detect.id\"!"
+                    print $var.result.ra.dec.f.df.snr.id '%15.7f %15.7f %15g %15g %15g %15s\n' <ra_$var dec_$var f_$var df_$var snr_$var id_$var>
+                    echo "Output to \""$var".result.ra.dec.f.df.snr.id\"!"
+                    # print morphological parameters if valid
+                    if(sum(Maj_$var>0)>0) {
+                        print $var.result.ra.dec.Maj.Min.PA.id '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15s\n' \
+                              <ra_$var dec_$var Maj_$var Maj_err_$var Min_$var Min_err_$var PA_$var PA_err_$var id_$var> #<20170514><dzliu>#
+                        print $var.result.ra.dec.rms.pix.pbc.id '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15s\n' \
+                              <ra_$var dec_$var f_$var df_$var fpeak_$var fres_$var rms_$var snr_$var pix_area beam_area pb_corr obs_freq obs_lambda id_$var> #<20170606><dzliu>#
+                        echo "Output to \""$var".result.ra.dec.Maj.Min.PA.id\"!"
+                        echo "Output to \""$var".result.ra.dec.rms.pix.pbc.id\"!"
+                    }
+                } else {
+                    define has_$var 0
+                }
+            }
         }
         # 
-        print "final.result" '%15d %15d %15d %15d %15d %15d %15d %15d\n' \
-            {Nfit_getpix Ndet_getpix Nfit_fit_0 Ndet_fit_0 Nfit_fit_1 Ndet_fit_1 Nfit_fit_2 Ndet_fit_2}
+        print $(final_basename).result '%15d %15d %15d %15d %15d %15d %15d %15d %15d %15d\n' \
+            {Nfit_getpix Ndet_getpix Nfit_fit_0 Ndet_fit_0 Nfit_fit_1 Ndet_fit_1 Nfit_fit_2 Ndet_fit_2 Nfit_fit_3 Ndet_fit_3}
         # 
     } else {
-        if(is_file("final.result")) {!mv "final.result" "final.result.backup"}
+        # if no catalog source within image, then remove any existing $(final_basename).result
+        if(is_file($(final_basename).result)) { !mv $(final_basename).result $(final_basename).result.backup }
     }
 
 
 print_result_final_on_negative_image 00
-    if(!is_file("No_catalog_source_within_image")) {
-        if(is_file("final_on_negative_image.result")) {!mv "final_on_negative_image.result" "final_on_negative_image.result.backup"}
-        data "image_sci_pixnoise.txt" read {rms 1.f}
-        data "image_sci_sky_frequency.txt" read {sky_freq 1.f}
-        data "prior_id.txt" read {cat_id_full 1.s}
-        # 
-        if(!is_file("No_catalog_source_with_enough_getpix_SNR_on_negative_image")) {
-            data "getpix_on_negative_image.txt" read {x_getpix 5.f y_getpix 6.f}
-            data "getpix_on_negative_image.result" read {f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 7}
-            data "fit_n0.result" read {x_fit_n0 1.f y_fit_n0 2.f f_fit_n0 3.f df_fit_n0 4.f fpeak_fit_n0 5.f fres_fit_n0 6.f cid_fit_n0 19} #<TODO># make sure cat_index column number is correct
-            data "fit_n1.result" read {x_fit_n1 1.f y_fit_n1 2.f f_fit_n1 3.f df_fit_n1 4.f fpeak_fit_n1 5.f fres_fit_n1 6.f cid_fit_n1 19} #<TODO># make sure cat_index column number is correct
-            data "fit_n2.result" read {x_fit_n2 1.f y_fit_n2 2.f f_fit_n2 3.f df_fit_n2 4.f fpeak_fit_n2 5.f fres_fit_n2 6.f cid_fit_n2 19} #<TODO># make sure cat_index column number is correct
-            data "fit_n2.result" read {Maj 9.f Maj_err 10.f Min 11.f Min_err 12.f PA 13.f PA_err 14.f} #<20170514><dzliu># Maj Min are already arcsec unit
-            data "fit_n2.result" read {pix_scale 15.f pix_area 16.f beam_area 17.f pb_corr 18.f} #<20170606><dzliu># for fpeak ftotal
-            define print_noheader 1
-            print "getpix_on_negative_image.sky2xy.input" '%15.4f %15.4f\n' {x_getpix y_getpix}
-            print "fit_n0.sky2xy.input" '%15.4f %15.4f\n' {x_fit_n0 y_fit_n0}
-            print "fit_n1.sky2xy.input" '%15.4f %15.4f\n' {x_fit_n1 y_fit_n1}
-            print "fit_n2.sky2xy.input" '%15.4f %15.4f\n' {x_fit_n2 y_fit_n2}
-            define print_noheader 0
-            !xy2sky -d -n 10 "image_negative.fits" @"getpix_on_negative_image.sky2xy.input" > "getpix_on_negative_image.sky2xy.output"
-            !xy2sky -d -n 10 "image_negative.fits" @"fit_n0.sky2xy.input" > "fit_n0.sky2xy.output"
-            !xy2sky -d -n 10 "image_negative.fits" @"fit_n1.sky2xy.input" > "fit_n1.sky2xy.output"
-            !xy2sky -d -n 10 "image_negative.fits" @"fit_n2.sky2xy.input" > "fit_n2.sky2xy.output"
-            data "getpix_on_negative_image.sky2xy.output" read {ra_getpix 1.f dec_getpix 2.f}
-            data "fit_n0.sky2xy.output" read {ra_fit_n0 1.f dec_fit_n0 2.f}
-            data "fit_n1.sky2xy.output" read {ra_fit_n1 1.f dec_fit_n1 2.f}
-            data "fit_n2.sky2xy.output" read {ra_fit_n2 1.f dec_fit_n2 2.f}
-            foreach var {f_peak f_int rms f_fit_n0 f_fit_n1 f_fit_n2 df_fit_n0 df_fit_n1 df_fit_n2} {set $var = $var * 1e3} # mJy
-            foreach var {fpeak_fit_n2} {set $var = $var * 1e3} # mJy <20170613>
-            verbose 0
-            set id_getpix = cat_id_full[cid_getpix]
-            set id_fit_n0 = cat_id_full[cid_fit_n0]
-            set id_fit_n1 = cat_id_full[cid_fit_n1]
-            set id_fit_n2 = cat_id_full[cid_fit_n2]
-            set snr_fit_n0 = (df_fit_n0>rms) ? (f_fit_n0/df_fit_n0) : (f_fit_n0/rms)
-            set snr_fit_n1 = (df_fit_n1>rms) ? (f_fit_n1/df_fit_n1) : (f_fit_n1/rms)
-            set snr_fit_n2 = (df_fit_n2>rms) ? (f_fit_n2/df_fit_n2) : (f_fit_n2/rms)
-            set det_getpix = int(snr_peak>=3.6 || snr_int>=2.0)
-            set det_fit_n0 = int(snr_fit_n0>=3.0)
-            set det_fit_n1 = int(snr_fit_n1>=3.0)
-            set det_fit_n2 = int(snr_fit_n2>=3.0)
-            set Nfit_getpix = int(dimen(cid_getpix)) set Ndet_getpix = int(sum(det_getpix))
-            set Nfit_fit_n0 = int(dimen(cid_fit_n0)) set Ndet_fit_n0 = int(sum(det_fit_n0))
-            set Nfit_fit_n1 = int(dimen(cid_fit_n1)) set Ndet_fit_n1 = int(sum(det_fit_n1))
-            set Nfit_fit_n2 = int(dimen(cid_fit_n2)) set Ndet_fit_n2 = int(sum(det_fit_n2))
-            set rms_fit_n2 = f_fit_n2*0.0 + rms
-            set obs_freq = f_fit_n2*0.0 + sky_freq # GHz
-            set obs_lambda = 2.99792458e5 / obs_freq # um
-            verbose 1
-            print "getpix_on_negative_image.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_getpix dec_getpix det_getpix id_getpix}
-            print "fit_n0.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_n0 dec_fit_n0 det_fit_n0 id_fit_n0}
-            print "fit_n1.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_n1 dec_fit_n1 det_fit_n1 id_fit_n1}
-            print "fit_n2.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_fit_n2 dec_fit_n2 det_fit_n2 id_fit_n2}
-            print "fit_n0.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_n0 dec_fit_n0 f_fit_n0 df_fit_n0 snr_fit_n0 id_fit_n0}
-            print "fit_n1.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_n1 dec_fit_n1 f_fit_n1 df_fit_n1 snr_fit_n1 id_fit_n1}
-            print "fit_n2.result.ra.dec.f.df.snr.id" '%15.7f %15.7f %15g %15g %15g %15s\n' {ra_fit_n2 dec_fit_n2 f_fit_n2 df_fit_n2 snr_fit_n2 id_fit_n2}
-            print "fit_n2.result.ra.dec.Maj.Min.PA.id" '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15s\n' {ra_fit_n2 dec_fit_n2 Maj Maj_err Min Min_err PA PA_err id_fit_n2} #<20170514><dzliu>#
-            print "fit_n2.result.ra.dec.rms.pix.pbc.id" '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15s\n' {ra_fit_n2 dec_fit_n2 f_fit_n2 df_fit_n2 fpeak_fit_n2 fres_fit_n2 rms_fit_n2 snr_fit_n2 pix_area beam_area pb_corr obs_freq obs_lambda id_fit_n2} #<20170606><dzliu>#
-            echo "Output to \"getpix_on_negative_image.result.ra.dec.detect.id\"!"
-            echo "Output to \"fit_n2.result.ra.dec.f.df.snr.id\"!"
-            echo "Output to \"fit_n2.result.ra.dec.Maj.Min.PA.id\"!"
-            echo "Output to \"fit_n2.result.ra.dec.rms.pix.pbc.id\"!"
-        } else {
-            data "getpix_on_negative_image.txt" read {x_getpix 5.f y_getpix 6.f}
-            data "getpix_on_negative_image.result" read {f_peak 1 f_int 2 snr_peak 3 snr_int 4 cid_getpix 7}
-            define print_noheader 1
-            print "getpix_on_negative_image.sky2xy.input" '%15.4f %15.4f\n' {x_getpix y_getpix}
-            define print_noheader 0
-            !sky2xy -d -n 10 "image_negative.fits" @"getpix_on_negative_image.sky2xy.input" > "getpix_on_negative_image.sky2xy.output"
-            set id_getpix = cat_id_full[cid_getpix]
-            set id_fit_n0 = 0
-            set id_fit_n1 = 0
-            set id_fit_n2 = 0
-            set snr_fit_n0 = 0
-            set snr_fit_n1 = 0
-            set snr_fit_n2 = 0
-            set det_getpix = (snr_peak>=3.6 || snr_int>=2.0)
-            set Nfit_fit_n0 = 0 set Ndet_fit_n0 = 0
-            set Nfit_fit_n1 = 0 set Ndet_fit_n1 = 0
-            set Nfit_fit_n2 = 0 set Ndet_fit_n2 = 0
-            set Nfit_getpix = dimen(cid_getpix) set Ndet_getpix = sum(det_getpix)
-            print "getpix_on_negative_image.result.ra.dec.detect.id" '%15.7f %15.7f %15d %15s\n' {ra_getpix dec_getpix det_getpix id_getpix}
-            echo "Output to \"getpix_on_negative_image.result.ra.dec.detect.id\"!"
-        }
-        # 
-        print "final_on_negative_image.result" '%15d %15d %15d %15d %15d %15d %15d %15d\n' \
-            {Nfit_getpix Ndet_getpix Nfit_fit_n0 Ndet_fit_n0 Nfit_fit_n1 Ndet_fit_n1 Nfit_fit_n2 Ndet_fit_n2}
-        # 
-    } else {
-        if(is_file("final_on_negative_image.result")) {!mv "final_on_negative_image.result" "final_on_negative_image.result.backup"}
-    }
+    print_result_final on_negative_image
 
 
 
