@@ -887,8 +887,18 @@ print_result_final 01
             }
         }
         # 
+        define pcol_1  Nfit_getpix
+        define pcol_2  Ndet_getpix
+        define pcol_3  Nfit_$(galfit_basenames[0])
+        define pcol_4  Ndet_$(galfit_basenames[0])
+        define pcol_5  Nfit_$(galfit_basenames[1])
+        define pcol_6  Ndet_$(galfit_basenames[1])
+        define pcol_7  Nfit_$(galfit_basenames[2])
+        define pcol_8  Ndet_$(galfit_basenames[2])
+        define pcol_9  Nfit_$(galfit_basenames[3])
+        define pcol_10 Ndet_$(galfit_basenames[3])
         print $(final_basename).result '%15d %15d %15d %15d %15d %15d %15d %15d %15d %15d\n' \
-            {Nfit_getpix Ndet_getpix Nfit_fit_0 Ndet_fit_0 Nfit_fit_1 Ndet_fit_1 Nfit_fit_2 Ndet_fit_2 Nfit_fit_3 Ndet_fit_3}
+            < $pcol_1 $pcol_2 $pcol_3 $pcol_4 $pcol_5 $pcol_6 $pcol_7 $pcol_8 $pcol_9 $pcol_10 >
         # 
     } else {
         # if no catalog source within image, then remove any existing $(final_basename).result
