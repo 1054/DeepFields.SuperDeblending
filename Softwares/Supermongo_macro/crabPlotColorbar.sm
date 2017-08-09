@@ -63,6 +63,10 @@ plotColorBar_init 07
     if(!is_vector(plotColorBarTickets))    {set plotColorBarTickets = 0,16-1,1  }
     if(!is_vector(plotColorBarTickSize))   {set plotColorBarTickSize = 0.95     }
     if(!is_vector(plotColorBarTickFormat)) {set plotColorBarTickFormat = {%0.1f}}
+    if(plotColorBarX<=1.0) {set plotColorBarX = $(plotColorBarX*32000)}
+    if(plotColorBarY<=1.0) {set plotColorBarY = $(plotColorBarY*32000)}
+    if(plotColorBarW<=1.0) {set plotColorBarW = $(plotColorBarW*32000)}
+    if(plotColorBarH<=1.0) {set plotColorBarH = $(plotColorBarH*32000)}
 
 plotColorBar 08
     # 

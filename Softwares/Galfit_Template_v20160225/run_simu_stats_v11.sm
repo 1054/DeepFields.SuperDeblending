@@ -620,7 +620,7 @@ plot_S_in_S_out_versus_Param 01
     ctype default lweight 4.0 ltype 1 rel $fx1 0 draw $fx2 0 # plot horizontal Y=0 line
     ctype default lweight 4.5 ltype 0 expand 2.2 xlabel $plotTitle # plot title 
     ctype default lweight 4.5 ltype 0 expand 2.0 ylabel "(S_{in}-S_{out}) [mJy]"
-    if(index('$1','Xf')==0 || index('$1','Tf')==0) {
+    if((index('$1','Xf')==0 || index('$1','Tf')==0) && $?field) {
     # overplot 3-sigma and 12-sigma
     set_$field""_photometry_constants_$imax
     ctype red lweight 4.0 ltype 1 rel $(lg($fSigma_$imax *  3.0)) $fy1 draw $(lg($fSigma_$imax *  3.0)) $fy2
@@ -652,7 +652,7 @@ plot_XfmTfEdf_versus_Param 01
     ctype default lweight 4.5 ltype 0 expand 2.2 xlabel $plotTitle # plot title 
     ctype default lweight 4.5 ltype 0 expand 2.0 ylabel "(S_{in}-S_{out})/{\sigma}_{"$imax"}"
     # overplot 3-sigma and 12-sigma
-    if(index('$1','Xf')==0 || index('$1','Tf')==0) {
+    if((index('$1','Xf')==0 || index('$1','Tf')==0) && $?field) {
     set_$field""_photometry_constants_$imax
     ctype red lweight 4.0 ltype 1 rel $(lg($fSigma_$imax *  3.0)) $fy1 draw $(lg($fSigma_$imax *  3.0)) $fy2
     ctype red lweight 4.0 ltype 1 rel $(lg($fSigma_$imax * 12.0)) $fy1 draw $(lg($fSigma_$imax * 12.0)) $fy2
