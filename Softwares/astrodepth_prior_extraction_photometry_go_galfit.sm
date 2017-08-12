@@ -814,7 +814,11 @@ print_result_final 01
         if(is_file($(final_basename).result)) { !mv $(final_basename).result $(final_basename).result.backup }
         data "image_sci_pixnoise.txt" read { rms 1.f }
         set rms = rms * 1e3 # mJy
-        data "image_sci_sky_frequency.txt" read { sky_freq 1.f }
+        if(is_file(data "image_sci_sky_frequency.txt")) {
+            data "image_sci_sky_frequency.txt" read { sky_freq 1.f }
+        } else {
+            set sky_freq = -99
+        }
         data "prior_id.txt" read { cat_id_full 1.s }
         # 
         # read getpix
@@ -860,7 +864,7 @@ print_result_final 01
                     set id_$var = cat_id_full[cid_$var]
                     # obs freq
                     set obs_freq = f_$var*0.0 + sky_freq # GHz
-                    set obs_lambda = 2.99792458e5 / obs_freq # um
+                    set obs_lambda = (obs_freq>0) ? 2.99792458e5 / obs_freq : -99 # um
                     # rms
                     set rms_$var = f_$var*0.0 + rms # mJy
                     # snr
