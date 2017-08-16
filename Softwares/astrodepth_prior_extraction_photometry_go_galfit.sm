@@ -814,7 +814,7 @@ print_result_final 01
         if(is_file($(final_basename).result)) { !mv $(final_basename).result $(final_basename).result.backup }
         data "image_sci_pixnoise.txt" read { rms 1.f }
         set rms = rms * 1e3 # mJy
-        if(is_file(data "image_sci_sky_frequency.txt")) {
+        if(is_file("image_sci_sky_frequency.txt")) {
             data "image_sci_sky_frequency.txt" read { sky_freq 1.f }
         } else {
             set sky_freq = -99
