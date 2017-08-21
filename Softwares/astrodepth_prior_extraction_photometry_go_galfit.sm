@@ -879,15 +879,13 @@ print_result_final 01
                     echo "Output to \""$var".result.ra.dec.detect.id\"!"
                     print $var.result.ra.dec.f.df.snr.id '%15.7f %15.7f %15g %15g %15g %15s\n' <ra_$var dec_$var f_$var df_$var snr_$var id_$var>
                     echo "Output to \""$var".result.ra.dec.f.df.snr.id\"!"
-                    # print morphological parameters if valid
-                    if(sum(Maj_$var>0)>0) {
-                        print $var.result.ra.dec.Maj.Min.PA.id '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15s\n' \
-                              <ra_$var dec_$var Maj_$var Maj_err_$var Min_$var Min_err_$var PA_$var PA_err_$var id_$var> #<20170514><dzliu>#
-                        print $var.result.ra.dec.rms.pix.pbc.id '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15s\n' \
-                              <ra_$var dec_$var f_$var df_$var fpeak_$var fres_$var rms_$var snr_$var pix_area beam_area pb_corr obs_freq obs_lambda id_$var> #<20170606><dzliu>#
-                        echo "Output to \""$var".result.ra.dec.Maj.Min.PA.id\"!"
-                        echo "Output to \""$var".result.ra.dec.rms.pix.pbc.id\"!"
-                    }
+                    # print morphological parameters
+                    print $var.result.ra.dec.Maj.Min.PA.id '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15s\n' \
+                          <ra_$var dec_$var Maj_$var Maj_err_$var Min_$var Min_err_$var PA_$var PA_err_$var id_$var> #<20170514><dzliu>#
+                    print $var.result.ra.dec.rms.pix.pbc.id '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15s\n' \
+                          <ra_$var dec_$var f_$var df_$var fpeak_$var fres_$var rms_$var snr_$var pix_scale pix_area beam_area pb_corr obs_freq obs_lambda id_$var> #<20170606><dzliu>#
+                    echo "Output to \""$var".result.ra.dec.Maj.Min.PA.id\"!"
+                    echo "Output to \""$var".result.ra.dec.rms.pix.pbc.id\"!"
                 } else {
                     define has_$var 0
                 }
