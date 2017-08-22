@@ -714,6 +714,22 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     echo "No catalog source with enough SNR for galfit fitting! Do only getpix!"
                 fi
                 if [[ ! -f "final_on_negative_image.result" ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " negative " ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " final " ]]; then
+                    # 
+                    # <20170822> allow to overwrite "fit_n3.result" in the "final" step.
+                    if [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " fit_n3.result " ]]; then
+                        if [[ -f "fit_n3.result" ]]; then 
+                            echo "mv fit_n3.result fit_n3.result.backup"
+                            mv "fit_n3.result" "fit_n3.result.backup"
+                        fi
+                    fi
+                    if [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " fit_n2.result " ]]; then
+                        if [[ -f "fit_n2.result" ]]; then 
+                            echo "mv fit_n2.result fit_n2.result.backup"
+                            mv "fit_n2.result" "fit_n2.result.backup"
+                        fi
+                    fi
+                    # 
+                    # 
                     echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"print_result_final_on_negative_image\""
                     echo "macro read astrodepth_go_galfit.sm print_result_final_on_negative_image" | sm > "astrodepth_go_galfit_print_result_final_on_negative_image.log"
                     # check output successful or not
@@ -919,29 +935,17 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             if [[ ! -f "No_catalog_source_within_image" ]]; then
                 if [[ ! -f "final.result" ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " final " ]]; then
                     # 
-                    # <20170822> allow to overwrite "fit_3.result" and "fit_n3.result" in the "final" step.
+                    # <20170822> allow to overwrite "fit_3.result" in the "final" step.
                     if [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " fit_3.result " ]]; then
                         if [[ -f "fit_3.result" ]]; then 
                             echo "mv fit_3.result fit_3.result.backup"
                             mv "fit_3.result" "fit_3.result.backup"
                         fi
                     fi
-                    if [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " fit_n3.result " ]]; then
-                        if [[ -f "fit_n3.result" ]]; then 
-                            echo "mv fit_n3.result fit_n3.result.backup"
-                            mv "fit_n3.result" "fit_n3.result.backup"
-                        fi
-                    fi
                     if [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " fit_2.result " ]]; then
                         if [[ -f "fit_2.result" ]]; then 
                             echo "mv fit_2.result fit_2.result.backup"
                             mv "fit_2.result" "fit_2.result.backup"
-                        fi
-                    fi
-                    if [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " fit_n2.result " ]]; then
-                        if [[ -f "fit_n2.result" ]]; then 
-                            echo "mv fit_n2.result fit_n2.result.backup"
-                            mv "fit_n2.result" "fit_n2.result.backup"
                         fi
                     fi
                     # 
