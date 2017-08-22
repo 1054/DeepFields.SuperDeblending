@@ -906,7 +906,7 @@ print_result_final 01
         # initialize galfit must output variable
         foreach var galfit_basenames { set Nfit_$var = 0 set Ndet_$var = 0 }
         # 
-        # read galfit if not 'No_catalog_source_with_enough_getpix_SNR'
+        # read galfit if not 'No_catalog_source_with_enough_getpix_SNR' #<fixed><20170822># affects negative fitting "*final*.result"
         if(final_basename!='final_on_negative_image') {
             set check_has_source_for_galfit = (!is_file("No_catalog_source_with_enough_getpix_SNR"))
         } else {
