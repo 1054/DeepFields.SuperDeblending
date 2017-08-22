@@ -851,7 +851,7 @@ print_result 02
             # <below><added><20170822><dzliu>#
             if(is_file("buffer_x_y.txt")) {
                 data "buffer_x_y.txt" read {buffer_x 1 buffer_y 2}
-                !gethead "image_sci.fits" NAXIS1 NAXIS2 > "image_psf.fits.gethead.naxis.txt"
+                !gethead "image_sci.fits" NAXIS1 NAXIS2 > "image_sci.fits.gethead.naxis.txt"
                 verbose 0 data "image_sci.fits.gethead.naxis.txt" read {image_x 1 image_y 2} verbose 1
                 set mask_buffer = (x<=buffer_x || x>(image_x-buffer_x) || y<=buffer_y || y>(image_y-buffer_y))
                 print $1.result.mask_buffer.txt '%15g %15.0f %15s\n' \
