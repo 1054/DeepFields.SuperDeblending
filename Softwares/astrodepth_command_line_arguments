@@ -164,9 +164,9 @@ for (( i=0; i<${#AstroDepth_INP_IMAGE_RMS[@]}; i++ )); do
     checkFileExistence "${AstroDepth_INP_IMAGE_RMS[i]}"
 done
 
-for (( i=0; i<${#AstroDepth_INP_IMAGE_PBA[@]}; i++ )); do
-    checkFileExistence "${AstroDepth_INP_IMAGE_PBA[i]}"
-done
+#for (( i=0; i<${#AstroDepth_INP_IMAGE_PBA[@]}; i++ )); do
+#    checkFileExistence "${AstroDepth_INP_IMAGE_PBA[i]}"
+#done
 
 for (( i=0; i<${#AstroDepth_INP_CATALOG[@]}; i++ )); do
     checkFileExistence "${AstroDepth_INP_CATALOG[i]}"
