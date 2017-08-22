@@ -240,13 +240,44 @@ calc_primary_beam_correction 00
             #define print_noheader 0 
         } else {
             set primary_beam_correction = px*0 + 1
-            set primary_beam_attenuation = px*0 + 0
+            set primary_beam_attenuation = px*0 + 1
             set primary_beam_dist = px*0 + 0
             set primary_beam_fwhm = px*0 + 0
             print "image_sci_primary_beam_correction.txt" '%26g %26g %20g %20g\n' {primary_beam_correction primary_beam_attenuation primary_beam_dist primary_beam_fwhm}
             print "image_sci_primary_beam_correction.warning.txt" 'Warning! No sky_frequency info!\n' {}
         }
     } 
+
+
+read_primary_beam_correction_from_pb_image 00
+    if(is_file("image_pba_primary_beam_correction.txt")) {
+        !mv "image_pba_primary_beam_correction.txt" "image_pba_primary_beam_correction.txt.backup"
+    }
+    if(is_file("image_pba_primary_beam_correction.warning.txt")) {
+        !rm "image_pba_primary_beam_correction.warning.txt"
+    }
+    if(is_file("image_pba.fits")) {
+        if(!is_vector(px) || !is_vector(py)) {
+            read_data
+        }
+        define print_noheader 1
+        print "image_pba_primary_beam_correction.getpix.input.txt" '%15g %15g\n' {px py}
+        define print_noheader 0
+        !getpix -n 1 "image_pba.fits" @"image_pba_primary_beam_correction.getpix.input.txt" > "image_pba_primary_beam_correction.getpix.output.txt"
+        verbose 0
+        data "image_pba_primary_beam_correction.getpix.output.txt" read {primary_beam_attenuation 1.f}
+        verbose 1
+        set primary_beam_correction = 1.0/primary_beam_attenuation
+        print "image_pba_primary_beam_correction.txt" '%26g %26g\n' {primary_beam_correction primary_beam_attenuation}
+        if(sum(primary_beam_correction==1.0)==dimen(primary_beam_correction)) {
+            print "image_pba_primary_beam_correction.warning.txt" 'Warning! The PBA image \"image_pba.fits\" is invalid with pixel value 1.0 everywhere!\n' {}
+        }
+    } else {
+        set primary_beam_correction = px*0 + 1
+        set primary_beam_attenuation = px*0 + 1
+        print "image_pba_primary_beam_correction.txt" '%26g %26g\n' {primary_beam_correction primary_beam_attenuation}
+        print "image_pba_primary_beam_correction.warning.txt" 'Error! No \"image_pba.fits\" was found!\n' {}
+    }
 
 
 

@@ -376,6 +376,11 @@ go_galfit_3
     set Rads = (coo && ResultRads>0)  ? ResultRads/2.0     : Rads # if perviously fitted with gaussian, then sersic radius = gaussian FWHM/2.0
     set Rads = (coo && ResultRads<=0) ? 0.25/abs(pixscale) : Rads # initial guess 0.25 arcsec radius
     set Sers = (coo)                  ? 1.0                : Sers # initial guess n=1.0 disk
+    # constrain initial values
+    set Mags = (Mags>8) ? 8 : Mags # do not allow too faint magnitude as initial value
+    set Rads = (coo && Rads<0.25) ? 0.25 : Rads # do not allow too small radius in pixel unit as initial value
+    set Rads = (!coo && Rads<0.5) ? 0.5 : Rads # do not allow too small radius in pixel unit as initial value
+    # constrain limits
     set ParamFitPosX = (coo && ResultRads<=0)                     ? 1                  : ParamFitPosX
     set ParamMinPosX = (coo && ResultRads<=0)                     ? -0.5/abs(pixscale) : ParamMinPosX
     set ParamMaxPosX = (coo && ResultRads<=0)                     ? +0.5/abs(pixscale) : ParamMaxPosX
@@ -645,6 +650,53 @@ print_result_fit_2
     print_result_final
 
 
+print_result_fit_n
+    # this is for bug fix purpose, ran once on 20170822
+    load astroGalfit.sm
+    read_data
+    read_pixscale
+    mask_prior_sources
+    # 
+    if(is_file("fit_0.fits")) {
+        readGalfitResult "fit_0.fits"
+        print_result "fit_0"
+    }
+    if(is_file("fit_1.fits")) {
+        readGalfitResult "fit_1.fits"
+        print_result "fit_1"
+    }
+    if(is_file("fit_2.fits")) {
+        readGalfitResult "fit_2.fits"
+        print_result "fit_2"
+    }
+    if(is_file("fit_3.fits")) {
+        readGalfitResult "fit_3.fits"
+        print_result "fit_3"
+    }
+    print_result_final
+    # 
+    if(is_file("fit_n0.fits")) {
+        readGalfitResult "fit_n0.fits"
+        print_result "fit_n0"
+    }
+    if(is_file("fit_n1.fits")) {
+        readGalfitResult "fit_n1.fits"
+        print_result "fit_n1"
+    }
+    if(is_file("fit_n2.fits")) {
+        readGalfitResult "fit_n2.fits"
+        print_result "fit_n2"
+    }
+    if(is_file("fit_n3.fits")) {
+        readGalfitResult "fit_n3.fits"
+        print_result "fit_n3"
+    }
+    print_result_final_on_negative_image
+
+
+
+
+
 print_result 02
     # read galfit output "fit_X.fits" and print results to "fit_X.result" text file. 
     # <20170618><dzliu> added argument $2 -- where to read "getpix.mask" file
@@ -789,10 +841,10 @@ print_result 02
                 #1.2.3.4.    5.     6.       7.  8.      9.  10.     11. 12.     13.14.    15.       16.      17.       18.     19.       20.   
             # 
             #<below><added><20170727><dzliu>#
-            if(sum(sersic_n>0)>0) {
+            #if(sum(sersic_n>0)>0) {
                 print $1.result.sersic_n.txt '%15g %15g %15.0f %15s\n' \
                     {sersic_n sersic_n_err cat_index cat_id}
-            }
+            #}
             #<above><added><20170727><dzliu>#
             # 
         }
@@ -845,6 +897,16 @@ print_result_final 01
         # read galfit if not 'No_catalog_source_with_enough_getpix_SNR'
         if(!is_file("No_catalog_source_with_enough_getpix_SNR")) {
             foreach var galfit_basenames {
+                # check $var.result, if it does not exist while $var.fits exists, then call 'print_result'
+                if(!is_file($var.result) && is_file($var.fits)) {
+                    readGalfitResult $var.fits
+                    if(final_basename!='final_on_negative_image') {
+                        print_result $var
+                    } else {
+                        print_result $var "getpix_on_negative_image.mask"
+                    }
+                }
+                # read $var.result and other data, print into big datatables
                 if(is_file($var.result)) {
                     define has_$var 1
                     data $var.result
@@ -879,11 +941,13 @@ print_result_final 01
                     echo "Output to \""$var".result.ra.dec.detect.id\"!"
                     print $var.result.ra.dec.f.df.snr.id '%15.7f %15.7f %15g %15g %15g %15s\n' <ra_$var dec_$var f_$var df_$var snr_$var id_$var>
                     echo "Output to \""$var".result.ra.dec.f.df.snr.id\"!"
-                    # print morphological parameters
+                    # print morphological measurements
                     print $var.result.ra.dec.Maj.Min.PA.id '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15s\n' \
                           <ra_$var dec_$var Maj_$var Maj_err_$var Min_$var Min_err_$var PA_$var PA_err_$var id_$var> #<20170514><dzliu>#
+                    # print photometric measurements
                     print $var.result.ra.dec.rms.pix.pbc.id '%15.7f %15.7f %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15s\n' \
                           <ra_$var dec_$var f_$var df_$var fpeak_$var fres_$var rms_$var snr_$var pix_scale pix_area beam_area pb_corr obs_freq obs_lambda id_$var> #<20170606><dzliu>#
+                    # print message
                     echo "Output to \""$var".result.ra.dec.Maj.Min.PA.id\"!"
                     echo "Output to \""$var".result.ra.dec.rms.pix.pbc.id\"!"
                 } else {

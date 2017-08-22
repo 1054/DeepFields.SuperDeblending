@@ -324,7 +324,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     fi
     # 
     # 
-    # check SCI, PSF, RMS images, get full link by readlink command, and make links by ln command
+    # check SCI, PSF, RMS, PBA images, get full link by readlink command, and make links by ln command
     if [[ $j -lt ${#AstroDepth_INP_IMAGE_SCI[@]} ]]; then 
         ln -fs $(astrodepth_abs_path "${AstroDepth_INP_IMAGE_SCI[j]}") "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_sci_input.fits"
     fi
@@ -351,6 +351,20 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             echo "1.0" > "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_rms_input.txt"
         fi
     fi
+    if [[ $j -lt ${#AstroDepth_INP_IMAGE_PBA[@]} ]]; then 
+        if [[ -f "${AstroDepth_INP_IMAGE_PBA[j]}" ]]; then
+            ln -fs $(astrodepth_abs_path "${AstroDepth_INP_IMAGE_PBA[j]}") "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_pba_input.fits"
+            cp     $(astrodepth_abs_path "${AstroDepth_INP_IMAGE_PBA[j]}") "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_pba.fits"
+        else 
+            echo "Warning! PBA image was given for the SCI image \"${AstroDepth_INP_IMAGE_SCI[j]}\" but does not exist!"
+            if [[ -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_pba_input.fits" ]]; then rm "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_pba_input.fits"; fi
+            if [[ -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_pba.fits" ]]; then rm "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_pba.fits"; fi
+        fi
+    else 
+        echo "Warning! No PBA image was given for the SCI image \"${AstroDepth_INP_IMAGE_SCI[j]}\"!"
+        if [[ -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_pba_input.fits" ]]; then rm "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_pba_input.fits"; fi
+        if [[ -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_pba.fits" ]]; then rm "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_pba.fits"; fi
+    fi
     # 
     # 
     # 
@@ -368,6 +382,19 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
         echo "Error! \"prior_x_y.txt\" or \"prior_id.txt\" was not yet found! The code will wait for 30 seconds then check again! Please press Ctrl+C to break!"
         sleep 30
     done
+    # 
+    # 
+    # Set pixel buffer if it is given by the input argument "-buffer"
+    if [[ ${#AstroDepth_INP_BUFFER[@]} -gt 0 ]]; then
+        if [[ ${#AstroDepth_INP_BUFFER[@]} -eq 1 ]]; then
+            echo "${AstroDepth_INP_BUFFER[0]}" "${AstroDepth_INP_BUFFER[0]}" > "buffer_x_y.txt"
+        else
+            echo "${AstroDepth_INP_BUFFER[0]}" "${AstroDepth_INP_BUFFER[1]}" > "buffer_x_y.txt"
+        fi
+    fi
+    # 
+    # 
+    # 
     # 
     # 
     # 
@@ -891,6 +918,18 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             # now we print final result (Nfit, Ndet)
             if [[ ! -f "No_catalog_source_within_image" ]]; then
                 if [[ ! -f "final.result" ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " final " ]]; then
+                    # 
+                    # <20170822> allow to overwrite "fit_3.result" and "fit_n3.result" in the "final" step.
+                    if [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " fit_3.result " ]]; then
+                        echo "mv fit_3.result fit_3.result.backup"
+                        mv "fit_3.result" "fit_3.result.backup"
+                    fi
+                    if [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " fit_n3.result " ]]; then
+                        echo "mv fit_n3.result fit_n3.result.backup"
+                        mv "fit_n3.result" "fit_n3.result.backup"
+                    fi
+                    # 
+                    # 
                     echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"print_result_final\""
                     echo "macro read astrodepth_go_galfit.sm print_result_final" | sm > "astrodepth_go_galfit_print_result_final.log"
                     # check output successful or not

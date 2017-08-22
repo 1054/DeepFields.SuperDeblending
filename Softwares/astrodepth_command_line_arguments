@@ -51,6 +51,8 @@ AstroDepth_INP_IMAGE_SCI=()
 AstroDepth_INP_IMAGE_PSF=()
 AstroDepth_INP_IMAGE_RMS=()
 AstroDepth_INP_VALUE_RMS=()
+AstroDepth_INP_IMAGE_PBA=()
+AstroDepth_INP_BUFFER=()
 AstroDepth_INP_OUTPUT_DIR=()
 AstroDepth_INP_OUTPUT_NAME=()
 AstroDepth_INP_CATALOG=()
@@ -78,6 +80,10 @@ while [[ "$#" -gt 0 ]]; do
            "-rms") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="image-rms";;
      "-image-rms") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="image-rms";;
      "-rms-value") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="value-rms";;
+            "-pb") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="image-pba";;
+           "-pba") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="image-pba";;
+     "-image-pba") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="image-pba";;
+        "-buffer") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="buffer";;
          "-prior") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="catalog";;
            "-cat") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="catalog";;
        "-catalog") AstroDepth_CMD_TEXT="$1"; shift; AstroDepth_CMD_TYPE="catalog";;
@@ -107,6 +113,8 @@ while [[ "$#" -gt 0 ]]; do
       "image-psf") if [[ $# -gt 0 ]]; then AstroDepth_INP_IMAGE_PSF+=("$1"); fi;;
       "image-rms") if [[ $# -gt 0 ]]; then AstroDepth_INP_IMAGE_RMS+=("$1"); fi;;
       "value-rms") if [[ $# -gt 0 ]]; then AstroDepth_INP_VALUE_RMS+=("$1"); fi;;
+      "image-pba") if [[ $# -gt 0 ]]; then AstroDepth_INP_IMAGE_PBA+=("$1"); fi;;
+         "buffer") if [[ $# -gt 0 ]]; then AstroDepth_INP_BUFFER+=("$1"); fi;;
         "catalog") if [[ $# -gt 0 ]]; then AstroDepth_INP_CATALOG+=("$1"); fi;;
      "catalog-ra") if [[ $# -gt 0 ]]; then AstroDepth_INP_CATALOG_RA+=("$1"); fi;;
     "catalog-dec") if [[ $# -gt 0 ]]; then AstroDepth_INP_CATALOG_DEC+=("$1"); fi;;
@@ -136,6 +144,7 @@ if [[ $AstroDepth_INP_DEBUG -eq 1 ]]; then
     echo "AstroDepth_INP_IMAGE_SCI        = "$(printf "'%s', " "${AstroDepth_INP_IMAGE_SCI[@]}"         | sed -e 's/, $//g')
     echo "AstroDepth_INP_IMAGE_PSF        = "$(printf "'%s', " "${AstroDepth_INP_IMAGE_PSF[@]}"         | sed -e 's/, $//g')
     echo "AstroDepth_INP_IMAGE_RMS        = "$(printf "'%s', " "${AstroDepth_INP_IMAGE_RMS[@]}"         | sed -e 's/, $//g')
+    echo "AstroDepth_INP_IMAGE_PBA        = "$(printf "'%s', " "${AstroDepth_INP_IMAGE_PBA[@]}"         | sed -e 's/, $//g')
     echo "AstroDepth_INP_CATALOG          = "$(printf "'%s', " "${AstroDepth_INP_CATALOG[@]}"           | sed -e 's/, $//g')
 fi
 
@@ -153,6 +162,10 @@ done
 
 for (( i=0; i<${#AstroDepth_INP_IMAGE_RMS[@]}; i++ )); do
     checkFileExistence "${AstroDepth_INP_IMAGE_RMS[i]}"
+done
+
+for (( i=0; i<${#AstroDepth_INP_IMAGE_PBA[@]}; i++ )); do
+    checkFileExistence "${AstroDepth_INP_IMAGE_PBA[i]}"
 done
 
 for (( i=0; i<${#AstroDepth_INP_CATALOG[@]}; i++ )); do
