@@ -895,7 +895,12 @@ print_result_final 01
         foreach var galfit_basenames { set Nfit_$var = 0 set Ndet_$var = 0 }
         # 
         # read galfit if not 'No_catalog_source_with_enough_getpix_SNR'
-        if(!is_file("No_catalog_source_with_enough_getpix_SNR")) {
+        if(final_basename!='final_on_negative_image') {
+            set check_has_source_for_galfit = (!is_file("No_catalog_source_with_enough_getpix_SNR"))
+        } else {
+            set check_has_source_for_galfit = (!is_file("No_catalog_source_with_enough_getpix_SNR_on_negative_image"))
+        }
+        if(check_has_source_for_galfit) {
             foreach var galfit_basenames {
                 # check $var.result, if it does not exist while $var.fits exists, then call 'print_result'
                 if(!is_file($var.result) && is_file($var.fits)) {
