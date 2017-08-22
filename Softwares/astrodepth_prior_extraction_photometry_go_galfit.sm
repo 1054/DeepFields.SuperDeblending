@@ -904,6 +904,7 @@ print_result_final 01
             foreach var galfit_basenames {
                 # check $var.result, if it does not exist while $var.fits exists, then call 'print_result'
                 if(!is_file($var.result) && is_file($var.fits)) {
+                    load astroGalfit.sm
                     readGalfitResult $var.fits
                     if(final_basename!='final_on_negative_image') {
                         print_result $var
