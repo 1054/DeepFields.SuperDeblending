@@ -890,7 +890,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             # 
             # now we print final result (Nfit, Ndet)
             if [[ ! -f "No_catalog_source_within_image" ]]; then
-                if [[ "${AstroDepth_INP_OVERWRITE[@]}" == *"final"* || ! -f "final.result" ]]; then
+                if [[ ! -f "final.result" ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " final " ]]; then
                     echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"print_result_final\""
                     echo "macro read astrodepth_go_galfit.sm print_result_final" | sm > "astrodepth_go_galfit_print_result_final.log"
                     # check output successful or not
