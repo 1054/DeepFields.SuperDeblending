@@ -316,7 +316,7 @@ crabStat_makeBins 04
                     define rFenBinToler 0
                     define rFenBinCount 0
                     while { abs(sum(rFenBinArray<$rFenBinEdge)-fenBinVolum[$iFenBin])>=$rFenBinToler } { #<TODO># tolerant 0!
-                        ## echo fenBin:$(sum(rFenBinArray<($rFenBinEdge+$rFenBinStep))) ?> Volume=$(fenBinVolum[$iFenBin]) Step=$rFenBinStep
+                        ## echo fenBin:sum($rFenBinEdge-$($rFenBinEdge+$rFenBinStep))=$(sum(rFenBinArray<($rFenBinEdge+$rFenBinStep))) ?> Volume=$(fenBinVolum[$iFenBin]) Step=$rFenBinStep Tolerant=$rFenBinToler
                         if ( sum(rFenBinArray<($rFenBinEdge+$rFenBinStep)) > fenBinVolum[$iFenBin] ) {
                             ## echo define rFenBinStep $($rFenBinStep/2.0)
                             define rFenBinStep $($rFenBinStep/2.0)
@@ -325,8 +325,12 @@ crabStat_makeBins 04
                             define rFenBinEdge $($rFenBinEdge+$rFenBinStep)
                         }
                         if ( $rFenBinCount > 30 ) {
-                            define rFenBinToler $($rFenBinToler+1)
                             define rFenBinCount 0
+                            define rFenBinToler $($rFenBinToler+1)
+                            ## check whether we need to jump out of the while loop -- fixed this bug <20170825>
+                            if(abs(sum(rFenBinArray<$rFenBinEdge)-fenBinVolum[$iFenBin])>=$rFenBinToler) {
+                                define rFenBinEdge $($rFenBinEdge+$rFenBinStep)
+                            }
                         } else {
                             define rFenBinCount $($rFenBinCount+1)
                         }

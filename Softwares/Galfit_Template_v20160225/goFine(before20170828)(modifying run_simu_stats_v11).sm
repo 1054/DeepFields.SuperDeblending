@@ -3004,39 +3004,6 @@ R_MIPS16	00
 			# define max_noise16  1 
 
 
-go_simulation_based_correction_recipes 00
-			# 
-			define rBeam_100 7.2 #<TODO># PSF FWHM at each band
-			define rBeam_160 12.0 #<TODO># PSF FWHM at each band
-			define rBeam_250 18.2 #<TODO># PSF FWHM at each band
-			define rBeam_350 24.9 #<TODO># PSF FWHM at each band
-			define rBeam_500 36.3 #<TODO># PSF FWHM at each band
-			define rBeam_850 14.8
-			define rBeam_850_NMF 11.
-			define rBeam_1160 19.5 #<TODO># PSF FWHM at each band
-			# 
-			if(is_file("run_simu_stats_v11.sm")) {
-				define field goodsn
-				macro read run_simu_stats_v11.sm
-			} else {
-				if(is_file("run_simu_stats_v9.sm")) {
-					macro read run_simu_stats_v9.sm
-				} else {
-					if(is_file("run_simu_stats_v8.sm")) {
-						macro read run_simu_stats_v8.sm
-					} else {
-						if(is_file("run_simu_stats_v7.sm")) {
-							macro read run_simu_stats_v7.sm
-						} else {
-							echo "Error! No run_simu_stats_v*.sm was found! Exit!"
-							exit
-						}
-					}
-				}
-			}
-			go_correct_three_step_recipes
-
-
 R_MIPS100 00
 			# <Modified><DZLIU> # 
 			# define rrrr_name "results_100_22Oct"
@@ -3058,7 +3025,10 @@ R_MIPS100 00
 			##set Te100 = ((e100)**2+$error_astrometry**2)**.5
 			##set df100 = f100*Te100/1.08
 			
-			go_simulation_based_correction_recipes
+			
+		    define rBeam_100 7.2 #<TODO># PSF FWHM at each band
+			macro read run_simu_stats_v7.sm
+			go_correct_three_step_recipes
 			
 			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
 			
@@ -3099,7 +3069,10 @@ R_MIPS160 00
 			##set Te160 = ((e160)**2+$error_astrometry**2)**.5 #
 			##set df160 = f160*Te160/1.08
 			
-			go_simulation_based_correction_recipes
+			
+		    define rBeam_160 12.0 #<TODO># PSF FWHM at each band
+			macro read run_simu_stats_v7.sm
+			go_correct_three_step_recipes
 			
 			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
 			
@@ -3135,7 +3108,10 @@ R_MIPS250_E	00
 			set f250 = 10**(-0.4*m250)*1000*$h_250/$m_250
 			set df250 = f250*e250/1.08
 			
-			go_simulation_based_correction_recipes
+			
+		    define rBeam_250 18.2 #<TODO># PSF FWHM at each band
+			macro read run_simu_stats_v7.sm
+			go_correct_three_step_recipes
 			
 			print "results_"$imax"_"$xdate"__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
 			
@@ -3157,7 +3133,10 @@ R_MIPS350_E	00
 			set f350 = 10**(-0.4*m350)*1000*$h_350/$m_350
 			set df350 = f350*e350/1.08
 			
-			go_simulation_based_correction_recipes
+			
+		    define rBeam_350 24.9 #<TODO># PSF FWHM at each band
+			macro read run_simu_stats_v7.sm
+			go_correct_three_step_recipes
 			
 			print "results_"$imax"_"$xdate"__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
 			
@@ -3178,7 +3157,10 @@ R_MIPS500_E 00
 			set f500 = 10**(-0.4*m500)*1000*$h_500/$m_500
 			set df500 = f500*e500/1.08   #  
 			
-			go_simulation_based_correction_recipes
+			
+		    define rBeam_500 36.3 #<TODO># PSF FWHM at each band
+			macro read run_simu_stats_v7.sm
+			go_correct_three_step_recipes
 			
 			print "results_"$imax"_"$xdate"__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
 			
@@ -3199,7 +3181,17 @@ R_MIPS850_E 00
 			set f850 = 10**(-0.4*m850)*$h_850/$m_850
 			set df850 = f850*e850/1.08
 			
-		    go_simulation_based_correction_recipes
+		    define rBeam_850 14.8
+		    if(is_file("run_simu_stats_v9.sm")) {
+		    	macro read run_simu_stats_v9.sm
+		    } else {
+		    	if(is_file("run_simu_stats_v8.sm")) {
+		    		macro read run_simu_stats_v8.sm
+		    	} else {
+		    		macro read run_simu_stats_v7.sm
+		    	}
+		    }
+			go_correct_three_step_recipes
 			
 			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
 
@@ -3216,7 +3208,17 @@ R_MIPS850_NMF_E 00
 			set f850_NMF = 10**(-0.4*m850_NMF)*$h_850_NMF/$m_850_NMF
 			set df850_NMF = f850_NMF*e850_NMF/1.08
 			
-		    go_simulation_based_correction_recipes
+		    define rBeam_850_NMF 11.
+		    if(is_file("run_simu_stats_v9.sm")) {
+		    	macro read run_simu_stats_v9.sm
+		    } else {
+		    	if(is_file("run_simu_stats_v8.sm")) {
+		    		macro read run_simu_stats_v8.sm
+		    	} else {
+		    		macro read run_simu_stats_v7.sm
+		    	}
+		    }
+			go_correct_three_step_recipes
 			
 			print "results_"$imax"_"$xdate"_vary__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
 
@@ -3234,7 +3236,10 @@ R_MIPS1160_E	00
 			set f1160 = 10**(-0.4*m1160)*$h_1160/$m_1160 # *1000
 			set df1160 = f1160*e1160/1.08   # 
 			
-			go_simulation_based_correction_recipes
+			
+		    define rBeam_1160 19.5 #<TODO># PSF FWHM at each band
+			macro read run_simu_stats_v7.sm
+			go_correct_three_step_recipes
 			
 			print "results_"$imax"_"$xdate"__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
 			

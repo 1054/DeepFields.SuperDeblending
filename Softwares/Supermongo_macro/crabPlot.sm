@@ -517,13 +517,13 @@ crabPlotLegend 04
         set _crabPlot_legend_px = float($1)
         set _crabPlot_legend_py = float($2)
         if(_crabPlot_legend_ws==0) {
-            if($?4) { set _crabPlot_legend_pa = int($4) }
+            if($?4) { set _crabPlot_legend_pa = int($4) } # alignment
         } else {
             set _crabPlot_legend_pa = 6 # when plot with symbol, position alignment must be 6 <TODO>
         }
     } else {
         if(_crabPlot_legend_ws==0) {
-            if($?2) { set _crabPlot_legend_pa = int($2) }
+            if($?2) { set _crabPlot_legend_pa = int($2) } # alignment
         } else {
             set _crabPlot_legend_pa = 6 # when plot with symbol, position alignment must be 6 <TODO>
         }

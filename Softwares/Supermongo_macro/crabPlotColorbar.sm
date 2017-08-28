@@ -53,7 +53,8 @@ plotColorBar_init 07
     if($?2) {if($2>0){set plotColorBarY = $2}}
     if($?3) {if($3>0){set plotColorBarW = $3}}
     if($?4) {if($4>0){set plotColorBarH = $4}}
-    if($?5) {if($5!=0){set plotColorBarTickets = $5}}
+    #if($?5) {if($5!=0){set plotColorBarTickets = $5}}
+    if($?5) {if(1==1){set plotColorBarTickets = $5}}
     if($?6) {if($6!=0){set plotColorBarTickSize = $6}}
     if($?7) {if($7!=0){set plotColorBarTickFormat = $7}}
     if(!is_vector(plotColorBarX))          {set plotColorBarX = 19000}
@@ -232,9 +233,10 @@ plotColorBar_value2index 01
     set pcbg_value = $1
     if(dimen(pcbg_value)>0) {
         vecminmax pcbg_value pcbg_vMIN pcbg_vMAX
-        if($verbose) {
-            echo "plotColorBar_value2index: MIN MAX "$pcbg_vMIN" "$pcbg_vMAX" "
-        }
+        if($verbose) {echo "plotColorBar_value2tickets: MIN MAX "$pcbg_vMIN" "$pcbg_vMAX}
+        if(is_vector(plotColorBarDataMin)){define pcbg_vMIN $(plotColorBarDataMin)}
+        if(is_vector(plotColorBarDataMax)){define pcbg_vMAX $(plotColorBarDataMax)}
+        if($verbose) {echo "plotColorBar_value2tickets: MIN MAX "$pcbg_vMIN" "$pcbg_vMAX}
         set pcbg_index = float(pcbg_value-$pcbg_vMIN)/float($pcbg_vMAX-$pcbg_vMIN)*(16.0-1.0) # 16 colors res -- index 0 to 15
         set pcbg_index = plotColorBar_roundvalue(pcbg_index)
         set $0 = pcbg_index
@@ -244,20 +246,20 @@ plotColorBar_value2tickets 01
     set pcbg_value = $1
     if(dimen(pcbg_value)>0) {
         vecminmax pcbg_value pcbg_vMIN pcbg_vMAX
-        if($verbose) {
-            echo "plotColorBar_value2tickets: MIN MAX "$pcbg_vMIN" "$pcbg_vMAX" "
-        }
+        if($verbose) {echo "plotColorBar_value2tickets: MIN MAX "$pcbg_vMIN" "$pcbg_vMAX}
         if(is_vector(plotColorBarDataMin)){define pcbg_vMIN $(plotColorBarDataMin)}
         if(is_vector(plotColorBarDataMax)){define pcbg_vMAX $(plotColorBarDataMax)}
+        if($verbose) {echo "plotColorBar_value2tickets: MIN MAX "$pcbg_vMIN" "$pcbg_vMAX}
         set pcbg_tickets = $pcbg_vMIN,$pcbg_vMAX,$(float($pcbg_vMAX-$pcbg_vMIN)/(16.0-1.0))
         set pcbg_index = float(pcbg_value-$pcbg_vMIN)/float($pcbg_vMAX-$pcbg_vMIN)*(16.0-1.0) # 16 colors res -- index 0 to 15
         # safty check
-        if(sum(pcbg_index<0)>0) {
-            set pcbg_index_checkid = 0,dimen(pcbg_index)-1 
-            set pcbg_index_checkid = pcbg_index_checkid if(pcbg_index<0)
-            set pcbg_index[pcbg_index_checkid] = 16
-        }
+        #<20170823><dzliu># if(sum(pcbg_index<0)>0) {
+        #<20170823><dzliu>#     set pcbg_index_checkid = 0,dimen(pcbg_index)-1 
+        #<20170823><dzliu>#     set pcbg_index_checkid = pcbg_index_checkid if(pcbg_index<0)
+        #<20170823><dzliu>#     set pcbg_index[pcbg_index_checkid] = 16
+        #<20170823><dzliu># }
         set pcbg_index = plotColorBar_roundvalue(pcbg_index)
+        set pcbg_index = pcbg_index>=0  ? pcbg_index : 0  #<fixed><20170823><dzliu>#
         set pcbg_index = pcbg_index<=15 ? pcbg_index : 15 #<fixed><20150421><dzliu>#
         set pcbg_colors = 'pcbg_'+sprintf('%.0f',pcbg_index)
         set pcbg_values = $pcbg_vMIN,$pcbg_vMAX,$(float($pcbg_vMAX-$pcbg_vMIN)/(16.0-1.0)) # == pcbg_tickets

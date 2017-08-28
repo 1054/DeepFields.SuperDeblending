@@ -95,6 +95,7 @@ if [[ $* == *-postparallel* ]]; then
     ResLMPOutput="ResLMTparams_parallel_$CATALOGFILE"
     rm $ResLMTOutput
     rm $ResLMFOutput
+    rm $ResLMPOutput #<bug><fixed><20170823># 
     echo 
 else
     RUNQSUBDLIU_PARA=0

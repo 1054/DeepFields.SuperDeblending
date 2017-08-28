@@ -1,0 +1,64 @@
+wfile 01
+    # 
+    # write text file with auto-formats
+    # 
+    if(is_vector(wfile_headers) && !is_vector(wfile_vectors)) {
+        set wfile_vectors = wfile_headers
+    }
+    # 
+    # check input arguments
+    if(!$?1 || !is_vector(wfile_vectors)) {
+        print 'usage: \n' {}
+        print '       set wfile_vectors = {id ra dec name a b c}\n' {}
+        print '       wfile output.txt\n' {}
+        return
+    }
+    # 
+    # set wfile_headers
+    set wfile_headers = wfile_vectors
+    define print_noheader 1
+    define wfile_has_header 0
+    foreach wfile_vec wfile_headers {
+        set wfile_str = string('$wfile_vec')
+        if($wfile_has_header==0) {
+            print $1 '\# %13s' {wfile_str}
+        } else {
+            print +$1 '%15s' {wfile_str}
+        }
+        define wfile_has_header 1
+    }
+    print +$1 '\n\# \n' {}
+    !echo -n "Writing to "$1" 0%"
+    #return
+    set wfile_vec_1 = $(wfile_headers[0])
+    do i=0,dimen(wfile_vec_1)-1 {
+        foreach wfile_vec wfile_headers {
+            set wfile_str = string('$wfile_vec')
+            set wfile_val = $wfile_vec[$i]
+            set wfile_fmt = '%15g'
+            if(wfile_str=='id'  || index(wfile_str,'id_')==0) { set wfile_fmt = '%15.0f' }
+            if(wfile_str=='ra'  || index(wfile_str,'ra_')==0) { set wfile_fmt = '%15.7f' }
+            if(wfile_str=='RA'  || index(wfile_str,'RA_')==0) { set wfile_fmt = '%15.7f' }
+            if(wfile_str=='de'  || index(wfile_str,'de_')==0) { set wfile_fmt = '%15.7f' }
+            if(wfile_str=='dec' || index(wfile_str,'dec_')==0) { set wfile_fmt = '%15.7f' }
+            if(wfile_str=='Dec' || index(wfile_str,'Dec_')==0) { set wfile_fmt = '%15.7f' }
+            if(wfile_str=='DEC' || index(wfile_str,'DEC_')==0) { set wfile_fmt = '%15.7f' }
+            if(wfile_str=='_id' || index(wfile_str,'_id_')==0) { set wfile_fmt = '%15.0f' }
+            if(wfile_str=='_ra' || index(wfile_str,'_ra_')==0) { set wfile_fmt = '%15.7f' }
+            if(wfile_str=='_de' || index(wfile_str,'_de_')==0) { set wfile_fmt = '%15.7f' }
+            if(index(wfile_str,'Name')>=0) { set wfile_fmt = '%15s' }
+            if(index(wfile_fmt,'s')==-1) { set wfile_val = float(wfile_val) }
+            print +$1 '$(wfile_fmt)' {wfile_val}
+        }
+        print +$1 '\n' {}
+        # print progress
+        if($i%(dimen(wfile_vec_1)/10)==0) {
+            !echo -n '" "'$(sprintf('%0.1f',($i+1)/dimen(wfile_vec_1)*100.0))"%"
+        }
+    }
+    !echo '" 100%"'
+    define print_noheader 0
+    echo "Output to "$1"!"
+
+
+
