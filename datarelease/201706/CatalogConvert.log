@@ -1,0 +1,81 @@
+Read column 1 as _id
+Read column 2 as _ra
+Read column 3 as _de
+Read column 4 as zp_X
+Read column 5 as f24
+Read column 6 as df24
+Read column 7 as f16
+Read column 8 as df16
+Read column 9 as f100
+Read column 10 as df100
+Read column 11 as f160
+Read column 12 as df160
+Read column 13 as f250
+Read column 14 as df250
+Read column 15 as f350
+Read column 16 as df350
+Read column 17 as f500
+Read column 18 as df500
+Read column 19 as f850
+Read column 20 as df850
+Read column 21 as f1160
+Read column 22 as df1160
+Read column 23 as radio
+Read column 24 as eradio
+Read column 25 as _fch1
+Read column 26 as _dfch1
+Read column 27 as _fch2
+Read column 28 as _dfch2
+Read column 29 as _fch3
+Read column 30 as _dfch3
+Read column 31 as _fch4
+Read column 32 as _dfch4
+Read column 33 as KtotX
+Read column 34 as MassX
+Read column 35 as distX
+Read column 36 as spezX
+Read column 37 as zq
+Read column 38 as source (string)
+Read column 39 as source_radio (string)
+Read column 40 as distz
+Read column 41 as idz
+Read column 42 as goodArea
+
+Aug 31 02:39:00 2017
+
+Format string specifies 4 output fields, for 41 vectors
+Read column 1 as SAVEDid
+Read column 2 as xmeAGN
+Read column 3 as xfAGN
+Read column 4 as xeAGN
+Read column 5 as xmeSFR
+Read column 6 as xfSFR
+Read column 7 as xeSFR
+Read column 8 as xfTOT
+Read column 9 as xeTOT
+Read column 10 as xf_zz
+Read column 11 as xe_zz
+Read lines 1 to 3308 from Catalog/RadioOwenMIPS24_priors_dzliu_20170828_SignalNoiseRatio.txt
+How many have zero redshift error? 25 
+How many have zero redshift error but good SNR? 6 
+  check_id
+
+3417
+5215
+6891
+9256
+11499
+14806
+
+How many have zero SFR error? 3 
+How many have zero SFR error but good SNR? 0 
+  check_id
+
+5779
+13538
+14002
+
+Read lines 1 to 3308 from Catalog/coo_AGN.txt
+Read lines 1 to 3308 from Catalog/coo_SED.txt
+Read lines 1 to 3308 from Catalog/coo_FIR.txt
+Format string specifies 7 output fields, for 46 vectors

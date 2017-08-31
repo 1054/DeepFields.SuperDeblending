@@ -317,7 +317,7 @@ go_galfit_2
         # 
         set Mags = ResultMags # (ResultMagsErr<0.25) ? ResultMags : Mags
         set Type = (ResultMagsErr<0.25) ? 'gaussian' : Type
-        set Rads = (ResultMagsErr<0.25) ?  0.5/abs(pixscale) : Rads
+        set Rads = (ResultMagsErr<0.25) ?  0.5/abs(pixscale) : Rads # initial guess 0.5 arcsec Gaussian FWHM
         set ParamMaxMags = float(Mags)*0.0 + 30.0
         set ParamFitRads = (ResultMagsErr<0.25) ? 1                 : ParamFitRads
         set ParamMinRads = (ResultMagsErr<0.25) ? 1.00              : ParamMinRads # minimum 1.0 pixel FWHM #<20170613># prev. using 0.5 pix causes 'nan' error!

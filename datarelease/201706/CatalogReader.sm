@@ -1,6 +1,6 @@
 go
     # 
-    # This macro will read catalog goodsn daddi dzliu 20170612
+    # This macro will read catalog goodsn daddi dzliu 20170828
     # usage macro read CatalogReader.sm go
     # last update date 2016-02-26
     # 
@@ -12,9 +12,9 @@ go
     data "coo_AGN.txt" read coo_AGN 1
     data "coo_SED.txt" read coo_SED 1
     data "coo_FIR.txt" read coo_FIR 1
-    rfile "ResLMTparams_RadioOwenMIPS24_priors_dzliu_20170612.txt"
-    rfile "ResLMTfluxes_RadioOwenMIPS24_priors_dzliu_20170612.txt"
-    rfile       "ResLMT_RadioOwenMIPS24_priors_dzliu_20170612.txt"
+    rfile "ResLMTparams_RadioOwenMIPS24_priors_dzliu_20170828.txt"
+    rfile "ResLMTfluxes_RadioOwenMIPS24_priors_dzliu_20170828.txt"
+    rfile       "ResLMT_RadioOwenMIPS24_priors_dzliu_20170828.txt"
     rfile "RadioOwenMIPS24_priors_dzliu_119_Starburstiness.txt"
     rfile "RadioOwenMIPS24_priors_dzliu_20161219_SignalNoiseRatio.txt"
     rfile "RadioOwenMIPS24_priors_dzliu_20161219.txt"
@@ -192,7 +192,9 @@ recognize_goodsn_alias 02
     set recognized_alias = (recognized_souid==15346  ) ? {"SMMJ123606+621047"     } : recognized_alias   # Bothwell et al. 2013 CO(3-2)
     #set recognized_alias= (recognized_souid==350001 ) ? {"HDF850.1"              } : recognized_alias   # Walter et al. 2012
     #set recognized_alias = (recognized_souid==350056 ) ? {"HDF850.1;GN14"         } : recognized_alias   # Walter et al. 2012 # datarelease 201509 # not in datarealease 20161211
-    set recognized_alias = (recognized_souid==850024 ) ? {"HDF850.1;GN14"         } : recognized_alias   # Walter et al. 2012 # datarelease 20170612, found in 850um residual but not 350um residual. 
+    #set recognized_alias = (recognized_souid==850024 ) ? {"HDF850.1;GN14"         } : recognized_alias   # Walter et al. 2012 # datarelease 20170612, found in 850um residual but not 350um residual. 
+    set recognized_alias = (recognized_souid==9761   ) ? {"HDF242-NE"             } : recognized_alias   # 
+    #set recognized_alias = (recognized_souid==9762  ) ? {"HDF242-SW"             } : recognized_alias   # see below "Shu_GN500.18;HDF242-SW"
     set recognized_alias = (recognized_souid==11580  ) ? {"AzGN05?"               } : recognized_alias   # Penner et al. 2011
     set recognized_alias = (recognized_souid==4991   ) ? {"AzGN02?"               } : recognized_alias   # Penner et al. 2011
     set recognized_alias = (recognized_souid==18911  ) ? {"AzGN06?"               } : recognized_alias   # Penner et al. 2011
@@ -213,7 +215,7 @@ recognize_goodsn_alias 02
     set recognized_alias = (recognized_souid==15820  ) ? {"Shu_GN500.12"          } : recognized_alias   # Inami Keck Obs 2015
     set recognized_alias = (recognized_souid==5089   ) ? {"Shu_GN500.9"           } : recognized_alias   # Inami Keck Obs 2015
     set recognized_alias = (recognized_souid==8612   ) ? {"Shu_GN500.16"          } : recognized_alias   # Inami Keck Obs 2015
-    set recognized_alias = (recognized_souid==9762   ) ? {"Shu_GN500.18"          } : recognized_alias   # Inami Keck Obs 2015
+    set recognized_alias = (recognized_souid==9762   ) ? {"Shu_GN500.18;HDF242-SW"} : recognized_alias   # Inami Keck Obs 2015
     set recognized_alias = (recognized_souid==10750  ) ? {"Shu_GN500.20;AzGN07"   } : recognized_alias   # Inami Keck Obs 2015
     #set recognized_alias = (recognized_souid==???   ) ? {"AGN_7149"              } : recognized_alias   # Inami Keck Obs 2015 no counterpart
     set recognized_alias = (recognized_souid==9520   ) ? {"AGN_9520"              } : recognized_alias   # Inami Keck Obs 2015

@@ -1,11 +1,15 @@
 go
     # 
-    #  macro read CatalogConvert.sm go
+    #  echo "macro read CatalogConvert.sm go" | sm | tee CatalogConvert.log
     #  
     #  here we read the catalog and correct PACS HPF and then correct MassX to Chabrier IMF and write the output catalog
     # 
     load rfile.sm
-    rfile "Catalog/RadioOwenMIPS24_priors_dzliu_20170612.txt"
+    rfile "Catalog/RadioOwenMIPS24_priors_dzliu_20170828.txt"
+    
+    echo 
+    echo $date
+    echo 
     
     # 
     # apply PACS high-pass filtering corretion HPF correction
@@ -30,7 +34,7 @@ go
     # 
     # output
     if(1) {
-        print "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_ChabrierIMF_PACSCorrected.txt" '%-9.0f %12.7f %12.7f %9g\n' \
+        print "Catalog/RadioOwenMIPS24_priors_dzliu_20170828_ChabrierIMF_PACSCorrected.txt" '%-9.0f %12.7f %12.7f %9g\n' \
         {_id _ra _de zp_X f24 df24 f16 df16 f100 df100 f160 df160 f250 df250 f350 df350 \
             f500 df500 f850 df850 f1160 df1160 radio eradio _fch1 _dfch1 _fch2 _dfch2 _fch3 _dfch3 \
             _fch4 _dfch4 KtotX Mstar distX spezX zq source distz idz goodArea}
@@ -44,7 +48,7 @@ go
     
     # 
     # read SED fitting redshifts and xfSFR
-    rfile "Catalog/ResLMT_RadioOwenMIPS24_priors_dzliu_20161211.txt"
+    rfile "Catalog/ResLMT_RadioOwenMIPS24_priors_dzliu_20170828.txt"
     set z = xf_zz
     set ez = xe_zz
     set z_op = zp_X
@@ -63,13 +67,13 @@ go
     }
     set snrFIRSMM = sqrt(snr100**2 + snr160**2 + snr250**2 + snr350**2 + snr500**2 + snr850**2 + snr1160**2)
     set zFIRSMM = z
-    print "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_SignalNoiseRatio.txt" \
+    print "Catalog/RadioOwenMIPS24_priors_dzliu_20170828_SignalNoiseRatio.txt" \
         '%-9.0f %15.3f %15.3f %15.3f %15.3f %15.3f %15.3f %15.3f %15.3f %15.3f %15.3f %15.3f %15.3f\n' \
         {_id snrFIRSMM zFIRSMM snr24 snrRadio snr16 snr100 snr160 snr250 snr350 snr500 snr850 snr1160}
     
     # 
     # read snrIRMM
-    data "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_SignalNoiseRatio.txt" read {snrIRMM 2}
+    data "Catalog/RadioOwenMIPS24_priors_dzliu_20170828_SignalNoiseRatio.txt" read {snrIRMM 2}
     set SNR = snrIRMM
     
     # 
@@ -145,7 +149,7 @@ go
     set dis_to_MS = LTIR*0.0-99 set dis_to_MS[temp_i] = lg(LTIR[temp_i]/MSIR[temp_i])
     set name_SB = TSB
     unset temp_i
-    print "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_Starburstiness.txt" '%15.0f%15g%15s%15g%15g%15g%20g%20g\n' {id dis_to_MS name_SB LTIR MSIR SFR lgSFR_MS_Sargent Mstar}
+    print "Catalog/RadioOwenMIPS24_priors_dzliu_20170828_Starburstiness.txt" '%15.0f%15g%15s%15g%15g%15g%20g%20g\n' {id dis_to_MS name_SB LTIR MSIR SFR lgSFR_MS_Sargent Mstar}
     #echo DEBUG: 
     
     # 
@@ -162,13 +166,13 @@ go
     # 
     # output
     if(1) {
-        print "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_ChabrierIMF_PACSCorrected_FmJy.txt" '%-9.0f %12.7f %12.7f %9g %9g %9g %9g \n' \
+        print "Catalog/RadioOwenMIPS24_priors_dzliu_20170828_ChabrierIMF_PACSCorrected_FmJy.txt" '%-9.0f %12.7f %12.7f %9g %9g %9g %9g \n' \
         {id ra de z ez z_sp z_op fK dfK fch1 dfch1 fch2 dfch2 fch3 dfch3 fch4 dfch4 f24 df24 f16 df16 \
             f100 df100 f160 df160 f250 df250 f350 df350 f500 df500 f850 df850 f1160 df1160 f20cm df20cm \
             SNR Mstar SFR eSFR sSFR goodArea Type_AGN Type_SED Type_FIR}
     }
     
-    !cp "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_ChabrierIMF_PACSCorrected_FmJy.txt" "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_CPFmJy.txt"
+    !cp "Catalog/RadioOwenMIPS24_priors_dzliu_20170828_ChabrierIMF_PACSCorrected_FmJy.txt" "Catalog/RadioOwenMIPS24_priors_dzliu_20170828_CPFmJy.txt"
     
 
 
@@ -186,7 +190,7 @@ go_make_latex_table
     #  echo "macro read CatalogConvert.sm go_make_latex_table" | sm
     # 
     load rfile.sm
-    rfile "Catalog/RadioOwenMIPS24_priors_dzliu_20161219_CPFmJy.txt"
+    rfile "Catalog/RadioOwenMIPS24_priors_dzliu_20170828_CPFmJy.txt"
     set lgMstar = lg(Mstar)
     # 
     set coo = (z>=3.0 && SNR>=10.0)
@@ -260,10 +264,10 @@ go_make_latex_table
     # 
     define print_noheader 1
     print  "aaa.tex" '%see \n' {}
-    print +"aaa.tex" '%/home/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201612/CatalogConvert.sm \n' {}
+    print +"aaa.tex" '%/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201706/CatalogConvert.sm \n' {}
     print +"aaa.tex" '%go_make_latex_table \n' {}
     print +"aaa.tex" '%set coo = (z>=3.0 && SNR>=10.0) \n' {}
-    print +"aaa.tex" '%/home/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201612/Table_2.tex \n' {}
+    print +"aaa.tex" '%/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201706/Table_2.tex \n' {}
     print +"aaa.tex" '% \n' {}
     print +"aaa.tex" '\\begin{table*}\n\n' {}
     print +"aaa.tex" '\\begin{center}\n\n' {}
