@@ -10,11 +10,10 @@ goxfitAGN 01
 		# 
 		foreach xAGN iiM {  
 			
-			foreach ee_Var {xxU xxxAGN aaaAGN aStar aSFR chi2 dim zused dlused} {declare ee_$ee_Var 0}
+			foreach ee_Var {xxU xxxAGN aaaAGN aSFR chi2 dim zused dlused} {declare ee_$ee_Var 0}
 			foreach ee_Var out_Bands {declare ee_$ee_Var 0} # this array contains the best-fit SED flux for output
 			
 			define chi2_min 1e8
-			define chi2_min_per_z 1e8
 			declare fF 0 declare dfF 0
 			foreach fvar xF { set fF = fF concat $fvar[$xAGN] }
 			foreach fvar xdF { set dfF = dfF concat $fvar[$xAGN] }
@@ -72,245 +71,212 @@ goxfitAGN 01
 						### <TODO> ###
 						
 						foreach aaaAGN AGN_norm_range { # CYCLE over the possible AGN normalizations $aaaAGN
-							
-							verbose 0
-							
-							set fagn = fagn$xxxAGN * $aaaAGN
-							
-							
-							### -- Fitting Stellar SED
-							###<Modified><20141028><DzLIU>###
-							###<Modified><20170315><DzLIU>### coSTAR (the wavelength range for stellar SED fitting)
-							## set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars && wW/(1+$(zrange[$xxZ]))>1.0 || ($(zrange[$xxZ])>4 && wW>5 && wW<8) ) && dfF<1e4
-							# set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars && wW/(1+$(zrange[$xxZ]))>1.0 || ($(zrange[$xxZ])>4 && wW>5 && wW<8) ) && dfF<1e4
-							if(!$?Apply_highz_stellar_range) {define Apply_highz_stellar_range 1}
-							if($Apply_highz_stellar_range) {
-								set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars && wW/(1+$(zrange[$xxZ]))>1.5 || ($(zrange[$xxZ])>4 && wW>5 && wW<8) ) && dfF<1e4
-							} else {
-								set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars ) && dfF<1e4
-							}
-							# 
-							define xebv 0 define aStar 0
-							if(sum(coSTAR)>0) { ##<Fixed><20141027><DzLIU>##
-								foreach xname {wW fF dfF} {set S_$xname = $xname if(coSTAR)}
-								set S_wW = lg(S_wW/(1+$(zrange[$xxZ])))  
-								spline xxWS fagn S_wW SWAGN
-								set SWAGN = SWAGN>0 ? SWAGN : 0
-								set S_fF = S_fF-SWAGN
-								spline xxWS XStar_IRAC S_wW SWSFR
-								set SWSFR = SWSFR>0 ? SWSFR : 0
-								## 
-								## <Added><20141222><EDADDI> add reddening
-								define xebv 0 define aStar 0
-								if(dimen(S_wW)>1) { # deredden the SED
-									define ebv_min_star 1e8 set ebv_star = 0,2,.1
-									foreach tbv ebv_star { 
-										set EBV_SWSFR = SWSFR*10**(-0.4*$tbv*(-0.88+2.7/10**S_wW))
-										define ESaSFR $(sum(S_fF*EBV_SWSFR/S_dfF**2)/(sum(EBV_SWSFR**2/S_dfF**2)))
-										if($ESaSFR>0 && $(sum((S_fF-EBV_SWSFR*$ESaSFR)**2/S_dfF**2))<=$ebv_min_star ) {
-											define aStar $ESaSFR
-											define ebv_min_star $(sum((S_fF-EBV_SWSFR*$ESaSFR)**2/S_dfF**2))
-											define xebv $($tbv)
-											## !echo -n "' '"MIN!!:
-										}
-										## !echo -n "' '"tbv=$tbv xebv=$xebv xchi2=$(sum((S_fF-EBV_SWSFR*$ESaSFR)**2/S_dfF**2)) xSa=$ESaSFR
+						
+						verbose 0
+						
+						set fagn = fagn$xxxAGN * $aaaAGN
+						
+						
+						### -- Fitting Stellar SED
+						###<Modified><20141028><DzLIU>###
+						###<Modified><20170315><DzLIU>### coSTAR (the wavelength range for stellar SED fitting)
+						## set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars && wW/(1+$(zrange[$xxZ]))>1.0 || ($(zrange[$xxZ])>4 && wW>5 && wW<8) ) && dfF<1e4
+						# set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars && wW/(1+$(zrange[$xxZ]))>1.0 || ($(zrange[$xxZ])>4 && wW>5 && wW<8) ) && dfF<1e4
+						if(!$?Apply_highz_stellar_range) {define Apply_highz_stellar_range 1}
+						if($Apply_highz_stellar_range) {
+							set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars && wW/(1+$(zrange[$xxZ]))>1.5 || ($(zrange[$xxZ])>4 && wW>5 && wW<8) ) && dfF<1e4
+						} else {
+							set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars ) && dfF<1e4
+						}
+						# 
+						define xebv 0 define SaSFR 0
+						if(sum(coSTAR)>0) { ##<Fixed><20141027><DzLIU>##
+							foreach xname {wW fF dfF} {set S_$xname = $xname if(coSTAR)}
+							set S_wW = lg(S_wW/(1+$(zrange[$xxZ])))  
+							spline xxWS fagn S_wW SWAGN
+							set SWAGN = SWAGN>0 ? SWAGN : 0
+							set S_fF = S_fF-SWAGN
+							spline xxWS XStar_IRAC S_wW SWSFR
+							set SWSFR = SWSFR>0 ? SWSFR : 0
+							## 
+							## <Added><20141222><EDADDI> add reddening
+							define xebv 0 define SaSFR 0
+							if(dimen(S_wW)>1) { # deredden the SED
+								define ebv_min_star 1e8 set ebv_star = 0,2,.1
+								foreach tbv ebv_star { 
+									set EBV_SWSFR = SWSFR*10**(-0.4*$tbv*(-0.88+2.7/10**S_wW))
+									define ESaSFR $(sum(S_fF*EBV_SWSFR/S_dfF**2)/(sum(EBV_SWSFR**2/S_dfF**2)))
+									if($ESaSFR>0 && $(sum((S_fF-EBV_SWSFR*$ESaSFR)**2/S_dfF**2))<=$ebv_min_star ) {
+										define SaSFR $ESaSFR
+										define ebv_min_star $(sum((S_fF-EBV_SWSFR*$ESaSFR)**2/S_dfF**2))
+										define xebv $($tbv)
+										## !echo -n "' '"MIN!!:
 									}
-								} else {
-									define aStar $(sum(S_fF*SWSFR/S_dfF**2)/(sum(SWSFR**2/S_dfF**2)))
-									if($aStar<0) {define aStar 0}
+									## !echo -n "' '"tbv=$tbv xebv=$xebv xchi2=$(sum((S_fF-EBV_SWSFR*$ESaSFR)**2/S_dfF**2)) xSa=$ESaSFR
 								}
-								#define aaa ?
-								## <Added><20141222><EDADDI>
-								## 
-								## define aStar $(sum(S_fF*SWSFR/S_dfF**2)/(sum(SWSFR**2/S_dfF**2)))
-								## if($aStar<0) {define aSFR 0}
-								## set SWSFR = SWSFR*$aStar
-								## set Star_IRAC = XStar_IRAC*$aStar
-								set SWSFR = SWSFR*10**(-0.4*$xebv*(-0.88+2.7/10**S_wW))*$aStar ## <Added><20141222><EDADDI> add reddening
-								set Star_IRAC = XStar_IRAC*10**(-0.4*$xebv*(-0.88+2.7/10**xxWS))*$aStar ## <Added><20141222><EDADDI> add reddening
-								define Schi2 $(sum((S_fF-SWSFR)**2/S_dfF**2))
-								set Sdiff = (S_fF-SWSFR)/S_dfF
 							} else {
-								define aStar 0
-								define aSFR 0
-								set Star_IRAC = XStar_IRAC*0
-								define Schi2 0
+								define SaSFR $(sum(S_fF*SWSFR/S_dfF**2)/(sum(SWSFR**2/S_dfF**2)))
+								if($SaSFR<0) {define SaSFR 0}
 							}
-							
-							### -- Fitting Dust SED
-							# set coSFR = (wW/(1+$(zrange[$xxZ]))>=$Lambda_minrest || wW>35) && dfF<1e4 #<Modified><20141219><DADDI>#
-							set coSFR = (wW/(1+$(zrange[$xxZ]))>=$Lambda_minrest || wW>20) && dfF<1e4
-							# <Added><20160107><edaddi> 
-							# <Fixed><20160214><edaddi> Bug: if(coo_FIR) => if($eee_FIR)
-							if($eee_FIR==1) {
-								set coSFR = coSFR && (wW>25 && wW<3000)
-								#<20160214># Note: if the source is Type_FIR, i.e. has good detection at previous FIR band
-								#<20160214>#       then we only fit 25um - 3000um data points for coSFR (FIR SED) component
-							}
-							# define aaa ?
-							if(sum(coSFR)>0) { ##<Fixed><20141123><DzLIU>##
-								foreach xname {wW fF dfF} {set _$xname = $xname if(coSFR)}
-								set _wW = lg(_wW/(1+$(zrange[$xxZ])))
-								spline xxWS fagn _wW WAGN
-								### set SWAGN = SWAGN>0 ? SWAGN : 0 ###<Modified><20140610><DzLIU### 
-								set WAGN = WAGN>0 ? WAGN : 0 ###<Modified><20140610><DZLIU>### I think this is WAGN ?
-								spline xxWS Star_IRAC _wW WSFR_irac
-								set WSFR_irac = WSFR_irac>0 ? WSFR_irac : 0
-								set _fF = _fF-WAGN-WSFR_irac
-								spline xxWS fsfr$xxU""_for_qIR_with_z _wW WSFR
-								set WSFR = WSFR>0 ? WSFR : 0
-								
-								
-								###<DZLIU><Modified>### 20160111 edaddi: about the macro AGN_N.sm (now named do_Galsed.sm), 
-								###<DZLIU><Modified>### when setting the steps for AGN normalisation it uses the flux even if low S/N, 
-								###<DZLIU><Modified>### we should use the upper limit instead in that case. 
-								###<DZLIU><Modified>### This could be checked. 
-								set ___fF = (_fF>2.0*_dfF) ? _fF : (_fF+2.0*_dfF) # fF+2*dfF
-								define aSFR $(sum(___fF*WSFR/_dfF**2)/(sum(WSFR**2/_dfF**2)))
-								###<DZLIU><Modified>### define aSFR $(sum(_fF*WSFR/_dfF**2)/(sum(WSFR**2/_dfF**2))) ### -- this is previous code
-								###<DZLIU><Modified>### 
-								
-								
-								#define aaa ?
-								if($aSFR<0) {define aSFR 0}
-								set WSFR = WSFR*$aSFR
-							} else {
-								define aSFR 0
-								set WSFR = _wW*0
-							}
-							
-							###<Modified><20140415><DADDI>### 
-							###<Modified><20140415><DADDI>### set Xtemplate = fsfr$xxU*$aSFR
-							###<Modified><20140415><DADDI>### 
-							set Xtemplate = fsfr$xxU""_for_qIR_with_z * $aSFR + fagn
-							
-							###<Modified><20170315><DZLIU>### out_Waves is set by AGN_N.sm (now named do_Galsed.sm)
-							set XwaveFIT = out_Waves
-							
-							set XwaveFIT=lg(XwaveFIT/(1+$(zrange[$xxZ])))
-							
-							spline xxWS Xtemplate XwaveFIT XfluxFIT
+							#define aaa ?
+							## <Added><20141222><EDADDI>
+							## 
+							## define SaSFR $(sum(S_fF*SWSFR/S_dfF**2)/(sum(SWSFR**2/S_dfF**2)))
+							## if($SaSFR<0) {define aSFR 0}
+							## set SWSFR = SWSFR*$SaSFR
+							## set Star_IRAC = XStar_IRAC*$SaSFR
+							set SWSFR = SWSFR*10**(-0.4*$xebv*(-0.88+2.7/10**S_wW))*$SaSFR ## <Added><20141222><EDADDI> add reddening
+							set Star_IRAC = XStar_IRAC*10**(-0.4*$xebv*(-0.88+2.7/10**xxWS))*$SaSFR ## <Added><20141222><EDADDI> add reddening
+							define Schi2 $(sum((S_fF-SWSFR)**2/S_dfF**2))
+							set Sdiff = (S_fF-SWSFR)/S_dfF
+						} else {
+							define SaSFR 0
+							define aSFR 0
+							set Star_IRAC = XStar_IRAC*0
+							define Schi2 0
+						}
+						
+						### -- Fitting Dust SED
+						# set coSFR = (wW/(1+$(zrange[$xxZ]))>=$Lambda_minrest || wW>35) && dfF<1e4 #<Modified><20141219><DADDI>#
+						set coSFR = (wW/(1+$(zrange[$xxZ]))>=$Lambda_minrest || wW>20) && dfF<1e4
+						# <Added><20160107><edaddi> 
+						# <Fixed><20160214><edaddi> Bug: if(coo_FIR) => if($eee_FIR)
+						if($eee_FIR==1) {
+							set coSFR = coSFR && (wW>25 && wW<3000)
+							#<20160214># Note: if the source is Type_FIR, i.e. has good detection at previous FIR band
+							#<20160214>#       then we only fit 25um - 3000um data points for coSFR (FIR SED) component
+						}
+						# define aaa ?
+						if(sum(coSFR)>0) { ##<Fixed><20141123><DzLIU>##
+							foreach xname {wW fF dfF} {set _$xname = $xname if(coSFR)}
+							set _wW = lg(_wW/(1+$(zrange[$xxZ])))
+							spline xxWS fagn _wW WAGN
+							### set SWAGN = SWAGN>0 ? SWAGN : 0 ###<Modified><20140610><DzLIU### 
+							set WAGN = WAGN>0 ? WAGN : 0 ###<Modified><20140610><DZLIU>### I think this is WAGN ?
+							spline xxWS Star_IRAC _wW WSFR_irac
+							set WSFR_irac = WSFR_irac>0 ? WSFR_irac : 0
+							set _fF = _fF-WAGN-WSFR_irac
+							spline xxWS fsfr$xxU""_for_qIR_with_z _wW WSFR
+							set WSFR = WSFR>0 ? WSFR : 0
 							
 							
+							###<DZLIU><Modified>### 20160111 edaddi: about the macro AGN_N.sm (now named do_Galsed.sm), 
+							###<DZLIU><Modified>### when setting the steps for AGN normalisation it uses the flux even if low S/N, 
+							###<DZLIU><Modified>### we should use the upper limit instead in that case. 
+							###<DZLIU><Modified>### This could be checked. 
+							set ___fF = (_fF>2.0*_dfF) ? _fF : (_fF+2.0*_dfF) # fF+2*dfF
+							define aSFR $(sum(___fF*WSFR/_dfF**2)/(sum(WSFR**2/_dfF**2)))
+							###<DZLIU><Modified>### define aSFR $(sum(_fF*WSFR/_dfF**2)/(sum(WSFR**2/_dfF**2))) ### -- this is previous code
+							###<DZLIU><Modified>### 
 							
-							define chi2 $(sum((_fF-WSFR)**2/_dfF**2))
 							
-							set diff = (_fF-WSFR)/_dfF
+							#define aaa ?
+							if($aSFR<0) {define aSFR 0}
+							set WSFR = WSFR*$aSFR
+						} else {
+							define aSFR 0
+							set WSFR = _wW*0
+						}
+						
+						###<Modified><20140415><DADDI>### 
+						###<Modified><20140415><DADDI>### set Xtemplate = fsfr$xxU*$aSFR
+						###<Modified><20140415><DADDI>### 
+						set Xtemplate = fsfr$xxU""_for_qIR_with_z * $aSFR + fagn
+						
+						###<Modified><20170315><DZLIU>### out_Waves is set by AGN_N.sm (now named do_Galsed.sm)
+						set XwaveFIT = out_Waves
+						
+						set XwaveFIT=lg(XwaveFIT/(1+$(zrange[$xxZ])))
+						
+						spline xxWS Xtemplate XwaveFIT XfluxFIT
+						
+						
+						
+						define chi2 $(sum((_fF-WSFR)**2/_dfF**2))
+						
+						set diff = (_fF-WSFR)/_dfF
 
-							define Rchi2 $chi2 #<Added><20141103><DzLIU>#
-							
-							define chi2 $($chi2+$Schi2) ### <20141222><EDADDI>
-							
-							### <Added><20141028><DZLIU> ###
-							#<20170911># if($?chi2_min_U==0) { 
-							#<20170911># 	define chi2_min_U $chi2 # record previous chi2_min
-							#<20170911># 	define Rchi2_min_U $Rchi2
-							#<20170911># 	define Schi2_min_U $Schi2
-							#<20170911># 	define Rchi2_min_A $aSFR
-							#<20170911># 	define Schi2_min_A $aStar
-							#<20170911># 	define chi2_min_Star_A $aStar # stellar component normalization
-							#<20170911># 	define chi2_min_Dust_A $aSFR  # dust component normalization
-							#<20170911># 	define chi2_min_AGN_A $aaaAGN # AGN component normalization
-							#<20170911># } else { 
-							#<20170911># 	if($chi2<$chi2_min_U) {
-							#<20170911># 		define chi2_min_U $chi2
-							#<20170911># 		define Rchi2_min_U $Rchi2
-							#<20170911># 		define Schi2_min_U $Schi2
-							#<20170911># 		define Rchi2_min_A $aSFR
-							#<20170911># 		define Schi2_min_A $aStar
-							#<20170911># 		define chi2_min_Star_A $aStar # stellar component normalization
-							#<20170911># 		define chi2_min_Dust_A $aSFR  # dust component normalization
-							#<20170911># 		define chi2_min_AGN_A $aaaAGN # AGN component normalization
-							#<20170911># 	}
-							#<20170911># }
-							
-							if($chi2<$chi2_min) {
-								define zbest $(zrange[$xxZ])
-								define ubest $xxU 
-								define dLbest $(xDL[$xxZ])
-								define agnbest $xxxAGN
-								define norm_AGN $aaaAGN
-								define norm_Star $aStar
-								define norm_SFR $aSFR
-								define norm_SFR_irac $aStar
-								define norm_SFR_irac_ebv $xebv ## <Added><20141222><EDADDI> add reddening
-								define chi2_min $chi2
-								define Rchi2_min $Rchi2
-								define Schi2_min $Schi2
-								if($ubest==101) { define uvbest $(UvalU[dimen(UvalU)-1]) } else { define uvbest $(UvalU[$ubest-1]) }
+						define Rchi2 $chi2 #<Added><20141103><DzLIU>#
+						
+						define chi2 $($chi2+$Schi2) ### <20141222><EDADDI>
+						
+						### <Added><20141028><DZLIU> ###
+						if($?chi2_min_U==0) { 
+							define chi2_min_U $chi2
+							define Rchi2_min_U $Rchi2
+							define Schi2_min_U $Schi2
+							define Rchi2_min_A $aSFR
+							define Schi2_min_A $SaSFR
+							define chi2_min_Star_A $SaSFR # stellar component normalization
+							define chi2_min_Dust_A $aSFR  # dust component normalization
+							define chi2_min_AGN_A $aaaAGN # AGN component normalization
+						} else { 
+							if($chi2<$chi2_min_U) {
+								define chi2_min_U $chi2
+								define Rchi2_min_U $Rchi2
+								define Schi2_min_U $Schi2
+								define Rchi2_min_A $aSFR
+								define Schi2_min_A $SaSFR
+								define chi2_min_Star_A $SaSFR # stellar component normalization
+								define chi2_min_Dust_A $aSFR  # dust component normalization
+								define chi2_min_AGN_A $aaaAGN # AGN component normalization
 							}
-							
-							# dump chi2_min_per_z
-							if($chi2<$chi2_min_per_z) {
-								define per_z_zbest $(zrange[$xxZ])
-								define per_z_ubest $xxU 
-								define per_z_dLbest $(xDL[$xxZ])
-								define per_z_agnbest $xxxAGN
-								define per_z_norm_AGN $aaaAGN
-								define per_z_norm_Star $aStar
-								define per_z_norm_SFR $aSFR
-								define per_z_norm_SFR_irac $aStar
-								define per_z_norm_SFR_irac_ebv $xebv
-								define per_z_chi2_min $chi2
-								define per_z_Rchi2_min $Rchi2
-								define per_z_Schi2_min $Schi2
-								if($ubest==101) { define per_z_uvbest $(UvalU[dimen(UvalU)-1]) } else { define per_z_uvbest $(UvalU[$ubest-1]) }
-							}
-							
-							# z, iU, iAGN, aAGN, aSF --> chi2 MATRIX
-							foreach gRee {xxU xxxAGN aaaAGN aStar aSFR chi2} {set ee_$gRee = ee_$gRee concat $$gRee}
-							set ee_dim = ee_dim concat $(dimen(_fF))
-							set ee_zused = ee_zused concat $(zrange[$xxZ]) 
-							set ee_dlused = ee_dlused concat $(xDL[$xxZ])
-							
-							
-							###<Modified><20150714><dzliu>### 70um
-							###<Modified><20160315><dzliu>### 10cm -- now use arrays so we can add more in the future
-							do out_Index = 0, dimen(XfluxFIT)-1 {
-								define XbandFIT $(out_Bands[$out_Index]) 
-								set ee_$XbandFIT = ee_$XbandFIT concat $(XfluxFIT[$out_Index])
-							}
+						}
+						
+						if($chi2<$chi2_min) {
+							define zbest $(zrange[$xxZ])
+							define ubest $xxU 
+							define dLbest $(xDL[$xxZ])
+							define agnbest $xxxAGN
+							define norm_AGN $aaaAGN
+							define norm_SFR $aSFR
+							define norm_SFR_irac $SaSFR
+							define norm_SFR_irac_ebv $xebv ## <Added><20141222><EDADDI> add reddening
+							define chi2_min $chi2
+							define Rchi2_min $Rchi2
+							define Schi2_min $Schi2
+							#print {_wW _fF WAGN WSFR _dfF diff}
+							#echo $chi2 $(zrange[$xxZ])  $xxU $xxxAGN $aaaAGN $aSFR
+							#define aaa ?
+							###<Added><20141028><DzLIU>###
+							if($ubest==101) { define uvbest $(UvalU[dimen(UvalU)-1]) } else { define uvbest $(UvalU[$ubest-1]) }
+						}
+						#     z, iU, iAGN, aAGN, aSF --> chi2 MATRIX
+						foreach gRee {xxU xxxAGN aaaAGN aStar aSFR chi2} {set ee_$gRee = ee_$gRee concat $$gRee}
+						set ee_dim = ee_dim concat $(dimen(_fF))
+						set ee_zused = ee_zused concat $(zrange[$xxZ]) 
+						set ee_dlused = ee_dlused concat $(xDL[$xxZ])
+						
+						
+						###<Modified><20150714><dzliu>### 70um
+						###<Modified><20160315><dzliu>### 10cm -- now use arrays so we can add more in the future
+						do out_Index = 0, dimen(XfluxFIT)-1 {
+							define XbandFIT $(out_Bands[$out_Index]) 
+							set ee_$XbandFIT = ee_$XbandFIT concat $(XfluxFIT[$out_Index])
+						}
 						
 						}
 					
 					}
 					
 					### <TODO><TEST><20140325><20141028><20141103><DZLIU> ###
-					#<20170911># !echo -n ' chi2='$(sprintf('%0.5g',float($chi2_min_U)))"''"
-					#<20170911># !echo -n ' Schi2='$(sprintf('%0.5g',float($Schi2_min_U)))"''"
-					#<20170911># !echo -n ' Rchi2='$(sprintf('%0.5g',float($Rchi2_min_U)))"''"
-					#<20170911># !echo -n ' aStar='$(sprintf('%0.5g',float($chi2_min_Star_A)))"''"
-					#<20170911># !echo -n ' aAGN='$(sprintf('%0.5g',float($chi2_min_AGN_A)))"''"
-					#<20170911># !echo -n ' aDust='$(sprintf('%0.5g',float($chi2_min_Dust_A)))"''"
-					#<20170911># !echo ''
-					#<20170911># undef chi2_min_U
-					#<20170911># undef Schi2_min_U
-					#<20170911># undef Rchi2_min_U
-					#<20170911># undef chi2_min_Star_A
-					#<20170911># undef chi2_min_Dust_A
-					#<20170911># undef chi2_min_AGN_A
+					!echo -n ' chi2='$(sprintf('%0.5g',float($chi2_min_U)))"''"
+					!echo -n ' Schi2='$(sprintf('%0.5g',float($Schi2_min_U)))"''"
+					!echo -n ' Rchi2='$(sprintf('%0.5g',float($Rchi2_min_U)))"''"
+					!echo -n ' aStar='$(sprintf('%0.5g',float($chi2_min_Star_A)))"''"
+					!echo -n ' aAGN='$(sprintf('%0.5g',float($chi2_min_AGN_A)))"''"
+					!echo -n ' aDust='$(sprintf('%0.5g',float($chi2_min_Dust_A)))"''"
+					!echo ''
+					undef chi2_min_U
+					undef Schi2_min_U
+					undef Rchi2_min_U
+					undef chi2_min_Star_A
+					undef chi2_min_Dust_A
+					undef chi2_min_AGN_A
 					
 					# define aaa ?
 					
 				}
-				
-				
-				# <20170911> output a best-fit SED at each z (chi2_min_per_z)
-				if(1) {
-					set per_z_SED_w = 10**(xxWS+lg(1+$per_z_zbest))
-					set per_z_SED_f_SFR = $per_z_norm_SFR * fsfr$ubest""_for_qIR_with_z
-					set per_z_SED_f_STR = $per_z_norm_SFR_irac * XStar_IRAC*10**(-0.4*$per_z_norm_SFR_irac_ebv*(-0.88+2.7/10**xxWS))
-					set per_z_SED_f_AGN = $per_z_norm_AGN * fagn$agnbest
-					set per_z_SED_f_SFR = (per_z_SED_f_SFR<0) ? 1e-99 : per_z_SED_f_SFR
-					set per_z_SED_f_STR = (per_z_SED_f_STR<0) ? 1e-99 : per_z_SED_f_STR
-					set per_z_SED_f_AGN = (per_z_SED_f_AGN<0) ? 1e-99 : per_z_SED_f_AGN
-					set per_z_SED_f_TOT = per_z_SED_f_STR+per_z_SED_f_AGN+per_z_SED_f_SFR
-					print "fit_matrix_HDFN/fit_sed_"$(id[$xAGN])"_at_z_"$(sprintf('%0.4f',$per_z_zbest))".txt" \
-						  '%15g %17g %17g %17g %17g\n' \
-						  {per_z_SED_w per_z_SED_f_TOT per_z_SED_f_STR per_z_SED_f_AGN per_z_SED_f_SFR}
-					define chi2_min_per_z 1e99 # reset chi2_min_per_z
-				}
-				
 			
 			}
 			# FINISH GIVEN OBJECT
@@ -347,7 +313,7 @@ goxfitAGN 01
 			
 			
 			declare SAVEDcols 0.s # for output
-			foreach ee_Var {zused xxU xxxAGN aaaAGN aStar aSFR chi2 dim dlused} {set SAVEDcols = SAVEDcols concat 'ee_$ee_Var'} # for output
+			foreach ee_Var {zused xxU xxxAGN aaaAGN aSFR chi2 dim dlused} {set SAVEDcols = SAVEDcols concat 'ee_$ee_Var'} # for output
 			foreach ee_Var out_Bands {set SAVEDcols = SAVEDcols concat 'ee_$ee_Var'} # for output
 			wfile "fit_matrix_HDFN/fit_matrix_"$(id[$xAGN]).txt SAVEDcols
 			
@@ -387,8 +353,8 @@ goxfitAGN 01
 			expand 1.5
 			limits 0 5.6 -3 2.5 erase lweight 3.0 box 
 			expand 2.0
-			xlabel "Observed Wavelength [{\mu}m]"
-			ylabel "Flux Density [mJy]"
+			xlabel Observed Wavelength [microns]
+			ylabel Flux [mJy]
 			expand 1.5
 			ticksize 0 0 0 0
 			set up_coo = fF>0 && fF/dfF>2
@@ -701,13 +667,6 @@ SETzrange
 			}
 		}
 		
-		### <20170911><DZLIU> ### allow user-input z range
-		if(is_vector(z_range_list)) {
-			if(dimen(z_range_list)>0) {
-				set zrange = z_range_list
-			}
-		}
-		
 		spline zvec Dz zrange xDz
 		set xDL = xDz*(1+zrange)
 		#print {zrange xDL}
@@ -894,7 +853,7 @@ rMatrix 01
 		###<Modified><20140610><DZLIU>### predict 2mm ### <20150714><DZLIU> ### fit 70um when available
 		###<Modified><20170315><DZLIU>### fit 10cm (3GHz)
 		data "fit_matrix_HDFN/fit_matrix_"$1".txt" 
-		read {zz 1 tySFR 2 tyAGN 3 normAGN 4 normSTR 5 normSFR 6 chi2 7 n 8 dl 9}
+		read {zz 1 tySFR 2 tyAGN 3 normAGN 4 normSFR 5 chi2 6 n 7 dl 8}
 		do out_Index = 0, dimen(out_Bands)-1 {
 			#echo Reading "fit_matrix_HDFN/fit_matrix_"$1".txt" mrx_$(out_Bands[$out_Index]) $($out_Index+9).f
 		 	read <mrx_$(out_Bands[$out_Index]) $($out_Index+9).f>
@@ -909,7 +868,6 @@ rMatrix 01
 		set normSFR = 10**(normSFR-10)
 		set normAGN = 10**(normAGN-10)
 		set normTOT = normAGN+normSFR
-		set normSTR = lg((normSTR) * dl**2 / 40.31970) # 1 Lsun Mpc-2 = 40.31970 mJy GHz # --> stellar mass in log in Chabrier IMF
 		
 		# 
 		# Type_SED
@@ -922,7 +880,7 @@ rMatrix 01
 		
 		###<Modified><20140610><DZLIU>### predict 2mm
 		###<TODO><Modified><20140610><DZLIU>### predict 2mm ### <20150714><DZLIU> ### fit 70um when available
-		foreach mrx_var {zz tySFR tyAGN normAGN normSTR normSFR normTOT chi2 n dl} {set $mrx_var = $mrx_var if(mrx_coo)}
+		foreach mrx_var {zz tySFR tyAGN normAGN normSFR normTOT chi2 n dl} {set $mrx_var = $mrx_var if(mrx_coo)}
 		foreach mrx_var out_Bands {set mrx_$mrx_var = mrx_$mrx_var if(mrx_coo)}
 		
 		vecminmax chi2 miiChi maa
@@ -954,7 +912,6 @@ rMatrix 01
 		set _normAGN = normAGN         if(chi2<$miiChi+$dChi2)
 		set _normSFR = normSFR         if(chi2<$miiChi+$dChi2)
 		set _normTOT = normSFR+normAGN if(chi2<$miiChi+$dChi2)
-		set _normSTR = normSTR         if(chi2<$miiChi+$dChi2)
 		set _norm_zz = zz              if(chi2<$miiChi+$dChi2ZP)
 		set _normChi = chi2            if(chi2<$miiChi+$dChi2)
 		
@@ -965,7 +922,6 @@ rMatrix 01
 		
 		vecminmax _normAGN miiAGN maaAGN 
 		vecminmax _normSFR miiSFR maaSFR 
-		vecminmax _normSTR miiSTR maaSTR 
 		vecminmax _normTOT miiTOT maaTOT 
 		vecminmax _norm_zz mii_zz maa_zz 
 		
@@ -974,15 +930,13 @@ rMatrix 01
 		foreach mrx_var out_Bands {vecminmax _norm$mrx_var mii$mrx_var maa$mrx_var}
 		
 		
-		define fAGN $((+$miiAGN+$maaAGN)/2)
+		define fAGN $(($miiAGN+$maaAGN)/2)
 		define eAGN $((-$miiAGN+$maaAGN)/2)
-		define fSTR $((+$miiSTR+$maaSTR)/2)
-		define eSTR $((-$miiSTR+$maaSTR)/2)
-		define fSFR $((+$miiSFR+$maaSFR)/2)
+		define fSFR $(($miiSFR+$maaSFR)/2)
 		define eSFR $((-$miiSFR+$maaSFR)/2)
-		define fTOT $((+$miiTOT+$maaTOT)/2)
+		define fTOT $(($miiTOT+$maaTOT)/2)
 		define eTOT $((-$miiTOT+$maaTOT)/2)
-		define f_zz $((+$mii_zz+$maa_zz)/2)
+		define f_zz $(($mii_zz+$maa_zz)/2)
 		define e_zz $((-$mii_zz+$maa_zz)/2)
 		
 		###<20140610><DZLIU>### predict 2mm
@@ -993,7 +947,6 @@ rMatrix 01
 		
 		if($mrx_Verbose) { 
 			echo Range AGN $miiAGN $maaAGN --> $fAGN +- $eAGN (SN = $($fAGN/$eAGN) AGN)
-			echo Range STR $miiSTR $maaSTR --> $fSTR +- $eSTR (SN = $($fSTR/$eSTR) STR)
 			echo Range SFR $miiSFR $maaSFR --> $fSFR +- $eSFR (SN = $($fSFR/$eSFR) SFR)
 			echo Range TOT $miiTOT $maaTOT --> $fTOT +- $eTOT (SN = $($fTOT/$eTOT) TOT)
 			echo Range _zz $mii_zz $maa_zz --> $f_zz +- $e_zz (SN = $($f_zz/$e_zz) _zz)
@@ -1007,7 +960,6 @@ rMatrix 01
 		
 		
 		set _normAGN_best = normAGN  if(chi2<$miiChi+1e-3)
-		set _normSTR_best = normSTR  if(chi2<$miiChi+1e-3)
 		set _normSFR_best = normSFR  if(chi2<$miiChi+1e-3)
 		set _normTOT_best = normTOT  if(chi2<$miiChi+1e-3)
 		set _norm_zz_best = zz       if(chi2<$miiChi+1e-3)
@@ -1017,7 +969,6 @@ rMatrix 01
 		
 		
 		stats _normAGN_best meAGN si ku 
-		stats _normSTR_best meSTR si ku 
 		stats _normSFR_best meSFR si ku 
 		stats _normTOT_best meTOT si ku 
 		stats _norm_zz_best me_zz si ku 
@@ -1029,7 +980,6 @@ rMatrix 01
 		
 		if($mrx_Verbose) { 
 			echo Best AGN $meAGN
-			echo Best STR $meSTR
 			echo Best SFR $meSFR
 			echo Best TOT $meTOT
 			echo Best _zz $me_zz
@@ -1054,12 +1004,12 @@ rMatrix 01
 			ticksize 0 0 0 0
 		}
 		if($mrx_Verbose && 0) {
-			gop (zz) (1/chi2)
+			gop (zz) (1/chi2) 
 			ltype 1
 			rel -11 $(1/($miiChi+$dChi2ZP)) draw 111 $(1/($miiChi+$dChi2ZP)) ltype 0
 			ctype 0 expand 1.5 ptype 4 1 
 			xlabel Redshift
-			ylabel "1/\chi^2"
+			ylabel 1/chi2
 		}
 		if($mrx_Verbose && 1) {
 			#<Modified><DZLIU>#
@@ -1106,16 +1056,6 @@ rMatrix 01
 			    device nodevice             #<Added><DZLIU>#
 			}                               #<Added><DZLIU>#
 			#<Modified><DZLIU>#
-			
-			set log_L_AGN = normAGN+10
-			set log_L_SFR = normSFR+10
-			set log_L_TIR = normTOT+10
-			set log_Mstar = normSTR
-			print "fit_chi_HDFN/datatable_chi2_log_L_AGN_"$1".txt" '%15g %15g\n' {log_L_AGN chi2}
-			print "fit_chi_HDFN/datatable_chi2_log_L_SFR_"$1".txt" '%15g %15g\n' {log_L_SFR chi2} # lgLIR(TOT)
-			print "fit_chi_HDFN/datatable_chi2_log_L_TIR_"$1".txt" '%15g %15g\n' {log_L_TIR chi2} # lgLIR(SFR)
-			print "fit_chi_HDFN/datatable_chi2_log_Mstar_"$1".txt" '%15g %15g\n' {log_Mstar chi2} # lgMstar
-			print "fit_chi_HDFN/datatable_chi2_z_"$1".txt" '%15g %15g\n' {zz chi2}
 		}
 doShow 00	
 		define diff_SB 1

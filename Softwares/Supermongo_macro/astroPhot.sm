@@ -1303,18 +1303,18 @@ set_goodsn_photometry_constants_irac4 00
 
 set_any_photometry_constants_AB 00
     # set AB magnitude photometry constants
-    define h_AB   3732.5 # photometry fudge factor -- convert between flux and AB magnitude = 10**(23-48.57/2.5) -- Oke, J.B. & Gunn, J. 1983, ApJ, 266, 713
+    define h_AB   3630.780548 # photometry fudge factor -- convert between flux and AB magnitude = 10**(23-48.60/2.5) -- Oke, J.B. & Gunn, J. 1983, ApJ, 266, 713
     define m_AB   1      # 
     define mJy_AB 1e+3   # converting pixel flux from Jy to mJy
-    define mBias_AB 0.0  # AB magnitude zero point is 48.57
+    define mBias_AB 0.0  # AB magnitude zero point is 48.60
     define fBias_AB 0.0  # 
 
 set_cosmos_photometry_constants_AB 00
     # set AB magnitude photometry constants
-    define h_AB   3732.5 # photometry fudge factor -- convert between flux and AB magnitude = 10**(23-48.57/2.5) -- Oke, J.B. & Gunn, J. 1983, ApJ, 266, 713
+    define h_AB   3630.780548 # photometry fudge factor -- convert between flux and AB magnitude = 10**(23-48.60/2.5) -- Oke, J.B. & Gunn, J. 1983, ApJ, 266, 713
     define m_AB   1      # 
     define mJy_AB 1e+3   # converting pixel flux from Jy to mJy
-    define mBias_AB 0.0  # AB magnitude zero point is 48.57
+    define mBias_AB 0.0  # AB magnitude zero point is 48.60
     define fBias_AB 0.0  # 
 
 set_cosmos_photometry_constants_AdamMuzzin2013 00

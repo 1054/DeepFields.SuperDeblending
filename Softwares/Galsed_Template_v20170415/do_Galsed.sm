@@ -1,6 +1,6 @@
-AGN_Parallel 02
+do_Galsed 02
 		# replace AGNall
-		# usage: macro read AGN_N.sm AGN_Parallel Updated_Catalog_20150430.txt 9412
+		# usage: macro read do_Galsed.sm do_Galsed_Parallel Updated_Catalog_20150430.txt 9412
 		if(!$?1) { return }
 		if(!$?2) { return }
 		macro read default.sm
@@ -9,16 +9,14 @@ AGN_Parallel 02
 		# 
 		# Read Catalog
 		# 
-		define in_Catalog $1
-		#rfile $in_Catalog
-		#rfile_compatible_check
-		data $in_Catalog read in_Sources 1.f
+		set in_Catalog = {"}+string('$1')+{"}
+		data $(in_Catalog) read in_Sources 1.f
 		
 		# 
 		# Check dirs (e.g. SED libraries)
 		# 
 		check_dir_exist
-		echo Check dirs ok!
+		echo "Check dirs ok!"
 		
 		# 
 		# Check SED fitting tunable parameters: Type_SED, Type_20cm (Type_AGN), and Type_FIR
@@ -111,11 +109,11 @@ xfitAGN	01
 		#define dirfile "fit_matrix_HDFN" #<20170315># obsolete
 		#verbose 0
 		
-		### macro read default.sm rfile $in_Catalog
+		### macro read default.sm rfile $(in_Catalog)
 		
 		### macro read Chiara_N.sm sSFR   ### COMPATIBLE
 		
-		###<20140326><DZLIU>### rfile Res_$in_Catalog
+		###<20140326><DZLIU>### rfile Res_$(in_Catalog)
 		###<20140326><DZLIU>### rfile Handy_SPIRE.txt
 		###<20140326><DZLIU>### rfile use_newfluxes_radio_24.txt
 		
@@ -130,17 +128,11 @@ xfitAGN	01
 			echo OBJECT CHOSEN ID=$1 NO=$(EeE[0])
 			# 
 			verbose 0
-			if(1) {
-				# read one line data from the input catalog, assuming the header has TWO commented lines
-				rfile $in_Catalog $(EeE[0]+2) $(EeE[0]+2)
-				rfile_compatible_check
-			}
-			if($1!=id) {
-				# read one line data from the input catalog, assuming the header has ONE commented lines
-				rfile $in_Catalog $(EeE[0]+1) $(EeE[0]+1)
-				rfile_compatible_check
-			}
-			if($1!=id) {
+			# read one line data from the input catalog, assuming the header has TWO commented lines
+			echo rfile $(in_Catalog) $(EeE[0]) $(EeE[0])
+			rfile $(in_Catalog) $(EeE[0]) $(EeE[0])
+			rfile_compatible_check
+			if($1!=id[0]) {
 				echo "Error! Could not read the input catalog! Perharps the header lines are not starting with \# or are more than two lines?"
 				return
 			}
@@ -154,27 +146,27 @@ xfitAGN	01
 		# 
 		# PACS HPF correction
 		# 
-		if(is_vector(f24) && is_vector(df24) && is_vector(KtotX) && is_vector(_fch1)) {
-		if(is_vector(f100) && is_vector(df100)) {
-			foreach var {f100 df100} {set $var=f24>60 && f24/df24>3 ? $var*1.12 : $var*1.19} }
-		if(is_vector(f160) && is_vector(df160)) {
-			foreach var {f160 df160} {set $var=f24>60 && f24/df24>3 ? $var*1.12 : $var*1.19} }
-		###<Added><20140416><DZLIU>### 
-		print +done_pacs_flux_and_error_compensation 'Done PACS 100 and 160 flux and error compensations ' {}
-		print +done_pacs_flux_and_error_compensation 'with factor 1.12 for bright sources and 1.19 for faint sources, ' {}
-		print +done_pacs_flux_and_error_compensation 'to correct the missing flux due to high-pass filtering.\n' {}
-		}
+		#if(is_vector(f24) && is_vector(df24) && is_vector(KtotX) && is_vector(_fch1)) {
+		#if(is_vector(f100) && is_vector(df100)) {
+		#	foreach var {f100 df100} {set $var=f24>60 && f24/df24>3 ? $var*1.12 : $var*1.19} }
+		#if(is_vector(f160) && is_vector(df160)) {
+		#	foreach var {f160 df160} {set $var=f24>60 && f24/df24>3 ? $var*1.12 : $var*1.19} }
+		####<Added><20140416><DZLIU>### 
+		#print +done_pacs_flux_and_error_compensation 'Done PACS 100 and 160 flux and error compensations ' {}
+		#print +done_pacs_flux_and_error_compensation 'with factor 1.12 for bright sources and 1.19 for faint sources, ' {}
+		#print +done_pacs_flux_and_error_compensation 'to correct the missing flux due to high-pass filtering.\n' {}
+		#}
 		
 		# 
 		# IRAC, radio 20cm and 10cm flux unit conversion from uJy to mJy
 		# 
-		set xUJ = {fch1 dfch1 fch2 dfch2 fch3 dfch3 fch4 dfch4 }
-		if(is_vector(f16) && is_vector(df16)) { set xUJ = xUJ concat 'f16' concat 'df16' }
-		if(is_vector(f24) && is_vector(df24)) { set xUJ = xUJ concat 'f24' concat 'df24' }
-		if(is_vector(radio) && is_vector(eradio)) { set xUJ = xUJ concat 'radio' concat 'eradio' }
-		if(is_vector(f20cm) && is_vector(df20cm)) { set xUJ = xUJ concat 'f20cm' concat 'df20cm' }
-		if(is_vector(f10cm) && is_vector(df10cm)) { set xUJ = xUJ concat 'f10cm' concat 'df10cm' }
-		foreach UJ xUJ { set $UJ = ($UJ!=-99)?($UJ/1000):-99 } ### convert unit uJy to mJy ### NO NEED FOR PACS&SPIRES
+		#set xUJ = {fch1 dfch1 fch2 dfch2 fch3 dfch3 fch4 dfch4 }
+		#if(is_vector(f16) && is_vector(df16)) { set xUJ = xUJ concat 'f16' concat 'df16' }
+		#if(is_vector(f24) && is_vector(df24)) { set xUJ = xUJ concat 'f24' concat 'df24' }
+		#if(is_vector(radio) && is_vector(eradio)) { set xUJ = xUJ concat 'radio' concat 'eradio' }
+		#if(is_vector(f20cm) && is_vector(df20cm)) { set xUJ = xUJ concat 'f20cm' concat 'df20cm' }
+		#if(is_vector(f10cm) && is_vector(df10cm)) { set xUJ = xUJ concat 'f10cm' concat 'df10cm' }
+		#foreach UJ xUJ { set $UJ = ($UJ!=-99)?($UJ/1000):-99 } ### convert unit uJy to mJy ### NO NEED FOR PACS&SPIRES
 		
 		# 
 		# K band magnitude to flux mJy

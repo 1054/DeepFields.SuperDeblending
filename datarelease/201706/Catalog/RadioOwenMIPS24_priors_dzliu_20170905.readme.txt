@@ -1,0 +1,13 @@
+new 850_NMF photometry
+new 350 galsim
+new 850_NMF galsim
+fixed run_simu_stat_v11.sm print FUN_fbias FUN_dfcorr precision problem, see: 
+    
+    '/Users/dzliu/Work/DeepFields/Works/GOODSN_Photometry/Galfit_update_all_photometry/'
+
+updated spec-z, see
+    
+    '/Users/dzliu/Work/DeepFields/Works/GOODSN_Photometry/Galfit_update_zspec/'
+    
+
+

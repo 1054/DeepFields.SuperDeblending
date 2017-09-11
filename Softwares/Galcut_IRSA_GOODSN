@@ -1,0 +1,108 @@
+#!/bin/bash
+#
+# This code will fetch cutouts for the the following bands in GOODS-North field
+# Spitzer IRAC ch1,2,3,4
+# Spitzer IRS PUI 16um
+# HST B,V,i,z
+#
+
+if [[ $# -lt 3 ]]; then
+    echo "Usage: Galcut_IRSA RA Dec Output_Name [FoV_180arcsec]"
+    exit
+fi
+
+Input_RA="$1"
+Input_Dec="$2"
+Output_Name="$3"
+if [[ $# -ge 4 ]]; then
+    Input_FoV="$4"
+else
+    Input_FoV="180.0"
+fi
+
+if [[ ! -d "$Output_Name" ]]; then
+    mkdir -p "$Output_Name"
+fi
+
+if [[ "$Input_RA" == *":"* && "$Input_Dec" == *":"* ]]; then
+    RADec=($(radec2degree "$Input_RA" "$Input_Dec"))
+    if [[ ${#RADec[@]} != 2 ]]; then
+        echo "Error! Failed to convert input RA Dec $Input_RA $Input_Dec to degrees!"
+        exit
+    fi
+    RA=${RADec[0]}
+    Dec=${RADec[1]}
+else
+    RA="${Input_RA}"
+    Dec="${Input_Dec}"
+fi
+
+FoV=$(awk "BEGIN {printf \"%0.10f\",(${Input_FoV}/3600.0)}")
+FoV_half=$(awk "BEGIN {printf \"%0.10f\",(${Input_FoV}/3600.0/2.0)}")
+
+Current_Dir=$(pwd -P)
+
+cd "$Output_Name"
+
+Download_Link="https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_4_s2_v0.32_sci.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_4_s2_v0.32_wht.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_4_s2_v0.32_flg.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_4_s2_v0.32_exp.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+
+echo "$Download_Link"; curl -k "$Download_Link" -o "Spitzer_IRAC_ch4_s2_v0.32_sci.fits"
+
+Download_Link="https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_3_s2_v0.30_sci.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_3_s2_v0.30_wht.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_3_s2_v0.30_flg.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_3_s2_v0.30_exp.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+
+echo "$Download_Link"; curl -k "$Download_Link" -o "Spitzer_IRAC_ch3_s2_v0.30_sci.fits"
+
+Download_Link="https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_2_s2_v0.30_sci.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_2_s2_v0.30_wht.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_2_s2_v0.30_flg.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_2_s2_v0.30_exp.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+
+echo "$Download_Link"; curl -k "$Download_Link" -o "Spitzer_IRAC_ch2_s2_v0.30_sci.fits"
+
+Download_Link="https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_1_s2_v0.30_sci.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_1_s2_v0.30_wht.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_1_s2_v0.30_flg.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FDR2%2FNorth%2Fn_irac_1_s2_v0.30_exp.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+
+echo "$Download_Link"; curl -k "$Download_Link" -o "Spitzer_IRAC_ch1_s2_v0.30_sci.fits"
+
+Download_Link="https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FIRS_16%2Fgoods_north_irs16.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2FIRS_16%2Fgoods_north_irs16_cov.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+
+echo "$Download_Link"; curl -k "$Download_Link" -o "Spitzer_IRS_PUI_16um_sci.fits"
+
+Download_Link="https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2Fancillary%2Fh_nb_sect42_v1.0_drz_img.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2Fancillary%2Fh_nb_sect42_v1.0_wht_img.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+
+echo "$Download_Link"; curl -k "$Download_Link" -o "HST_B_drz_img.fits"
+
+Download_Link="https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2Fancillary%2Fh_nv_sect42_v1.0_drz_img.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2Fancillary%2Fh_nv_sect42_v1.0_wht_img.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+
+echo "$Download_Link"; curl -k "$Download_Link" -o "HST_V_drz_img.fits"
+
+Download_Link="https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2Fancillary%2Fh_ni_sect42_v1.0_drz_img.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2Fancillary%2Fh_ni_sect42_v1.0_wht_img.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+
+echo "$Download_Link"; curl -k "$Download_Link" -o "HST_i_drz_img.fits"
+
+Download_Link="https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2Fancillary%2Fh_nz_sect42_v1.0_drz_img.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+             #"https://irsa.ipac.caltech.edu/cgi-bin/Subimage/nph-subimage?origfile=/irsadata/SPITZER/GOODS//images%2Fancillary%2Fh_nz_sect42_v1.0_wht_img.fits&ra=${RA}&dec=${Dec}&xsize=${FoV}"
+
+echo "$Download_Link"; curl -k "$Download_Link" -o "HST_z_drz_img.fits"
+
+
+
+
+
+
+
+
+
+

@@ -5,6 +5,7 @@ crabPlotColorbar 00
     print '\ncrabPlotColorbar example:\n\n' {}
     print '    set xArray yArray dataArray\n' {}
     print '    plotColorBar 0 0 0 0 dataArray\n' {}
+    print '    plotColorBar 0 0 0 0 dataArray dataMin dataMax TitleString\n' {}
     print '    do i=0,dimen(dataArray)-1 {\n' {}
     print '      ctype \$(dataArray_Colors[\$i])\n' {}
     print '      points (\$(xArray[\$i])) (\$(yArray[\$i]))\n' {}

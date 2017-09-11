@@ -1,0 +1,73 @@
+RadioOwenMIPS24_priors_dzliu_20170828_zSpec.fits
+
+Spec_z_02_Dickinson2014_Inami2014_Keck_Obs.fits
+Spec_z_03_Dickinson2015_Inami2015_Keck_Obs.fits
+Spec_z_03_Dickinson2015_Inami2015_Keck_Obs.txt
+Spec_z_102_Casey2012.fits
+Spec_z_103_Skelton2014.fits
+Spec_z_104_Kriek2015.fits
+Spec_z_105_Wirth2015.fits
+Spec_z_100_more.fits
+
+
+
+
+add columns
+
+    Select_Dickinson2014
+        NULL_zSpec_Dickinson2014 ? false : (zSpec_Dickinson2014>0)
+    Select_Dickinson2015
+        NULL_zSpec_Dickinson2015 ? false : (zSpec_Dickinson2015>0)
+    Select_Casey2012
+        NULL_zSpec_Casey2012 ? false : ((zSpec_Casey2012>0 && abs(zPhot-zSpec_Casey2012)/(1.0+zSpec_Casey2012)<0.1))
+    Select_Skelton2014
+        NULL_zSpec_Skelton2014 ? false : (zSpec_Skelton2014>0 && abs(zPhot-zSpec_Skelton2014)/(1.0+zSpec_Skelton2014)<0.1)
+    Select_Kriek2015
+        NULL_zSpec_Kriek2015 ? false : (zSpec_Kriek2015>0)
+    Select_Wirth2015
+        NULL_zSpec_Wirth2015 ? false : ((zQuality_Wirth2015==1 && zSpec_Wirth2015>0) || (zQuality_Wirth2015!=1 && zSpec_Wirth2015>0 && abs(zPhot-zSpec_Wirth2015)/(1.0+zSpec_Wirth2015)<0.1))
+    Select_more
+        NULL_zSpec_more ? false : (zSpec_more>0)
+    
+    zSpec_to_add
+        (Select_more ? zSpec_more : (Select_Kriek2015 ? zSpec_Kriek2015 : (Select_Wirth2015 ? zSpec_Wirth2015 : (Select_Skelton2014 ? zSpec_Skelton2014 : (Select_Casey2012 ? zSpec_Casey2012 : (Select_Dickinson2014 ? zSpec_Dickinson2014 : (Select_Dickinson2015 ? zSpec_Dickinson2015 : -99)))))))
+    zQuality_to_add
+        (Select_more ? 1 : (Select_Kriek2015 ? 1 : (Select_Wirth2015 ? zQuality_Wirth2015 : (Select_Skelton2014 ? 1 : (Select_Casey2012 ? zQuality_Casey2012 : (Select_Dickinson2014 ? 1 : (Select_Dickinson2015 ? 1 : -99)))))))
+    zssn_to_add
+        (Select_more ? zssn_more : (Select_Kriek2015 ? 104 : (Select_Wirth2015 ? 105 : (Select_Skelton2014 ? 103 : (Select_Casey2012 ? 102 : (Select_Dickinson2014 ? 106 : (Select_Dickinson2015 ? 107 : -99)))))))
+
+    zSpec
+        (zSpec_to_add>0 && zQuality_to_add>0 && (!Select_Skelton2014 || zssn_to_check<0)) ? zSpec_to_add : zSpec_to_check
+    zQuality
+        (zSpec_to_add>0 && zQuality_to_add>0 && (!Select_Skelton2014 || zssn_to_check<0)) ? zQuality_to_add : zQuality_to_check
+    zssn
+        (zSpec_to_add>0 && zQuality_to_add>0 && (!Select_Skelton2014 || zssn_to_check<0)) ? zssn_to_add : zssn_to_check
+
+
+
+check subsets
+    
+    (zSpec_to_check>0 && zSpec_to_add>0)          -- 843
+    (zSpec_to_check<0 && zSpec_to_add>0)          -- 6
+    (zSpec_to_check>0 && zSpec_to_add<0)          -- 743
+    (zSpec_to_check>0 && zssn_to_check<0 && zssn_to_add<0)          -- only ID 5916
+    (zSpec_to_check>0 && zSpec_to_add>0 && abs(zSpec_to_check-zSpec_to_add)>0.1)        -- 10 sources
+    (zSpec_to_check>0 && zSpec_to_add>0 && abs(zSpec_to_check-zSpec_to_add)>0.01)        -- 20 sources
+    
+    (zSpec_to_add>0 && zQuality_to_add>0 && !Select_Skelton2014)    -- 72 sources updated, in which 5 are actually newly added and 1 source has changed spec-z largely. 
+    
+    (zSpec_to_add>0 && zQuality_to_add>0 && (!Select_Skelton2014 || zssn_to_check<0))    -- 74 sources updated, in which 5 are actually newly added and 1 source (ID 6820) has changed spec-z largely. 
+    
+    Now only ID 5916 has no zssn, because it is from Wirth2015 but with a distance of 1.0? arcsec. I need to have a check for this source. 
+
+
+
+
+
+
+
+
+
+
+
+

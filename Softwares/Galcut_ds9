@@ -1,0 +1,105 @@
+#!/bin/bash
+# 
+# This code will compute statistics then display each image with scale limits
+#   
+# 
+
+# software dependency
+if [[ $(type CrabPhotImageStatistics 2>/dev/null | wc -l) -eq 0 ]]; then
+    source $(dirname ${BASH_SOURCE[0]})/SETUP
+fi
+
+
+
+# prepare function
+calc_scale_limits() {
+    CrabPhotImageStatistics "$1" > "$1.stats.txt"
+    photo_min=$(cat "$1.stats.txt" | grep -v "^#" | head -n 1 | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 2)
+    photo_mean=$(cat "$1.stats.txt" | grep -v "^#" | head -n 1 | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 3)
+    photo_max=$(cat "$1.stats.txt" | grep -v "^#" | head -n 1 | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 5)
+    photo_std=$(cat "$1.stats.txt" | grep -v "^#" | head -n 1 | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 7)
+    if [[ "$photo_mean"x != x ]] && [[ "$photo_std"x != x ]]; then
+        photo_scale_limit_1=$(awk "BEGIN {print ($photo_mean)-2.0*($photo_std);}")
+        photo_scale_limit_2=$(awk "BEGIN {print ($photo_mean)+5.0*($photo_std);}")
+        echo $photo_scale_limit_1 $photo_scale_limit_2
+    fi
+}
+
+
+
+# get fits image list
+list_of_fits_images=()
+list_of_region_files=()
+list_of_input_files=()
+list_of_input_arguments=()
+for (( i=1; i<=$#; i++ )); do
+    #echo "${!i}"
+    if [[ "${!i}" == *".FITS" ]] || [[ "${!i}" == *".fits" ]]; then
+        list_of_input_files+=("${!i}")
+        list_of_fits_images+=("${!i}")
+    elif [[ "${!i}" == *".REG" ]] || [[ "${!i}" == *".reg" ]]; then
+        list_of_input_files+=("${!i}")
+        list_of_region_files+=("${!i}")
+    else
+        list_of_input_arguments+=("${!i}")
+    fi
+done
+
+#exit
+
+output_ds9_script="ds9_plot_script.bash"
+
+echo "#!/bin/bash" > "$output_ds9_script"
+echo "#" >> "$output_ds9_script"
+echo "source ~/Cloud/Github/DeepFields.SuperDeblending/Softwares/SETUP" >> "$output_ds9_script"
+echo "" >> "$output_ds9_script"
+echo "cd \"$PWD\"" >> "$output_ds9_script"
+echo "" >> "$output_ds9_script"
+echo "ds9title=\"Galcut_ds9\"" >> "$output_ds9_script"
+echo "ds9count=1" >> "$output_ds9_script"
+echo "while [[ \$(xpaget \"\${ds9title}_\${ds9count}\" 2>/dev/null | wc -l) -gt 0 ]]; do ds9count=\$((ds9count+1)); done" >> "$output_ds9_script"
+echo "" >> "$output_ds9_script"
+echo "ds9 -title \"\${ds9title}_\${ds9count}\" -lock frame wcs -wcs skyformat degrees \\" >> "$output_ds9_script"
+for (( j=0; j<${#list_of_input_files[@]}; j++ )); do
+    # check file existence
+    if [[ ! -f "${list_of_input_files[j]}" ]]; then
+        echo "********************************************************************************"
+        echo "Warning! Input file \"${list_of_input_files[j]}\" does not exist!"
+        echo "********************************************************************************"
+        continue
+    fi
+    if [[ "${list_of_input_files[j]}" == *".FITS" ]] || [[ "${list_of_input_files[j]}" == *".fits" ]]; then
+        #echo "${list_of_input_files[j]}"
+        photo_scale_limits=($(calc_scale_limits "${list_of_input_files[j]}"))
+        #TODO: recognize band and display in ds9
+        #sethead "obj_${i}_photo_${j}.fits" OBJECT=$(echo "${list_of_input_files[j]}" | cut -b 1-60)
+        if [[ ${#photo_scale_limits[@]} -eq 2 ]]; then
+            echo "    \"${list_of_input_files[j]}\" -scale limits ${photo_scale_limits[0]} ${photo_scale_limits[1]} \\" >> "$output_ds9_script"
+        else
+            echo "    \"${list_of_input_files[j]}\" \\" >> "$output_ds9_script"
+        fi
+    elif [[ "${list_of_input_files[j]}" == *".REG" ]] || [[ "${list_of_input_files[j]}" == *".reg" ]]; then
+        if [[ 1 -eq 1 ]]; then
+            echo "    -regions load ${list_of_input_files[j]} -regions showtext no\\" >> "$output_ds9_script"
+        fi
+    fi
+done
+if [[ ${#list_of_input_arguments[@]} -gt 0 ]]; then
+    if [[ 1 -eq 1 ]]; then
+        if [[ 1 -eq 1 ]]; then
+            echo "    ${list_of_input_arguments[@]} \\" >> "$output_ds9_script"
+        fi
+    fi
+fi
+echo "    &" >> "$output_ds9_script"
+echo "" >> "$output_ds9_script"
+chmod +x "$output_ds9_script"
+cat "$output_ds9_script"
+./"$output_ds9_script"
+
+
+
+
+
+
+

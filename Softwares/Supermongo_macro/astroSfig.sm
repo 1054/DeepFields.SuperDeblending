@@ -975,12 +975,12 @@ calc_FIR_line_fluxes 08
     #   $7: Starburstiness
     #   $8: Excitation # a constant factor, the ratio of the J_up line to the ground state line in Jy km/s scale. 
     # 
-    if(!$?1) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Method\n' {} return}
-    if(!$?2) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Method\n' {} return}
-    if(!$?3) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Method\n' {} return}
-    if(!$?4) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Method\n' {} return}
-    if(!$?5) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Method\n' {} return}
-    if(!$?6) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Daddi2010\n' {} return}
+    if(!$?1) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Method [starbursty [excitation]]\n' {} return}
+    if(!$?2) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Method [starbursty [excitation]]\n' {} return}
+    if(!$?3) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Method [starbursty [excitation]]\n' {} return}
+    if(!$?4) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Method [starbursty [excitation]]\n' {} return}
+    if(!$?5) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Method [starbursty [excitation]]\n' {} return}
+    if(!$?6) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Daddi2010 [starbursty [excitation]]\n' {} return}
     if(whatis(__calc_FIR_line_fluxes_arg1)==73) {
         set _line_name = __calc_FIR_line_fluxes_arg1
     } else {
