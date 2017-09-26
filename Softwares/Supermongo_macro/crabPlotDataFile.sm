@@ -1,10 +1,11 @@
 crabPlotDataFile
     # 
     print 'Usage: \n' {}
-    print '    \# make sure we have "aaa.plt" ready\n' {}
+    print '    \# make sure we have \"aaa.plt\" ready\n' {}
     print '    load crabPlotDataFile.sm\n' {}
     print '    open_PS "aaa"\n' {}
-    print '    plot_Data "bbb.plt"\n' {}
+    print '    plot_Data "bbb.dat"\n' {}
+    print '    plot_Data "ccc.dat"\n' {}
     print '    close_PS\n' {}
     print '\n' {}
     print 'Example of aaa.plt\n' {}
@@ -14,11 +15,15 @@ crabPlotDataFile
     print '\# ticksize 1 1 -1 10 \n' {}
     print '\# xtitle "z" \n' {}
     print '\# ytitle "sSFR" \n' {}
+    print '\n' {}
+    print 'Example of bbb.dat\n' {}
+    print '------------------------------\n' {}
     print '\# \n' {}
     print '\# expand 0.6\n' {}
     print '\# lweight 1.0\n' {}
     print '\# ptype 15 0\n' {}
     print '\# ctype blue\n' {}
+    print '\# ylog \n' {}
     print '\# legend "z<3 MS"\n' {}
     print '\# \n' {}
     print '\#            z        lgUmean\n' {}
@@ -26,6 +31,21 @@ crabPlotDataFile
     print '          1.316            -99\n' {}
     print '           2.51            -99\n' {}
     print '         0.8178        0.78533\n' {}
+    print '------------------------------\n' {}
+    print 'Example of ccc.dat\n' {}
+    print '------------------------------\n' {}
+    print '\# \n' {}
+    print '\# expand 0.6\n' {}
+    print '\# lweight 2.0\n' {}
+    print '\# ctype royalblue\n' {}
+    print '\# connect 1 \# 1 means ltype 1 \n' {}
+    print '\# legend "some curve"\n' {}
+    print '\# \n' {}
+    print '\#            x              y\n' {}
+    print '\# \n' {}
+    print '           1.0            0.01\n' {}
+    print '           2.0            0.20\n' {}
+    print '           3.0            0.90\n' {}
     print '------------------------------\n' {}
     print '\n' {}
 
@@ -75,93 +95,131 @@ plot_Data 01
         if(dimen(temp_sline)>0) {
             #<DEBUG># print {temp_iline temp_sline}
             #
-            if(dimen(temp_sline)>2) {
+            if(dimen(temp_sline)>=2) {
                 #<DEBUG># echo $(temp_sline[1])
                 # 
                 # define plot ctype
                 if(temp_sline[0]=='\#' && temp_sline[1]=='ctype') {
-                    echo "ctype" $(temp_sline[2])
-                    ctype $(temp_sline[2])
+                    if(dimen(temp_sline)>2) {
+                        echo "ctype" $(temp_sline[2])
+                        ctype $(temp_sline[2])
+                    }
                 }
                 # 
                 # define plot expand
                 if(temp_sline[0]=='\#' && temp_sline[1]=='expand') {
-                    echo "expand" $(temp_sline[2])
-                    expand $(temp_sline[2])
+                    if(dimen(temp_sline)>2) {
+                        echo "expand" $(temp_sline[2])
+                        expand $(temp_sline[2])
+                    }
                 }
                 # 
                 # define plot lweight
                 if(temp_sline[0]=='\#' && temp_sline[1]=='lweight') {
-                    echo "lweight" $(temp_sline[2])
-                    lweight $(temp_sline[2])
+                    if(dimen(temp_sline)>2) {
+                        echo "lweight" $(temp_sline[2])
+                        lweight $(temp_sline[2])
+                    }
                 }
                 # 
                 # define plot ptype
                 if(temp_sline[0]=='\#' && temp_sline[1]=='ptype') {
-                    if(temp_sline[2]=='upper') {
-                        upper ptype $upper
-                    } else {
-                        ptype $(temp_sline[2]) $(temp_sline[3])
+                    if(dimen(temp_sline)>2) {
+                        if(temp_sline[2]=='upper') {
+                            upper ptype $upper
+                        } else {
+                            if(dimen(temp_sline)>3) {
+                                ptype $(temp_sline[2]) $(temp_sline[3])
+                            }
+                        }
+                    }
+                }
+                # 
+                # define plot ltype
+                if(temp_sline[0]=='\#' && temp_sline[1]=='ltype') {
+                    if(dimen(temp_sline)>2) {
+                        echo "ltype" $(temp_sline[2])
+                        ltype $(temp_sline[2])
                     }
                 }
                 # 
                 # define plot legend
                 if(temp_sline[0]=='\#' && temp_sline[1]=='legend') {
-                    set temp_legend = temp_legend concat temp_sline[2]
-                    do temp_ichar=3,dimen(temp_sline)-1 {
-                        set temp_legend[dimen(temp_legend)-1] = temp_legend[dimen(temp_legend)-1]+' '+temp_sline[$temp_ichar]
+                    if(dimen(temp_sline)>2) {
+                        set temp_legend = temp_legend concat temp_sline[2]
+                        do temp_ichar=3,dimen(temp_sline)-1 {
+                            set temp_legend[dimen(temp_legend)-1] = temp_legend[dimen(temp_legend)-1]+' '+temp_sline[$temp_ichar]
+                        }
                     }
                 }
                 # 
                 # define plot legend-location
                 if(temp_sline[0]=='\#' && (temp_sline[1]=='legend-location' || temp_sline[1]=='legend-position')) {
-                    set plot_legend_px = plot_legend_px concat float(temp_sline[2])
-                    set plot_legend_py = plot_legend_py concat float(temp_sline[3])
+                    if(dimen(temp_sline)>2) {
+                        set plot_legend_px = plot_legend_px concat float(temp_sline[2])
+                        set plot_legend_py = plot_legend_py concat float(temp_sline[3])
+                    }
                 }
                 # 
                 # define plot legend-alignment
                 if(temp_sline[0]=='\#' && (temp_sline[1]=='legend-alignment' || temp_sline[1]=='legend-align')) {
-                    set plot_legend_pa = plot_legend_pa concat int(temp_sline[2])
+                    if(dimen(temp_sline)>2) {
+                        set plot_legend_pa = plot_legend_pa concat int(temp_sline[2])
+                    }
                 }
                 # 
                 # define plot legend-expand
                 if(temp_sline[0]=='\#' && (temp_sline[1]=='legend-expand' || temp_sline[1]=='legend-charsize' || temp_sline[1]=='legend-size')) {
-                    set plot_legend_ps = plot_legend_ps concat float(temp_sline[2])
+                    if(dimen(temp_sline)>2) {
+                        set plot_legend_ps = plot_legend_ps concat float(temp_sline[2])
+                    }
                 }
                 # 
                 # define plot legend-lweight
                 if(temp_sline[0]=='\#' && (temp_sline[1]=='legend-lweight' || temp_sline[1]=='legend-weight' || temp_sline[1]=='legend-charthick')) {
-                    set plot_legend_pt = plot_legend_pt concat float(temp_sline[2])
+                    if(dimen(temp_sline)>2) {
+                        set plot_legend_pt = plot_legend_pt concat float(temp_sline[2])
+                    }
                 }
                 # 
                 # define plot legend-spacing
                 if(temp_sline[0]=='\#' && (temp_sline[1]=='legend-spacing' || temp_sline[1]=='legend-lineheight')) {
-                    set plot_legend_dy = plot_legend_dy concat float(temp_sline[2])
+                    if(dimen(temp_sline)>2) {
+                        set plot_legend_dy = plot_legend_dy concat float(temp_sline[2])
+                    }
                 }
                 # 
                 # define plot legend-with-symbol
                 if(temp_sline[0]=='\#' && (temp_sline[1]=='legend-with-symbol' || temp_sline[1]=='legend-with-symbol')) {
-                    set plot_legend_ws = plot_legend_ws concat int(temp_sline[2])
+                    if(dimen(temp_sline)>2) {
+                        set plot_legend_ws = plot_legend_ws concat int(temp_sline[2])
+                    }
                 }
                 # 
                 # define plot angle
                 if(temp_sline[0]=='\#' && temp_sline[1]=='angle') {
-                    angle $(temp_sline[2])
+                    if(dimen(temp_sline)>2) {
+                        angle $(temp_sline[2])
+                    }
                 }
                 # 
                 # define data xcol
                 if(temp_sline[0]=='\#' && (temp_sline[1]=='xcol' || (temp_sline[1]=='x'))) {
-                    set temp_xcol = int($(temp_sline[2]))
+                    if(dimen(temp_sline)>2) {
+                        set temp_xcol = int($(temp_sline[2]))
+                    }
                 }
                 # 
                 # define data xcol
                 if(temp_sline[0]=='\#' && (temp_sline[1]=='ycol' || (temp_sline[1]=='y'))) {
-                    set temp_ycol = int($(temp_sline[2]))
+                    if(dimen(temp_sline)>2) {
+                        set temp_ycol = int($(temp_sline[2]))
+                    }
                 }
                 # 
                 # define bool xlog
                 if(temp_sline[0]=='\#' && (temp_sline[1]=='xlog')) {
-                    if(dimen(temp_sline)>=3) {
+                    if(dimen(temp_sline)>2) {
                         set temp_xlog = int(temp_sline[2])
                     } else {
                         set temp_xlog = 1
@@ -170,7 +228,7 @@ plot_Data 01
                 # 
                 # define bool ylog
                 if(temp_sline[0]=='\#' && (temp_sline[1]=='ylog')) {
-                    if(dimen(temp_sline)>=3) {
+                    if(dimen(temp_sline)>2) {
                         set temp_ylog = int(temp_sline[2])
                     } else {
                         set temp_ylog = 1
@@ -204,12 +262,16 @@ plot_Data 01
                 # 
                 # define data label id
                 if(temp_sline[0]=='\#' && (temp_sline[1]=='id' || temp_sline[1]=='idcol' || temp_sline[1]=='label')) {
-                    set temp_idcol = int($(temp_sline[2]))
+                    if(dimen(temp_sline)>2) {
+                        set temp_idcol = int($(temp_sline[2]))
+                    }
                 }
                 # 
                 # define data color coding
                 if(temp_sline[0]=='\#' && (temp_sline[1]=='ccol' || temp_sline[1]=='color' || temp_sline[1]=='color-coding')) {
-                    set temp_ccol = int($(temp_sline[2]))
+                    if(dimen(temp_sline)>2) {
+                        set temp_ccol = int($(temp_sline[2]))
+                    }
                 }
                 # 
                 # define data color coding range
@@ -433,10 +495,10 @@ plot_Data 01
                 do temp_ichar=0,dimen(temp_legend)-1 {
                     if($temp_ichar<dimen(plot_legend_px)) {set _crabPlot_legend_px=plot_legend_px[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_px)) {set _crabPlot_legend_px=0.05}}
                     if($temp_ichar<dimen(plot_legend_py)) {set _crabPlot_legend_py=plot_legend_py[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_py)) {set _crabPlot_legend_py=0.92}}
-                    if($temp_ichar<dimen(plot_legend_pt)) {set _crabPlot_legend_pt=plot_legend_pt[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_pt)) {set _crabPlot_legend_pt=3.0}}
-                    if($temp_ichar<dimen(plot_legend_ps)) {set _crabPlot_legend_ps=plot_legend_ps[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_ps)) {set _crabPlot_legend_ps=1.2}}
+                    if($temp_ichar<dimen(plot_legend_pt)) {set _crabPlot_legend_pt=plot_legend_pt[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_pt)) {set _crabPlot_legend_pt=3.5}} # legend text thick
+                    if($temp_ichar<dimen(plot_legend_ps)) {set _crabPlot_legend_ps=plot_legend_ps[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_ps)) {set _crabPlot_legend_ps=1.1}} # legend text size
                     if($temp_ichar<dimen(plot_legend_pa)) {set _crabPlot_legend_pa=plot_legend_pa[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_pa)) {set _crabPlot_legend_pa=6}} # 6 mean align left
-                    if($temp_ichar<dimen(plot_legend_dy)) {set _crabPlot_legend_dy=plot_legend_dy[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_dy)) {set _crabPlot_legend_dy=0.055*_crabPlot_legend_ps**1.5}} # line spacing or line height
+                    if($temp_ichar<dimen(plot_legend_dy)) {set _crabPlot_legend_dy=plot_legend_dy[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_dy)) {set _crabPlot_legend_dy=0.052*_crabPlot_legend_ps**1.5}} # line spacing or line height
                     if($temp_ichar<dimen(plot_legend_ws)) {set _crabPlot_legend_ws=plot_legend_ws[$temp_ichar]} else {if(!is_vector(_crabPlot_legend_ws)) {set _crabPlot_legend_ws=0}} # whether plot symbol with legend
                     #echo legend $(temp_legend[$temp_ichar])
                     #echo legend expand $(_crabPlot_legend_ps)
@@ -504,6 +566,9 @@ open_PS 01
     device postencap ""$1".eps"
     define TeX_strings 1
     xtcolours
+    add_ctype gray 230 230 230
+    add_ctype midgray 210 210 210
+    add_ctype darkgray 170 170 170
     location 6000 30500 6000 25500
     #notation 0 0 -1 1.1
     #limits -0.5 7.5 -3.5 1.5

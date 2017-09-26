@@ -269,7 +269,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     fi
     # 
     # 
-    # check whether catalog sources at within the image area, convert RA Dec to X Y
+    # check whether catalog sources are within the image area, convert RA Dec to X Y
     if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/prior_x_y.txt" ]]; then
         for (( i=0; i<${#AstroDepth_INP_CATALOG[@]}; i++ )); do
             if [[ ! -f "$AstroDepth_OutputDir/$AstroDepth_OutputName/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" ]]; then
@@ -391,6 +391,41 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
         else
             echo "${AstroDepth_INP_BUFFER[0]}" "${AstroDepth_INP_BUFFER[1]}" > "buffer_x_y.txt"
         fi
+    fi
+    # 
+    # 
+    # Set "fit_with_galfit30" ("fit_with_galfit255") if user has input the optional argument "-galfit30" ("-galfit255")
+    if [[ $AstroDepth_INP_FIT_WITH_GALFIT30 -gt 0 ]]; then
+        echo "Fit with galfit30!"
+        echo "Fit with galfit30!" > "fit_with_galfit30"
+    elif [[ $AstroDepth_INP_FIT_WITH_GALFIT30 -lt 0 ]]; then
+        echo "Do not fit with galfit30!"
+        if [[ -f "fit_with_galfit30" ]]; then rm "fit_with_galfit30"; fi
+    fi
+    if [[ $AstroDepth_INP_FIT_WITH_GALFIT255 -gt 0 ]]; then
+        echo "Fit with galfit255!"
+        echo "Fit with galfit255!" > "fit_with_galfit255"
+    elif [[ $AstroDepth_INP_FIT_WITH_GALFIT255 -lt 0 ]]; then
+        echo "Do not fit with galfit255!"
+        if [[ -f "fit_with_galfit255" ]]; then rm "fit_with_galfit255"; fi
+    fi
+    if [[ $AstroDepth_INP_FIT_SKY_BACKGROUND -gt 0 ]]; then
+        echo "Fit sky background!"
+        echo "Fit sky background!" > "fit_sky_background"
+    elif [[ $AstroDepth_INP_FIT_SKY_BACKGROUND -lt 0 ]]; then
+        echo "Do not fit sky background!"
+        if [[ -f "fit_sky_background" ]]; then rm "fit_sky_background"; fi
+    fi
+    # 
+    # 
+    # Set "fit_galfit_prior_peak_snr" and "fit_galfit_prior_total_snr", which are set by the input arugment "-galfit-prior-peak-snr" and "-galfit-prior-total-snr"
+    if [[ ${#AstroDepth_INP_GALFIT_PRIOR_PEAK_SNR[@]} -gt 0 ]]; then
+        echo "Fit galfit priors with peak SNR > ${AstroDepth_INP_GALFIT_PRIOR_PEAK_SNR}!"
+        echo "${AstroDepth_INP_GALFIT_PRIOR_PEAK_SNR}" > "fit_galfit_prior_peak_snr"
+    fi
+    if [[ ${#AstroDepth_INP_GALFIT_PRIOR_TOTAL_SNR[@]} -gt 0 ]]; then
+        echo "Fit galfit priors with total SNR > ${AstroDepth_INP_GALFIT_PRIOR_TOTAL_SNR}!"
+        echo "${AstroDepth_INP_GALFIT_PRIOR_TOTAL_SNR}" > "fit_galfit_prior_total_snr"
     fi
     # 
     # 

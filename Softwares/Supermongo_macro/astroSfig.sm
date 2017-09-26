@@ -568,111 +568,6 @@ calc_Liu2015_CO 04
     }
     set $0 = _Liu2015_LPrmCO
 
-calc_dzliu_CI 04
-    # 
-    # calculate the CI line luminosities for a given total IR luminosity  (version 20170411)
-    # calc_dzliu_CI LTIR CI_J_up z # all input are in linear form
-    # -- 2017-04-11 13h19m CEST
-    # 
-    if($?1==0||$?2==0){print 'Usage: set L_CI_J = calc_dzliu_CI(LTIR,J_up[,z[,velowidth]]) --> L_CI\n' {} return}
-    if($2<1||$2>2){print 'calc_dzliu_CI: Error! we only support CI 3P1-3P0 and 3P2-3P1, sorry!\n' {} return}
-    set _dzliu_LuminTIR = $1
-    set _dzliu_LuminFIR = _dzliu_LuminTIR/1.3 # convert TIR to FIR
-    set _dzliu_LPrmLine = _dzliu_LuminFIR*0.0 # line luminosity L_{\prime}
-    set _dzliu_FPrmLine = _dzliu_LuminFIR*0.0 # line flux
-    set _dzliu_PeakLine = _dzliu_LuminFIR*0.0 # line peak intensity
-    set _dzliu_FWHMLine = _dzliu_LuminFIR*0.0 # line width
-    set _dzliu_LineFreq = _dzliu_LuminFIR*0.0 # line freq in obs-frame
-    set _dzliu_RestFreq = _dzliu_LuminFIR*0.0 # line freq in rest-frame
-    if($?2) {set _dzliu_Jupper = $2} else {set _dzliu_Jupper = _dzliu_LuminFIR*0+1} # default CI transition = 3P1-3P0
-    if($?3) {set _dzliu_Redshift = $3} else {set _dzliu_Redshift = _dzliu_LuminFIR*0+0.0} # default CI transition = 3P1-3P0
-    if($?4) {set _dzliu_FWHMLine = $4} else {set _dzliu_FWHMLine = _dzliu_LuminFIR*0+0.8} # TODO: default R_f60/f100 = 0.8
-    if(dimen(_dzliu_Jupper)!=dimen(_dzliu_LuminFIR)) {set _dzliu_Jupper = _dzliu_LuminFIR*0+_dzliu_Jupper}
-    if(dimen(_dzliu_Redshift)!=dimen(_dzliu_LuminFIR)) {set _dzliu_Redshift = _dzliu_LuminFIR*0+_dzliu_Redshift}
-    if(dimen(_dzliu_FWHMLine)!=dimen(_dzliu_LuminFIR)) {set _dzliu_FWHMLine = _dzliu_LuminFIR*0+_dzliu_FWHMLine}
-    # 
-    set _dzliu_ValidID = 0,dimen(_dzliu_LuminFIR)-1 set _dzliu_ValidID = _dzliu_ValidID if(_dzliu_LuminFIR>0)
-    if(dimen(_dzliu_ValidID)==0){ print 'calc_dzliu_CI: Error! Input data array has no positive value!' {} return }
-    # spline/interp2 correlation
-    foreach _dzliu_IndexID _dzliu_ValidID {
-        if(_dzliu_Jupper[$_dzliu_IndexID]==1) {
-            set _dzliu_X_spline = 7.0,10.1,0.1
-            set _dzliu_Y_spline = _dzliu_X_spline * 0.0
-            set _dzliu_Y_spline =  0.019 * _dzliu_X_spline**3 - 0.917 * _dzliu_X_spline**2 + 12.761 * _dzliu_X_spline - 42.860
-            set _dzliu_Y_array = lg(_dzliu_LuminFIR[$_dzliu_IndexID]) # Y array is LuminFIR
-            interp_dzliu _dzliu_Y_spline _dzliu_X_spline _dzliu_Y_array _dzliu_X_array
-            set _dzliu_LPrmLine[$_dzliu_IndexID] = 10**(_dzliu_X_array) # X array is LPrmLine
-        }
-        if(_dzliu_Jupper[$_dzliu_IndexID]==2) {
-            set _dzliu_X_spline = 6.0,10.1,0.1
-            set _dzliu_Y_spline = _dzliu_X_spline * 0.0
-            #set _dzliu_Y_spline = -0.046 * _dzliu_X_spline**3 + 0.945 * _dzliu_X_spline**2 - 4.859 * _dzliu_X_spline + 12.610
-            set _dzliu_Y_spline = 1.413 * _dzliu_X_spline - 0.613
-            set _dzliu_Y_array = lg(_dzliu_LuminFIR[$_dzliu_IndexID]) # Y array is LuminFIR
-            interp_dzliu _dzliu_Y_spline _dzliu_X_spline _dzliu_Y_array _dzliu_X_array
-            set _dzliu_LPrmLine[$_dzliu_IndexID] = 10**(_dzliu_X_array) # X array is LPrmLine
-        }
-    }
-    # -- if input redshift
-    if($?3) {
-        define _dzliu_Verbose $verbose verbose 0
-        set _dzliu_RestFreq = _dzliu_RestFreq*0.0 + calc_line_freq(CI,$2,0) # FreqCI is restframe
-        set _dzliu_LineFreq = _dzliu_LineFreq*0.0 + calc_line_freq(CI,$2,$3) # ObsFreq is obsframe
-        set _dzliu_lumdist = calc_lumdist(_dzliu_Redshift)
-        set _dzliu_FPrmLine = convert_lprm2flux(_dzliu_Redshift,_dzliu_LPrmLine,_dzliu_RestFreq,_dzliu_lumdist)
-        if($?4) { set _dzliu_PeakLine[_dzliu_ValidID] = (_dzliu_FPrmLine[_dzliu_ValidID] / _dzliu_FWHMLine[_dzliu_ValidID]) * 1e3 }
-        verbose $_dzliu_Verbose undef _dzliu_Verbose
-    }
-    if($verbose) { 
-        define print_noheader 1 set _dzliu_Jupper = int(_dzliu_Jupper)
-        print '\ncalc_dzliu_CI:\n' {}
-        print '\nL_TIR = %15.7e  L_sun\nL_FIR = %15.7e  L_sun\nJ_up  = %15d\nv_CI  = %15.3f  GHz\nL_CI  = %15.7e  K km s-1 pc2\nF_CI  = %15f  Jy km s-1\nS_CI  = %15f  mJy\n\n' \
-               {_dzliu_LuminTIR _dzliu_LuminFIR _dzliu_Jupper _dzliu_LineFreq _dzliu_LPrmLine _dzliu_FPrmLine _dzliu_PeakLine}
-        define print_noheader 0
-    }
-    set _dzliu_FluxCI = _dzliu_FPrmLine
-    set $0 = _dzliu_LPrmLine
-
-calc_dzliu_CI_old_2016 04
-    # 
-    # calculate the CI line luminosities for a given total IR luminosity 
-    # calc_dzliu_CI LTIR CI_J_up z R60100 # all input are in linear form
-    # 
-    if($?1==0||$?2==0){print 'Usage: set L_CI_J = calc_dzliu_CI(LTIR,J_up[,z[,R60100]]) --> L_CI\n' {} return}
-    if($2<1||$2>1){print 'calc_dzliu_CI: Error! we only support CI 3P1-3P0, sorry!\n' {} return}
-    set _dzliu_LumTIR = $1
-    set _dzliu_LumFIR = _dzliu_LumTIR/1.3 # convert TIR to FIR
-    set _dzliu_PosID = 0,dimen(_dzliu_LumFIR)-1 set _dzliu_PosID = _dzliu_PosID if(_dzliu_LumFIR>0)
-    if($?2){set _dzliu_Jupper = $2} else {set _dzliu_Jupper = _dzliu_LumFIR*0+1.0} # default CI transition = 3P1-3P0
-    if($?4){set _dzliu_R60100 = $4} else {set _dzliu_R60100 = _dzliu_LumFIR*0+0.8} # TODO: default R_f60/f100 = 0.8
-    if(dimen(_dzliu_Jupper)!=dimen(_dzliu_LumFIR)) {set _dzliu_Jupper = _dzliu_LumFIR*0+_dzliu_Jupper}
-    if(dimen(_dzliu_R60100)!=dimen(_dzliu_LumFIR)) {set _dzliu_R60100 = _dzliu_LumFIR*0+_dzliu_R60100}
-    if(dimen(_dzliu_PosID)==0){print 'calc_dzliu_CI: Error! Input data array has no positive value!' {} return}
-    set _dzliu_N = 0.0 set _dzliu_A = 0.0 
-    set _dzliu_I = 0,dimen(_dzliu_LumFIR)-1 set _dzliu_I = _dzliu_I if(_dzliu_R60100>0)
-    set _dzliu_X = float(_dzliu_I)*0+0.8 set _dzliu_X[_dzliu_I] = lg(_dzliu_R60100[_dzliu_I]) # TODO: default R_f60/f100 = 0.8
-    if($2==1) {set _dzliu_N = 1.00 set _dzliu_A = 2.57109 +1.70150*_dzliu_X -0.56336*_dzliu_X**2 -4.62750*_dzliu_X**3} # dzliu TODO 2016-03-17
-    set _dzliu_FluxCI = _dzliu_LumFIR*0+0.0
-    set _dzliu_LPrmCI = _dzliu_LumFIR*0+0.0
-    set _dzliu_LPrmCI[_dzliu_PosID] = 10**((lg(_dzliu_LumFIR[_dzliu_PosID])-_dzliu_A[_dzliu_PosID])/_dzliu_N)
-    set _dzliu_ObsFreq = _dzliu_LumFIR*0+0.0
-    if($?3) { if($3>0) { 
-        define _dzliu_Verbose $verbose verbose 0
-        set _dzliu_FreqCI = _dzliu_LumFIR*0 + calc_line_freq(CI,$2,0) # FreqCI is restframe
-        set _dzliu_ObsFreq = _dzliu_LumFIR*0 + calc_line_freq(CI,$2,$3) # ObsFreq is obsframe
-        set _dzliu_LumDist = calc_lumdist($3) 
-        set _dzliu_FluxCI[_dzliu_PosID] = convert_lprm2flux($3,_dzliu_LPrmCI[_dzliu_PosID],_dzliu_FreqCI,_dzliu_LumDist)
-        verbose $_dzliu_Verbose undef _dzliu_Verbose
-    }}
-    if($verbose) { 
-        define print_noheader 1 set _dzliu_Jupper = int(_dzliu_Jupper)
-        print '\ncalc_dzliu_CI:\n' {}
-        print '\nL_TIR  = %15.7e  L_sun\nL_FIR  = %15.7e  L_sun\nJ_CI  = %15d\nv_CI  = %15.3f  GHz\nL_CI  = %15.7e  K km s-1 pc2\nS_CI  = %15f  Jy km s-1\n\n' \
-               {_dzliu_LumTIR _dzliu_LumFIR _dzliu_Jupper _dzliu_ObsFreq _dzliu_LPrmCI _dzliu_FluxCI}
-        define print_noheader 0
-    }
-    set $0 = _dzliu_LPrmCI
-
 calc_dzliu_CII 04
     # 
     # calculate the CII 158um line luminosities for a given total IR luminosity 
@@ -981,12 +876,14 @@ calc_FIR_line_fluxes 08
     if(!$?4) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Method [starbursty [excitation]]\n' {} return}
     if(!$?5) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Method [starbursty [excitation]]\n' {} return}
     if(!$?6) {print 'Usage: calc_FIR_line_fluxes CO J_up_or_um z L_IR_8_1000 LineWidth Daddi2010 [starbursty [excitation]]\n' {} return}
+    # read the first argument, FIR line name
     if(whatis(__calc_FIR_line_fluxes_arg1)==73) {
         set _line_name = __calc_FIR_line_fluxes_arg1
     } else {
         !echo $1 | sed -e 's/ /_/g' | tr '[:lower:]' '[:upper:]' > .calc_FIR_line_fluxes.line_name.txt
         verbose 0 data .calc_FIR_line_fluxes.line_name.txt read {_line_name 1.s} verbose 1 !rm .calc_FIR_line_fluxes.line_name.txt
     }
+    # read the 6-th argument, Method name
     if(whatis(__calc_FIR_line_fluxes_arg6)==73) {
         set _line_method = __calc_FIR_line_fluxes_arg6
     } else {
@@ -1115,6 +1012,21 @@ calc_FIR_line_fluxes 08
             set _line_method_lprm_to_flux = 1
         }
     }
+    if(_line_name=='CI') {
+        if(index(_line_method,'dzliu')>=0 && index(_line_method,'2017')>=0) {
+            # dzliu own fitting
+            #   y: log_L_FIR_50_500um
+            #   x: log_LPrime_3P1_3P0
+            #   y = 0.065 * x**3 - 1.921 * x**2 + 19.866 * x - 59.322
+            set _dzliu_CI_x = 6.0,11.5,0.05
+            set _dzliu_CI_y = 0.0653741952625 * _dzliu_CI_x**3 - 1.92089044289 * _dzliu_CI_x**2 + 19.8655338987 * _dzliu_CI_x - 59.3221991296
+            set _dzliu_CI_LFIR = lg(_IR_luminosity[gid]/1.3)
+            interp2 _dzliu_CI_y _dzliu_CI_x _dzliu_CI_LFIR _dzliu_CI_LPrm
+            set _line_lprm[gid] = 10**_dzliu_CI_LPrm
+            set _line_lprm[gid] = _line_lprm[gid] * _line_excitation[gid] # calc excitation if user-given
+            set _line_method_lprm_to_flux = 1
+        }
+    }
     if(_line_method_lprm_to_flux) {
         verbose 0
         set _line_flux[gid] = convert_lprm2flux(_line_redshift[gid],_line_lprm[gid],_line_rest_freq[gid],_line_dL[gid]) # convert [K kms/s pc2] to [Jy km/s]
@@ -1127,6 +1039,11 @@ calc_FIR_line_fluxes 08
         define print_noheader 0
         verbose 1
     }
+
+
+
+
+
 
 calc_co_excitation 02
     # aim: 
@@ -1178,6 +1095,11 @@ calc_co_excitation 02
         set $0 = _co_exc_Jy_km_s
     }
     return
+
+
+
+
+
 
 convert_flux2lprm 04
     # convert flux [Jy km/s] to lumin prime [K km s-1 pc2]
@@ -1264,8 +1186,18 @@ convert_GHz2kms 02
     set _GHz2kms_GHz0 = $1
     set _GHz2kms_GHz = $2
     set _GHz2kms_kms = (_GHz2kms_GHz)/(_GHz2kms_GHz0)*2.99792458e5
-    echo convert_GHz2kms: $(_GHz2kms_GHz) GHz at $(_GHz2kms_GHz0) GHz is $(_GHz2kms_kms) km/s
+    echo "convert_GHz2kms: "$(_GHz2kms_GHz) GHz at $(_GHz2kms_GHz0) GHz is $(_GHz2kms_kms) km/s
     set $0 = _GHz2kms_kms
+
+convert_MJysr2Jypixel 02
+    #<20170919># 
+    if($?1==0||$?2==0){print 'Usage: convert_MJysr2Jypixel flux_MJysr pixsc_arcsec => output: XXX_Jy\n' {} return}
+    set _MJysr2Jy_MJysr = $1
+    set _MJysr2Jy_Pixsc = $2
+    set _MJysr2Jy_Jysr = _MJysr2Jy_MJysr * 1e6
+    set _MJysr2Jy_Jy = _MJysr2Jy_Jysr * (_MJysr2Jy_Pixsc/3600.0/180.0*pi)**2
+    echo "convert_MJysr2Jypixel: "$(_MJysr2Jy_MJysr)" MJy/sr is "$(_MJysr2Jy_Jy)" Jy*pixel."
+    set $0 = _MJysr2Jy_Jy
 
 calc_Gladders2013_CSFRD 03
     # input z
@@ -1914,19 +1846,6 @@ calc_iram_30m_time
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 calc_FIR_lines 01
     # input redshift, output FIR line frequencies
     do _calc_i=1,13 {
@@ -1989,10 +1908,6 @@ calc_FIR_lines 01
 
 
 
-
-
-
-
 calc_nebular_lines 02
     #  line wavelengths are from http://classic.sdss.org/dr7/products/spectra/vacwavelength.html
     #  
@@ -2045,6 +1960,11 @@ calc_nebular_lines 02
       }
     }
     echo ""
+
+
+
+
+
 
 calc_Calzetti2000
     # input: lambda_um,A_V,EBV
@@ -2129,9 +2049,260 @@ calc_Metallicity_FMR_Zahid2014_z1p5 01
 
 
 
+calc_MH2 07
+    # 
+    # calculate H_2 gas mass to (stellar + H_2 gas) mass ratio, $\mu_{\mathrm{H_2}}$
+    # Inputs can be vectors: 
+    # (1) 'CO', LCO, alphaCO, JCO
+    # (1) 'KS law', LCO, alphaCO, JCO
+    # (2) 'dust', Mdust, gas2dust
+    # (3) 'Scoville2016', Lnu850, lambda850
+    # (4) 'Groves2015', 
+    # (5) 'Popping', 
+    # check arguments
+    if(!$?2) {
+        print 'Usage: set M_H_2 = calc_MH2(\'CO\',LCO,alphaCO,JCO)\n' {}
+        print '       set M_H_2 = calc_MH2(\'KS law\',SFR,SBrst)\n' {}
+        print '       set M_H_2 = calc_MH2(\'dust\',Mdust,gas2dust)\n' {}
+        print '       set M_H_2 = calc_MH2(\'dust\',SFR,Umean,gas2dust)\n' {}
+        print '       set M_H_2 = calc_MH2(\'Scoville2016\',Lnu_rest850um)\n' {}
+        print '       set M_H_2 = calc_MH2(\'Scoville2016\',flux_Jy,lambda_um,z,beta,alpha850)\n' {}
+        print '       set M_H_2 = calc_MH2(\'Groves2015\',flux_Jy,lambda_um,z)\n' {}
+        return
+    }
+    # read the first argument, method
+    if(whatis(__calc_MH2_arg1)==73) {
+        set _calc_MH2_method = __calc_MH2_arg1
+    } else {
+        !echo $1 | sed -e 's/ /_/g' | tr '[:lower:]' '[:upper:]' > .calc_MH2.method.txt
+        verbose 0 data .calc_MH2.method.txt read {_calc_MH2_method 1.s} verbose 1 !rm .calc_MH2.method.txt
+    }
+    # 
+    if(_calc_MH2_method=='CO' || _calc_MH2_method=='co') {
+        if($?2) {
+            set _calc_MH2_LCO = $2
+        } else {
+            define _calc_MH2_LCO ? <"CO integrated line luminosity in unit of [K km s-1 pc2]?">
+            set _calc_MH2_LCO = $_calc_MH2_LCO
+        }
+        if($?3) {
+            set _calc_MH2_alphaCO = _calc_MH2_LCO*0.0 + $3
+        } else {
+            define _calc_MH2_alphaCO 4.6
+            define _calc_MH2_alphaCO ? <"CO-to-H2 conversion factor (typically 4.6 for star-forming disk and 0.8 for extreme starburst)?">
+            set _calc_MH2_alphaCO = _calc_MH2_LCO*0.0 + $_calc_MH2_alphaCO
+        }
+        if($?4) {
+            set _calc_MH2_JCO = _calc_MH2_LCO*0.0 + $4
+        } else {
+            define _calc_MH2_JCO 1
+            define _calc_MH2_JCO ? <"CO upper level rotational quantum number?">
+            set _calc_MH2_JCO = _calc_MH2_LCO*0.0 + $_calc_MH2_JCO
+        }
+        if(dimen(_calc_MH2_JCO) != dimen(_calc_MH2_LCO) || dimen(_calc_MH2_alphaCO) != dimen(_calc_MH2_LCO)) {
+            print '\nError! Vectors \"_calc_MH2_LCO\", \"_calc_MH2_alphaCO\" and \"_calc_MH2_JCO\" have different dimensions!\n\n' {}
+            return
+        }
+        if(sum(_calc_MH2_JCO>1)>0) {
+            set _calc_MH2_JCO_excitation_Jykms = calc_co_excitation('BzK-average', _calc_MH2_JCO)
+            set _calc_MH2_JCO_excitation_Kkms = _calc_MH2_JCO_excitation_Jykms / float(_calc_MH2_JCO)**2
+        } else {
+            set _calc_MH2_JCO_excitation_Kkms = _calc_MH2_LCO*0.0 + 1.0
+        }
+        set _calc_MH2_lgMH2 = lg(_calc_MH2_LCO * _calc_MH2_alphaCO * _calc_MH2_JCO_excitation_Kkms) # alpha CO method
+    }
+    # 
+    if(_calc_MH2_method=='KS_LAW' || _calc_MH2_method=='KS_Law' || _calc_MH2_method=='KS_law' || \
+       _calc_MH2_method=='KS LAW' || _calc_MH2_method=='KS Law' || _calc_MH2_method=='KS law' || \
+       _calc_MH2_method=='KS-LAW' || _calc_MH2_method=='KS-Law' || _calc_MH2_method=='KS-law') {
+        if($?2) {
+            set _calc_MH2_SFR = $2
+        } else {
+            define _calc_MH2_SFR ? <"Star formation rate in unit of [Msun yr-1]?">
+            set _calc_MH2_SFR = $_calc_MH2_SFR
+        }
+        if($?3) {
+            set _calc_MH2_SB = _calc_MH2_SFR*0.0 + $3
+        } else {
+            define _calc_MH2_SB 0.0
+            define _calc_MH2_SB ? <"Is starburst (i.e. 0.6 dex above the star-forming main-sequence)?">
+            set _calc_MH2_SB = _calc_MH2_SFR*0.0 + $_calc_MH2_SB
+        }
+        if(dimen(_calc_MH2_SFR) != dimen(_calc_MH2_SB)) {
+            print '\nError! Vectors \"_calc_MH2_SFR\" and \"_calc_MH2_SB\" have different dimensions!\n\n' {}
+            return
+        }
+        set _calc_MH2_SFR = (_calc_MH2_SFR<=0.0) ? 1e-99 : _calc_MH2_SFR
+        set _calc_MH2_lgMH2_MS = (lg(_calc_MH2_SFR)+10)*0.81 + 1.14 + lg(1-0.36) # KS law, see Sargent et al. 2014 (page 7 bottom, equaiton 5), "+ lg(1-0.36)" will subtract the Helium molecule mass. 
+        set _calc_MH2_lgMH2_SB = _calc_MH2_lgMH2_MS - 1.17
+        set _calc_MH2_lgMH2 = _calc_MH2_lgMH2_MS - 1.17*_calc_MH2_SB
+    }
+    # 
+    if(_calc_MH2_method=='DUST' || _calc_MH2_method=='Dust' || _calc_MH2_method=='dust' || \
+       _calc_MH2_method=='DGR' || _calc_MH2_method=='D/G' || \
+       _calc_MH2_method=='GDR' || _calc_MH2_method=='G/D') {
+        if($?2) {
+            set _calc_MH2_Mdust = $2
+        } else {
+            define _calc_MH2_Mdust ? <"Dust mass in unit of [Msun]?">
+            set _calc_MH2_Mdust = $_calc_MH2_Mdust
+        }
+        if($?3) {
+            set _calc_MH2_gas2dust = _calc_MH2_Mdust*0.0 + $3
+        } else {
+            define _calc_MH2_gas2dust 93.0 # gas-to-dust mass ratio, adopted a value of 93, similar to Zannella et al. 2017 in prep. Note that Smolcic 2015 used ~100 for their SMGs. AzTEC-1 GDR~100. 
+            define _calc_MH2_gas2dust ? <"Gas-to-dust mass ratio (G/D, e.g. Remy-Ruyer et al. 2014 Fig.4)?">
+            set _calc_MH2_gas2dust = _calc_MH2_Mdust*0.0 + $_calc_MH2_gas2dust
+        }
+        if($?4) {
+            set _calc_MH2_SFR = $2
+            set _calc_MH2_Umean = _calc_MH2_SFR*0.0 + $3
+            set _calc_MH2_gas2dust = _calc_MH2_SFR*0.0 + $4
+            set _calc_MH2_SFR = (_calc_MH2_SFR<=0.0) ? 1e-99 : _calc_MH2_SFR
+            set _calc_MH2_Umean = (_calc_MH2_Umean<=0.0) ? 1e-99 : _calc_MH2_Umean
+            set _calc_MH2_lgMdust = lg(_calc_MH2_SFR) + 10 - lg(_calc_MH2_Umean) - lg(125.0) # Magdis et al. (2012), P0=125
+            set _calc_MH2_Mdust = 10**_calc_MH2_lgMdust
+        }
+        if(dimen(_calc_MH2_Mdust) != dimen(_calc_MH2_gas2dust)) {
+            print '\nError! Vectors \"_calc_MH2_Mdust\" and \"_calc_MH2_gas2dust\" have different dimensions!\n\n' {}
+            return
+        }
+        set _calc_MH2_Mdust = (_calc_MH2_Mdust<=0.0) ? 1e-99 : _calc_MH2_Mdust
+        set _calc_MH2_lgMH2 = lg(_calc_MH2_Mdust * _calc_MH2_gas2dust)
+    }
+    # 
+    if(_calc_MH2_method=='SCOVILLE2016' || _calc_MH2_method=='Scoville2016' || _calc_MH2_method=='scoville2016' || \
+       _calc_MH2_method=='HUGHES2017' || _calc_MH2_method=='Hughes2017' || _calc_MH2_method=='hughes2017') {
+        if($?2 && !$?3) {
+            if($?2) {
+                set _calc_MH2_Lnu = $2
+            } else {
+                define _calc_MH2_Lnu ? <"Monochromatic luminosity L_nu at wavelenth lambda=850um [Lsun]?">
+                set _calc_MH2_Lnu = $_calc_MH2_Lnu
+            }
+        } else {
+            if($?2) {
+                set _calc_MH2_Snu = $2 # must be Jy!
+            } else {
+                define _calc_MH2_Snu ? <"Flux density S_nu at wavelenth lambda [Jy]?">
+                set _calc_MH2_Snu = $_calc_MH2_Snu
+            }
+            if($?3) {
+                set _calc_MH2_lambda = _calc_MH2_Snu*0.0 + $3
+            } else {
+                define _calc_MH2_lambda 850.0
+                define _calc_MH2_lambda ? <"Wavelength lambda [um]?">
+                set _calc_MH2_lambda = _calc_MH2_Snu*0.0 + $_calc_MH2_lambda
+            }
+            if($?4) {
+                set _calc_MH2_z = _calc_MH2_Snu*0.0 + $4
+            } else {
+                define _calc_MH2_z 3.0
+                define _calc_MH2_z ? <"Redshift?">
+                set _calc_MH2_z = _calc_MH2_Snu*0.0 + $_calc_MH2_z
+            }
+            if($?5) {
+                set _calc_MH2_beta = _calc_MH2_Snu*0.0 + $5
+            } else {
+                define _calc_MH2_beta 1.8
+                define _calc_MH2_beta ? <"Dust emissivity [um]?">
+                set _calc_MH2_beta = _calc_MH2_Snu*0.0 + $_calc_MH2_beta
+            }
+            if($?6) {
+                set _calc_MH2_alpha850 = _calc_MH2_Snu*0.0 + $6
+            } else {
+                define _calc_MH2_alpha850 6.7e19
+                define _calc_MH2_alpha850 ? <"850um monochromatic luminosity to gas mass ratio?">
+                set _calc_MH2_alpha850 = _calc_MH2_Snu*0.0 + $_calc_MH2_alpha850
+            }
+            if(dimen(_calc_MH2_Snu) != dimen(_calc_MH2_lambda) || dimen(_calc_MH2_Snu) != dimen(_calc_MH2_beta)) {
+                print '\nError! Vectors \"_calc_MH2_Snu\", \"_calc_MH2_lambda\" and \"_calc_MH2_beta\" have different dimensions!\n\n' {}
+                echo dimen(_calc_MH2_Snu) = $(dimen(_calc_MH2_Snu))
+                echo dimen(_calc_MH2_lambda) = $(dimen(_calc_MH2_lambda))
+                echo dimen(_calc_MH2_beta) = $(dimen(_calc_MH2_beta))
+                return
+            }
+            set _calc_MH2_Snu = (_calc_MH2_Snu<=0.0) ? 1e-99 : _calc_MH2_Snu
+            set _calc_MH2_Snu_rest850um = _calc_MH2_Snu * ((_calc_MH2_lambda/(1+_calc_MH2_z))/(850.0))**(2.0+_calc_MH2_beta) # convert to rest-frame 850um flux density, Jy
+            set _calc_MH2_z = (_calc_MH2_z<=0.0) ? 1e-99 : _calc_MH2_z
+            set _calc_MH2_dL = calc_lumdist(_calc_MH2_z)
+            set _calc_MH2_Lnu = 1.19e27 * _calc_MH2_Snu_rest850um / (1+_calc_MH2_z) * _calc_MH2_dL**2 # erg s-1 Hz-1, see Hughes 2017 - 1702.07350.pdf (page 3 right)
+            set _calc_MH2_lgMH2_Scoville2016 = lg(1.78 * _calc_MH2_Snu_rest850um*1e3 / (1+_calc_MH2_z) * (_calc_MH2_dL/1e3)**2 * (6.7e19/_calc_MH2_alpha850) * 1e10) # Scoville et al. 2016 (appendix and also page 16 equation 16)
+        }
+        set _calc_MH2_Lnu = (_calc_MH2_Lnu<=0.0) ? 1e-99 : _calc_MH2_Lnu
+        set _calc_MH2_lgMH2 = lg(_calc_MH2_Lnu) * 0.93 - 17.74 # Hughes 2017 - 1702.07350.pdf (page 4, equation 5)
+    }
+    # 
+    if(_calc_MH2_method=='SCHINNERER2016' || _calc_MH2_method=='Schinnerer2016' || _calc_MH2_method=='schinnerer2016' || \
+       _calc_MH2_method=='GROVES2015' || _calc_MH2_method=='Groves2015' || _calc_MH2_method=='groves2015') {
+        if($?2 && !$?3) {
+            if($?2) {
+                set _calc_MH2_Lnu = $2
+            } else {
+                define _calc_MH2_Lnu ? <"Monochromatic luminosity L_nu at rest-frame wavelenth lambda=250um [Lsun]?">
+                set _calc_MH2_Lnu = $_calc_MH2_Lnu
+            }
+            set _calc_MH2_W = _calc_MH2_Lnu*0.0 + 250.0 # 350.0 500.0
+            set _calc_MH2_A = _calc_MH2_Lnu*0.0 + 1.57 # 1.49 1.72 # see Groves, bibcode=2015ApJ...799...96G, Table 6
+            set _calc_MH2_B = _calc_MH2_Lnu*0.0 + 0.86 # 0.92 0.96 # see Groves, bibcode=2015ApJ...799...96G, Table 6, log(Mgas) = A + B * log(nuLnu_W)
+        } else {
+            if($?2) {
+                set _calc_MH2_Snu = $2 # must be Jy!
+            } else {
+                define _calc_MH2_Snu ? <"Flux density S_nu at wavelenth lambda [Jy]?">
+                set _calc_MH2_Snu = $_calc_MH2_Snu
+            }
+            if($?3) {
+                set _calc_MH2_lambda = _calc_MH2_Snu*0.0 + $3
+            } else {
+                define _calc_MH2_lambda 1250.0
+                define _calc_MH2_lambda ? <"Wavelength lambda [um]?">
+                set _calc_MH2_lambda = _calc_MH2_Snu*0.0 + $_calc_MH2_lambda
+            }
+            if($?4) {
+                set _calc_MH2_z = _calc_MH2_Snu*0.0 + $4
+            } else {
+                define _calc_MH2_z 3.0
+                define _calc_MH2_z ? <"Redshift?">
+                set _calc_MH2_z = _calc_MH2_Snu*0.0 + $_calc_MH2_z
+            }
+            set _calc_MH2_Brent_W = {250.0 350.0 500.0}
+            set _calc_MH2_Brent_A = {1.57 1.49 1.72} # see Groves, bibcode=2015ApJ...799...96G, Table 6
+            set _calc_MH2_Brent_B = {0.86 0.92 0.96} # see Groves, bibcode=2015ApJ...799...96G, Table 6, log(Mgas) = A + B * log(nuLnu_W)
+            set _calc_MH2_Brent_lgW = lg(_calc_MH2_Brent_W)
+            set _calc_MH2_lambda = (_calc_MH2_lambda<=0.0) ? 1e-99 : _calc_MH2_lambda
+            set _calc_MH2_lambda_rest = _calc_MH2_lambda / (1+_calc_MH2_z)
+            set _calc_MH2_lglambda_rest = lg(_calc_MH2_lambda_rest)
+            interp_dzliu _calc_MH2_Brent_lgW _calc_MH2_Brent_A _calc_MH2_lglambda_rest _calc_MH2_A
+            interp_dzliu _calc_MH2_Brent_lgW _calc_MH2_Brent_B _calc_MH2_lglambda_rest _calc_MH2_B
+            set _calc_MH2_Schinnerer2016_A = 1.57 - 8e-4 * (_calc_MH2_lambda_rest-250.0)
+            set _calc_MH2_Schinnerer2016_B = 0.86 + 6e-4 * (_calc_MH2_lambda_rest-250.0)
+            set _calc_MH2_Snu = (_calc_MH2_Snu<=0.0) ? 1e-99 : _calc_MH2_Snu
+            set _calc_MH2_z = (_calc_MH2_z<=0.0) ? 1e-99 : _calc_MH2_z
+            set _calc_MH2_dL = calc_lumdist(_calc_MH2_z)
+            set _calc_MH2_Lnu = (2.99792458e5/_calc_MH2_lambda)*(_calc_MH2_Snu*1e3)*(4*pi*_calc_MH2_dL**2)/40.31970 # "/40.31970" converts mJy GHz to Lsun Mpc-2 # 1.19e27 * _calc_MH2_Snu / (1+_calc_MH2_z) * _calc_MH2_dL**2 # erg s-1 Hz-1, see Hughes 2017 - 1702.07350.pdf (page 3 right)
+            set _calc_MH2_lgMH2_Schinnerer2016 = _calc_MH2_Schinnerer2016_A + _calc_MH2_Schinnerer2016_B * lg(_calc_MH2_Lnu) # Schinnerer et al. 2016, equation (1)
+        }
+        if(dimen(_calc_MH2_Lnu) != dimen(_calc_MH2_lambda) || dimen(_calc_MH2_Lnu) != dimen(_calc_MH2_A) || dimen(_calc_MH2_Lnu) != dimen(_calc_MH2_B)) {
+            print '\nError! Vectors \"_calc_MH2_Lnu\", \"_calc_MH2_A\" and \"_calc_MH2_B\" have different dimensions!\n\n' {}
+            return
+        }
+        set _calc_MH2_Lnu = (_calc_MH2_Lnu<=0.0) ? 1e-99 : _calc_MH2_Lnu
+        set _calc_MH2_lgMH2 = _calc_MH2_A + _calc_MH2_B * lg(_calc_MH2_Lnu) # Groves et al. 2015, page 6, right middle-to-bottom
+    }
+    if(is_vector(_calc_MH2_lgMH2)) {
+        set _calc_MH2_MH2 = 10**_calc_MH2_lgMH2
+        set $0 = _calc_MH2_MH2
+        unset _calc_MH2_lgMH2
+        unset _calc_MH2_MH2
+    }
+    return
 
+calc_gas2dust 00
+    # TODO
 
-
+calc_metallicity 00
+    # TODO
 
 
 

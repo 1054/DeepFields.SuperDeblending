@@ -127,10 +127,14 @@ fresidual_inPixel 04
     }
     !CrabPhotAperPhot -header-no-comment $(_fresi_fits) -ext $(_fresi_fext) none "aaa_fresidual_aperphot_input" > "aaa_fresidual_aperphot_output"
     !CrabTableReadColumn "aaa_fresidual_aperphot_output" "sumabs_int" > "aaa_fresidual_aperphot_output_sumabs"
-    !CrabTableReadColumn "aaa_fresidual_aperphot_output" "sum" > "aaa_fresidual_aperphot_output_sum"
+    !CrabTableReadColumn "aaa_fresidual_aperphot_output" "sum"        > "aaa_fresidual_aperphot_output_sum"
+    !CrabTableReadColumn "aaa_fresidual_aperphot_output" "rms"        > "aaa_fresidual_aperphot_output_rms"
+    !CrabTableReadColumn "aaa_fresidual_aperphot_output" "npix"       > "aaa_fresidual_aperphot_output_npix"
     define _fresipix_verbose $verbose verbose 0
     data "aaa_fresidual_aperphot_output_sum" lines 2 0 read _fresipix_fsum 1 #<TODO># version 2015-12-21, might change columns
     data "aaa_fresidual_aperphot_output_sumabs" lines 2 0 read _fresipix_fabs 1 #<TODO># version 2015-12-21, might change columns
+    data "aaa_fresidual_aperphot_output_rms" lines 2 0 read _fresipix_rms 1
+    data "aaa_fresidual_aperphot_output_npix" lines 2 0 read _fresipix_npix 1
     verbose $_fresipix_verbose undef _fresipix_verbose
     # 
     # return

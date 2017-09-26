@@ -245,17 +245,21 @@ for (( i=1; i<=$FITNUMB; i++ )); do
     if [[ x"$FWHM" == x ]]; then 
         MAJ="2.5"
         FITMAJ=0
+        LINEWIDTH=1
     else
-        MAJ=$(awk "BEGIN {print ($FWHM)/2.0}")
+        MAJ=$(awk "BEGIN {print (($FWHM)/2.0)*2.5}") #<TODO># multiply by a factor of 2.5 for viewing purpose
         FITMAJ=$(echo $FWHM | grep -v "\[" | grep -v "\]" | wc -l)
+        LINEWIDTH=2
     fi
     
     if [[ x"$ELLI" == x ]]; then 
         MIN="$MAJ"
         FITMIN=0
+        LINEWIDTH=1
     else
-        MIN=$(awk "BEGIN {print ($FWHM)*($ELLI)/2.0}")
+        MIN=$(awk "BEGIN {print (($FWHM)*($ELLI)/2.0)*2.5}") #<TODO># multiply by a factor of 2.5 for viewing purpose
         FITMIN=$(echo $ELLI | grep -v "\[" | grep -v "\]" | wc -l)
+        LINEWIDTH=2
     fi
     
     if [[ x"$PA" == x ]]; then 
@@ -278,14 +282,14 @@ for (( i=1; i<=$FITNUMB; i++ )); do
     #echo "$TC" "$GALFITRECTX0" "$GALFITRECTY0" "$XC" "$YC"
     if [[ "$TC" == "psf" || "$TC" == "sersic"  || "$TC" == "gaussian" ]]; then
         if [[ FITMAG -gt 0 ]]; then
-            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ}" | xpaset $DS9GALFIT_TITLE regions
-            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ}" >> ".ds9galfit.ds9.reg"
-            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ}" 
+            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ} width=$LINEWIDTH" | xpaset $DS9GALFIT_TITLE regions
+            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ} width=$LINEWIDTH" >> ".ds9galfit.ds9.reg"
+            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ} width=$LINEWIDTH" 
         else
             #<added><20150504><dzliu># FITMAG=0 FITMAG=1
-            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ} color=orange dash=1" | xpaset $DS9GALFIT_TITLE regions
-            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ} color=orange dash=1" >> .ds9galfit.ds9.reg
-            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ} color=orange dash=1" 
+            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ} width=$LINEWIDTH color=orange dash=1" | xpaset $DS9GALFIT_TITLE regions
+            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ} width=$LINEWIDTH color=orange dash=1" >> .ds9galfit.ds9.reg
+            echo "image; ellipse($XC,$YC,$MAJ,$MIN,$PA) # text={$FITOBJ} width=$LINEWIDTH color=orange dash=1" 
         fi
     else
         break

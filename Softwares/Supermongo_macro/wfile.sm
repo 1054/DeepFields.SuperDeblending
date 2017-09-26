@@ -75,7 +75,9 @@ wfile 01
         }
         print +$1 '\n' {}
         # print progress
-        if($i%(dimen(wfile_vec_1)/10)==0) {
+        set wfile_print_interval = dimen(wfile_vec_1)/10
+        set wfile_print_interval = (wfile_print_interval>1) ? wfile_print_interval : 1
+        if($i%(wfile_print_interval)==0) {
             !echo -n '" "'$(sprintf('%0.1f',($i+1)/dimen(wfile_vec_1)*100.0))"%"
         }
     }

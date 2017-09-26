@@ -54,10 +54,15 @@ calc_beamarea 00
     if(is_file("image_sci_beamarea.txt")) {
         #!mv "image_sci_beamarea.txt" "image_sci_beamarea.txt.backup"
         if(is_vector(beamarea)) {unset beamarea}
-        verbose 0 data "image_sci_beamarea.txt" read {beamarea 1.f} verbose 1
+        data "image_sci_beamarea.txt" read {beamarea 1.f}
         if(!is_vector(beamarea)) {
             !rm image_sci_beamarea.* 2>/dev/null
             !rm image_sci_beamarea_sinc.* 2>/dev/null
+        } else {
+            if(beamarea<=0) {
+                !rm image_sci_beamarea.* 2>/dev/null
+                !rm image_sci_beamarea_sinc.* 2>/dev/null
+            }
         } # added a check here
     }
     if(!is_file("image_sci_beamarea.txt")) {
@@ -67,14 +72,16 @@ calc_beamarea 00
             if(is_vector(tmp_bmaj)) {unset tmp_bmaj}
             if(is_vector(tmp_bmin)) {unset tmp_bmin}
             if(is_vector(tmp_bpa)) {unset tmp_bpa}
-            verbose 0 data "image_sci_beamarea.tmp" read {tmp_bmaj 1 tmp_bmin 2 tmp_bpa 3} verbose 1
+            data "image_sci_beamarea.tmp" read {tmp_bmaj 1 tmp_bmin 2 tmp_bpa 3}
             !rm "image_sci_beamarea.tmp"
             if(is_vector(tmp_bmaj) && is_vector(tmp_bmin) && is_vector(tmp_bpa)) {
                 set beamarea = pi/(4.0*ln(2)) * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
                 set beamarea_sinc = pi * (tmp_bmaj/1.89549*3600.0 * tmp_bmin/1.89549*3600.0) # arcsec-square
+                set beamarea_circle = pi/4.0 * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
                 define print_noheader 1
                 print "image_sci_beamarea.txt" '%g\n' {beamarea}
                 print "image_sci_beamarea_sinc.txt" '%g\n' {beamarea_sinc}
+                print "image_sci_beamarea_circle.txt" '%g\n' {beamarea_circle}
                 define print_noheader 0
             }
         }
@@ -86,14 +93,16 @@ calc_beamarea 00
             if(is_vector(tmp_bmaj)) {unset tmp_bmaj}
             if(is_vector(tmp_bmin)) {unset tmp_bmin}
             if(is_vector(tmp_bpa)) {unset tmp_bpa}
-            verbose 0 data "image_psf_beamarea.tmp" read {tmp_bmaj 1 tmp_bmin 2 tmp_bpa 3} verbose 1
+            data "image_psf_beamarea.tmp" read {tmp_bmaj 1 tmp_bmin 2 tmp_bpa 3}
             !rm "image_psf_beamarea.tmp"
             if(is_vector(tmp_bmaj) && is_vector(tmp_bmin) && is_vector(tmp_bpa)) {
                 set beamarea = pi/(4.0*ln(2)) * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
                 set beamarea_sinc = pi * (tmp_bmaj/1.89549*3600.0 * tmp_bmin/1.89549*3600.0) # arcsec-square
+                set beamarea_circle = pi/4.0 * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
                 define print_noheader 1
                 print "image_sci_beamarea.txt" '%g\n' {beamarea}
                 print "image_sci_beamarea_sinc.txt" '%g\n' {beamarea_sinc}
+                print "image_sci_beamarea_circle.txt" '%g\n' {beamarea_circle}
                 define print_noheader 0
             }
         }
@@ -103,18 +112,102 @@ calc_beamarea 00
         if(is_file("image_psf.fits")) {
             # measure at which radius an aperture has half of the total flux in image_psf.fits
             #!CrabPhotImageStatistics image_psf.fits > image_psf.fits.statistics.txt
-            #verbose 0 data image_psf.fits.statistics.txt read {image_psf_f_peak 5 image_psf_f_total 6}
-            !gethead image_psf.fits NAXIS1 NAXIS2 > image_psf.fits.gethead.naxis.txt
-            verbose 0 data image_psf.fits.gethead.naxis.txt read {image_psf_naxis1 1 image_psf_naxis2 2} verbose 1
-            !getpix -n 1 %.15g image_psf.fits 1-$(image_psf_naxis1) 1-$(image_psf_naxis2) > image_psf.fits.getpix.all.pixels.txt
-            verbose 0 data image_psf.fits.getpix.all.pixels.txt read {image_psf_pixel_values 1} verbose 1
+            #data image_psf.fits.statistics.txt read {image_psf_f_peak 5 image_psf_f_total 6}
+            !gethead "image_psf.fits" "NAXIS1" "NAXIS2" > "image_psf.fits.gethead.naxis.txt"
+            data "image_psf.fits.gethead.naxis.txt" read {image_psf_naxis1 1 image_psf_naxis2 2}
+            !rm "image_psf.fits.gethead.naxis.txt"
+            !getpix -n 1 "%.15g" "image_psf.fits" 1-$(image_psf_naxis1) 1-$(image_psf_naxis2) > "image_psf.fits.getpix.all.pixels.txt"
+            data "image_psf.fits.getpix.all.pixels.txt" read {image_psf_pixel_values 1}
+            !rm "image_psf.fits.getpix.all.pixels.txt"
             vecminmax image_psf_pixel_values image_psf_pixel_min image_psf_pixel_max
             if(!is_vector(pixscale)) {read_pixscale}
-            set beamarea = float(sum(image_psf_pixel_values>=$image_psf_pixel_max*0.5))*pixscale*pixscale # arcsec-square
+            set temp_gaussian_fpix = image_psf_pixel_values if(image_psf_pixel_values>=$image_psf_pixel_max*0.0)
+            set temp_gaussian_area = sum(temp_gaussian_fpix)
+            set temp_gaussian_peak = $image_psf_pixel_max
+            set temp_gaussian_sigma = sqrt(temp_gaussian_area / temp_gaussian_peak / (2*pi) / 2.0) # 2D Gaussian Area = 2*pi*a*(sigma_x**2 + sigma_y**2)
+            set temp_gaussian_fwhm = 2*sqrt(2*ln(2)) * temp_gaussian_sigma
+            #set beamarea = float(sum(image_psf_pixel_values>=$image_psf_pixel_max*0.5))*pixscale*pixscale # arcsec-square
+            set beamarea = pi/(4.0*ln(2)) * temp_gaussian_fwhm**2 # arcsec-square
             define print_noheader 1
             print "image_sci_beamarea.txt" '%g\n' {beamarea}
-            print "image_sci_beamarea.warning.txt" 'Warning! No BMAJ BMIN BPA keywords in image_sci.fits or image_psf.fits, taking half maximum pixel count.\n' {}
+            print "image_sci_beamarea.warning.txt" 'Warning! No BMAJ BMIN BPA keywords in image_sci.fits or image_psf.fits, estimating beamarea from image_psf.fits assuming Gaussian area and peak relation.\n' {}
             define print_noheader 0
+            #
+            #define print_noheader 1
+            #print "image_sci_beamarea.txt" '%g\n' {beamarea}
+            #print "image_sci_beamarea.warning.txt" 'Warning! No BMAJ BMIN BPA keywords in image_sci.fits or image_psf.fits, taking half maximum pixel count.\n' {}
+            #define print_noheader 0
+            #<20170923># set beamarea = 1.0
+            #<20170923># define print_noheader 1
+            #<20170923># print "image_sci_beamarea.txt" '%g\n' {beamarea}
+            #<20170923># print "image_sci_beamarea.warning.txt" 'Warning! No BMAJ BMIN BPA keywords in image_sci.fits or image_psf.fits, setting beamarea to 1.0.\n' {}
+            #<20170923># define print_noheader 0
+        }
+    }
+    if(!is_vector(beamarea)) {
+        print 'Error! Failed to get beamarea!!\n' {}
+        !sleep 9999999999999999999999999
+        exit
+    }
+
+
+calc_buffer_size_limit 00
+    #<20170923># determine the buffer size, which should be related to the FWHM of PSF
+    if(is_vector(buffer_size_limit)) {unset buffer_size_limit}
+    if(is_file("buffer_size_limit.txt")) {
+        data "buffer_size_limit.txt" read {buffer_size_limit 1.f}
+        if(!is_vector(buffer_size_limit)) {
+            !rm "buffer_size_limit."* 2>/dev/null
+        } # added a check here
+    }
+    if(!is_file("buffer_size_limit.txt") && is_file("image_sci_beamarea.txt")) {
+        data "image_sci_beamarea.txt" read {temp_beamarea 1.f}
+        if(!is_vector(pixscale)) {read_pixscale}
+        set buffer_size_limit = 1.0*sqrt(temp_beamarea/(pi/(4.0*ln(2)))) / pixscale # pixel, set as 1.0xFWHM
+        define print_noheader 1
+        print "buffer_size_limit.txt" '%g\n' {buffer_size_limit}
+        if(is_file("image_sci_beamarea.warning.txt")) {
+        print "buffer_size_limit.warning.txt" 'The buffer size limit is estimated beamarea that has warning, see \"image_sci_beamarea.warning.txt\"!\n' {}
+        }
+        define print_noheader 0
+    }
+
+
+calc_fluxconv 00
+    if(is_vector(fluxconv)) {unset fluxconv}
+    if(is_file("image_sci_fluxconv.txt")) {
+        data "image_sci_fluxconv.txt" read {fluxconv 1.f fluxunit 2.s}
+        if(!is_vector(fluxconv)) {
+            !rm "image_sci_fluxconv."* 2>/dev/null
+        } # added a check here
+    }
+    if(!is_file("image_sci_fluxconv.txt") && is_file("image_sci.fits")) {
+        !gethead "image_sci.fits" "BUNIT" > "image_sci_fluxunit.txt"
+        if(is_vector(fluxunit)) {unset fluxunit}
+        data "image_sci_fluxunit.txt" read {fluxunit 1.s}
+        if(is_vector(fluxunit)) {
+            if(is_file("image_sci_fluxunit.warning.txt")) {!rm "image_sci_fluxunit.warning.txt"}
+            if(fluxunit=='Jy/beam' || fluxunit=='JY/BEAM') {
+                calc_beamarea
+                read_pixscale
+                set fluxconv = 1.0 / (beamarea/(pixscale*pixscale)) # assuming Jy/beam
+                if(is_file("image_sci_fluxconv.warning.txt")) {!rm "image_sci_fluxconv.warning.txt"}
+            } else {
+                if(fluxunit=='MJy/sr' || fluxunit=='MJY/SR') {
+                    set fluxconv = 1e6 * (pixscale/3600.0/180.0*pi)**2 # assuming MJy/sr
+                    if(is_file("image_sci_fluxconv.warning.txt")) {!rm "image_sci_fluxconv.warning.txt"}
+                } else {
+                    set fluxconv = 1.0 / (beamarea/(pixscale*pixscale)) # assuming Jy/beam
+                    print "image_sci_fluxconv.warning.txt" 'Could not understand BUNIT $(fluxunit)! Assuming Jy/beam!\n' {}
+                }
+            }
+            print "image_sci_fluxconv.txt" '%0.15g   %s\n' {fluxconv fluxunit}
+        } else {
+            print "image_sci_fluxunit.warning.txt" 'No BUNIT keyword was found in the FITS header of image_sci.fits!\n' {}
+            set fluxconv = 1.0
+            set fluxunit = 'unknown'
+            print "image_sci_fluxconv.txt" '%0.1g   %s\n' {fluxconv fluxunit}
+            print "image_sci_fluxconv.warning.txt" 'No BUNIT keyword was found in the FITS header of image_sci.fits! Can not determine a valid fluxconv! Set to 1.0!\n' {}
         }
     }
 
@@ -123,14 +216,13 @@ calc_sky_frequency 00
     if(is_file("image_sci_sky_frequency.txt")) {
         #!mv "image_sci_sky_frequency.txt" "image_sci_sky_frequency.txt.backup"
         if(is_vector(sky_frequency)) {unset sky_frequency}
-        verbose 0 data "image_sci_sky_frequency.txt" read {sky_frequency 1.f} verbose 1
+        data "image_sci_sky_frequency.txt" read {sky_frequency 1.f}
         if(!is_vector(sky_frequency)) {!rm "image_sci_sky_frequency.txt"} # added a check here
     }
     if(!is_file("image_sci_sky_frequency.txt")) {
         if(is_vector(sky_frequency)) {unset sky_frequency}
         if(is_file("image_sci.fits")) {
             !gethead "image_sci.fits" "CTYPE3" "CRPIX3" "CRVAL3" > "image_sci_sky_frequency.tmp"
-            verbose 0
             if(is_vector(sky_frequency)) {unset sky_frequency}
             if(is_vector(sky_freq_type)) {unset sky_freq_type}
             data "image_sci_sky_frequency.tmp" 
@@ -143,7 +235,6 @@ calc_sky_frequency 00
                     define print_noheader 0
                 }
             }
-            verbose 1
         }
     }
 
@@ -155,7 +246,7 @@ calc_phase_center 00
         if(is_vector(phase_center_dec)) {unset phase_center_dec}
         if(is_vector(phase_center_x)) {unset phase_center_x}
         if(is_vector(phase_center_y)) {unset phase_center_y}
-        verbose 0 data "image_sci_phase_center.txt" read {phase_center_ra 1.f phase_center_dec 2.f phase_center_x 3.f phase_center_y 4.f} verbose 1
+        data "image_sci_phase_center.txt" read {phase_center_ra 1.f phase_center_dec 2.f phase_center_x 3.f phase_center_y 4.f}
         if(!is_vector(phase_center_ra)||!is_vector(phase_center_dec)||!is_vector(phase_center_x)||!is_vector(phase_center_y)) {!rm "image_sci_phase_center.txt"} # added a check here
     }
     if(!is_file("image_sci_phase_center.txt")) {
@@ -167,9 +258,8 @@ calc_phase_center 00
             if(is_vector(phase_center_dec)) {unset phase_center_dec}
             if(is_vector(phase_center_x)) {unset phase_center_x}
             if(is_vector(phase_center_y)) {unset phase_center_y}
-            verbose 0 data "image_sci_phase_center.tmp" 
+            data "image_sci_phase_center.tmp" 
             read {phase_center_type1 1.s phase_center_x 2.f phase_center_ra 3.f phase_center_type2 4.s phase_center_y 5.f phase_center_dec 6.f}
-            verbose 1
             if(is_vector(phase_center_ra) && is_vector(phase_center_dec)) {
                 if(index(phase_center_type1,'RA')==0 && index(phase_center_type2,'DEC')==0) {
                     define print_noheader 1
@@ -182,6 +272,9 @@ calc_phase_center 00
 
 
 calc_primary_beam_correction 00
+    # 
+    read_primary_beam_correction_from_pb_image
+    # 
     if(is_file("image_sci_primary_beam_correction.txt")) {
         !mv "image_sci_primary_beam_correction.txt" "image_sci_primary_beam_correction.txt.backup"
     }
@@ -235,9 +328,7 @@ calc_primary_beam_correction 00
             set primary_beam_sigm = primary_beam_disq*0.0 + primary_beam_fwhm/(2.0*sqrt(2.0*ln(2)))
             set primary_beam_attenuation = exp((-primary_beam_disq)/(2.0*((primary_beam_sigm)**2))) #<TODO><20170613># 
             set primary_beam_correction = 1.0/primary_beam_attenuation
-            #define print_noheader 1
             print "image_sci_primary_beam_correction.txt" '%26g %26g %20g %20g\n' {primary_beam_correction primary_beam_attenuation primary_beam_dist primary_beam_fwhm}
-            #define print_noheader 0 
         } else {
             set primary_beam_correction = px*0 + 1
             set primary_beam_attenuation = px*0 + 1
@@ -256,25 +347,29 @@ read_primary_beam_correction_from_pb_image 00
     if(is_file("image_pba_primary_beam_correction.warning.txt")) {
         !rm "image_pba_primary_beam_correction.warning.txt"
     }
+    if(is_vector(primary_beam_correction)) {unset primary_beam_correction}
+    if(is_vector(primary_beam_attenuation)) {unset primary_beam_attenuation}
     if(is_file("image_pba.fits")) {
-        if(!is_vector(px) || !is_vector(py)) {
-            read_data
-        }
+        if(!is_vector(px) || !is_vector(py)) { read_data }
         define print_noheader 1
-        print "image_pba_primary_beam_correction.getpix.input.txt" '%15g %15g\n' {px py}
+        set px_round = int(px+0.5)
+        set py_round = int(py+0.5)
+        print "image_pba_primary_beam_correction.getpix.input.txt" '%d %d\n' {px_round py_round}
         define print_noheader 0
-        !getpix -n 1 "image_pba.fits" @"image_pba_primary_beam_correction.getpix.input.txt" > "image_pba_primary_beam_correction.getpix.output.txt"
-        verbose 0
+        !getpix -n 1 "%.15g" "image_pba.fits" @"image_pba_primary_beam_correction.getpix.input.txt" > "image_pba_primary_beam_correction.getpix.output.txt"
         data "image_pba_primary_beam_correction.getpix.output.txt" read {primary_beam_attenuation 1.f}
-        verbose 1
-        set primary_beam_correction = 1.0/primary_beam_attenuation
+        !rm "image_pba_primary_beam_correction.getpix.input.txt"
+        !rm "image_pba_primary_beam_correction.getpix.output.txt"
+        set primary_beam_attenuation_round = (primary_beam_attenuation>0) ? primary_beam_attenuation : 1.0
+        set primary_beam_correction = 1.0 / primary_beam_attenuation_round
         print "image_pba_primary_beam_correction.txt" '%26g %26g\n' {primary_beam_correction primary_beam_attenuation}
         if(sum(primary_beam_correction==1.0)==dimen(primary_beam_correction)) {
             print "image_pba_primary_beam_correction.warning.txt" 'Warning! The PBA image \"image_pba.fits\" is invalid with pixel value 1.0 everywhere!\n' {}
         }
     } else {
-        set primary_beam_correction = px*0 + 1
-        set primary_beam_attenuation = px*0 + 1
+        if(!is_vector(px) || !is_vector(py)) { read_data }
+        set primary_beam_correction = px*0 + 1.0
+        set primary_beam_attenuation = px*0 + 1.0
         print "image_pba_primary_beam_correction.txt" '%26g %26g\n' {primary_beam_correction primary_beam_attenuation}
         print "image_pba_primary_beam_correction.warning.txt" 'Error! No \"image_pba.fits\" was found!\n' {}
     }
@@ -447,6 +542,8 @@ print_result
         read_pixscale
         read_pixnoise
         calc_beamarea
+        calc_buffer_size_limit
+        calc_fluxconv
         # 
         # <TODO><20170613> fixing bug <TODO>
         calc_primary_beam_correction
@@ -463,21 +560,21 @@ print_result
             data "image_sci_primary_beam_correction.txt" read {pb_corr 1.f}
             # 
             # print further results with flux unit Jy/beam (f_peak) or Jy (f_int)
-            if(is_vector(pixscale) && is_vector(beamarea)) {
-                if(pixscale>0 && beamarea>0) {
-                    set f_peak = pix_max
-                    set f_int = pix_sum / beamarea * (pixscale*pixscale)
-                    set err_peak = pixnoise
-                    set err_int = pixnoise * sqrt(pix_num) / beamarea * (pixscale*pixscale)
+            if(is_vector(pixscale) && is_vector(fluxconv)) {
+                if(pixscale>0 && fluxconv>0) {
+                    set f_peak = pix_max # do not convert flux unit
+                    set f_int = pix_sum * fluxconv # convert flux unit to Jy (integrated over source pixels)
+                    set err_peak = pixnoise # do not convert flux unit
+                    set err_int = pixnoise * sqrt(pix_num) * fluxconv # convert flux unit to Jy (integrated over source pixels)
                     set snr_peak = (f_peak>0) ? (f_peak / err_peak) : 0.0
                     set snr_int = (f_int>0) ? (f_int / err_int) : 0.0
                     set rms_noise = f_peak*0.0 + pixnoise
                     print "getpix.result" '%15g %15g %15g %15g %15g %15g %15.0f %15s\n' {f_peak f_int snr_peak snr_int rms_noise pb_corr cat_index cat_id}
                 } else {
-                    print 'Error! Negative pixscale or beamarea value! Failed to run \"go_getpix.sm\" subroutine \"print_result\"!\n' {}
+                    print 'Error! Negative pixscale or fluxconv value! Failed to run \"go_getpix.sm\" subroutine \"print_result\"!\n' {}
                 }
             } else {
-                print 'Error! Failed to read pixscale and beamarea! Failed to run \"go_getpix.sm\" subroutine \"print_result\"!\n' {}
+                print 'Error! Failed to read pixscale and fluxconv! Failed to run \"go_getpix.sm\" subroutine \"print_result\"!\n' {}
             }
         } else {
             print 'Error! \"getpix.txt\" was not found under current directory! Failed to run \"go_getpix.sm\" subroutine \"print_result\"!\n' {}
@@ -490,6 +587,7 @@ print_result_on_negative_image
         read_pixscale
         read_pixnoise
         calc_beamarea
+        calc_buffer_size_limit
         # 
         if(is_file("getpix_on_negative_image.result")) {
             !mv "getpix_on_negative_image.result" "getpix_on_negative_image.result.backup"
@@ -503,21 +601,21 @@ print_result_on_negative_image
             data "image_sci_primary_beam_correction.txt" read {pb_corr 1.f}
             # 
             # print further results with flux unit Jy/beam (f_peak) or Jy (f_int)
-            if(is_vector(pixscale) && is_vector(beamarea)) {
-                if(pixscale>0 && beamarea>0) {
-                    set f_peak = pix_max
-                    set f_int = pix_sum / beamarea * (pixscale*pixscale)
-                    set err_peak = pixnoise
-                    set err_int = pixnoise * sqrt(pix_num) / beamarea * (pixscale*pixscale)
+            if(is_vector(pixscale) && is_vector(fluxconv)) {
+                if(pixscale>0 && fluxconv>0) {
+                    set f_peak = pix_max # do not convert flux unit
+                    set f_int = pix_sum * fluxconv # convert flux unit to Jy (integrated over source pixels)
+                    set err_peak = pixnoise # do not convert flux unit
+                    set err_int = pixnoise * sqrt(pix_num) * fluxconv # convert flux unit to Jy (integrated over source pixels)
                     set snr_peak = (f_peak>0) ? (f_peak / err_peak) : 0.0
                     set snr_int = (f_int>0) ? (f_int / err_int) : 0.0
                     set rms_noise = f_peak*0.0 + pixnoise
                     print "getpix_on_negative_image.result" '%15g %15g %15g %15g %15g %15g %15.0f %15s\n' {f_peak f_int snr_peak snr_int rms_noise pb_corr cat_index cat_id}
                 } else {
-                    print 'Error! Negative pixscale or beamarea value! Failed to run \"go_getpix.sm\" subroutine \"print_result_on_negative_image\"!\n' {}
+                    print 'Error! Negative pixscale or fluxconv value! Failed to run \"go_getpix.sm\" subroutine \"print_result_on_negative_image\"!\n' {}
                 }
             } else {
-                print 'Error! Failed to read pixscale and beamarea! Failed to run \"go_getpix.sm\" subroutine \"print_result_on_negative_image\"!\n' {}
+                print 'Error! Failed to read pixscale and fluxconv! Failed to run \"go_getpix.sm\" subroutine \"print_result_on_negative_image\"!\n' {}
             }
         } else {
             print 'Error! \"getpix_on_negative_image.txt\" was not found under current directory! Failed to run \"go_getpix.sm\" subroutine \"print_result_on_negative_image\"!\n' {}

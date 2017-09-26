@@ -1,0 +1,6 @@
+calc 0.176*5.0
+quit
+calc 5.0/0.176
+quit
+calc 0.15/0.176
+quit

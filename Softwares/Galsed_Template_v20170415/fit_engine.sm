@@ -19,6 +19,22 @@ goxfitAGN 01
 			foreach fvar xF { set fF = fF concat $fvar[$xAGN] }
 			foreach fvar xdF { set dfF = dfF concat $fvar[$xAGN] }
 			
+			### <20170913><DZLIU> ### allow to fix (w,f) 
+			if(is_vector(w_fixed) && is_vector(f_fixed)) {
+				if(dimen(w_fixed) == dimen(f_fixed)) {
+					set fixedData = int(wW*0)
+					do i_fixed = 0,dimen(w_fixed)-1 {
+						set wW = wW concat w_fixed[$i_fixed]
+						set fF = fF concat f_fixed[$i_fixed]
+						set dfF = dfF concat (f_fixed[$i_fixed]/1e6)
+						set fixedData = fixedData concat 1
+						echo ""
+						echo "Fixed flux at "$(w_fixed[$i_fixed])" um to be "$(f_fixed[$i_fixed])" mJy!"
+						echo ""
+					}
+				}
+			}
+			
 			### <20140325><DZLIU> ###
 			echo Looping source $xAGN id=$(id[$xAGN]) no=$(EeE[0]) bands=$(dimen(xF))
 			
@@ -81,13 +97,13 @@ goxfitAGN 01
 							### -- Fitting Stellar SED
 							###<Modified><20141028><DzLIU>###
 							###<Modified><20170315><DzLIU>### coSTAR (the wavelength range for stellar SED fitting)
-							## set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars && wW/(1+$(zrange[$xxZ]))>1.0 || ($(zrange[$xxZ])>4 && wW>5 && wW<8) ) && dfF<1e4
-							# set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars && wW/(1+$(zrange[$xxZ]))>1.0 || ($(zrange[$xxZ])>4 && wW>5 && wW<8) ) && dfF<1e4
+							## set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars && wW/(1+$(zrange[$xxZ]))>1.0 || ($(zrange[$xxZ])>4 && wW>5 && wW<8) ) && dfF<1e8
+							# set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars && wW/(1+$(zrange[$xxZ]))>1.0 || ($(zrange[$xxZ])>4 && wW>5 && wW<8) ) && dfF<1e8
 							if(!$?Apply_highz_stellar_range) {define Apply_highz_stellar_range 1}
 							if($Apply_highz_stellar_range) {
-								set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars && wW/(1+$(zrange[$xxZ]))>1.5 || ($(zrange[$xxZ])>4 && wW>5 && wW<8) ) && dfF<1e4
+								set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars && wW/(1+$(zrange[$xxZ]))>1.5 || ($(zrange[$xxZ])>4 && wW>5 && wW<8) ) && dfF<1e8
 							} else {
-								set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars ) && dfF<1e4
+								set coSTAR = (wW/(1+$(zrange[$xxZ]))<=$Lambda_maxrest_stars ) && dfF<1e8
 							}
 							# 
 							define xebv 0 define aStar 0
@@ -138,8 +154,8 @@ goxfitAGN 01
 							}
 							
 							### -- Fitting Dust SED
-							# set coSFR = (wW/(1+$(zrange[$xxZ]))>=$Lambda_minrest || wW>35) && dfF<1e4 #<Modified><20141219><DADDI>#
-							set coSFR = (wW/(1+$(zrange[$xxZ]))>=$Lambda_minrest || wW>20) && dfF<1e4
+							# set coSFR = (wW/(1+$(zrange[$xxZ]))>=$Lambda_minrest || wW>35) && dfF<1e8 #<Modified><20141219><DADDI>#
+							set coSFR = (wW/(1+$(zrange[$xxZ]))>=$Lambda_minrest || wW>20) && dfF<1e8
 							# <Added><20160107><edaddi> 
 							# <Fixed><20160214><edaddi> Bug: if(coo_FIR) => if($eee_FIR)
 							if($eee_FIR==1) {
@@ -237,7 +253,7 @@ goxfitAGN 01
 								define chi2_min $chi2
 								define Rchi2_min $Rchi2
 								define Schi2_min $Schi2
-								if($ubest==101) { define uvbest $(UvalU[dimen(UvalU)-1]) } else { define uvbest $(UvalU[$ubest-1]) }
+								if($ubest==101) { define uvbest $(UvalU[dimen(UvalU)-1]) } else { define uvbest $(UvalU[$ubest-1]) } # uvbest = ubest for MS but uvbest = 31 for SB.
 							}
 							
 							# dump chi2_min_per_z
@@ -254,7 +270,7 @@ goxfitAGN 01
 								define per_z_chi2_min $chi2
 								define per_z_Rchi2_min $Rchi2
 								define per_z_Schi2_min $Schi2
-								if($ubest==101) { define per_z_uvbest $(UvalU[dimen(UvalU)-1]) } else { define per_z_uvbest $(UvalU[$ubest-1]) }
+								if($ubest==101) { define per_z_uvbest $(UvalU[dimen(UvalU)-1]) } else { define per_z_uvbest $(UvalU[$ubest-1]) } # uvbest = ubest for MS but uvbest = 31 for SB.
 							}
 							
 							# z, iU, iAGN, aAGN, aSF --> chi2 MATRIX
@@ -331,12 +347,12 @@ goxfitAGN 01
 			# coSTAR (the wavelength range for stellar SED fitting)
 			if(!$?Apply_highz_stellar_range) {define Apply_highz_stellar_range 1}
 			if($Apply_highz_stellar_range) {
-				set coSTAR = (wW/(1+$zbest)<=$Lambda_maxrest_stars && wW/(1+$zbest)>1.5 || ($zbest>4 && wW>5 && wW<8) ) && dfF<1e4
+				set coSTAR = (wW/(1+$zbest)<=$Lambda_maxrest_stars && wW/(1+$zbest)>1.5 || ($zbest>4 && wW>5 && wW<8) ) && dfF<1e8
 			} else {
-				set coSTAR = (wW/(1+$zbest)<=$Lambda_maxrest_stars ) && dfF<1e4
+				set coSTAR = (wW/(1+$zbest)<=$Lambda_maxrest_stars ) && dfF<1e8
 			}
-			set coSFR = (wW/(1+$zbest)>=$Lambda_minrest || wW>15) && dfF<1e4
-			set coAGN = (wW/(1+$zbest)>=$l1AGN && wW/(1+$zbest)<=$l2AGN) && dfF<1e4
+			set coSFR = (wW/(1+$zbest)>=$Lambda_minrest || wW>15) && dfF<1e8
+			set coAGN = (wW/(1+$zbest)>=$l1AGN && wW/(1+$zbest)<=$l2AGN) && dfF<1e8
 			#<Added><20160107><edaddi><dzliu> 
 			#<Fixed><20160214><edaddi><dzliu> Bug: if(coo_FIR) => if($eee_FIR)
 			if($eee_FIR==1) {
@@ -385,14 +401,26 @@ goxfitAGN 01
 			location 4500 31000 4500 31000
 			ticksize -1 0 -1 0
 			expand 1.5
-			limits 0 5.6 -3 2.5 erase lweight 3.0 box 
+			limits -0.6 5.6 -4.0 3.0 erase lweight 3.0 box 
 			expand 2.0
 			xlabel "Observed Wavelength [{\mu}m]"
 			ylabel "Flux Density [mJy]"
 			expand 1.5
 			ticksize 0 0 0 0
-			set up_coo = fF>0 && fF/dfF>2
-			foreach xdr {fF dfF wW} {set $xdr"_" = $xdr if(up_coo)}
+			# check whether the data is fixed, see 'w_fixed' 'f_fixed' variables
+			# then plot unfixed and detected (S/N>2) data points
+			if(is_vector(w_fixed) && is_vector(f_fixed)) {
+				if(dimen(w_fixed) == dimen(f_fixed)) {
+					set up_fix = fixedData
+					print {up_fix fixedData}
+				} else {
+					set up_fix = wW<0
+				}
+			} else {
+				set up_fix = wW<0
+			}
+			set up_coo = fF>0 && fF/dfF>2 # only plot S/N>2 data points (and S/N<1e6, because S/N=1e6 means fixed fluxes, see vector 'f_fixed')
+			foreach xdr {fF dfF wW} {set $xdr"_" = $xdr if(up_coo && !up_fix)}
 			logerr fF_ dfF_
 			ptype 25 3
 			points (lg(wW_)) (lg(fF_))
@@ -427,7 +455,7 @@ goxfitAGN 01
 			}
 			###<TODO><Added><20150718><DZLIU>### output best fit data
 			
-			foreach xdr {fF dfF wW} {set $xdr"_" = $xdr if(!up_coo)}
+			foreach xdr {fF dfF wW} {set $xdr"_" = $xdr if(!up_coo && !up_fix)}
 			upper ptype $upper points (lg(wW_)) (lg(fF_+2*dfF_)) ptype 25 3
 			
 			###<TODO><Added><20150718><DZLIU>### output best fit data
@@ -478,11 +506,11 @@ goxfitAGN 01
 			expand 2.00 lweight 3.5
 			puts ID $(id[$xAGN]) 
 			expand 1.75 lweight 3.5
-			set uu_zz = $zbest
-			define zstr (sprintf('%4.3f',uu_zz[0]))
+			set zbest = $zbest
+			define zstr (sprintf('%4.3f',zbest))
 			puts z=$zstr
 			#puts qz=$(qz[$xAGN])
-			puts zp=$(zp_X[$xAGN])
+			puts zphot=$(zp_X[$xAGN])
 			#<Added><20141028><DzLIU># ----------------
 			if(spez[$xAGN]>0){puts zspec=$(sprintf('%0.3f',spez[$xAGN]))
 			            }else{puts zspec=$(sprintf('%0.0f',spez[$xAGN]))}
@@ -503,22 +531,34 @@ goxfitAGN 01
 			}
 			#<Moded><20170308><DZLIU># *******
 			#<Added><20150723><DZLIU># *******
-			set uu_uu = $uvbest
-			define ustr (sprintf('%0.0f',uu_uu[0]))
-			puts Umean=$ustr
+			set uvbest = $uvbest
+			define ustr (sprintf('%0.0f',uvbest))
+			puts "Umean="$ustr
 			# calc SFR
 			# !lumdist $zbest -simple > "dliu_temp_lumdist_"$(id[$xAGN])
 			# data "dliu_temp_lumdist_"$(id[$xAGN]) read {dliu_lumdist 1}
-			set dzliu_model_lgLIR = lg($norm_SFR)-26+lg(3e14)+lg(4*3.1416)+2*lg($dLbest)+2*(24+lg(3.086))-lg(3.846)-33 -lg(1+uu_zz)
+			set dzliu_model_lgLIR = lg($norm_SFR)-26+lg(3e14)+lg(4*3.1416)+2*lg($dLbest)+2*(24+lg(3.086))-lg(3.846)-33 -lg(1+zbest)
 			print '%15.2f\n' {dzliu_model_lgLIR}
 			set dzliu_model_SFR = 10**(dzliu_model_lgLIR-10)
-			puts SFR=$(sprintf('%0.1f',dzliu_model_SFR))
+			puts "SFR="$(sprintf('%0.1f',dzliu_model_SFR))
 			#<Added><20141028><DzLIU># ----------------
 			# 
 			# calc Mstar
 			set dzliu_model_Mstar = $norm_SFR_irac * $dLbest**2 / 40.31970 # 1 Lsun Mpc-2 = 40.31970 mJy GHz
 			set dzliu_model_lgMstar = lg(dzliu_model_Mstar)
 			print '%15.2f\n' {dzliu_model_lgMstar}
+			puts "{log}M_*="$(sprintf('%0.2f',dzliu_model_lgMstar))
+			# 
+			# calc {\delta}MS
+			if(dzliu_model_lgMstar>0 && dzliu_model_SFR>0) {
+				load astroSfig.sm
+				puts "{\Delta}MS="$(sprintf('%0.2f',lg(dzliu_model_SFR)-calc_Sargent2014_SFR(zbest,dzliu_model_lgMstar)))
+			}
+			# 
+			# show chi2
+			puts "\chi^2="$(sprintf('%0.4g',$chi2_min))
+			set redu_chisq = $chi2_min / (sum(up_coo && !up_fix) - 1) # only one free parameter for each SED template: the normalization
+			puts "r.\chi^2="$(sprintf('%0.4g',redu_chisq))
 			# 
 			# 
 			#<Added><DZLIU><DADDI># ----------------
@@ -529,7 +569,7 @@ goxfitAGN 01
 			expand 1.5 lweight 3.0
 			#<Added><DZLIU><DADDI># ----------------
 			echo ID=$(id[$xAGN]) NO=$(EeE[0]) zspec=$(spez[$xAGN]) zp_X=$(zp_X[$xAGN]) Type_SED=$eee_SED Type_AGN=$eee_AGN Type_FIR=$eee_FIR
-			echo BEST zbest $zbest ubest $ustr dLbest $dLbest agnbest $agnbest norm_Star $norm_SFR_irac norm_EBV $norm_SFR_irac_ebv norm_AGN $norm_AGN norm_SFR $norm_SFR chi2_min $chi2_min
+			echo BEST zbest $zstr ubest $ustr dLbest $dLbest agnbest $agnbest norm_Star $norm_SFR_irac norm_EBV $norm_SFR_irac_ebv norm_AGN $norm_AGN norm_SFR $norm_SFR chi2_min $chi2_min
 			echo 	
 			
 			##### <Added><DZLIU> ##### ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -719,15 +759,28 @@ goMagdis 00
 		cd Magdis/
 		#### data README read {Ui 2 UvalU 3 Uz1 4 Uz2 5}   ###<TODO>### Update to Bethermin2014 new from Magdis
 		data README_dliu read {Ui 2 UvalU 3 Uz1 4 Uz2 5}   ###<TODO>### Update to Bethermin2014 new from Magdis
-		set xxWS = -1,6,.01 #<TODO>#<TEST># original is .01
+		set xxWS = -1,6,.01 # wavelength grid
 		set Uitot = Ui concat {101}
 		### set UvalU = UvalU concat 35 ###<Corrected>### Update to Bethermin2014 -- do not change here, this is the SB template!
 		set UvalU = UvalU concat 101    ###<Corrected>### Update to Bethermin2014 -- do not change here, this is the SB template!
 		declare CII_col 0
 		foreach xname Uitot {
 		data sed_z$xname""_U$xname""_radio.txt read {ws 1 fsfr 2} set fsfr = fsfr*ws set ws=lg(ws)
+		vecminmax ws ws_MIN ws_MAX
 		spline ws fsfr xxWS xfsfr
+		#<20170923># deal with spline problem, constrain by the left and right edge values
+		set xfsfr_GT_ws_MIN = xfsfr if(xxWS>=$ws_MIN)
+		if(dimen(xfsfr_GT_ws_MIN)>0) {
+			set xfsfr = (xxWS<$ws_MIN) ? xfsfr_GT_ws_MIN[0] : xfsfr
+		}
+		set xfsfr_LT_ws_MAX = xfsfr if(xxWS<=$ws_MAX)
+		if(dimen(xfsfr_LT_ws_MAX)>0) {
+			set xfsfr = (xxWS>$ws_MAX) ? xfsfr_LT_ws_MAX[dimen(xfsfr_LT_ws_MAX)-1] : xfsfr
+		}
 		smooth xfsfr fsfr$xname 13
+		set fsfr$xname = (xxWS<$ws_MIN) ? 0.0 : fsfr$xname
+		set fsfr$xname = (xxWS>$ws_MAX) ? 0.0 : fsfr$xname
+		#<20170923>#
 		set fsfr$xname = fsfr$xname>0 ? fsfr$xname : 0
 		set fff0 = fsfr$xname/10**xxWS set cooX = xxWS>lg(8) && xxWS<3 set fff0 = fff0 if(cooX) define Lbol $(sum(fff0)*.01/lg(exp(1)))
 		set ccL = {63 158} set ccL = lg(ccL) spline xxWS fsfr$xname ccL xCol
@@ -852,7 +905,7 @@ SETurange
 		### echo Done  SETurange
 
 setAGN_norm_range  00   
-			set coAGN = (wW/(1+$(zrange[$xxZ]))>=$l1AGN && wW/(1+$(zrange[$xxZ]))<=$l2AGN) && dfF<1e4
+			set coAGN = (wW/(1+$(zrange[$xxZ]))>=$l1AGN && wW/(1+$(zrange[$xxZ]))<=$l2AGN) && dfF<1e8
 			foreach xname {wW fF dfF} {set _$xname = $xname if(coAGN)}
 			set _wW = lg(_wW/(1+$(zrange[$xxZ])))
 			spline xxWS fagn$xxxAGN _wW WAGN
@@ -871,7 +924,13 @@ setAGN_norm_range  00
 			set AGN_norm_range = $(lg($aAGN)+.5),$(lg($aAGN)-2.0),-0.03
 			set AGN_norm_range = 10**(AGN_norm_range)
 			set AGN_norm_range = 0 concat AGN_norm_range
-			#set AGN_norm_range = 0  # use to eliminate AGN
+			
+			if(is_vector(fit_without_AGN)) {
+				if(fit_without_AGN==1) {
+					set AGN_norm_range = 0  # use to eliminate AGN
+				}
+			}
+			# 
 
 
 
@@ -920,6 +979,7 @@ rMatrix 01
 			if($eee_SED==0) {set mrx_coo = tySFR || 1}
 		} else {set mrx_coo = n*0+1 define eee_SED 0}
 		
+		
 		###<Modified><20140610><DZLIU>### predict 2mm
 		###<TODO><Modified><20140610><DZLIU>### predict 2mm ### <20150714><DZLIU> ### fit 70um when available
 		foreach mrx_var {zz tySFR tyAGN normAGN normSTR normSFR normTOT chi2 n dl} {set $mrx_var = $mrx_var if(mrx_coo)}
@@ -958,37 +1018,56 @@ rMatrix 01
 		set _norm_zz = zz              if(chi2<$miiChi+$dChi2ZP)
 		set _normChi = chi2            if(chi2<$miiChi+$dChi2)
 		
+		#echo DEBUG 20170926
+		
 		###<20140610><DZLIU>### predict 2mm
 		###<20170315><DZLIU>### use arrays and foreach so that we can easily add new band for output in the future
 		foreach mrx_var out_Bands {set _norm$mrx_var = mrx_$mrx_var if(chi2<$miiChi+$dChi2)}
 		
+		#echo DEBUG 20170926
 		
-		vecminmax _normAGN miiAGN maaAGN 
-		vecminmax _normSFR miiSFR maaSFR 
-		vecminmax _normSTR miiSTR maaSTR 
-		vecminmax _normTOT miiTOT maaTOT 
-		vecminmax _norm_zz mii_zz maa_zz 
-		
-		###<20140610><DZLIU>### predict 2mm
-		###<20170315><DZLIU>### use arrays and foreach so that we can easily add new band for output in the future
-		foreach mrx_var out_Bands {vecminmax _norm$mrx_var mii$mrx_var maa$mrx_var}
-		
-		
-		define fAGN $((+$miiAGN+$maaAGN)/2)
-		define eAGN $((-$miiAGN+$maaAGN)/2)
-		define fSTR $((+$miiSTR+$maaSTR)/2)
-		define eSTR $((-$miiSTR+$maaSTR)/2)
-		define fSFR $((+$miiSFR+$maaSFR)/2)
-		define eSFR $((-$miiSFR+$maaSFR)/2)
-		define fTOT $((+$miiTOT+$maaTOT)/2)
-		define eTOT $((-$miiTOT+$maaTOT)/2)
-		define f_zz $((+$mii_zz+$maa_zz)/2)
-		define e_zz $((-$mii_zz+$maa_zz)/2)
+		if(dimen(_normAGN)>0) {vecminmax _normAGN miiAGN maaAGN} else {define miiAGN +99 define maaAGN -99}
+		if(dimen(_normSFR)>0) {vecminmax _normSFR miiSFR maaSFR} else {define miiSFR +99 define maaSFR -99}
+		if(dimen(_normSTR)>0) {vecminmax _normSTR miiSTR maaSTR} else {define miiSTR +99 define maaSTR -99}
+		if(dimen(_normTOT)>0) {vecminmax _normTOT miiTOT maaTOT} else {define miiTOT +99 define maaTOT -99}
+		if(dimen(_norm_zz)>0) {vecminmax _norm_zz mii_zz maa_zz} else {define mii_zz +99 define maa_zz -99}
 		
 		###<20140610><DZLIU>### predict 2mm
 		###<20170315><DZLIU>### use arrays and foreach so that we can easily add new band for output in the future
-		foreach mrx_var out_Bands {define f$mrx_var $(($mii$mrx_var+$maa$mrx_var)/2)}
-		foreach mrx_var out_Bands {define e$mrx_var $((-$mii$mrx_var+$maa$mrx_var)/2)}
+		foreach mrx_var out_Bands {
+		if(dimen(_norm$mrx_var)>0) {vecminmax _norm$mrx_var mii$mrx_var maa$mrx_var} else {define mii$mrx_var +99 define maa$mrx_var -99}
+		}
+		
+		echo DEBUG 20170926
+		
+		define fAGN $((($maaAGN)+($miiAGN))/2.0)
+		define eAGN $((($maaAGN)-($miiAGN))/2.0)
+		define fSTR $((($maaSTR)+($miiSTR))/2.0)
+		define eSTR $((($maaSTR)-($miiSTR))/2.0)
+		define fSFR $((($maaSFR)+($miiSFR))/2.0)
+		define eSFR $((($maaSFR)-($miiSFR))/2.0)
+		define fTOT $((($maaTOT)+($miiTOT))/2.0)
+		define eTOT $((($maaTOT)-($miiTOT))/2.0)
+		define f_zz $((($maa_zz)+($mii_zz))/2.0)
+		define e_zz $((($maa_zz)-($mii_zz))/2.0)
+		
+		echo DEBUG 20170926
+		
+		echo fAGN=$fAGN miiAGN=$miiAGN maaAGN=$maaAGN
+		echo eAGN=$eAGN miiAGN=$miiAGN maaAGN=$maaAGN
+		echo fSTR=$fSTR miiSTR=$miiSTR maaSTR=$maaSTR
+		echo eSTR=$eSTR miiSTR=$miiSTR maaSTR=$maaSTR
+		echo fSFR=$fSFR miiSFR=$miiSFR maaSFR=$maaSFR
+		echo eSFR=$eSFR miiSFR=$miiSFR maaSFR=$maaSFR
+		echo fTOT=$fTOT miiTOT=$miiTOT maaTOT=$maaTOT
+		echo eTOT=$eTOT miiTOT=$miiTOT maaTOT=$maaTOT
+		echo f_zz=$f_zz mii_zz=$mii_zz maa_zz=$maa_zz
+		echo e_zz=$e_zz mii_zz=$mii_zz maa_zz=$maa_zz
+		
+		###<20140610><DZLIU>### predict 2mm
+		###<20170315><DZLIU>### use arrays and foreach so that we can easily add new band for output in the future
+		foreach mrx_var out_Bands {define f$mrx_var $((($maa$mrx_var)+($mii$mrx_var))/2.0)}
+		foreach mrx_var out_Bands {define e$mrx_var $((($maa$mrx_var)-($mii$mrx_var))/2.0)}
 		
 		
 		if($mrx_Verbose) { 
@@ -1016,11 +1095,11 @@ rMatrix 01
 		foreach mrx_var out_Bands {set _norm$mrx_var""_best = mrx_$mrx_var if(chi2<$miiChi+1e-3)}
 		
 		
-		stats _normAGN_best meAGN si ku 
-		stats _normSTR_best meSTR si ku 
-		stats _normSFR_best meSFR si ku 
-		stats _normTOT_best meTOT si ku 
-		stats _norm_zz_best me_zz si ku 
+		if(dimen(_normAGN_best)>0) {stats _normAGN_best meAGN si ku} else {define meAGN 0.0}
+		if(dimen(_normSTR_best)>0) {stats _normSTR_best meSTR si ku} else {define meSTR 0.0}
+		if(dimen(_normSFR_best)>0) {stats _normSFR_best meSFR si ku} else {define meSFR 0.0}
+		if(dimen(_normTOT_best)>0) {stats _normTOT_best meTOT si ku} else {define meTOT 0.0}
+		if(dimen(_norm_zz_best)>0) {stats _norm_zz_best me_zz si ku} else {define me_zz 0.0}
 		
 		###<20140610><DZLIU>### predict 2mm
 		###<20170315><DZLIU>### use arrays and foreach so that we can easily add new band for output in the future
@@ -1069,7 +1148,7 @@ rMatrix 01
 			}                                                      #<Added><DZLIU>#
 			location 5000 31000 7000 27000                         #<Added><DZLIU>#
 			ticksize -1 10 0 0
-			limits -2 4 (1/chi2)
+			limits -1 4 (1/chi2)
 			###if('$1'=='1160047') {limits -1 4 0 100 set chi2 = (1/chi2)>99?(1.0/99):chi2} #<Added><DZLIU># for VLA proposal
 			if('$1'=='1160047') {limits -1 4 (1/chi2)} #<Added><DZLIU># for VLA proposal
 			if('$1'=='12646') {limits -1 4 (1/chi2)} #<Added><DZLIU># for VLA proposal
@@ -1091,16 +1170,16 @@ rMatrix 01
 			}                                                    #<Added><DZLIU>#
 			location 5000 31000 7000 27000                       #<Added><DZLIU>#
 			ticksize -1 1 0 0
-			limits -1 1 (1/chi2)
+			limits 0 1 (1/chi2)
 			###if('$1'=='1160047') {limits 0 1 0 100 set chi2 = (1/chi2)>99?(1.0/99):chi2} #<Added><DZLIU># for VLA proposal
 			if('$1'=='1160047') {limits 0 1 (1/chi2)} #<Added><DZLIU># for VLA proposal
 			if('$1'=='12646') {limits 0 1 (1/chi2)} #<Added><DZLIU># for VLA proposal
-			erase expand 1.75 lweight 3.0 box expand 0.75 points (lg(zz)) (1/chi2)   ### <TODO> ### log error!
+			erase expand 1.75 lweight 3.0 box expand 0.75 points (lg(1+zz)) (1/chi2)   ### <TODO> ### log error!
 			ltype 1
 			rel -11 $(1/($miiChi+$dChi2)) draw 111 $(1/($miiChi+$dChi2)) ltype 0
 			ctype 0 expand 2.5 ptype 4 1 
-			xlabel z
-			ylabel 1/\chi^2
+			xlabel "1+z"
+			ylabel "1/\chi^2"
 			ticksize 0 0 0 0
 			if($?savepdf==1) {              #<Added><DZLIU>#
 			    device nodevice             #<Added><DZLIU>#
