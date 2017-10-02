@@ -1,0 +1,57 @@
+convert_datatable_for_sed_fitting
+    # 
+    # 
+    # 
+    if(!is_file("datatable_photometry.txt")) {
+        echo "Error! datatable_photometry.txt was not found!"
+        return
+    }
+    if(!is_file("datatable_id_ra_dec_zphot.txt") && !is_file("datatable_id_ra_dec_zspec.txt")) {
+        echo "Error! datatable_id_ra_dec_zphot.txt and datatable_id_ra_dec_zspec.txt was not found!"
+        return
+    }
+    
+    if(is_vector(id)) {unset id}
+    if(is_vector(zphot)) {unset zphot}
+    if(is_vector(zspec)) {unset zspec}
+    if(is_file("datatable_photometry.txt"))      {data "datatable_photometry.txt"      read {w 1.f f 2.f df 3.f sJy 4.s band 5.s}}
+    if(is_file("datatable_id_ra_dec_zphot.txt")) {data "datatable_id_ra_dec_zphot.txt" read {id 1 ra 2 dec 3 zphot 4}}
+    if(is_file("datatable_id_ra_dec_zspec.txt")) {data "datatable_id_ra_dec_zspec.txt" read {id 1 ra 2 dec 3 zspec 4}}
+    if(is_vector(zphot) && !is_vector(zspec)) {set zspec = zphot*0.0-99}
+    if(is_vector(zspec) && !is_vector(zphot)) {set zphot = zspec}
+    
+    sort {w band f df sJy}
+    set fJy = (sJy=='uJy') ? 1e-3 : 1.0
+    set fJy = (sJy=='mJy') ? 1.0 : fJy
+    #set fJy = (w==2.15 && f<0.1) ? 1.0 : fJy #<bug> fKs_jin was set to uJy by step_1 code, which is wrong! Now I have revised step_1 code, but before re-run step_1, we can use this line of code to fix the problem. 
+    set fOk = (f>-99 && df<1e6)
+    set f = fOk ? f * fJy : -99
+    set df = fOk ? df * fJy : 1e10
+    define print_noheader 1
+    set x1 = 'wave'
+    set x2 = 'band'
+    set x3 = 'unit'
+    set x4 = 'name'
+    print "default_filters.txt" '\# %-20s %-12s %-12s %-32s\n' {x1 x2 x3 x4}
+    set x1 = 'um'
+    set x2 = 'str'
+    set x3 = 'str'
+    set x4 = 'str'
+    print +"default_filters.txt" '\# %-20s %-12s %-12s %-32s\n' {x1 x2 x3 x4}
+    
+    set wfile_vectors = {id ra dec zphot zspec}
+    do i=1,dimen(w) {
+        set f$i = f[$i-1]
+        set df$i = df[$i-1]
+        set x1 = w[$i-1]
+        set x2 = '$i'
+        set x3 = 'mJy' # all are already converted to mJy
+        set x4 = band[$i-1]
+        print +"default_filters.txt" '  %-20.10f %-12s %-12s %-32s\n' {x1 x2 x3 x4}
+        set wfile_vectors = wfile_vectors concat 'f$i'
+        set wfile_vectors = wfile_vectors concat 'df$i'
+    }
+    load wfile.sm
+    wfile "datatable_for_sed_fitting.txt"
+
+

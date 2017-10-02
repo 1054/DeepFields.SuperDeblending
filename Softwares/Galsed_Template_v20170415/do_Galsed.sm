@@ -203,14 +203,34 @@ xfitAGN	01
 		# 
 		# Input: xF xdF wW #<Added><20170315># 
 		# 
+		if(is_vector(in_Waves)) {unset in_Waves}
+		if(is_vector(in_Bands)) {unset in_Bands}
+		if(is_vector(in_Units)) {unset in_Units}
+		if(is_vector(in_Names)) {unset in_Names}
+		data "default_filters.txt" read {in_Waves 1.f in_Bands 2.s} #<Added><20170315># 
+		data "default_filters.txt" read {in_Units 3.s} #<Added><20170927># 
+		data "default_filters.txt" read {in_Names 4.s} #<Added><20170927># 
+		if(!is_vector(in_Units)) {declare in_Units 0.s} #<Added><20170927># 
+		if(!is_vector(in_Names)) {declare in_Names 0.s} #<Added><20170927># 
+		if(dimen(in_Units)==0) {set in_Units = (in_Waves>=0) ? 'mJy' : 'mJy'} #<Added><20170927># assuming default flux density unit is mJy
+		if(dimen(in_Names)==0) {set in_Names = (in_Waves>=0) ? 'no_name' : 'no_name'} #<Added><20170927># assuming default flux density unit is mJy
+		declare xNames 0.s
 		declare xBands 0.s
 		declare wW 0
 		declare xF 0.s
 		declare xdF 0.s
-		data "default_filters.txt" read {in_Waves 1.f in_Bands 2.s} #<Added><20170315># 
 		do in_Index = 0, dimen(in_Bands)-1 {
 			define xBand $(in_Bands[$in_Index])
 			if(is_vector(f$xBand) && is_vector(df$xBand)) { 
+				if(in_Units[$in_Index]=='uJy' || in_Units[$in_Index]=='microJy') {
+					set f$xBand = f$xBand / 1e3
+					set df$xBand = df$xBand / 1e3
+				} #<Added><20170927># 
+				if(in_Units[$in_Index]=='Jy' || in_Units[$in_Index]=='JY') {
+					set f$xBand = f$xBand * 1e3
+					set df$xBand = df$xBand * 1e3
+				} #<Added><20170927># 
+				set xNames = xNames concat '$(in_Names[$in_Index])'
 				set xBands = xBands concat '$(in_Bands[$in_Index])'
 				set wW = wW concat  $(in_Waves[$in_Index])
 				set xF = xF concat 'f$xBand'
@@ -222,11 +242,11 @@ xfitAGN	01
 		
 		# set df24 = 1e10 #<TODO># for Id9319
 		# set df24 = 1e10 #<TODO># for Id15678
-		if(is_vector(f24) && is_vector(df24)) {
-		set f24off = (f24==-0.000553)       ###<Corrected><20140415><DZLIU>###     <TODO>
-		set f24 = (f24off==1)? -99 : f24    ###<Corrected><20140415><DZLIU>### 
-		set df24 = (f24off==1)? 1e10 : df24 ###<Corrected><20140415><DZLIU>### 
-		}
+		#if(is_vector(f24) && is_vector(df24)) {
+		#set f24off = (f24==-0.000553)       ###<Corrected><20140415><DZLIU>###     <TODO>
+		#set f24 = (f24off==1)? -99 : f24    ###<Corrected><20140415><DZLIU>### 
+		#set df24 = (f24off==1)? 1e10 : df24 ###<Corrected><20140415><DZLIU>### 
+		#}
 		
 		# Type_20cm
 		# set eradio = eradio*0.0+1e10

@@ -1,25 +1,27 @@
-# wave    band
-# um      str
-  2.15    k
-  2.15    K
-  3.6     ch1
-  4.5     ch2
-  5.8     ch3
-  7.9     ch4
-  16      16
-  24      24
-  70      70
-  100     100
-  160     160
-  250     250
-  350     350
-  500     500
-  850     850
-  1100    1100
-  1160    1160
-  1200    1200
-  1250    1250
-  2000    2000
-  2050    2050
-  1e5     10cm
-  2e5     20cm
+# wave    band    unit
+# um      str     str
+  2.15    k       uJy
+  2.15    K       uJy
+  3.6     ch1     uJy
+  4.5     ch2     uJy
+  5.8     ch3     uJy
+  7.9     ch4     uJy
+  16      16      mJy
+  24      24      mJy
+  70      70      mJy
+  100     100     mJy
+  160     160     mJy
+  250     250     mJy
+  350     350     mJy
+  500     500     mJy
+  850     850     mJy
+  1100    1100    mJy
+  1160    1160    mJy
+  1200    1200    mJy
+  1250    1250    mJy
+  2000    2000    mJy
+  2050    2050    mJy
+  1e5     10cm    uJy
+  1e5     3ghz    uJy
+  2e5     20cm    uJy
+  2e5     20cm_2  uJy

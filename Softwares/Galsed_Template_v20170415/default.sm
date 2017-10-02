@@ -139,15 +139,25 @@ rfile_compatible_check
         ### <Modified><20140325><DZLIU> ### FOR COMPATIBLE
         ### <Modified><20170315><DZLIU> ### FOR COMPATIBLE
         set check_ok = 1
-        if(is_vector(z_op) && !is_vector(zp_X)) {set zp_X = z_op}               ### COMPATIBLE ###<Modified><DZLIU>###
-        if(is_vector(z_sp) && !is_vector(spezX)) {set spezX = z_sp}             ### COMPATIBLE ###<Modified><DZLIU>###
-        if(is_vector(_id)) {set id = _id}                                       ### COMPATIBLE ###<Modified><DZLIU>###
-        if(is_vector(zp_X)) {set zp_P = zp_X}                                   ### COMPATIBLE ###<Modified><DZLIU>###
-        if(is_vector(zp_X)) {set zp = zp_X}                                     ### COMPATIBLE ###<Modified><DZLIU>###
-        if(is_vector(spezX)) {set spez = spezX}                                 ### COMPATIBLE ###<Modified><DZLIU>###
-        if(is_vector(spez) && is_vector(zp_P)) {set zz = spez>0 ? spez : zp_P}  ### COMPATIBLE ### ALWAYS USE Z_{SPEC} IF POSSIBLE ###<Modified><DZLIU>###
-        if(is_vector(zz)) {set zp = zz}                                         ### COMPATIBLE ### ALWAYS USE Z_{SPEC} IF POSSIBLE ###<Modified><DZLIU>###
-        if(is_vector(zq)) {set qz = zq}                                         ### COMPATIBLE ###<Modified><DZLIU>###
+        if(!is_vector(zphot)) {
+            if(is_vector(zp_X)) {set zphot = zp_X}
+            if(is_vector(z_op)) {set zphot = z_op}
+            if(is_vector(z))    {set zphot = z}
+        }
+        if(!is_vector(zspec)) {
+            if(is_vector(spezX)) {set zspec = spezX}
+            if(is_vector(spez)) {set zspec = spez}
+            if(is_vector(z_sp)) {set zspec = z_sp}
+        }
+        if(!is_vector(id)) {
+            if(is_vector(_id)) {set id = _id}
+            if(is_vector(id_1)) {set id = id_1}
+        }
+        #if(is_vector(zp_X)) {set zp_P = zp_X}                                   ### COMPATIBLE ###<Modified><DZLIU>###
+        #if(is_vector(zp_X)) {set zp = zp_X}                                     ### COMPATIBLE ###<Modified><DZLIU>###
+        #if(is_vector(spez) && is_vector(zp_P)) {set zz = spez>0 ? spez : zp_P}  ### COMPATIBLE ### ALWAYS USE Z_{SPEC} IF POSSIBLE ###<Modified><DZLIU>###
+        #if(is_vector(zz)) {set zp = zz}                                         ### COMPATIBLE ### ALWAYS USE Z_{SPEC} IF POSSIBLE ###<Modified><DZLIU>###
+        #if(is_vector(zq)) {set qz = zq}                                         ### COMPATIBLE ###<Modified><DZLIU>###
         if(is_vector(_fch1)) {set fch1=_fch1}                                   ### COMPATIBLE ###<Modified><DZLIU>###
         if(is_vector(_fch2)) {set fch2=_fch2}                                   ### COMPATIBLE ###<Modified><DZLIU>###
         if(is_vector(_fch3)) {set fch3=_fch3}                                   ### COMPATIBLE ###<Modified><DZLIU>###
@@ -163,7 +173,9 @@ rfile_compatible_check
         if(is_vector(f3ghz)) {set f10cm = f3ghz}                                ### COMPATIBLE ###<Modified><DZLIU>###
         if(is_vector(df3ghz)) {set df10cm = df3ghz}                             ### COMPATIBLE ###<Modified><DZLIU>###
         # 
-        if(!is_vector(spez)) {set check_ok = 0} # used in fit_engine.sm
+        if(!is_vector(zphot) && is_vector(zspec)) {set zphot = zspec} #<20170927># 
+        if(!is_vector(zspec)) {set zspec = zphot*0.0-99} #<20170927># 
+        #if(!is_vector(spez)) {set check_ok = 0} # used in fit_engine.sm
         if(!is_vector(_id)) {set check_ok = 0}
 
 rfile_clear_vectors

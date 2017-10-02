@@ -5,7 +5,7 @@
 # 
 # 
 CURRENTBAND=""
-CATALOGFILE="GOODSN_FIR+mm_Catalog.txt"
+CATALOGFILE="datatable_for_sed_fitting.txt"
 CATALOGIDCN=1 # the number of id column, starting from 1
 EXCLUDEFILE=""
 OVERWRITING=0 # <TODO> defaultly we will overwrite ?

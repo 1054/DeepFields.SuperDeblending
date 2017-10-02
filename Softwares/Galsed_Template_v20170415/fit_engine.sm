@@ -72,7 +72,10 @@ goxfitAGN 01
 					}
 					### !echo 
 					
-					foreach xxxAGN {1 2 3} {  # CYCLE over the 3 AGN SEDs fagn$xxxAGN 
+					set iiiAGN = {1 2 3}
+					if(is_file("fit_with_single_AGN_template")) {set iiiAGN = 2}
+					
+					foreach xxxAGN iiiAGN {  # CYCLE over the 3 AGN SEDs fagn$xxxAGN 
 					                      #<20160219><dzliu><daddi># {1 2 3} --> {2} # for faster running <TODO> change back if we need better fitting
 					    
 						setAGN_norm_range
@@ -91,7 +94,7 @@ goxfitAGN 01
 							
 							verbose 0
 							
-							set fagn = fagn$xxxAGN * $aaaAGN
+							set fSED_AGN = fagn$xxxAGN * $aaaAGN
 							
 							
 							### -- Fitting Stellar SED
@@ -108,14 +111,19 @@ goxfitAGN 01
 							# 
 							define xebv 0 define aStar 0
 							if(sum(coSTAR)>0) { ##<Fixed><20141027><DzLIU>##
+								
 								foreach xname {wW fF dfF} {set S_$xname = $xname if(coSTAR)}
-								set S_wW = lg(S_wW/(1+$(zrange[$xxZ])))  
-								spline xxWS fagn S_wW SWAGN
+								
+								set S_wW = lg(S_wW/(1+$(zrange[$xxZ])))
+								
+								spline xxWS fSED_AGN S_wW SWAGN
 								set SWAGN = SWAGN>0 ? SWAGN : 0
+								
 								set S_fF = S_fF-SWAGN
+								
 								spline xxWS XStar_IRAC S_wW SWSFR
 								set SWSFR = SWSFR>0 ? SWSFR : 0
-								## 
+								
 								## <Added><20141222><EDADDI> add reddening
 								define xebv 0 define aStar 0
 								if(dimen(S_wW)>1) { # deredden the SED
@@ -144,13 +152,38 @@ goxfitAGN 01
 								## set Star_IRAC = XStar_IRAC*$aStar
 								set SWSFR = SWSFR*10**(-0.4*$xebv*(-0.88+2.7/10**S_wW))*$aStar ## <Added><20141222><EDADDI> add reddening
 								set Star_IRAC = XStar_IRAC*10**(-0.4*$xebv*(-0.88+2.7/10**xxWS))*$aStar ## <Added><20141222><EDADDI> add reddening
+								
 								define Schi2 $(sum((S_fF-SWSFR)**2/S_dfF**2))
 								set Sdiff = (S_fF-SWSFR)/S_dfF
+								
+								
+								#<20170928># 
+								set obs_w = S_wW
+								set obs_f = S_fF
+								set obs_df = S_dfF
+								set obs_f_match = obs_f
+								set obs_df_match = obs_df
+								set template_w_match = obs_w
+								set template_f_match = SWSFR # spline template_w template_f template_w_match template_f_match
+								set fSED_star = Star_IRAC
+								set chi2_star = sum((obs_f_match-template_f_match)**2/obs_df_match**2)
+								set diff_star = (obs_f_match-template_f_match)/obs_df_match
+								
+								
 							} else {
+								
 								define aStar 0
 								define aSFR 0
 								set Star_IRAC = XStar_IRAC*0
 								define Schi2 0
+								
+								#<20170928># 
+								set obs_f_match = S_fF
+								set obs_df_match = S_dfF
+								set template_f_match = XStar_IRAC*0
+								set fSED_star = XStar_IRAC*0
+								set chi2_star = 0.0
+								set diff_star = (obs_f_match-template_f_match)/obs_df_match
 							}
 							
 							### -- Fitting Dust SED
@@ -167,40 +200,180 @@ goxfitAGN 01
 							if(sum(coSFR)>0) { ##<Fixed><20141123><DzLIU>##
 								foreach xname {wW fF dfF} {set _$xname = $xname if(coSFR)}
 								set _wW = lg(_wW/(1+$(zrange[$xxZ])))
-								spline xxWS fagn _wW WAGN
+								spline xxWS fSED_AGN _wW WAGN
 								### set SWAGN = SWAGN>0 ? SWAGN : 0 ###<Modified><20140610><DzLIU### 
 								set WAGN = WAGN>0 ? WAGN : 0 ###<Modified><20140610><DZLIU>### I think this is WAGN ?
 								spline xxWS Star_IRAC _wW WSFR_irac
 								set WSFR_irac = WSFR_irac>0 ? WSFR_irac : 0
 								set _fF = _fF-WAGN-WSFR_irac
-								spline xxWS fsfr$xxU""_for_qIR_with_z _wW WSFR
-								set WSFR = WSFR>0 ? WSFR : 0
 								
 								
 								###<DZLIU><Modified>### 20160111 edaddi: about the macro AGN_N.sm (now named do_Galsed.sm), 
 								###<DZLIU><Modified>### when setting the steps for AGN normalisation it uses the flux even if low S/N, 
 								###<DZLIU><Modified>### we should use the upper limit instead in that case. 
 								###<DZLIU><Modified>### This could be checked. 
-								set ___fF = (_fF>2.0*_dfF) ? _fF : (_fF+2.0*_dfF) # fF+2*dfF
-								define aSFR $(sum(___fF*WSFR/_dfF**2)/(sum(WSFR**2/_dfF**2)))
-								###<DZLIU><Modified>### define aSFR $(sum(_fF*WSFR/_dfF**2)/(sum(WSFR**2/_dfF**2))) ### -- this is previous code
-								###<DZLIU><Modified>### 
 								
+								set obs_w = _wW
+								set obs_f = _fF
+								set obs_df = _dfF
+								set obs_w_match = obs_w # rest-frame
+								set obs_f_match = (obs_f>2.0*obs_df) ? obs_f : (obs_f+2.0*obs_df) # we use f+2*df when fitting upper limits
+								set obs_df_match = obs_df # dfF
+								set template_w = xxWS
+								set template_f = fsfr$xxU""_for_qIR_with_z
+								set template_w_match = obs_w
 								
-								#define aaa ?
+								#spline xxWS fsfr$xxU""_for_qIR_with_z _wW WSFR
+								#set WSFR = WSFR>0 ? WSFR : 0
+								spline template_w template_f template_w_match template_f_match
+								set template_f_match = template_f_match>0 ? template_f_match : 0
+								
+								#set ___fF = (_fF>2.0*_dfF) ? _fF : (_fF+2.0*_dfF) # fF+2*dfF
+								#define aSFR $(sum(___fF*WSFR/_dfF**2)/(sum(WSFR**2/_dfF**2)))
+								define aSFR $(sum(obs_f_match*template_f_match/obs_df_match**2)/(sum(template_f_match**2/obs_df_match**2)))
 								if($aSFR<0) {define aSFR 0}
-								set WSFR = WSFR*$aSFR
+								set template_f_match = template_f_match * $aSFR
+								
+								set obs_f_match = obs_f
+								set fSED_dust = template_f * $aSFR
+								set chi2_dust = sum((obs_f_match-template_f_match)**2/obs_df_match**2)
+								set diff_dust = ((obs_f_match-template_f_match)**2/obs_df_match**2)
+								
+								#set WSFR = WSFR*$aSFR
+								set WSFR = template_f_match
+								
+								
+								
+								# <20170927>
+								# now we get the normalization of dust SED: $aSFR
+								# we can compute SFR, then compute [CII] line luminosity
+								#<20170927># load astroSfig.sm
+								#<20170927># set per_dust_SED_SFR_1 = $aSFR*2.99792458e5*4*pi*9.52140e31/3.839e33 / (1.0+zrange[$xxZ]) * (xDL[$xxZ])**2 / 1e10 # solar lumin / Mpc^2 <Corrected> because we integrate at rest frame SED, so for obs obj, we / (1+z)
+								#<20170927># set per_dust_SED_SFR_2 = 10**(lg($aSFR)-26+lg(3e14)+lg(4*3.1416)+2*lg(xDL[$xxZ])+2*(24+lg(3.086))-lg(3.846)-33 -lg(1+zrange[$xxZ]) - 10.0)
+								#<20170927># set per_dust_SED_zSED = zrange[$xxZ]
+								#<20170927># set per_dust_SED_wSED = 10**xxWS * (1+zrange[$xxZ]) # um, linear space, obs-frame
+								#<20170927># set per_dust_SED_fSED = $aSFR * fsfr$xxU""_for_qIR_with_z
+								#<20170927># set per_dust_SED_SFR_3 = calc_ltir(per_dust_SED_wSED, per_dust_SED_fSED, per_dust_SED_zSED) / 1e10
+								#<20170927># set per_dust_SED_LIR = per_dust_SED_SFR_3*1e10
+								#<20170927># echo "per_dust_SED_zSED = "$(per_dust_SED_zSED)
+								#<20170927># echo "per_dust_SED_SFR_1 = "$(per_dust_SED_SFR_1)
+								#<20170927># echo "per_dust_SED_SFR_2 = "$(per_dust_SED_SFR_2)
+								#<20170927># echo "per_dust_SED_SFR_3 = "$(per_dust_SED_SFR_3)
+								#<20170927># set per_dust_SED_FWHM_CII = 150.0 # km/s line width
+								#<20170927># set per_dust_SED_L_CII = calc_dzliu_CII(per_dust_SED_LIR,per_dust_SED_zSED,per_dust_SED_FWHM_CII)
+								#<20170927># set per_dust_SED_S_CII = S_CII
+								#<20170927># set per_dust_SED_LAMBDA_CII = 2.99792458e5/(1900.53690/(1+zrange[$xxZ])) # GHz -> um
+								#<20170927># set per_dust_SED_SIGMA_CII = per_dust_SED_FWHM_CII / (2*sqrt(2*ln(2))) # km/s line width, gaussian sigma
+								#<20170927># set per_dust_SED_VEL_CII = (10**xxWS - per_dust_SED_LAMBDA_CII) / per_dust_SED_LAMBDA_CII # km/s relative to [CII] line center
+								#<20170927># set fCII = gauss(per_dust_SED_VEL_CII, 0.0, $per_dust_SED_SIGMA_CII) * per_dust_SED_S_CII * 1e3 # normalized to 'per_dust_SED_S_CII_158um' Jy km/s
+								#<20170927># 
+								#<20170927># set wSED = xxWS # in log space, um
+								#<20170927># set fSED = fsfr$xxU""_for_qIR_with_z * $aSFR + fCII # in linear space, mJy
+								#<20170927># spline wSED fSED _wW WSFR
+								#<20170927># set WSFR = WSFR>0 ? WSFR : 0
+								#<20170927># 
+								#<20170927># define aSFR_with_CII $(sum(___fF*WSFR/_dfF**2)/(sum(WSFR**2/_dfF**2)))
+								#<20170927># define aSFR_without_CII $aSFR
+								#<20170927># echo "aSFR_with_CII = "$aSFR_with_CII
+								#<20170927># echo "aSFR_without_CII = "$aSFR_without_CII
+								#<20170927># define aSFR ($aSFR_with_CII*$aSFR)
+								
+								
+								#<20170928># 
+								# add CII
+								# first compute LIR, then compute [CII] line luminosity
+								if(is_file("fit_with_CII")) {
+									load astroSfig.sm
+									#set per_dust_SED_SFR_1 = $aSFR*2.99792458e5*4*pi*9.52140e31/3.839e33 / (1.0+zrange[$xxZ]) * (xDL[$xxZ])**2 / 1e10 # solar lumin / Mpc^2 <Corrected> because we integrate at rest frame SED, so for obs obj, we / (1+z)
+									#set per_dust_SED_SFR_2 = 10**(lg($aSFR)-26+lg(3e14)+lg(4*3.1416)+2*lg(xDL[$xxZ])+2*(24+lg(3.086))-lg(3.846)-33 -lg(1+zrange[$xxZ]) - 10.0)
+									#set per_dust_SED_zSED = zrange[$xxZ]
+									#set per_dust_SED_wSED = 10**xxWS * (1+zrange[$xxZ]) # um, linear space, obs-frame
+									#set per_dust_SED_fSED = $aSFR * fsfr$xxU""_for_qIR_with_z
+									#set per_dust_SED_SFR_3 = calc_ltir(per_dust_SED_wSED, per_dust_SED_fSED, per_dust_SED_zSED) / 1e10
+									#set per_dust_SED_LIR = per_dust_SED_SFR_3*1e10
+									#echo "per_dust_SED_zSED = "$(per_dust_SED_zSED)
+									#echo "per_dust_SED_SFR_1 = "$(per_dust_SED_SFR_1)
+									#echo "per_dust_SED_SFR_2 = "$(per_dust_SED_SFR_2)
+									#echo "per_dust_SED_SFR_3 = "$(per_dust_SED_SFR_3)
+									set template_z = zrange[$xxZ]
+									set template_w = (10**xxWS) * (1+template_z) # um, linear space, obs-frame
+									set template_f = fsfr$xxU""_for_qIR_with_z * $aSFR
+									set template_LIR = calc_ltir(template_w, template_f, template_z)
+									set template_CII_FWHM = 150.0 # km/s line width
+									#echo ""
+									#echo template_LIR = $(template_LIR)
+									#echo template_z = $(template_z)
+									set template_CII_L = calc_dzliu_CII(template_LIR, template_z, template_CII_FWHM)
+									set template_CII_S = S_CII
+									set template_CII_FREQ = 1900.53690/(1+template_z) # GHz, obs-frame
+									set template_CII_WAVE = 2.99792458e5/template_CII_FREQ # um, obs-frame
+									set template_CII_SIGMA = template_CII_FWHM / (2*sqrt(2*ln(2))) # km/s line width, gaussian sigma
+									set template_CII_FREQ_GRID = template_CII_FREQ+4.0,template_CII_FREQ-4.0,-0.01 # grid covers 8 GHz
+									set template_CII_WAVE_GRID = 2.99792458e5/template_CII_FREQ_GRID
+									vecminmax template_CII_WAVE_GRID template_CII_WAVE_MIN template_CII_WAVE_MAX
+									set template_CII_VEL = (template_CII_FREQ_GRID - template_CII_FREQ) / template_CII_FREQ * 2.99792458e5 # km/s relative to [CII] line center
+									set template_CII_SED = gauss(template_CII_VEL, 0.0, $(template_CII_SIGMA)) * template_CII_S * 1e3 # normalized to 'per_dust_SED_S_CII_158um' Jy km/s
+									
+									smooth template_CII_SED template_CII_SED_smooth $(dimen(template_CII_FREQ_GRID))   #<TODO># smooth to 8GHz ALMA bandwidth
+									spline template_CII_WAVE_GRID template_CII_SED_smooth template_w template_CII_SED_spline
+									#print "aaa_adding_CII_smoothed.txt" <template_CII_WAVE_GRID template_CII_SED template_CII_SED_smooth>
+									set template_CII_cid = 0,dimen(template_w)-1
+									set template_CII_cid = template_CII_cid if(template_w>$template_CII_WAVE_MIN && template_w<$template_CII_WAVE_MAX)
+									set template_CII_SED_to_add = template_CII_SED_spline*0.0
+									set template_CII_SED_to_add[template_CII_cid] = template_CII_SED_spline[template_CII_cid] / $aSFR
+									#print "aaa_adding_CII.txt" <template_w template_w template_CII_SED_to_add fsfr$xname""_for_qIR_with_z>
+									#echo "fit_with_CII with L_IR "$(template_LIR)" S_CII "$(template_CII_S)
+									
+									set obs_w = _wW
+									set obs_f = _fF
+									set obs_df = _dfF
+									set obs_w_match = obs_w # rest-frame
+									set obs_f_match = (obs_f>2.0*obs_df) ? obs_f : (obs_f+2.0*obs_df) # we use f+2*df when fitting upper limits
+									set obs_df_match = obs_df # dfF
+									set template_w = xxWS
+									set template_f = fsfr$xxU""_for_qIR_with_z + template_CII_SED_to_add
+									set template_w_match = obs_w
+									spline template_w template_f template_w_match template_f_match
+									set template_f_match = template_f_match>0 ? template_f_match : 0
+									
+									define aSFR $(sum(obs_f_match*template_f_match/obs_df_match**2)/(sum(template_f_match**2/obs_df_match**2)))
+									if($aSFR<0) {define aSFR 0}
+									set template_f_match = template_f_match * $aSFR
+									
+									set obs_f_match = obs_f
+									set fSED_dust = template_f * $aSFR
+									set chi2_dust = sum((obs_f_match-template_f_match)**2/obs_df_match**2)
+									set diff_dust = ((obs_f_match-template_f_match)**2/obs_df_match**2)
+									
+									set WSFR = template_f_match
+									
+								}
+								
 							} else {
-								define aSFR 0
-								set WSFR = _wW*0
+								
+								set obs_w = _wW
+								set obs_f = _fF
+								set obs_df = _dfF
+								
+								set template_w = xxWS
+								set template_f = fsfr$xxU""_for_qIR_with_z
+								set template_w_match = obs_w
+								set template_f_match = obs_f*0 # spline template_w template_f template_w_match template_f_match
+								
+								define aSFR 0.0
+								set template_f_match = template_f_match * $aSFR
+								
+								set obs_f_match = obs_f
+								set fSED_dust = template_f * $aSFR
+								set chi2_dust = sum((obs_f_match-template_f_match)**2/obs_df_match**2)
+								set diff_dust = ((obs_f_match-template_f_match)**2/obs_df_match**2)
+								
+								set WSFR = template_f_match
+								
 							}
 							
-							###<Modified><20140415><DADDI>### 
-							###<Modified><20140415><DADDI>### set Xtemplate = fsfr$xxU*$aSFR
-							###<Modified><20140415><DADDI>### 
-							set Xtemplate = fsfr$xxU""_for_qIR_with_z * $aSFR + fagn
+							set Xtemplate = fSED_dust + fSED_AGN
 							
-							###<Modified><20170315><DZLIU>### out_Waves is set by AGN_N.sm (now named do_Galsed.sm)
 							set XwaveFIT = out_Waves
 							
 							set XwaveFIT=lg(XwaveFIT/(1+$(zrange[$xxZ])))
@@ -254,6 +427,9 @@ goxfitAGN 01
 								define Rchi2_min $Rchi2
 								define Schi2_min $Schi2
 								if($ubest==101) { define uvbest $(UvalU[dimen(UvalU)-1]) } else { define uvbest $(UvalU[$ubest-1]) } # uvbest = ubest for MS but uvbest = 31 for SB.
+								set fSED_dust_bestfit = fSED_dust
+								set fSED_star_bestfit = fSED_star
+								set fSED_AGN_bestfit = fSED_AGN
 							}
 							
 							# dump chi2_min_per_z
@@ -271,6 +447,9 @@ goxfitAGN 01
 								define per_z_Rchi2_min $Rchi2
 								define per_z_Schi2_min $Schi2
 								if($ubest==101) { define per_z_uvbest $(UvalU[dimen(UvalU)-1]) } else { define per_z_uvbest $(UvalU[$ubest-1]) } # uvbest = ubest for MS but uvbest = 31 for SB.
+								set per_z_fSED_dust_bestfit = fSED_dust
+								set per_z_fSED_star_bestfit = fSED_star
+								set per_z_fSED_AGN_bestfit = fSED_AGN
 							}
 							
 							# z, iU, iAGN, aAGN, aSF --> chi2 MATRIX
@@ -331,9 +510,9 @@ goxfitAGN 01
 			}
 			# FINISH GIVEN OBJECT
 			set _xxWS = xxWS+lg(1+$zbest)
-			set fsfr = $norm_SFR*fsfr$ubest""_for_qIR_with_z
-			set firac = $norm_SFR_irac*XStar_IRAC*10**(-0.4*$norm_SFR_irac_ebv*(-0.88+2.7/10**xxWS)) ## <Added><20141222><EDADDI> reddening
-			set fagn = $norm_AGN*fagn$agnbest
+			set fsfr = fSED_dust_bestfit # $norm_SFR*fsfr$ubest""_for_qIR_with_z
+			set firac = fSED_star_bestfit # $norm_SFR_irac*XStar_IRAC*10**(-0.4*$norm_SFR_irac_ebv*(-0.88+2.7/10**xxWS)) ## <Added><20141222><EDADDI> reddening
+			set fagn = fSED_AGN_bestfit # $norm_AGN*fagn$agnbest
 			set fsfr = (fsfr<0) ? 1e-99 : fsfr
 			set firac = (firac<0) ? 1e-99 : firac
 			set fagn = (fagn<0) ? 1e-99 : fagn
@@ -401,7 +580,7 @@ goxfitAGN 01
 			location 4500 31000 4500 31000
 			ticksize -1 0 -1 0
 			expand 1.5
-			limits -0.6 5.6 -4.0 3.0 erase lweight 3.0 box 
+			limits -0.6 5.6 -4.0 4.0 erase lweight 3.0 box 
 			expand 2.0
 			xlabel "Observed Wavelength [{\mu}m]"
 			ylabel "Flux Density [mJy]"
@@ -433,6 +612,23 @@ goxfitAGN 01
 			###<TODO><Added><20150718><DZLIU>### output best fit data
 			
 			###<TODO><Added><20150718><DZLIU>### overplot some data
+			# highlight ALMA data
+			if(is_vector(xNames)) {
+				if(dimen(xNames)==dimen(wW)) {
+					declare dzliu_overplot_sS 0.s
+					declare dzliu_overplot_wW 0.f
+					declare dzliu_overplot_fF 0.f
+					declare dzliu_overplot_dfF 0.f
+					do dzliu_iI_ = 0,dimen(xNames)-1 {
+						if(index(xNames[$dzliu_iI_],'ALMA')>=0) {
+							set dzliu_overplot_sS = dzliu_overplot_sS concat ''
+							set dzliu_overplot_wW = dzliu_overplot_wW concat $(wW[$dzliu_iI_])
+							set dzliu_overplot_fF = dzliu_overplot_fF concat $(fF[$dzliu_iI_])
+							set dzliu_overplot_dfF = dzliu_overplot_dfF concat $(dfF[$dzliu_iI_])
+						}
+					}
+				}
+			}
 			if(is_vector(dzliu_overplot_sS) && is_vector(dzliu_overplot_wW) && \
 			   is_vector(dzliu_overplot_fF) && is_vector(dzliu_overplot_dfF)) {
 			    set dzliu_sS_ = (dzliu_overplot_sS) if(dzliu_overplot_fF>0 && dzliu_overplot_dfF>0)
@@ -447,9 +643,11 @@ goxfitAGN 01
 			    points (lg(dzliu_wW_)) (lg(dzliu_fF_))
 			    error_y (lg(dzliu_wW_)) (lg(dzliu_fF_)) logerr
 			    do dzliu_iI_=0,dimen(dzliu_sS_)-1 {
-			        relocate $(lg(dzliu_wW_[$dzliu_iI_])) $(lg(dzliu_fF_[$dzliu_iI_])) 
-			        expand 0.25 lweight 3.5 putlabel 6 " "$(dzliu_sS_[$dzliu_iI_])" "
-			        expand 1.50 lweight 3.0
+			    	if(strlen(dzliu_sS_[$dzliu_iI_])>0) {
+			    		relocate $(lg(dzliu_wW_[$dzliu_iI_])) $(lg(dzliu_fF_[$dzliu_iI_])) 
+			        	expand 0.25 lweight 3.5 putlabel 6 " "$(dzliu_sS_[$dzliu_iI_])" "
+			        	expand 1.50 lweight 3.0
+			    	}
 			    }
 			    ctype default
 			}
@@ -510,10 +708,10 @@ goxfitAGN 01
 			define zstr (sprintf('%4.3f',zbest))
 			puts z=$zstr
 			#puts qz=$(qz[$xAGN])
-			puts zphot=$(zp_X[$xAGN])
+			puts zphot=$(zphot[$xAGN])
 			#<Added><20141028><DzLIU># ----------------
-			if(spez[$xAGN]>0){puts zspec=$(sprintf('%0.3f',spez[$xAGN]))
-			            }else{puts zspec=$(sprintf('%0.0f',spez[$xAGN]))}
+			if(zspec[$xAGN]>0){puts zspec=$(sprintf('%0.3f',zspec[$xAGN]))
+			            }else{puts zspec=$(sprintf('%0.0f',zspec[$xAGN]))}
 			#<Added><20150723><DZLIU># *******
 			#<Moded><20170308><DZLIU># *******
 			#if(is_vector(z_fixed)) {if(dimen(z_fixed)==1) {if(z_fixed>0.0) {puts zfixed=$(sprintf('%0.3f',z_fixed))}}}
@@ -568,7 +766,7 @@ goxfitAGN 01
 			if($eee_SED==-1) {puts MainSeq.!}
 			expand 1.5 lweight 3.0
 			#<Added><DZLIU><DADDI># ----------------
-			echo ID=$(id[$xAGN]) NO=$(EeE[0]) zspec=$(spez[$xAGN]) zp_X=$(zp_X[$xAGN]) Type_SED=$eee_SED Type_AGN=$eee_AGN Type_FIR=$eee_FIR
+			echo ID=$(id[$xAGN]) NO=$(EeE[0]) zspec=$(zspec[$xAGN]) zphot=$(zphot[$xAGN]) Type_SED=$eee_SED Type_AGN=$eee_AGN Type_FIR=$eee_FIR
 			echo BEST zbest $zstr ubest $ustr dLbest $dLbest agnbest $agnbest norm_Star $norm_SFR_irac norm_EBV $norm_SFR_irac_ebv norm_AGN $norm_AGN norm_SFR $norm_SFR chi2_min $chi2_min
 			echo 	
 			
@@ -584,7 +782,7 @@ goxfitAGN 01
 			#	print +"dliu_best_sfr.csv" '\n\#\n' {}
 			#}
 			####### SUPERMONGO STRING IS A DISASTER>>>
-			#define dliu_best_str <$(sprintf('%10.0f',id[$xAGN]*1.0)+sprintf('%12.5f',spez[$xAGN]*1.0))>
+			#define dliu_best_str <$(sprintf('%10.0f',id[$xAGN]*1.0)+sprintf('%12.5f',zspec[$xAGN]*1.0))>
 			#print +"dliu_best_fit.csv" '$dliu_best_str' {}
 			#define dliu_best_str <$(sprintf('%12.5f',$zbest*1.0)+sprintf('%12.3f',$uvbest*1.0))>
 			#print +"dliu_best_fit.csv" '$dliu_best_str' {}
@@ -603,7 +801,7 @@ goxfitAGN 01
 				define dliu_best_str <$(sprintf('%10.0f',float(id[$xAGN])))>
 				print +"fit_parallel_HDFN/fit_"$(id[$xAGN])".csv" '$dliu_best_str' {}
 				print +"fit_parallel_HDFN/sfr_"$(id[$xAGN])".csv" '$dliu_best_str' {}
-				define dliu_best_str <$(sprintf('%12.5f',float(spez[$xAGN])))>
+				define dliu_best_str <$(sprintf('%12.5f',float(zspec[$xAGN])))>
 				print +"fit_parallel_HDFN/fit_"$(id[$xAGN])".csv" '$dliu_best_str' {}
 				define dliu_best_str <$(sprintf('%12.5f',float($zbest)))>
 				print +"fit_parallel_HDFN/fit_"$(id[$xAGN])".csv" '$dliu_best_str' {}
@@ -710,12 +908,12 @@ SETzrange
 		}
 		declare zrange 0
 		### <20170308><DZLIU> ### added "&& !is_vector(z_fixed)"
-		if($(spez[$xAGN])>0 && !is_vector(z_fixed)) { 
-			set zrange = $(spez[$xAGN])
+		if($(zspec[$xAGN])>0 && !is_vector(z_fixed)) { 
+			set zrange = $(zspec[$xAGN])
 		} else { 
-			if($(zp[$xAGN])>0) {
-				define z1 $($(zp[$xAGN])-$Nsigma_zphotrange*$rel_precision_zphot*(1+$(zp[$xAGN])))
-				define z2 $($(zp[$xAGN])+$Nsigma_zphotrange*$rel_precision_zphot*(1+$(zp[$xAGN])))
+			if($(zphot[$xAGN])>0) {
+				define z1 $($(zphot[$xAGN])-$Nsigma_zphotrange*$rel_precision_zphot*(1+$(zphot[$xAGN])))
+				define z2 $($(zphot[$xAGN])+$Nsigma_zphotrange*$rel_precision_zphot*(1+$(zphot[$xAGN])))
 			} else { 
 				define z1 0 define z2 8
 			}
@@ -824,7 +1022,7 @@ go_Changing_qIR_with_z 01
 			if(is_vector(fsfr$xname) && is_vector(xxWS)) {
 				# <TODO> must after: set fsfr$xname = fsfr$xname/$Lbol
 				set template_vnu = (2.99792458e5/10**xxWS) if(xxWS>-1 && xxWS<5.6) # GHz
-				set template_wum = xxWS                    if(xxWS>-1 && xxWS<5.6) # um
+				set template_wum = xxWS                    if(xxWS>-1 && xxWS<5.6) # um, rest-frame
 				set original_qIR = 2.5 # 
 				echo "go_Changing_qIR_with_z u="$xname" z="$1" qIR="$(original_qIR)" (original from Magdis)"
 				set changeto_qIR = 2.35*(1+($1))**(-0.12)+lg(1.91) # changing from default qIR = 2.5 to qIR=2.35*(1+z)**(-0.12)+lg(1.91) (Magnelli 2015A%26A...573A..45M)
@@ -845,6 +1043,47 @@ go_Changing_qIR_with_z 01
 				#echo ""
 				echo "go_Changing_qIR_with_z ok"
 				#echo ""
+				
+				# <20170927>
+				# add CII
+				# first compute LIR, then compute [CII] line luminosity
+				#if(is_file("fit_with_CII")) {
+				#	load astroSfig.sm
+				#	#set per_dust_SED_SFR_1 = $aSFR*2.99792458e5*4*pi*9.52140e31/3.839e33 / (1.0+zrange[$xxZ]) * (xDL[$xxZ])**2 / 1e10 # solar lumin / Mpc^2 <Corrected> because we integrate at rest frame SED, so for obs obj, we / (1+z)
+				#	#set per_dust_SED_SFR_2 = 10**(lg($aSFR)-26+lg(3e14)+lg(4*3.1416)+2*lg(xDL[$xxZ])+2*(24+lg(3.086))-lg(3.846)-33 -lg(1+zrange[$xxZ]) - 10.0)
+				#	#set per_dust_SED_zSED = zrange[$xxZ]
+				#	#set per_dust_SED_wSED = 10**xxWS * (1+zrange[$xxZ]) # um, linear space, obs-frame
+				#	#set per_dust_SED_fSED = $aSFR * fsfr$xxU""_for_qIR_with_z
+				#	#set per_dust_SED_SFR_3 = calc_ltir(per_dust_SED_wSED, per_dust_SED_fSED, per_dust_SED_zSED) / 1e10
+				#	#set per_dust_SED_LIR = per_dust_SED_SFR_3*1e10
+				#	#echo "per_dust_SED_zSED = "$(per_dust_SED_zSED)
+				#	#echo "per_dust_SED_SFR_1 = "$(per_dust_SED_SFR_1)
+				#	#echo "per_dust_SED_SFR_2 = "$(per_dust_SED_SFR_2)
+				#	#echo "per_dust_SED_SFR_3 = "$(per_dust_SED_SFR_3)
+				#	set template_z = $1
+				#	set template_wum_obsframe = (10**template_wum) * (1+template_z)
+				#	set template_LIR = calc_ltir(template_wum_obsframe, fsfr$xname""_for_qIR_with_z, template_z)
+				#	set template_CII_FWHM = 150.0 # km/s line width
+				#	set template_CII_L = calc_dzliu_CII(template_LIR,template_z,template_CII_FWHM)
+				#	set template_CII_S = S_CII
+				#	set template_CII_LAMBDA = 2.99792458e5/(1900.53690/(1+template_z)) # GHz -> um, obs-frame
+				#	set template_CII_SIGMA = template_CII_FWHM / (2*sqrt(2*ln(2))) # km/s line width, gaussian sigma
+				#	set template_CII_grid = template_CII_LAMBDA-10.0,template_CII_LAMBDA+10.0,0.1
+				#	set template_CII_VEL = (template_CII_grid - template_CII_LAMBDA) / template_CII_LAMBDA * 2.99792458e5 # km/s relative to [CII] line center
+				#	set template_CII_SED = gauss(template_CII_VEL, 0.0, $(template_CII_SIGMA)) * template_CII_S * 1e3 # normalized to 'per_dust_SED_S_CII_158um' Jy km/s
+				#	set template_CII_grid_log = lg(template_CII_grid)
+				#	smooth template_CII_SED template_CII_SED_smooth 2000           #<TODO># smooth to 8GHz ALMA bandwidth
+				#	spline template_CII_grid template_CII_SED_smooth template_wum_obsframe template_CII_SED_spline
+				#	print "aaa_adding_CII_smoothed.txt" <template_CII_grid template_CII_SED template_CII_SED_smooth>
+				#	set template_CII_cid = 0,dimen(template_wum)-1
+				#	set template_CII_cid = template_CII_cid if(template_wum_obsframe>template_CII_LAMBDA-10.0 && template_wum_obsframe<template_CII_LAMBDA+10.0)
+				#	set template_CII_SED_to_add = template_CII_SED_spline*0.0
+				#	set template_CII_SED_to_add[template_CII_cid] = template_CII_SED_spline[template_CII_cid]
+				#	set fsfr$xname""_for_qIR_with_z = fsfr$xname""_for_qIR_with_z + template_CII_SED_to_add
+				#	print "aaa_adding_CII.txt" <template_wum template_wum_obsframe template_CII_SED_to_add fsfr$xname""_for_qIR_with_z>
+				#	echo "go_Changing_qIR_with_z additionally adding [CII] with L_IR "$(template_LIR)" S_CII "$(template_CII_S)
+				#	echo "go_Changing_qIR_with_z additionally adding [CII] ok"
+				#}
 			}
 		}
 
@@ -905,32 +1144,32 @@ SETurange
 		### echo Done  SETurange
 
 setAGN_norm_range  00   
-			set coAGN = (wW/(1+$(zrange[$xxZ]))>=$l1AGN && wW/(1+$(zrange[$xxZ]))<=$l2AGN) && dfF<1e8
-			foreach xname {wW fF dfF} {set _$xname = $xname if(coAGN)}
-			set _wW = lg(_wW/(1+$(zrange[$xxZ])))
-			spline xxWS fagn$xxxAGN _wW WAGN
-			
-			###<DZLIU><Modified>### 20160111 edaddi: about the macro AGN_N.sm, 
-			###<DZLIU><Modified>### when setting the steps for AGN normalisation it uses the flux even if low S/N, 
-			###<DZLIU><Modified>### we should use the upper limit instead in that case. 
-			###<DZLIU><Modified>### This could be checked. 
-			set ___fF = (_fF>2.0*_dfF) ? _fF : (_fF+2.0*_dfF) # we use fF+2*dfF as the upper limit
-			define aAGN $(sum(___fF*WAGN/_dfF**2)/(sum(WAGN**2/_dfF**2)))
-			#print {___fF _fF _dfF}
-			###<DZLIU><Modified>### define aAGN $(sum(_fF*WAGN/_dfF**2)/(sum(WAGN**2/_dfF**2)))
-			###<DZLIU><Modified>### 
-			
-			if($aAGN<1e-10) {define aAGN 1e-10}
-			set AGN_norm_range = $(lg($aAGN)+.5),$(lg($aAGN)-2.0),-0.03
-			set AGN_norm_range = 10**(AGN_norm_range)
-			set AGN_norm_range = 0 concat AGN_norm_range
-			
-			if(is_vector(fit_without_AGN)) {
-				if(fit_without_AGN==1) {
-					set AGN_norm_range = 0  # use to eliminate AGN
-				}
+		set coAGN = (wW/(1+$(zrange[$xxZ]))>=$l1AGN && wW/(1+$(zrange[$xxZ]))<=$l2AGN) && dfF<1e8
+		foreach xname {wW fF dfF} {set _$xname = $xname if(coAGN)}
+		set _wW = lg(_wW/(1+$(zrange[$xxZ])))
+		spline xxWS fagn$xxxAGN _wW WAGN
+		
+		###<DZLIU><Modified>### 20160111 edaddi: about the macro AGN_N.sm, 
+		###<DZLIU><Modified>### when setting the steps for AGN normalisation it uses the flux even if low S/N, 
+		###<DZLIU><Modified>### we should use the upper limit instead in that case. 
+		###<DZLIU><Modified>### This could be checked. 
+		set ___fF = (_fF>2.0*_dfF) ? _fF : (_fF+2.0*_dfF) # we use fF+2*dfF as the upper limit
+		define aAGN $(sum(___fF*WAGN/_dfF**2)/(sum(WAGN**2/_dfF**2)))
+		#print {___fF _fF _dfF}
+		###<DZLIU><Modified>### define aAGN $(sum(_fF*WAGN/_dfF**2)/(sum(WAGN**2/_dfF**2)))
+		###<DZLIU><Modified>### 
+		
+		if($aAGN<1e-10) {define aAGN 1e-10}
+		set AGN_norm_range = $(lg($aAGN)+.5),$(lg($aAGN)-2.0),-0.03
+		set AGN_norm_range = 10**(AGN_norm_range)
+		set AGN_norm_range = 0 concat AGN_norm_range
+		
+		if(is_vector(fit_without_AGN)) {
+			if(fit_without_AGN==1) {
+				set AGN_norm_range = 0  # use to eliminate AGN
 			}
-			# 
+		}
+		# 
 
 
 
@@ -997,7 +1236,7 @@ rMatrix 01
 		# 	!\mv dliu_best_fit_rMatrix.csv dliu_best_fit_rMatrix.csv.backup
 		# 	print "dliu_best_fit_rMatrix.csv" '\#       id     zspec     zbest     ubest       chi2_min     r_chi2_min         miiChi    meNchi\n\#\n' {}
 		# }
-		# define  dliu_best_str <$(sprintf('%10.0f',id[$xAGN]*1.0)+sprintf('%12.5f',spez[$xAGN]*1.0))>
+		# define  dliu_best_str <$(sprintf('%10.0f',id[$xAGN]*1.0)+sprintf('%12.5f',zspec[$xAGN]*1.0))>
 		# print +"dliu_best_fit_rMatrix.csv" '$dliu_best_str' {}
 		# define  dliu_best_str <$(sprintf('%12.5f',$zbest*1.0)+sprintf('%12.3f',$uvbest*1.0))>
 		# print +"dliu_best_fit_rMatrix.csv" '$dliu_best_str' {}

@@ -154,7 +154,7 @@ plot_Data 01
                 }
                 # 
                 # define plot legend-location
-                if(temp_sline[0]=='\#' && (temp_sline[1]=='legend-location' || temp_sline[1]=='legend-position')) {
+                if(temp_sline[0]=='\#' && (temp_sline[1]=='legend-location' || temp_sline[1]=='legend-position' || temp_sline[1]=='legend-pos')) {
                     if(dimen(temp_sline)>2) {
                         set plot_legend_px = plot_legend_px concat float(temp_sline[2])
                         set plot_legend_py = plot_legend_py concat float(temp_sline[3])
