@@ -178,10 +178,10 @@ goxfitAGN 01
 								define Schi2 0
 								
 								#<20170928># 
-								set obs_f_match = S_fF
-								set obs_df_match = S_dfF
-								set template_f_match = XStar_IRAC*0
-								set fSED_star = XStar_IRAC*0
+								set obs_f_match = _fF
+								set obs_df_match = _dfF
+								set template_f_match = obs_f_match*0.0
+								set fSED_star = XStar_IRAC*0.0
 								set chi2_star = 0.0
 								set diff_star = (obs_f_match-template_f_match)/obs_df_match
 							}
@@ -361,10 +361,9 @@ goxfitAGN 01
 								set template_f_match = obs_f*0 # spline template_w template_f template_w_match template_f_match
 								
 								define aSFR 0.0
-								set template_f_match = template_f_match * $aSFR
 								
 								set obs_f_match = obs_f
-								set fSED_dust = template_f * $aSFR
+								set fSED_dust = template_f * 0.0
 								set chi2_dust = sum((obs_f_match-template_f_match)**2/obs_df_match**2)
 								set diff_dust = ((obs_f_match-template_f_match)**2/obs_df_match**2)
 								
@@ -756,7 +755,7 @@ goxfitAGN 01
 			# show chi2
 			puts "\chi^2="$(sprintf('%0.4g',$chi2_min))
 			set redu_chisq = $chi2_min / (sum(up_coo && !up_fix) - 1) # only one free parameter for each SED template: the normalization
-			puts "r.\chi^2="$(sprintf('%0.4g',redu_chisq))
+			puts "\chi_{r.}^2="$(sprintf('%0.4g',redu_chisq))
 			# 
 			# 
 			#<Added><DZLIU><DADDI># ----------------

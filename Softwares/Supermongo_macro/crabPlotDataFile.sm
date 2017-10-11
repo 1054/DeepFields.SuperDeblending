@@ -611,6 +611,8 @@ open_PS 01
                 if(temp_sline[0]=='\#' && temp_sline[1]=='ticksize') {
                     echo ticksize $(temp_sline[2]) $(temp_sline[3]) $(temp_sline[4]) $(temp_sline[5])
                     ticksize $(temp_sline[2]) $(temp_sline[3]) $(temp_sline[4]) $(temp_sline[5])
+                    if(float(temp_sline[2])<0) {set temp_xlog = 1}
+                    if(float(temp_sline[4])<0) {set temp_ylog = 1}
                 }
                 # 
                 # define plot xtitle

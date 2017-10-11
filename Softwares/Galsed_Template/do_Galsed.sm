@@ -230,6 +230,11 @@ xfitAGN	01
 					set f$xBand = f$xBand * 1e3
 					set df$xBand = df$xBand * 1e3
 				} #<Added><20170927># 
+				
+				if(df$xBand>0.0 && df$xBand<f$xBand/10.0) {
+					set df$xBand = f$xBand/10.0
+				}
+				
 				set xNames = xNames concat '$(in_Names[$in_Index])'
 				set xBands = xBands concat '$(in_Bands[$in_Index])'
 				set wW = wW concat  $(in_Waves[$in_Index])

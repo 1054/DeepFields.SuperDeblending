@@ -41,7 +41,7 @@ Read column 40 as distz
 Read column 41 as idz
 Read column 42 as goodArea
 
-Aug 31 02:39:00 2017
+Oct  7 19:35:33 2017
 
 Format string specifies 4 output fields, for 41 vectors
 Read column 1 as SAVEDid
@@ -55,8 +55,36 @@ Read column 8 as xfTOT
 Read column 9 as xeTOT
 Read column 10 as xf_zz
 Read column 11 as xe_zz
-Read lines 1 to 3308 from Catalog/RadioOwenMIPS24_priors_dzliu_20170828_SignalNoiseRatio.txt
+Read lines 1 to 3308 from Catalog/RadioOwenMIPS24_priors_dzliu_20170905_SignalNoiseRatio.txt
 How many have zero redshift error? 25 
+  check_id
+
+35
+314
+506
+697
+1437
+2262
+2314
+2622
+2890
+3417
+5215
+5779
+6891
+7410
+7882
+9256
+10264
+11499
+13538
+14002
+14806
+15801
+16349
+18083
+18855
+
 How many have zero redshift error but good SNR? 6 
   check_id
 
@@ -67,12 +95,14 @@ How many have zero redshift error but good SNR? 6
 11499
 14806
 
-How many have zero SFR error? 3 
-How many have zero SFR error but good SNR? 0 
+How many have zero SFR error? 5 
+How many have zero SFR error but good SNR? 1 
   check_id
 
 5779
+9319
 13538
+13974
 14002
 
 Read lines 1 to 3308 from Catalog/coo_AGN.txt

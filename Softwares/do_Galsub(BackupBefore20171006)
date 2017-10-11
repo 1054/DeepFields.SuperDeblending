@@ -9,22 +9,10 @@ if [[ ! -f "goFine.sm" ]]; then echo "Error! \"goFine.sm\" was not found!"; exit
 
 sm << EOF | tee "$DG_FLOG.smlog"
     
-    ####################################
-    #      PREPARE FIT PARAMETERS      #
-    ####################################
+    ##### EDIT goFine.sm xSet_$DG_IMAX
+    macro read goFine.sm xSet_$DG_IMAX
     
-    macro read goFine.sm
-    
-    if(whatis(xSet_$DG_IMAX)!=1) {xSet_$DG_IMAX} else {xSet_default}
-    
-    define xdate <"$DG_DATE">
-    
-    define field $DG_FIEL
-    
-    define doFit $DG_PARA
-    
-    if($DG_BOXSIZE>0) {define xstep $DG_BOXSIZE}
-    if($DG_BOXSIZE>0) {define ystep $DG_BOXSIZE}
+    ##### EDIT goSimu.sm FixAstrometry
     
     echo " "
     
@@ -75,26 +63,15 @@ sm << EOF | tee "$DG_FLOG.smlog"
         echo " "
         define doFit -1
     }
+    define xdate <"$DG_DATE">
     
-    ################################################################################
-    #      PREPARE SUBTRACTING FAINT SOURCES ACCORDING TO SED PREDICTION FILE      #
-    ################################################################################
+    ###### R_MIPS$DG_IMAX
     
-    load astroPhot.sm
+    load "astroPhot.sm" set_goodsn_photometry_constants_$DG_IMAX
     
-    if(whatis(set_${DG_FIEL}_photometry_constants_${DG_IMAX})!=1) {
-        set_${DG_FIEL}_photometry_constants_${DG_IMAX}
-    } else {
-        echo "Error! Could not understand the input band ${DG_IMAX}! Please inform astro.dzliu@gmail.com to update goFine.sm!"
-        echo " "
-        exit
-    }
-    
-    if(!is_file("$DG_FSED.txt")) {
-        echo "Error! \"$DG_FSED.txt\" was not found!"
-        echo " "
-        exit
-    }
+    ####  EXCLUDING SOURCES
+    echo 
+    #load "rfile.sm" rfile "$DG_FSED.txt" 
     data "$DG_FSED.txt"
     read {_id 1 _ra 2 _de 3 exc$DG_IMAX 4 fit$DG_IMAX 5 crow$DG_IMAX 6 newcrow 7 xf$DG_IMAX 8 xe$DG_IMAX 9}
     set idFull = _id
@@ -119,8 +96,8 @@ sm << EOF | tee "$DG_FLOG.smlog"
     }
     echo 
     echo "Converting flux to magnitude"
-    convert_flux2mag $DG_FIEL $DG_IMAX xf xe
-    
+    convert_flux2mag goodsn $DG_IMAX xf xe
+    # set   xm\$imax = lg((xf-\$fBias_\$imax)/\$mJy_\$imax/\$h_\$imax*\$m_\$imax)/(-0.4) if(exc==1) #<TODO># fBias
     set xm\$imax = m\$imax if(exc==1)
     set xf\$imax = f\$imax if(exc==1)
     echo "dimen(xf)"=\$(dimen(xf\$imax))
@@ -129,35 +106,46 @@ sm << EOF | tee "$DG_FLOG.smlog"
     echo "dimen(de)"=\$(dimen(deF))
     load vecStats.sm vecStats xf\$imax
     
+    ####
     !echo " " > history.txt
     !date +'%F %B %T %Z' >> history.txt
     !echo "Subtracted "\$(dimen(idF))" sources that are predicted to be very faint at $DG_IMAX um." >> history.txt
     !echo "When subtracting these sources, Xback = 0, and prior magnitude from " >> history.txt
     !echo "$DG_FSED.txt" >> history.txt 
     !echo " " >> history.txt
-    
+    ###### FIT & REBUILD
     define use_prior_mags 1
     define vary_positions 0
+    define fix_astrometry 1
     define make_residuals 1
-    define Xback 0
+    define xdate <"$DG_DATE">
+    if(\$make_residuals==1) {define Xback 0} ###<Added><20140402><EDaddi>### THIS IS IMPORTANT !!!
     Fit_XXX
     Rebuild_XXX
-    
-    !cp "FIT_${DG_FIEL}_${DG_IMAX}_Map_${DG_DATE}.fits" "FIT_${DG_FIEL}_${DG_IMAX}_Map_${DG_DATE}_Galsub.fits"
+    ### CLEAN
+    !cp "FIT_goodsn_${DG_IMAX}_Map_${DG_DATE}.fits" "FIT_goodsn_${DG_IMAX}_Map_${DG_DATE}_Galsub.fits"
     !rm galfit.* fit*.log fit*.input fit*.stdout fit*.limit fit*.fits null.fits do.cl summary_run
-    
+    #### FINISH
     echo 
-    echo SM SubFaint Finished!
+    echo SM SubExcl Finished!
     quit
 EOF
 # 
 # 
 cl << EOF | tee "$DG_FLOG.cllog"
-    string fitsINP = "FIT_${DG_FIEL}_${DG_IMAX}_Map_${DG_DATE}.fits"
+    string fitsINP = "FIT_goodsn_${DG_IMAX}_Map_${DG_DATE}.fits"
     string fitsOUT
+    #if($DG_IMAX==100) { fitsOUT = "pgh_goodsn_green_Map_v1.0_sci_subfaintDL.fits" };
+    #if($DG_IMAX==160) { fitsOUT = "pgh_goodsn_red_Map_v1.0_sci_subfaintDL.fits" };
+    #if($DG_IMAX==250) { fitsOUT = "spire250_ima_3p6_v0_100615_subfaintDL.fits" };
+    #if($DG_IMAX==350) { fitsOUT = "spire350_ima_4p8_v0_100615_subfaintDL.fits" };
+    #if($DG_IMAX==500) { fitsOUT = "spire500_ima_7p2_v0_100615_subfaintDL.fits" };
+    #if($DG_IMAX==850) { fitsOUT = "S2CLS_GOODSN_MF_FLUX_DR1_subfaintDL.fits" };
+    #if($DG_IMAX==1160) { fitsOUT = "combined_maw0_4_azw0_5_sig_subfaintDL.fits" };
     fitsOUT = "${DG_FSCI}_subfaintDL.fits"
     print ""
     print(fitsOUT)
+    ## 
     if(strlen(fitsOUT)>6) {
         imdel(fitsOUT)
         print ""
@@ -165,8 +153,10 @@ cl << EOF | tee "$DG_FLOG.cllog"
         imcopy(fitsINP//"[2]",fitsOUT)
     }
     ;
+    ######
     print ""
     nhedit(fitsOUT,"add_textf","history.txt","",add+,verify-)
+    ##### FINISH 
     print ""
     print "IRAF Subtract Background Finished!"
     logout

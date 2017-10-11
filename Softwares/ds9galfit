@@ -210,23 +210,23 @@ echo "Found $FITNUMB objects in the fits header"
 for (( i=1; i<=$FITNUMB; i++ )); do
     TC=`  CrabTableReadInfo ".CrabFitsHeader.txt" "COMP_"$i "/" | sed -e "s/[][' ]//g"`
     if [[ "$TC" == "gauss"* ]]; then
-        XC=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_XC"   "/" | sed -e s/[\]\[\']//g | sed -e s/[*]//g`
-        YC=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_YC"   "/" | sed -e s/[\]\[\']//g | sed -e s/[*]//g`
-        MAG=` CrabTableReadInfo ".CrabFitsHeader.txt" $i"_MAG"  "/" | sed -e s/[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
-        FWHM=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_FWHM" "/" | sed -e s/[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
-        ELLI=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_AR"   "/" | sed -e s/[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
-        PA=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_PA"   "/" | sed -e s/[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
+        XC=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_XC"   "/" | sed -e s/[\]\[\']//g | sed -e 's/[ ][+]//g'| sed -e s/[*]//g`
+        YC=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_YC"   "/" | sed -e s/[\]\[\']//g | sed -e 's/[ ][+]//g'| sed -e s/[*]//g`
+        MAG=` CrabTableReadInfo ".CrabFitsHeader.txt" $i"_MAG"  "/" | sed -e s/[\']//g     | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
+        FWHM=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_FWHM" "/" | sed -e s/[\]\[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
+        ELLI=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_AR"   "/" | sed -e s/[\]\[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
+        PA=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_PA"   "/" | sed -e s/[\]\[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
     elif [[ "$TC" == "sersic"* ]]; then
-        XC=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_XC"   "/" | sed -e s/[\]\[\']//g | sed -e s/[*]//g`
-        YC=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_YC"   "/" | sed -e s/[\]\[\']//g | sed -e s/[*]//g`
-        MAG=` CrabTableReadInfo ".CrabFitsHeader.txt" $i"_MAG"  "/" | sed -e s/[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
-        FWHM=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_RE"   "/" | sed -e s/[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
-        ELLI=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_AR"   "/" | sed -e s/[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
-        PA=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_PA"   "/" | sed -e s/[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
+        XC=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_XC"   "/" | sed -e s/[\]\[\']//g | sed -e 's/[ ][+]//g'| sed -e s/[*]//g`
+        YC=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_YC"   "/" | sed -e s/[\]\[\']//g | sed -e 's/[ ][+]//g'| sed -e s/[*]//g`
+        MAG=` CrabTableReadInfo ".CrabFitsHeader.txt" $i"_MAG"  "/" | sed -e s/[\']//g     | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
+        FWHM=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_RE"   "/" | sed -e s/[\]\[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
+        ELLI=`CrabTableReadInfo ".CrabFitsHeader.txt" $i"_AR"   "/" | sed -e s/[\]\[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
+        PA=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_PA"   "/" | sed -e s/[\]\[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
     elif [[ "$TC" == "psf" ]]; then
-        XC=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_XC"   "/" | sed -e s/[\]\[\']//g | sed -e s/[*]//g`
-        YC=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_YC"   "/" | sed -e s/[\]\[\']//g | sed -e s/[*]//g`
-        MAG=` CrabTableReadInfo ".CrabFitsHeader.txt" $i"_MAG"  "/" | sed -e s/[\']//g | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
+        XC=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_XC"   "/" | sed -e s/[\]\[\']//g | sed -e 's/[ ][+]//g'| sed -e s/[*]//g`
+        YC=`  CrabTableReadInfo ".CrabFitsHeader.txt" $i"_YC"   "/" | sed -e s/[\]\[\']//g | sed -e 's/[ ][+]//g'| sed -e s/[*]//g`
+        MAG=` CrabTableReadInfo ".CrabFitsHeader.txt" $i"_MAG"  "/" | sed -e s/[\']//g     | sed -e 's/[ ][+]//g' | sed -e s/[*]//g`
         FWHM=""
         ELLI=""
         PA=""

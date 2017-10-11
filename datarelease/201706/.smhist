@@ -10,3 +10,10 @@ macro read CatalogConvert.sm go_make_latex_table
 QUIT
 macro read CatalogReader.sm go
 quit
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogConvert.sm go
+QUIT
+macro read CatalogReader.sm
+go
+quit

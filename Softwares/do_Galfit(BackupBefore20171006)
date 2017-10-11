@@ -7,31 +7,20 @@ set -e
 
 if [[ ! -f "goFine.sm" ]]; then echo "Error! \"goFine.sm\" was not found!"; exit; fi
 
-sm << EOF | tee "$DG_FLOG.smlog"
+sm << EOF | tee $DG_FLOG".smlog"
+    
+    
+    define doFit $DG_PARA
+    
     
     ####################################
     #      PREPARE FIT PARAMETERS      #
     ####################################
     
-    macro read goFine.sm
+    #####  EDIT goFine.sm xSet_$DG_IMAX
+    macro  read goFine.sm xSet_$DG_IMAX
     
-    if(whatis(xSet_$DG_IMAX)!=1) {xSet_$DG_IMAX} else {xSet_default}
-    
-    define field          $DG_FIEL
-    define xdate        <"$DG_DATE">
-    define use_prior_mags $DG_PRIM
-    define vary_positions $DG_VARY
-    define fix_astrometry 1
-    define make_residuals 0
-    define fit_gaussian   $DG_GAUS
-    define fit_sersic     $DG_SERS
-    define fit_sky        0
-    define psf_resampl    1
-    define doFit          $DG_PARA
-    
-    if($DG_BOXSIZE>0) {define xstep $DG_BOXSIZE}
-    if($DG_BOXSIZE>0) {define ystep $DG_BOXSIZE}
-    
+    ###### EDIT goSimu.sm FixAstrometry for SciFits
     echo " "
     
     if(is_file($DG_FSCI.fits)) {
@@ -81,6 +70,12 @@ sm << EOF | tee "$DG_FLOG.smlog"
         echo " "
         define doFit -1
     }
+    
+    define xdate <"$DG_DATE">
+    
+    define field $DG_FIEL
+    
+    
     
     ######################################
     #      PREPARE FIT WITH CATALOG      #
@@ -198,6 +193,15 @@ sm << EOF | tee "$DG_FLOG.smlog"
     #####################
     #      GALFIT       #
     #####################
+    ###### FIT & REBUILD
+    define use_prior_mags $DG_PRIM
+    define vary_positions $DG_VARY
+    define fix_astrometry 1
+    define make_residuals 0
+    define fit_gaussian   $DG_GAUS
+    define fit_sersic     $DG_SERS
+    define fit_sky        0
+    define psf_resampl    1
     if(dimen(idF)>0 && \$doFit==0) {
         Fit_XXX
         Rebuild_XXX

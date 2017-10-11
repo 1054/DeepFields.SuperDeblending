@@ -12,13 +12,13 @@ go
     data "coo_AGN.txt" read coo_AGN 1
     data "coo_SED.txt" read coo_SED 1
     data "coo_FIR.txt" read coo_FIR 1
-    rfile "ResLMTparams_RadioOwenMIPS24_priors_dzliu_20170828.txt"
-    rfile "ResLMTfluxes_RadioOwenMIPS24_priors_dzliu_20170828.txt"
-    rfile       "ResLMT_RadioOwenMIPS24_priors_dzliu_20170828.txt"
-    rfile "RadioOwenMIPS24_priors_dzliu_119_Starburstiness.txt"
-    rfile "RadioOwenMIPS24_priors_dzliu_20161219_SignalNoiseRatio.txt"
-    rfile "RadioOwenMIPS24_priors_dzliu_20161219.txt"
-    rfile "RadioOwenMIPS24_priors_dzliu_20161219_ChabrierIMF_PACSCorrected_FmJy.txt"
+    rfile "ResLMTparams_RadioOwenMIPS24_priors_dzliu_20170905.txt"
+    rfile "ResLMTfluxes_RadioOwenMIPS24_priors_dzliu_20170905.txt"
+    rfile       "ResLMT_RadioOwenMIPS24_priors_dzliu_20170905.txt"
+    rfile "RadioOwenMIPS24_priors_dzliu_20170905_Starburstiness.txt"
+    rfile "RadioOwenMIPS24_priors_dzliu_20170905_SignalNoiseRatio.txt"
+    rfile "RadioOwenMIPS24_priors_dzliu_20170905.txt"
+    rfile "RadioOwenMIPS24_priors_dzliu_20170905_ChabrierIMF_PACSCorrected_FmJy.txt"
     chdir ".."
     verbose 1
     # 

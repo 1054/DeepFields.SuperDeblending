@@ -50,7 +50,7 @@ fi
 # 
 export DG_IMAX=$2
 export DG_DATE=$3
-export DG_FIEL="goodsn" # field
+export DG_FIEL="default" # field
 export DG_VARY=0
 export DG_GAUS=0 # Gaussian fitting
 export DG_SERS=0 # Sersic fitting
@@ -66,8 +66,9 @@ export DG_FMSK="NONE" # Mask image, usually is 24um rms image
 export DG_FSCI="NONE"
 export DG_FRMS="NONE"
 export DG_FPSF="NONE"
-export DG_FLOG=$(pwd)'/log_'$1'_'$2'_'$3
-export DG_FPWD=`pwd` # Current Path
+export DG_FLOG=$(pwd -P)'/log_'$1'_'$2'_'$3
+export DG_FPWD=`pwd -P` # Current Path
+export DG_BOXSIZE=0
 # 
 # Print Date
 echo ""
@@ -277,6 +278,10 @@ while [[ $# -gt 0 ]]; do
                         
  "-threshold-goodarea") shift
                         DG_VMSK="$1"; shift
+                        ;;
+                        
+           "-box-size") shift
+                        DG_BOXSIZE="$1"; shift
                         ;;
                         
                      *) shift

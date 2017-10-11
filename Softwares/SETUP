@@ -144,9 +144,11 @@ else
     fi
 fi
 # 
-# CHECK
+# CHECK if in interactive shell mode
+if [[ $- =~ "i" ]]; then 
 for TEMPNAME in ${SUPERDEBLENDCMD[@]}; do
     type $TEMPNAME
 done
+fi
 
 
