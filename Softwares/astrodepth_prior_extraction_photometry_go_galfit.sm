@@ -627,7 +627,7 @@ print_result 02
         load fresidual.sm
         set ResultFluxResChisq = (_fresipix_rms)**2 * _fresipix_npix / pixnoise**2 # chi-sq = sum(pixresidual**2/pixnoise**2), sqrt(sum(pixresidual**2)/npix) is just _fresipix_rms from 'fresidual_inPixel()'. 
         set ResultFluxRedChisq = ResultFluxResChisq / (_fresipix_npix - ResultNumbFreeParam) # reduced chi-sq, = chi-sq / N_DOF, N_DOF = npix - 
-        set ResultFluxNumPixel = _fresipix_npix
+        set ResultFluxNumPixel = float(_fresipix_npix)
         # 
         # read cat_index and cat_id (str)
         data $1.cat_index.txt read {cat_index 1.f cat_id 2.s}
@@ -693,7 +693,7 @@ print_result 02
         # 
         # 
         #<below><added><20170923><dzliu>#
-        print $1.result.chisq.txt '%25g %15g %15d %15d %15.0f %15s\n' \
+        print $1.result.chisq.txt '%25g %15g %15.3f %15d %15.0f %15s\n' \
             {f_reschisq f_redchisq n_aperpix n_freepar cat_index cat_id}
         #<above><added><20170923><dzliu>#
         # 

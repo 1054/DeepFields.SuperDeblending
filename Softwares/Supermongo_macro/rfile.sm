@@ -113,7 +113,9 @@ rfile 03
                     index('$rfhc','source')>=0 || index('$rfhc','name')>=0 || index('$rfhc','nAME')>=0 || index('$rfhc','alias')>=0 || \
                     index('$rfhc','file')>=0 || index('$rfhc','File')>=0 || index('$rfhc','FILE')>=0 || \
                     '$rfhc'=='image_dir' || \
+                    '$rfhc'=='image_file' || \
                     index('$rfhc','_STR')>=0 || \
+                    index('$rfhc','_str')>=0 || \
                     index('$rfhc','gal_Type_')>=0 ) {
                     read $rfhc $rfhi.s
                     if($rfile_verbose){echo Read column $rfhi as $rfhc (string)}

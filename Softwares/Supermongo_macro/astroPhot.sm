@@ -205,6 +205,23 @@ convert_flux2mag 04
         }
     }
 
+convert_magVega2magAB 02
+    # 
+    # http://www.astronomy.ohio-state.edu/~martini/usefuldata.html
+    if(!$?2) {print 'usage: convert_magVega2magAB J 20.5\n' {} return}
+    set mVega = $2
+    set mAB = mVega*0-99
+    set mBand = '$1'
+    if(dimen(mBand)==1 && dimen(mVega)>1) {
+        set mBand = mVega>0 ? '$1' : '$1'
+    }
+    set mAB = (mBand=='J')              ? -2.5*lg(10**((mVega)/(-2.5))*1.589e3/3630.780548) : mAB
+    set mAB = (mBand=='H')              ? -2.5*lg(10**((mVega)/(-2.5))*1.021e3/3630.780548) : mAB
+    set mAB = (mBand=='K'||mBand=='Ks') ? -2.5*lg(10**((mVega)/(-2.5))*0.64e3/3630.780548)  : mAB
+    print {mBand mVega mAB}
+    set $0 = mAB
+    return
+
 convert_id_ra_dec_flux_to_ds9_reg 07
     # Input id ra dec flux, output ds9 reg file, 
     # each source is a circle, and the circle size indicates the flux, 

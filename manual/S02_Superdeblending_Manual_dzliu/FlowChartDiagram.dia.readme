@@ -1,0 +1,5 @@
+dia '/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/manual/S02_Superdeblending_Manual_dzliu/FlowChartDiagram.dia'
+
+export as "eps"
+
+then use "ps2pdf" to convert to pdf. otherwise 
