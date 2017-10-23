@@ -237,6 +237,28 @@ calc_sky_frequency 00
             }
         }
     }
+    if(!is_file("image_sci_sky_frequency.txt")) {
+        if(is_vector(sky_frequency)) {unset sky_frequency}
+        if(is_file("image_sci.fits")) {
+            !gethead "image_sci.fits" "CTYPE4" "CRPIX4" "CRVAL4" > "image_sci_sky_frequency.tmp"
+            if(is_vector(sky_frequency)) {unset sky_frequency}
+            if(is_vector(sky_freq_type)) {unset sky_freq_type}
+            data "image_sci_sky_frequency.tmp" 
+            read {sky_freq_type 1.s sky_frequency 3}
+            if(is_vector(sky_freq_type) && is_vector(sky_frequency)) {
+                if(index(sky_freq_type,'FREQ')==0) {
+                    set sky_frequency = sky_frequency/1e9 # GHz
+                    define print_noheader 1
+                    print "image_sci_sky_frequency.txt" '%15.10f \# GHz\n' {sky_frequency}
+                    define print_noheader 0
+                }
+            }
+        }
+    }
+    if(!is_file("image_sci_sky_frequency.txt")) {
+        print 'Error! Could not find sky frequency from the input fits file header!\n' {}
+        exit
+    }
 
 
 calc_phase_center 00

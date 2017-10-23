@@ -393,9 +393,10 @@ go_galfit 01
     mask_prior_sources
     # --> px, py, id, cat_index, cat_id, pb_corr, pb_corr_from_pb_image
     # 
+    print fit_$1.cat_index.txt '%15.0f %20s\n' {cat_index cat_id}
     print fit_$1.pbcorr.txt '%15g %15.0f %20s\n' {pb_corr cat_index cat_id}
     print fit_$1.pbcorr.from.pb.image.txt '%22g %15.0f %20s\n' {pb_corr_from_pb_image cat_index cat_id}
-    print fit_$1.cat_index.txt '%15.0f %20s\n' {cat_index cat_id}
+    print fit_$1.result.pbc.txt '%25g %15g %15.0f %20s\n' {pb_corr_from_pb_image pb_corr cat_index cat_id}
     # 
     if(dimen(px)>0 && dimen(py)==dimen(px)) {
         if('$1'=='0' || '$1'=='n0') {
@@ -734,11 +735,11 @@ print_result_final 01
     if(!$?1) {
         set final_basename = 'final'
         set getpix_basename = 'getpix'
-        set galfit_basenames = { fit_0 fit_1 fit_2 fit_3 }
+        set galfit_basenames = { fit_0 fit_1 fit_2 fit_3 fit_4}
     } else { 
         set final_basename = 'final_on_negative_image'
         set getpix_basename = 'getpix_on_negative_image'
-        set galfit_basenames = { fit_n0 fit_n1 fit_n2 fit_n3 }
+        set galfit_basenames = { fit_n0 fit_n1 fit_n2 fit_n3 fit_n4}
     }
     if(!is_file("No_catalog_source_within_image")) {
         if(is_file($(final_basename).result)) { !mv $(final_basename).result $(final_basename).result.backup }
@@ -868,7 +869,8 @@ print_result_final 01
                     #      <ra_$var dec_$var f_$var df_$var fpeak_$var fres_$var rms_$var snr_$var pix_scale pix_area beam_area pb_corr obs_freq obs_lambda id_$var> #<20170606><dzliu>#
                     # print big output file <20170923>
                     set id_$var""_str = id_$var
-                    set wfile_vectors = <ra_$var dec_$var f_$var df_$var fpeak_$var fres_$var rms_$var snr_$var Maj_$var Maj_err_$var Min_$var Min_err_$var PA_$var PA_err_$var convol_area_in_beam>
+                    set source_area = convol_area_in_beam
+                    set wfile_vectors = <ra_$var dec_$var f_$var df_$var fpeak_$var fres_$var rms_$var snr_$var Maj_$var Maj_err_$var Min_$var Min_err_$var PA_$var PA_err_$var source_area>
                     set wfile_vectors = wfile_vectors concat {pix_noise pix_scale beam_area pbcorr pb_corr flux_conv obs_freq obs_lambda}
                     set wfile_vectors = wfile_vectors concat {sersic_n sersic_n_err chisq rchisq n_aperpix n_freepar flag_buffer}
                     set wfile_vectors = wfile_vectors concat 'cid_$var""_str'
