@@ -7,7 +7,7 @@ type dirname > /dev/null
 SMPATH=$(dirname $(dirname $(readlink -f $0)))
 SMDATE=$(date +%s.$(date +%N|cut -b 1,2,3,4)) # SMDATE=$(date +%Y%m%d.%H%M%S.%N.%Z)
 
-SMTEMP="/tmp"; if [[ x"$TMPDIR" != x ]]; SMTEMP="$TMPDIR"; fi
+SMTEMP="/tmp"; if [[ x"$TMPDIR" != x ]]; then SMTEMP="$TMPDIR"; fi
 
 export SMPATH
 export SMDATE
