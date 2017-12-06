@@ -1,0 +1,3 @@
+#       N_low_mass     R_Min_low_mass     R_Max_low_mass  R_Median_low_mass    R_Mean_low_mass    R_Sigma_low_mass
+#
+               354        3.30023e-06            3.14702           0.223262           0.388516           0.464829

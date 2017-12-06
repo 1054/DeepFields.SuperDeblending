@@ -17,3 +17,11 @@ QUIT
 macro read CatalogReader.sm
 go
 quit
+macro read CatalogReader.sm go
+set coo = (f850>0 && f850>=3.0*df850)
+echo $(sum(coo))
+set df = df850 if(coo)
+stats_med df
+load vecStat.sm
+load vecStats.sm
+quit

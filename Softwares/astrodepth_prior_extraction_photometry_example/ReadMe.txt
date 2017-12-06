@@ -1,11 +1,20 @@
 
 Here is an example of using "astrodepth_prior_extraction_photometry"
 
+
+
 Please run the following code: 
 
 bash
 source ../SETUP
-astrodepth_prior_extraction_photometry -sci sci.spw0_1_2_3.cont.I.image.fits -psf sci.spw0_1_2_3.cont.I.psf.fits -cat Catalog_Laigle_2016_ID_RA_Dec_Photo-z_Example.txt -out "output_dir" -outname "output_name"
+astrodepth_prior_extraction_photometry \
+    -cat Catalog_Laigle_2016_ID_RA_Dec_Photo-z_Example.txt \
+    -sci sci.spw0_1_2_3.cont.I.image.fits \
+    -psf sci.spw0_1_2_3.cont.I.psf.fits \
+    -steps "getpix" "galfit" "gaussian" "sersic" "negative" \
+    -out "output_dir" \
+    -outname "output_name"
+    
 
 
 

@@ -1,0 +1,65 @@
+go
+    # 
+    #  cp log_make_cosmic_sfr_plot.log log_make_cosmic_sfr_plot_v20171031_docorr_all_z.log
+    # 
+    #  echo "macro read a_dzliu_code_make_latex_table_CSFRD.sm go" | sm
+    # 
+    
+    verbose 0
+    #data "log_make_cosmic_sfr_plot_v20170120_docorr_all_z.log" 
+    data "log_make_cosmic_sfr_plot_v20171031_docorr_all_z.log" 
+    read {zmin 1 zmax 2 lgopz 3 CSFRD_obs 4 CSFRD_err 5 CSFRD_corr 6 fcorr 7 SMF_name 8.s}
+    
+    define print_noheader 1
+    do i=0,dimen(zmin)-1 {
+        foreach var {zmin zmax lgopz CSFRD_obs CSFRD_err CSFRD_corr fcorr SMF_name} {set s_$var = $var[$i]}
+        set s_fcorr = s_fcorr*100.0
+        set print_type = 0
+        if($i>0) {
+            # do not show CSFRD_corr because of very low completeness for zmin>=4.0
+            if(zmin[$i]<4.0) {
+                if(zmin[$i]!=zmin[$i-1]) {
+                    set print_type = 0
+                } else {
+                    set print_type = 1
+                    # multicolumn{4}{c} 
+                }
+            } else {
+                if(zmin[$i]!=zmin[$i-1]) {
+                    set print_type = 2
+                } else {
+                    set print_type = 3
+                    # multicolumn{4}{c} 
+                }
+            }
+        }
+        if(print_type==0) {
+            print '        %7.1f & %7.1f & %7.3f & %7.3f & %7.3f & %12s & %12.1f\\%% \\\\ ' {s_zmin s_zmax s_CSFRD_obs s_CSFRD_err s_CSFRD_corr s_SMF_name s_fcorr}
+        }
+        if(print_type==1) {
+            print '            \\multicolumn{4}{c}{}              & %7.3f & %12s & %12.1f\\%% \\\\ ' {s_CSFRD_corr s_SMF_name s_fcorr}
+        }
+        if(print_type==2) {
+            #print '        %7.1f & %7.1f & %7.3f & %7.3f & \\\nodata & %12s &    \$\\sim\$%0.1f\\%% \\\\ ' {s_zmin s_zmax s_CSFRD_obs s_CSFRD_err     s_SMF_name s_fcorr}
+            print '        %7.1f & %7.1f & %7.3f & %7.3f & %7.3f & %12s &    \$\\sim\$%0.1f\\%% \\\\ ' {s_zmin s_zmax s_CSFRD_obs s_CSFRD_err s_CSFRD_corr s_SMF_name s_fcorr}
+        }
+        if(print_type==3) {
+            print '            \\multicolumn{4}{c}{}              & \\\nodata & %12s &    \$\\sim\$%0.1f\\%% \\\\ ' { s_SMF_name s_fcorr}
+        }
+    }
+    
+    #data "log_make_cosmic_sfr_plot_v20170120_nocorr.log" 
+    #read {zmin 1 zmax 2 lgopz 3 CSFRD_obs 4 CSFRD_err 5}
+    #do i=0,dimen(zmin)-1 {
+    #    if(zmin[$i]>=4) {
+    #        foreach var {zmin zmax lgopz CSFRD_obs CSFRD_err} {set s_$var = $var[$i]}
+    #        print '        %7.1f & %7.1f & %7.3f & %7.3f & & & \\\\ ' {s_zmin s_zmax s_CSFRD_obs s_CSFRD_err}
+    #    }
+    #}
+       
+    define print_noheader 0
+
+
+
+
+

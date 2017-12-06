@@ -1,0 +1,156 @@
+plot_CSFRD_correction_Go
+    # 
+    # 
+    # Usage:
+    #   echo "macro read a_dzliu_code_Plot_CSFRD_correction_Go.sm plot_CSFRD_correction_Go" | sm
+    #  
+    data "datatable__CSFRD_correction__Go.txt"
+    read {z_min_list 1 z_max_list 2 M_incomplete_list 3 N_correction_list 4 F_correction_list 5 S_correction_list 6.s}
+    # 
+    load astroSfig.sm
+    # 
+    load crabPlot.sm
+    crabPlotOpenPS "Plot_CSFRD_correction_Go_v1.eps"
+    #crabPlotDefaultPenForBox 
+    #crabPlotDefaultPenForTitle
+    plot_Axis_Top
+    plot_Axis_Bottom
+    crabPlotLegendWeight 3.1
+    crabPlotLegendExpand 1.1
+    crabPlotLegendSpacing 0.075
+    crabPlotLegend 0.05 0.45 ""
+    # 
+    foreach S_correction {Muzzin Ilbert Davidzon } {
+        set S_correction = '$S_correction'
+        # 
+        set F_correction = F_correction_list if(S_correction_list=='$S_correction')
+        set z_min_spline = z_min_list        if(S_correction_list=='$S_correction')
+        set z_max_spline = z_max_list        if(S_correction_list=='$S_correction')
+        set z_cen_spline = (z_min_spline + z_max_spline)/2.0
+        # 
+        vecminmax z_min_spline z_min_min z_min_max
+        vecminmax z_max_spline z_max_min z_max_max
+        define z_max_max 4.0 #<20171003># we do not show z>=4 data points because they are too uncertain
+        set plt_z = $z_min_min,$z_max_max,0.1
+        # 
+        interp2 z_cen_spline F_correction plt_z plt_corr_factor
+        #
+        if(S_correction=='Muzzin')   {ctype orange    ptype 4 0 ltype 0 angle   0 expand 3.5 lweight 5.5 }
+        if(S_correction=='Ilbert')   {ctype magenta   ptype 4 0 ltype 0 angle  45 expand 3.5 lweight 5.5 }
+        if(S_correction=='Davidzon') {ctype seagreen  ptype 3 0 ltype 0 angle 180 expand 3.5 lweight 5.5 }
+        if(S_correction=='Grazian')  {ctype cyan      ptype 4 2 ltype 0 angle   0 expand 3.5 lweight 5.5 }
+        if(S_correction=='Song')     {ctype green     ptype 4 0 ltype 0 angle  45 expand 3.5 lweight 5.5 }
+        # 
+        connect (lg(1.0+plt_z)) (plt_corr_factor*100)
+        # 
+        if(S_correction=='Muzzin')   {crabPlotLegendWithLine "Muzzin SMF-based" }
+        if(S_correction=='Ilbert')   {crabPlotLegendWithLine "Ilbert SMF-based" }
+        if(S_correction=='Davidzon') {crabPlotLegendWithLine "Davidzon SMF-based" }
+        if(S_correction=='Grazian')  {crabPlotLegendWithLine "Grazian SMF-based" }
+        if(S_correction=='Song')     {crabPlotLegendWithLine "Song SMF-based" }
+    }
+    # 
+    crabPlotClosePS
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+plot_Axis_Top
+    # 
+    # -- PLOT TOP AXIS t_age
+    # <BUG><FIXED><20171027><dzliu> #
+    # 
+    ticksize -1 10 0 0
+    #limits $(lg(calc_cosmic_age(0.0))) $(lg(calc_cosmic_age(8.5))) -2.5 0.4
+    limits $(lg(0.0+1)) $(lg(8.5+1)) -2.5 0.4
+    ctype default
+    location 4200 28500 3000 18000
+    box 4 4 3 4
+    if(!is_file("plot_axis_top_grid.txt")) {
+        set z_grid = 0.0,8.5,0.01
+        set cosmic_lookbacktime_grid = calc_cosmic_lookbacktime(z_grid)  
+        print "plot_axis_top_grid.txt" '%25.10f %35.10f\n'{z_grid cosmic_lookbacktime_grid}
+    } else {
+        data "plot_axis_top_grid.txt" read {z_grid 1.f cosmic_lookbacktime_grid 2.f}
+    }
+    set cosmic_lookbacktime_step = 0,12,1
+    interp2 cosmic_lookbacktime_grid z_grid cosmic_lookbacktime_step z_step
+    do i=0,dimen(cosmic_lookbacktime_step)-1 { # plot x top axis by hand
+        rel      $(lg(z_step[$i]+1)) $($fy2-0.03*($fy2-$fy1))
+        draw     $(lg(z_step[$i]+1)) $($fy2-0.00*($fy2-$fy1))
+        relocate $(lg(z_step[$i]+1)) $($fy2+0.05*($fy2-$fy1))
+        expand 1.35 lweight 3.5 putlabel 5 $(cosmic_lookbacktime_step[$i])
+    }
+    do i=1,1 { # plot x bottom label by hand
+        relocate $(0.5*($fx1+$fx2)) $($fy2+0.15*($fy2-$fy1))
+        expand 1.35 lweight 3.5 putlabel 5 "lookback time [Gyr]"
+    }
+    
+
+
+plot_Axis_Bottom
+    # 
+    # -- PLOT BOTTOM AXIS (1+z)
+    # 
+    ticksize -1 0 0 0
+    limits $(lg(0.0+1)) $(lg(8.5+1)) -9 109
+    ctype default
+    location 4200 28500 8000 18000
+    format 0 "%.0f%%"
+    box 0 2 3 0
+    #ylabel \raise+1500"log \Psi \ [M_{\odot} yr^{-1} Mpc^{-3}]"
+    do i=0,8 { # plot x bottom axis by hand
+        relocate $(lg($i+1)) $($fy1-0.05*($fy2-$fy1))
+        expand 1.35 lweight 3.5 putlabel 5 $i
+    }
+    do i=1,1 { # plot x bottom label by hand
+        relocate $(0.5*($fx2+$fx1)) $($fy1-0.22*($fy2-$fy1))
+        expand 1.85 lweight 3.5 putlabel 5 z
+    }
+    do i=1,1 { # plot y left label by hand
+        relocate $($fx1-0.15*($fx2-$fx1)) $(0.5*($fy2+$fy1))
+        expand 1.35 lweight 3.5 angle 90 putlabel 5 "SFR Completeness"
+        angle 0
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,431 @@
+link_Data 00
+    # 
+    # We need to link SED fitting data folder under current directory
+    # 
+    #!ln -fs /home/dzliu/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016/S02_Superdeblending_FIR/Galsed_AfterBand1160/fit_matrix_HDFN/
+    #!ln -fs /home/dzliu/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016C_850um/20160719/Galsed_AfterBand1160_AfterBand850/fit_matrix_HDFN/
+    #!ln -fs /home/dzliu/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016C_850um/20160719/Galsed_AfterBand1160_AfterBand850/fit_matrix_HDFN/
+
+
+read_Data 00
+    # 
+    # We need to read full final catalog
+    # 
+    load crabDir.sm
+    # 
+    #set CurDir = GetDirPathVector()
+    #set CatDir = GetDirPathVector("/home/dzliu/Cloud/Github/DeepFields.SuperDeblending/")
+    #set CatDir = CatDir concat 'datarelease'
+    #set CatDir = CatDir concat '201608'
+    #set CatDir = CatDir concat 'catalog_daddi_dzliu_goodsn_2016C_850um'
+    #VisitDirPathVector CatDir
+    #macro read CatalogReader.sm go
+    #VisitDirPathVector CurDir
+    # 
+    #set CurDir = GetDirPathVector()
+    #set CatDir = GetDirPathVector('$HOME/Cloud/Github/DeepFields.SuperDeblending/')
+    #set CatDir = CatDir concat 'datarelease'
+    #set CatDir = CatDir concat '201612'
+    #VisitDirPathVector CatDir
+    #macro read CatalogReader.sm go
+    #VisitDirPathVector CurDir
+    #define dataver 201612
+    # 
+    if(!is_file("set_data_version")) {
+        echo "201706" > "set_data_version"
+    }
+    data "set_data_version" read dataver 1.s
+    define dataver $(dataver)
+    # 
+    set CurDir = GetDirPathVector()
+    set CatDir = GetDirPathVector('$HOME/Cloud/Github/DeepFields.SuperDeblending/')
+    set CatDir = CatDir concat 'datarelease'
+    set CatDir = CatDir concat dataver
+    VisitDirPathVector CatDir
+    macro read CatalogReader.sm go
+    VisitDirPathVector CurDir
+    # 
+    #<20171027># add SFR_UV and use SFR_total
+    set SFR = SFR_total
+
+
+set_SNR_limit
+    # 
+    #define limsnr 5.0 #<20170731># this is the value for paper
+    #define limsnr 4.0 #<20170731># on Emanuele's request
+    if(!is_file("set_SNR_limit")) {
+        echo "5.0" > "set_SNR_limit"
+    }
+    data "set_SNR_limit" read limsnr 1.f
+    define limsnr $(limsnr)
+
+
+calc_Vmax
+    # 
+    #  macro read calc_Vmax.sm calc_Vmax # Do not run this again <20160529>
+    #  macro read calc_Vmax.sm calc_Vmax # Do not run this again <20160825> updated with new catalog 20160818
+    # 
+    link_Data
+    # 
+    read_Data
+    # 
+    set_SNR_limit
+    # 
+    load astroSfig.sm
+    load vecSNR.sm
+    set maxz = float(z)*0.0-99
+    set maxzsnr = float(z)*0.0-99
+    do i=0,dimen(id)-1 {
+        #if(snrIR[$i]>=5) #<20170731># 
+        if(snrIR[$i]>=$limsnr) {
+            declare w0 0.f
+            declare f0 0.f
+            declare df 0.f
+            data "fit_matrix_HDFN/fit_sed_data_detected_"$(id[$i])".txt"
+            read {lgwave 1 lgflux 2 lgferr 3}
+            if(is_vector(lgwave) && is_vector(lgflux)) {
+                set w0 = lgwave
+                set f0 = lgflux
+                set df = lgferr
+                unset lgwave unset lgflux unset lgferr
+            }
+            data "fit_matrix_HDFN/fit_sed_data_undetect_"$(id[$i])".txt"
+            read {lgwave 1 lgflux 2 lgferr 3}
+            if(is_vector(lgwave) && is_vector(lgflux)) {
+                set w0 = w0 concat lgwave
+                set f0 = f0 concat lgflux
+                set df = df concat lgferr
+                unset lgwave unset lgflux unset lgferr
+            }
+            data "fit_matrix_HDFN/fit_sed_"$(id[$i])".txt"
+            read {lgwave 1 flux 2}
+            if(is_vector(lgwave) && is_vector(flux)) {
+                set flux = (flux<1e-30) ? 1e-30 : flux
+                set w1 = lgwave
+                set f1 = lg(flux)
+                unset lgwave unset flux
+            }
+            set d1 = calc_lumdist(z[$i])
+            set df = df*(10**f0)*ln(10) # convert to linear space instead of log # https://physics.stackexchange.com/questions/95254/the-error-of-the-natural-logarithm
+            if(dimen(w0)>0 && dimen(f0)>0 && dimen(w1)>0 && dimen(f1)>0) {
+                sort {w0 f0 df}
+                #print {w0 f0 df w1 f1}
+                set newz = $(z[$i]),$(z[$i]+5.0),0.02
+                #set newsnr = 5.0 #<20170731># 
+                set newsnr = $limsnr #<20170731># 
+                set maxznr = z[$i]
+                set maxsnr = 0.0
+                do j=0,dimen(newz)-1 {
+                    # 
+                    # mimic our FIR+mm selection function, see out to which redshift one source could still be selected in our sample. 
+                    # 
+                    if(newsnr>=$limsnr) {
+                        #echo z = $(newz[$j])
+                        set d2 = calc_lumdist(newz[$j])
+                        set w2 = w1+lg((1+newz[$j])/(1+z[$i]))
+                        set f2 = f1+lg((1+newz[$j])/(1+z[$i]))-lg(d2**2/d1**2)
+                        #set ltir1 = calc_ltir(10**w1,10**f1,z[$i])
+                        #set ltir2 = calc_ltir(10**w2,10**f2,newz[$j])
+                        spline w2 f2 w0 f8
+                        #print {w0 f0 f8 df}
+                        set firflux = 10**f8 if(w0>=lg(100) && w0<lg(2000))
+                        set firferr = df if(w0>=lg(100) && w0<lg(2000))
+                        set newsnr = vecSNR_conjunct(firflux,firferr)
+                        if(newsnr>=$limsnr) {
+                            set maxznr = newz[$j]
+                            set maxsnr = newsnr
+                        }
+                    }
+                }
+                unset w0 unset f0 unset df
+                unset w1 unset f1
+                unset w2 unset f2
+                echo z = $(z[$i])
+                echo id = $(id[$i])
+                echo snr = $(snr[$i])
+                echo maxznr = $(maxznr)
+                echo maxsnr = $(maxsnr)
+                set maxz[$i] = maxznr
+                set maxzsnr[$i] = maxsnr
+            }
+        }
+        echo ""
+        echo "****************************"
+        echo ""
+        #define aaa ?
+    }
+    print "RadioOwenMIPS24_priors_dzliu_"$dataver"_zMax_for_SNR_"$limsnr".txt" '%15.0f%15g%15g%15g%15g\n' {id z maxz snr maxzsnr}
+    
+
+
+
+
+
+
+
+
+
+plot_Vmax_histogram
+    # 
+    #  macro read calc_Vmax.sm plot_Vmax_histogram
+    # 
+    read_Data
+    # 
+    set_SNR_limit
+    # 
+    if(!is_file("RadioOwenMIPS24_priors_dzliu_"$dataver"_zMax_for_SNR_"$limsnr".txt")) {
+    	print 'Error! "RadioOwenMIPS24_priors_dzliu_"$dataver"_zMax_for_SNR_"$limsnr".txt" was not found! Maybe please first run calc_Vmax?\n' {}
+    	return
+    }
+    data "RadioOwenMIPS24_priors_dzliu_"$dataver"_zMax_for_SNR_"$limsnr".txt"
+    read {zmax_for_Vmax 3}
+    # 
+    #plot_Vmax_histogram_in_z_bin 0.2 0.5
+    #plot_Vmax_histogram_in_z_bin 0.5 1.0
+    #plot_Vmax_histogram_in_z_bin 1.0 1.5
+    #plot_Vmax_histogram_in_z_bin 1.5 2.5
+    #plot_Vmax_histogram_in_z_bin 2.5 3.0
+    #plot_Vmax_histogram_in_z_bin 3.0 4.0
+    #plot_Vmax_histogram_in_z_bin 4.0 6.0
+    # 
+    # <20160518><dzliu><daddi>
+    ## plot_Vmax_histogram_in_z_bin 4.0 10.0
+    ## !mv "Plot_Vmax_histogram_in_z_bin_4_10.eps" "Plot_Vmax_histogram_in_z_bin_high_4.0_10.eps"
+    ## !mv "Plot_Vmax_histogram_in_z_bin_4_10.pdf" "Plot_Vmax_histogram_in_z_bin_high_4.0_10.pdf"
+    ## plot_Vmax_histogram_in_z_bin 3.0 10.0
+    ## !mv "Plot_Vmax_histogram_in_z_bin_3_10.eps" "Plot_Vmax_histogram_in_z_bin_high_3.0_10.eps"
+    ## !mv "Plot_Vmax_histogram_in_z_bin_3_10.pdf" "Plot_Vmax_histogram_in_z_bin_high_3.0_10.pdf"
+    ## plot_Vmax_histogram_in_z_bin 2.5 10.0
+    ## !mv "Plot_Vmax_histogram_in_z_bin_2.5_10.eps" "Plot_Vmax_histogram_in_z_bin_high_2.5_10.eps"
+    ## !mv "Plot_Vmax_histogram_in_z_bin_2.5_10.pdf" "Plot_Vmax_histogram_in_z_bin_high_2.5_10.pdf"
+    ## plot_Vmax_histogram_in_z_bin 2.0 10.0
+    ## !mv "Plot_Vmax_histogram_in_z_bin_2_10.eps" "Plot_Vmax_histogram_in_z_bin_high_2.0_10.eps"
+    ## !mv "Plot_Vmax_histogram_in_z_bin_2_10.pdf" "Plot_Vmax_histogram_in_z_bin_high_2.0_10.pdf"
+    ## plot_Vmax_histogram_in_z_bin 1.5 10.0
+    ## !mv "Plot_Vmax_histogram_in_z_bin_1.5_10.eps" "Plot_Vmax_histogram_in_z_bin_high_1.5_10.eps"
+    ## !mv "Plot_Vmax_histogram_in_z_bin_1.5_10.pdf" "Plot_Vmax_histogram_in_z_bin_high_1.5_10.pdf"
+    ## plot_Vmax_histogram_in_z_bin 1.0 10.0
+    ## !mv "Plot_Vmax_histogram_in_z_bin_1_10.eps" "Plot_Vmax_histogram_in_z_bin_high_1.0_10.eps"
+    ## !mv "Plot_Vmax_histogram_in_z_bin_1_10.pdf" "Plot_Vmax_histogram_in_z_bin_high_1.0_10.pdf"
+    ## plot_Vmax_histogram_in_z_bin 0.5 10.0
+    ## !mv "Plot_Vmax_histogram_in_z_bin_0.5_10.eps" "Plot_Vmax_histogram_in_z_bin_high_0.5_10.eps"
+    ## !mv "Plot_Vmax_histogram_in_z_bin_0.5_10.pdf" "Plot_Vmax_histogram_in_z_bin_high_0.5_10.pdf"
+    # 
+    # <20160529><dzliu><daddi>
+    ##plot_Vmax_histogram_in_z_bin 0.5 1.0
+    ##!mv "Plot_Vmax_histogram_in_z_bin_0.5_1.eps" "Plot_Vmax_histogram_in_z_bin_high_0.5_1.0.eps"
+    ##!mv "Plot_Vmax_histogram_in_z_bin_0.5_1.pdf" "Plot_Vmax_histogram_in_z_bin_high_0.5_1.0.pdf"
+    # 
+    # epsbook Plot_Vmax_histogram_in_z_bin_high_*.eps Plot_Vmax_histogram_in_z_bin_high_all_panels.eps
+    # 
+    # <20160616><dzliu><daddi>
+    #plot_Vmax_histogram_in_z_bin 0.1 2.5
+    #plot_Vmax_histogram_in_z_bin 2.5 10.0
+    #plot_Vmax_histogram_in_z_bin 3.0 10.0
+    #plot_Vmax_histogram_in_z_bin 4.0 10.0
+    #!mv "Plot_Vmax_histogram_in_z_bin_0.1_2.5.eps" "Plot_Vmax_histogram_in_z_bin_20160616_0.1_2.5.eps"
+    #!mv "Plot_Vmax_histogram_in_z_bin_0.1_2.5.pdf" "Plot_Vmax_histogram_in_z_bin_20160616_0.1_2.5.pdf"
+    #!mv "Plot_Vmax_histogram_in_z_bin_2.5_10.eps"  "Plot_Vmax_histogram_in_z_bin_20160616_2.5_10.eps"
+    #!mv "Plot_Vmax_histogram_in_z_bin_2.5_10.pdf"  "Plot_Vmax_histogram_in_z_bin_20160616_2.5_10.pdf"
+    #!mv "Plot_Vmax_histogram_in_z_bin_3_10.eps"    "Plot_Vmax_histogram_in_z_bin_20160616_3_10.eps"
+    #!mv "Plot_Vmax_histogram_in_z_bin_3_10.pdf"    "Plot_Vmax_histogram_in_z_bin_20160616_3_10.pdf"
+    #!mv "Plot_Vmax_histogram_in_z_bin_4_10.eps"    "Plot_Vmax_histogram_in_z_bin_20160616_4_10.eps"
+    #!mv "Plot_Vmax_histogram_in_z_bin_4_10.pdf"    "Plot_Vmax_histogram_in_z_bin_20160616_4_10.pdf"
+    # 
+    # <20160616><dzliu><daddi>
+    #plot_Vmax_histogram_in_z_bin 2.5 6.0
+    #!mv "Plot_Vmax_histogram_in_z_bin_2.5_6.eps"    "Plot_Vmax_histogram_in_z_bin_20160616_2.5_6.eps"
+    #!mv "Plot_Vmax_histogram_in_z_bin_2.5_6.pdf"    "Plot_Vmax_histogram_in_z_bin_20160616_2.5_6.pdf"
+    # 
+    # <20160618><dzliu>
+    #plot_Vmax_histogram_in_z_bin 4.0 6.0
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".eps"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".eps"
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".pdf"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".pdf"
+    #plot_Vmax_histogram_in_z_bin 3.0 4.0
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".eps"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".eps"
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".pdf"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".pdf"
+    #plot_Vmax_histogram_in_z_bin 2.5 3.0
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".eps"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".eps"
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".pdf"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".pdf"
+    #plot_Vmax_histogram_in_z_bin 2.0 2.5
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".eps"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".eps"
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".pdf"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".pdf"
+    #plot_Vmax_histogram_in_z_bin 1.5 2.0
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".eps"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".eps"
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".pdf"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".pdf"
+    #plot_Vmax_histogram_in_z_bin 1.0 1.5
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".eps"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".eps"
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".pdf"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".pdf"
+    #plot_Vmax_histogram_in_z_bin 0.5 1.0
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".eps"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".eps"
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".pdf"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".pdf"
+    #plot_Vmax_histogram_in_z_bin 0.0 0.5
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".eps"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".eps"
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".pdf"    "Plot_Vmax_histogram_in_z_bin_20160618_"$zMIN"_"$zMAX".pdf"
+    # 
+    # <20160905><dzliu>
+    #plot_Vmax_histogram_in_z_bin 2.5 7.5
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".eps"    "Plot_Vmax_histogram_in_z_bin_20160905_"$zMIN"_"$zMAX".eps"
+    #!mv "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".pdf"    "Plot_Vmax_histogram_in_z_bin_20160905_"$zMIN"_"$zMAX".pdf"
+    # 
+    # <20170117><dzliu>
+    define doMassiveSample 1
+    #plot_Vmax_histogram_in_z_bin 2.5 7.5
+    plot_Vmax_histogram_in_z_bin 2.5 6.5
+    !cp "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".eps"    "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX"_only_massive.eps"
+    !cp "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".pdf"    "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX"_only_massive.pdf"
+    # 
+    define doMassiveSample 0
+    #plot_Vmax_histogram_in_z_bin 2.5 7.5
+    plot_Vmax_histogram_in_z_bin 2.5 6.5
+    !cp "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".eps"    "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX"_all_mass.eps"
+    !cp "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".pdf"    "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX"_all_mass.pdf"
+    # 
+    echo "All done!"
+    
+
+
+
+
+plot_Vmax_histogram_in_z_bin 02
+    # 
+    # set SNR limit
+    set_SNR_limit
+    # 
+    # calc Vmax/Vzbin 
+    if(!$?2) {print 'Error! Input of calc_CSFRD_in_z_bin should be two values: zMIN zMAX\n' {} return}
+    load astroSfig.sm
+    define zMIN $1
+    define zMAX $2
+    if(!$?doMassiveSample) {define doMassiveSample 0}
+    set coo = Mstar>0 && SFR>0 && snrIR>=$limsnr && zphot>$zMIN && zphot<$zMAX && goodArea
+    # 
+    if($doMassiveSample) {
+        set coo = coo && Mstar>10**11.5 #<TODO><20160905> dzliu test plot * SFR
+    }
+    # 
+    set coo_Mstar = Mstar if(coo)
+    set coo_SB = flag_SB if(coo) # flag_SB_MS if(coo)
+    set coo_SFR = SFR if(coo)
+    set coo_Mstar = lg(coo_Mstar) # make Mstar in log space
+    set coo_id = id if(coo)
+    set coo_z = z if(coo)
+    set coo_zmax_for_Vmax = zmax_for_Vmax if(coo)
+    #set coo_v = coo_Mstar
+    #sort {coo_v coo_id coo_z coo_Mstar coo_SFR coo_SB}
+    #print "list_of_selected_Sources_sorted_by_Mstar.txt" '%12.0f%12g%15g%15g%15s\n' {coo_id coo_z coo_Mstar coo_SFR coo_SB}
+    # 
+    # below are from calc_CSFRD.sm
+    # 
+    #define GOODSNAREA 165
+    define GOODSNAREA 134 #<20160513># goodArea see /home/dzliu/Cloud/2016/Publications/goodsn-cat/plots/calc_goodArea_area/calc_goodArea_area.txt
+    # 
+    echo "Computing comoving volume"
+    verbose 0
+    set coo_zmin = coo_z*0.0+$zMIN
+    #set coo_zmax = (coo_zmax_for_Vmax<$zMAX) ? $zMAX : coo_zmax_for_Vmax #<TODO># 
+    set coo_zmax = (coo_zmax_for_Vmax>$zMAX) ? $zMAX : coo_zmax_for_Vmax #<TODO># new daddi corrected
+    #set coo_zmax = coo_zmax_for_Vmax #<TODO># dzliu test 20160529
+    set coo_zcen = (coo_zmin+coo_zmax)/2.0
+    set coo_zdis = (coo_zmax-coo_zmin)
+    set coo_Vmax = calc_comoving_volume(coo_zcen,coo_zdis,$GOODSNAREA) # GOODSN 165 arcmin^2
+    print "coo_Vmax_"$zMIN"_"$zMAX".txt" {coo_z coo_zmin coo_zmax coo_zcen coo_zdis coo_Vmax}
+    # 
+    set coo_zmin = coo_z*0.0+$zMIN
+    set coo_zmax = coo_z*0.0+$zMAX
+    set coo_zcen = coo_z*($zMIN+$zMAX)/2.0
+    set coo_zdis = coo_z*($zMAX-$zMIN)
+    set coo_Vbin = calc_comoving_volume(coo_zcen,coo_zdis,$GOODSNAREA) # GOODSN 165 arcmin^2
+    if(dimen(coo_Vbin)==1) {set coo_Vbin = coo_Vbin + coo_Vmax*0.0}
+    print "coo_Vbin_"$zMIN"_"$zMAX".txt" {coo_z coo_zmin coo_zmax coo_zcen coo_zdis coo_Vbin}
+    # 
+    set coo_zmin = coo_z*0.0+$zMIN
+    set coo_zmax = coo_z
+    set coo_zcen = (coo_zmin+coo_zmax)/2.0
+    set coo_zdis = (coo_zmax-coo_zmin)
+    set coo_Vsou = calc_comoving_volume(coo_zcen,coo_zdis,$GOODSNAREA) # GOODSN 165 arcmin^2
+    # 
+    set obso_SFR = coo_SFR
+    set ave_Vmax = sum(coo_Vmax)/float(dimen(coo_Vmax))
+    set ave_Vsou = sum(coo_Vsou)/float(dimen(coo_Vsou))
+    verbose 1
+    # 
+    # 
+    # compute histogram
+    #set coo_Vrat = coo_Vmax/coo_Vbin #<20160513> daddi corrected
+    set coo_Vrat = coo_Vsou/coo_Vmax #<20160513> daddi corrected
+    # 
+    stats coo_Vrat coo_VratioMean coo_VratioSigma coo_VratioKurt
+    get_hist coo_Vrat plt_x plt_y -0.0 1.0 0.1
+    #<20160618><test>#get_hist coo_Vrat plt_x plt_y -0.0 1.0 0.05
+    load crabPlot.sm
+    crabPlotOpenPS "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".eps"
+    crabPlotDefaultPenForBox
+    limits 0 1 (plt_y*1.35)
+    location 4000 30000 4000 18000
+    if($zMAX==10) {
+        if($zMIN==4.0) {
+            box 1 2 0 0
+        } else {
+            box 0 2 0 0
+        }
+    } else {
+        box
+    }
+    crabPlotDefaultPenForTitle
+    expand 1.75
+    if($zMAX==10) {
+        if($zMIN==4.0) {
+            xlabel "V/V_{max}"
+            ylabel "N"
+        } else {
+            ylabel "N"
+        }
+    } else {
+        xlabel "V/V_{max}"
+        ylabel "N"
+    }
+    crabPlotDefaultPenForConnect
+    ctype blue
+    histogram plt_x plt_y
+    angle 70 lweight 1.5 shade histogram 200 plt_x plt_y angle 0
+    crabPlotDefaultPenForLegend
+    crabPlotRelocate 0.95 0.90
+    #if($zMAX>6.0) {
+    #    ctype blue expand 1.75 putlabel 4 "z>"$zMIN
+    #} else {
+    #    ctype blue expand 1.75 putlabel 4 $zMIN"<z<"$zMAX
+    #}
+    ctype blue expand 1.75 putlabel 4 $zMIN"<z<"$zMAX
+    #crabPlotRelocate 0.625 0.775
+    #puts "<V/V_{max}>="$(sprintf('%0.2f',$coo_VratioMean))
+    crabPlotRelocate 0.95 0.75
+    if(1) {
+        define coo_VratioError $($coo_VratioSigma/sqrt(dimen(coo_z)))
+        ctype blue expand 1.45 putlabel 4 "<V/V_{max}>="$(sprintf('%0.2f',$coo_VratioMean))"\pm"$(sprintf('%0.2f',$coo_VratioError))
+    }
+    crabPlotRelocate 0.95 0.60
+    if($doMassiveSample) {
+        ctype red expand 1.35 putlabel 4 "M_{*}>10^{11.5}\ M_{\odot}"
+    } else {
+        ctype red expand 1.35 putlabel 4 "All M_{*}"
+    }
+    crabPlotClosePS
+    #load crabPlotHistogram.sm
+    #set crabPlotHistogram_xlabel = {"V/Vmax"}
+    #ctype blue lweight 3.5
+    #crabPlotHistogram "Plot_Vmax_histogram_z.eps" coo_Vrat -0.0 1.0 0.1
+    #!cp -f "Plot_Vmax_histogram_z.eps" "Plot_Vmax_histogram_in_z_bin_"$zMIN"_"$zMAX".eps"
+    echo "Done plot"
+    
+
+
+
+
+
+
+
+
+
+
+

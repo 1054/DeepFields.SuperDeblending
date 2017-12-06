@@ -1,0 +1,14 @@
+go
+    # 
+    #  echo "macro read go_print_datatable_ascii.sm go" | sm
+    # 
+    load rfile.sm
+    rfile "GOODSN_FIR+mm_Catalog_20170828_all_columns_v7.with_SFR_total.ascii.txt"
+    set wfile_vectors = rfile_vectors
+    set wfile_separator = '&'
+    set wfile_fmt_z_phot_opt = '%15.3f'
+    set wfile_fmt_z_spec = '%15.4f'
+    set wfile_fmt_z_IR = '%15.3f'
+    set wfile_fmt_e_z_IR = '%15.3f'
+    load wfile.sm
+    wfile "datatable.txt"

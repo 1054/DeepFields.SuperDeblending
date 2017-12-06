@@ -1,0 +1,29 @@
+Found an obvious bug, 
+in "plot_Mstar_SFR.sm"
+
+    # PlotXY
+    set coo = Mstar>0 && SFR>0 && snrIR>=5.0 && zphot>$zMIN && zphot<$zMAX && goodArea
+
+should be 
+
+    # PlotXY
+    set coo = Mstar>0 && SFR>0 && snrIR>=5.0 && zphot>=$zMIN && zphot<$zMAX && goodArea
+
+This affects at least one z=2.5 SB galaxy: ID 14267
+
+
+
+
+
+
+#       id       zspec       zbest       ubest       chi2_min     S_chi2_min     R_chi2_min
+     14267     2.98300     2.98300     101.000       4.253021      0.1855222       4.067499
+     11276    -1.00000     2.75200      50.000       3.639739      0.4081932       3.231546
+     
+     
+#   SAVEDid      xmeAGN       xfAGN       xeAGN      xmeSFR       xfSFR       xeSFR       xfTOT       xeTOT       xf_zz       xe_zz
+      14267       34.36       22.65       22.65       129.5       133.1       13.39       155.4       35.14       2.983           0
+      11276           0       24.87       24.87         191       174.9       96.36       202.1         104         2.5       0.315
+
+
+

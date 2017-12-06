@@ -132,12 +132,20 @@ xfitAGN	01
 			verbose 0
 			if(1) {
 				# read one line data from the input catalog, assuming the header has TWO commented lines
+				echo rfile $in_Catalog $(EeE[0]+2) $(EeE[0]+2)
 				rfile $in_Catalog $(EeE[0]+2) $(EeE[0]+2)
 				rfile_compatible_check
 			}
 			if($1!=id) {
 				# read one line data from the input catalog, assuming the header has ONE commented lines
+				echo rfile $in_Catalog $(EeE[0]+1) $(EeE[0]+1)
 				rfile $in_Catalog $(EeE[0]+1) $(EeE[0]+1)
+				rfile_compatible_check
+			}
+			if($1!=id) {
+				# read one line data from the input catalog, assuming the header has ZERO commented lines?
+				echo rfile $in_Catalog $(EeE[0]) $(EeE[0])
+				rfile $in_Catalog $(EeE[0]) $(EeE[0])
 				rfile_compatible_check
 			}
 			if($1!=id) {

@@ -1,0 +1,15 @@
+We cross-match to 3D-HST catalog 'goodsn_3dhst.v4.1.cat.FITS' with matching radius 1.0 arcsec, 
+then get rest-frame 1400 \AA and 1700 \AA flux densities from 3D-HST catalog 'RF_colors/goodsn_3dhst.v4.1.master.RF.FITS', 
+then compute SFR with Kennicutt 1998 ARA&A (doi:) Eq (1):
+    SFR = 1.4e-28 * L_{\nu}
+where SFR is in unit of Msun/yr, and L_{\nu} is in unit of (ergs s-1 Hz-1). 
+then we also divided by 1.73 to convert SFR from Salpeter IMF calibratoin to Chabrier IMF calibraiton:
+    SFR = SFR / 1.73
+
+
+
+see the code 
+    'RadioOwenMIPS24_priors_dzliu_20170905_SFR_UV_matched_3DHST/a_dzliu_code_compute_SFR_UV_IR_20171023.bash' 
+for details. 
+
+

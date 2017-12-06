@@ -1,0 +1,108 @@
+% Table 1
+% 
+% see /home/dzliu/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016/S02_Superdeblending_FIR_results/dzliu_goodsn_final_table_1_20160309_tex.txt
+% 
+% AAS table format guide: http://journals.aas.org/authors/aastex/aasguide.html#tables
+% 
+
+\begin{table*}
+
+\begin{center}
+
+\caption{ %
+    GOODS-N {\em ``Super-deblended''} Photometry Results %
+    \label{Table_1} %
+}
+
+\begin{tabular*}{0.85\textwidth}{ @{\extracolsep{\fill}} c c c c c c c c c }
+
+        \hline
+        Band         &       Instrument  & Beam FWHM \tablenotemark{a} %
+                                         & $\rho_{\mathrm{fit}}$ \tablenotemark{b} %
+                                         & $N_{\mathrm{fit}}$ \tablenotemark{c} %
+                                         & $N_{\mathrm{excl.}}$ \tablenotemark{d} %
+                                         & $N_{\mathrm{S/N}{\ge}3}$ \tablenotemark{e} %
+                                         & $N_{\mathrm{add.}}$ \tablenotemark{f} %
+                                         & $1\,\bar{{\sigma}}$ \tablenotemark{g} \\
+                     &                   & arcsec %
+                                         & beam$^{-1}$ %
+                                         & %
+                                         & %
+                                         & %
+                                         & %
+                                         & mJy \\
+        \hline
+        $24{\mu}m$   &        Spitzer/MIPS  &                        5.7 &           1.205 &         19437 &           0 &             3056 &                      0 &        5.165$\times 10^{-3}$ \\
+        $20{c}m$     &                 VLA  &  1.7/2.0 \tablenotemark{h} &           0.107 &         19437 &           0 &             1328 &                      0 &        2.744$\times 10^{-3}$ \\
+        $16{\mu}m$   &     Spitzer/IRS/PUI  &                        3.6 &           0.082 &          3306 &           0 &             1335 &                      0 &        7.681$\times 10^{-3}$ \\
+        $100{\mu}m$  &       Herschel/PACS  &                        7.2 &           0.326 &          3294 &          12 &             1178 &                      0 &                 0.315 \\
+        $160{\mu}m$  &       Herschel/PACS  &                       12.0 &           0.862 &          3137 &         169 &             1153 &                     18 &                 0.681 \\
+        $250{\mu}m$  &      Herschel/SPIRE  &                       18.2 &           0.973 &          1540 &        1766 &              668 &                     13 &                 1.571 \\
+        $350{\mu}m$  &      Herschel/SPIRE  &                       24.9 &           1.142 &           966 &        2340 &              292 &                     10 &                 2.072 \\
+        $500{\mu}m$  &      Herschel/SPIRE  &                       36.3 &           1.181 &           470 &        2836 &              125 &                     17 &                 2.570 \\
+        $850{\mu}m$  &         JCMT/SCUBA2  &     11.0 \tablenotemark{i} &           0.154 &           668 &        2638 &               32 &                     15 &                 1.249 \\
+        $1160{\mu}m$ &         AzTEC+MAMBO  &                       19.5 &           0.374 &           515 &        2791 &               43 &                     11 &                 0.661 \\
+        \hline
+        
+\end{tabular*}
+
+\begin{minipage}{0.82\textwidth}
+    
+\flushleft
+
+$^\mathrm{a}$ 
+    Beam FWHM is the full width at half maximum of the circular-Gaussian-approximation point spread function of each image data. %
+
+$^\mathrm{b}$ 
+    $\rho_{\mathrm{fit}}$ is the number density of prior sources fitted at each band, normalized by the Gaussian-approximation beam area. %
+
+$^\mathrm{c}$ 
+    $N_{\mathrm{fit}}$ is the number of prior sources fitted at each band. %
+
+$^\mathrm{d}$ 
+    $N_{\mathrm{excl.}}$ is the number of prior sources excluded from fitting at each band. These sources are subtracted from original image with their spectral energy distribution predicted flux density at each band. %
+
+$^\mathrm{e}$ 
+    $N_{\mathrm{S/N}{\ge}3}$ is the number of prior sources with $\mathrm{S/N}\ge3$ (i.e. detected) at each band. %
+
+$^\mathrm{f}$ 
+    $N_{\mathrm{add.}}$ is the number of $\mathrm{S/N}\ge3$ additional sources that are not in the prior source catalog but blindly-extracted from the intermediate residual image product at each band (see Section~\ref{Section_Additional_Sources_In_Residual}). %
+
+%\tablenotetext{d}{%F
+%    $1\,{\sigma}^{sim}$ is the one sigma noise derived from Monte-Carlo simulation. %
+%}
+$^\mathrm{g}$ 
+    $1\,\bar{{\sigma}}$ is the median of the flux density uncertainties of all sources detected with S/N${\ge}3$ in each band. 
+    %<20170116><dzliu><Mark-Sargent's-Comment>% The unit is mJy in default. 
+    % 
+    % 20160913 
+    % /home/dzliu/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016C_850um/20160909/Galfit_Band850_WithAddSources_ApplySimuBasedCorrection_BUGGY/results_850_20160909_vary__fluxes.txt
+    % /home/dzliu/Data/DeepFields/Data/daddi_and_dzliu_goodsn_2016C_850um/20160909/calc_850_detection/calc_850_detection.sm
+
+$^\mathrm{h}$ 
+    The shallower VLA image data from \cite{Morrison2010} have a beam FWHM of 1.7'', and the deeper VLA image data from Owen (2017) are especially produced with a beam FWHM of 2.0''. 
+
+$^\mathrm{i}$ 
+    We use the non-match-filtered (NMF) image, which has a smaller PSF than the 14.8'' match-filtered image PSF. 
+
+\end{minipage}
+
+\end{center}
+
+\end{table*}
+
+
+
+% 201708
+% 850_NMF, S/N>=3.0 source number: 43. S/N>=3.0 source flux uncertainty (corrected) median = 1.16907 mJy, mean = 1.27736207 mJy. 
+
+
+% 201710 -- '/Users/dzliu/Work/DeepFields/Works/GOODSN_Photometry/Galfit_850/Galfit_Band850_NMF_Pass7_NewXback_WithAddSources_Revised/'
+% 850_NMF, S/N>=3.0 source number: 32+15. S/N>=3.0 source flux uncertainty (corrected) median = 1.24818 mJy, mean = 1.346603351 mJy. 
+
+
+
+
+
+
+

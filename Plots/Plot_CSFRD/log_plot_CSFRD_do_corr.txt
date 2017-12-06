@@ -1,0 +1,107 @@
+Read lines 1 to 1 from set_input_date
+Read lines 1 to 1 from set_do_corr
+crabPlotOpenPS: Opening "Plot_CSFRD_v1_CompletenessCorrected.eps" 
+Read lines 1 to 853 from plot_axis_top_grid.txt
+Extending i/o stack
+
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+Reading and plotting datatable_RowanRobinson2016_for_plot.plt
+ctype darkgray
+expand 2.5
+xcol 1
+ycol 2
+yecol 3 4
+legend Rowan-Robinson et al. (2016)
+legend expand 0.75
+legend lweight 3.5
+Reading and plotting datatable_Novak2017_for_plot.plt
+ctype darkgray
+expand 2.9
+xcol 1
+ycol 2
+yecol 3 4
+legend Novak et al. (2017)
+legend expand 0.75
+legend lweight 3.5
+Madau & Dickinson 2014 z=4.5 lgCSFRD=-1.608266724
+Madau & Dickinson 2014 z=5.5 lgCSFRD=-1.811477363
+Read lines 1 to 29 from datatable__CSFRD_correction__Go.txt
+Read lines 1 to 29 from datatable__CSFRD_correction__Go.txt
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+Read lines 1 to 29 from datatable__CSFRD_correction__Go.txt
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+Read lines 1 to 29 from datatable__CSFRD_correction__Go.txt
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+Read lines 1 to 29 from datatable__CSFRD_correction__Go.txt
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+Read lines 1 to 29 from datatable__CSFRD_correction__Go.txt
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+Read lines 1 to 29 from datatable__CSFRD_correction__Go.txt
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+Read lines 1 to 29 from datatable__CSFRD_correction__Go.txt
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+Read lines 1 to 29 from datatable__CSFRD_correction__Go.txt
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+Read lines 1 to 29 from datatable__CSFRD_correction__Go.txt
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+Read lines 1 to 29 from datatable__CSFRD_correction__Go.txt
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+Read lines 1 to 29 from datatable__CSFRD_correction__Go.txt
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+#         z_low         z_high     lgoneplusz          CSFRD         eCSFRD         cCSFRD          fcorr                 SMF
+# Below are 1/Vmax and boostrapping CSFRD from GOODSN Superdeblending 201612 goodArea SNR>=5 sources
+              0            0.2      0.0413927       -1.85161       0.163946       -1.85161              1              Muzzin
+              0            0.2      0.0413927       -1.85161       0.163946       -1.85161              1              Ilbert
+              0            0.2      0.0413927       -1.85161       0.163946       -1.85161              1            Davidzon
+            0.2            0.4       0.113943       -1.81821       0.113683       -1.80478        0.96953              Muzzin
+            0.2            0.4       0.113943       -1.81821       0.113683       -1.83011        1.02778              Ilbert
+            0.2            0.4       0.113943       -1.81821       0.113683       -1.77568       0.906707            Davidzon
+            0.4            0.6       0.176091       -1.34867      0.0770781       -1.31488       0.925163              Muzzin
+            0.4            0.6       0.176091       -1.34867      0.0770781       -1.33113       0.960428              Ilbert
+            0.4            0.6       0.176091       -1.34867      0.0770781       -1.29321       0.880127            Davidzon
+            0.6            0.8       0.230449       -1.53102      0.0961594        -1.4759       0.880797              Muzzin
+            0.6            0.8       0.230449       -1.53102      0.0961594       -1.48191       0.893077              Ilbert
+            0.6            0.8       0.230449       -1.53102      0.0961594       -1.46225       0.853548            Davidzon
+            0.8              1       0.278754       -1.19897      0.0671891       -1.13741       0.867857              Muzzin
+            0.8              1       0.278754       -1.19897      0.0671891       -1.13743       0.867892              Ilbert
+            0.8              1       0.278754       -1.19897      0.0671891       -1.12452       0.842474            Davidzon
+              1            1.5       0.352183       -1.26258       0.062252       -1.19886       0.863546              Muzzin
+              1            1.5       0.352183       -1.26258       0.062252       -1.19119       0.848417              Ilbert
+              1            1.5       0.352183       -1.26258       0.062252       -1.18278       0.832139            Davidzon
+            1.5              2       0.439333       -1.38328       0.074784       -1.23913       0.717543              Muzzin
+            1.5              2       0.439333       -1.38328       0.074784       -1.23347       0.708261              Ilbert
+            1.5              2       0.439333       -1.38328       0.074784       -1.15013       0.584594            Davidzon
+              2            2.5       0.511883       -1.16952      0.0565354       -1.09766       0.847505              Muzzin
+              2            2.5       0.511883       -1.16952      0.0565354      -0.982612       0.650267              Ilbert
+              2            2.5       0.511883       -1.16952      0.0565354      -0.805525       0.432518            Davidzon
+            2.5              3       0.574031        -1.5339       0.146383       -1.50886        0.94399              Muzzin
+            2.5              3       0.574031        -1.5339       0.146383       -1.32247       0.614572              Ilbert
+            2.5              3       0.574031        -1.5339       0.146383       -1.16071       0.423467            Davidzon
+              3              4       0.653213       -1.35256      0.0864811       -1.26276       0.813207              Muzzin
+              3              4       0.653213       -1.35256      0.0864811       -1.12022       0.585681              Ilbert
+              3              4       0.653213       -1.35256      0.0864811      -0.761944       0.256677            Davidzon
+              4              5       0.740363       -1.61896       0.145308       -1.31255       0.493845     Madau&Dickinson
+              5              6       0.812913       -2.03989       0.163513       -1.60981       0.371466     Madau&Dickinson
+crabPlotClosePS: Output to "Plot_CSFRD_v1_CompletenessCorrected.eps"! 

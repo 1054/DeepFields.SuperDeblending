@@ -16,12 +16,13 @@ wfile 01
         return
     }
     # 
-    # set wfile_headers
+    # set wfile_headers and write column headers
     set wfile_headers = wfile_vectors
     define print_noheader 1
     define wfile_has_header 0
     declare wfile_fmws 0.d
-    foreach wfile_vec wfile_headers {
+    do wfile_j=0,dimen(wfile_headers)-1 {
+        define wfile_vec $(wfile_headers[$wfile_j])
         set wfile_str = string('$wfile_vec')
         set wfile_fmw = 15
         # set column width larger than strlen(wfile_str)+2
@@ -39,9 +40,12 @@ wfile 01
             if(int(wfile_fmt)>0) {set wfile_fmw = int(wfile_fmt)}
         }
         if($wfile_has_header==0) {
-            print $1 '\# %$(wfile_fmw-2)s' {wfile_str}
+            print $1 '\# %$(wfile_fmw-1)s' {wfile_str}
         } else {
-            print +$1 '%$(wfile_fmw)s' {wfile_str}
+            print +$1 ' %$(wfile_fmw)s' {wfile_str}
+        }
+        if(is_vector(wfile_separator)) {
+            print +$1 ' %s' {wfile_separator}
         }
         set wfile_fmws = wfile_fmws concat wfile_fmw
         define wfile_has_header 1
@@ -49,6 +53,8 @@ wfile 01
     print +$1 '\n\# \n' {}
     !echo -n "Writing to "$1" 0%"
     #return
+    # 
+    # write data content
     set wfile_vec_1 = $(wfile_headers[0])
     do wfile_i=0,dimen(wfile_vec_1)-1 {
         do wfile_j=0,dimen(wfile_headers)-1 {
@@ -68,6 +74,7 @@ wfile 01
             if(wfile_str=='_ra' || index(wfile_str,'_ra_')==0) { set wfile_fmt = '%$(wfile_fmw).7f' }
             if(wfile_str=='_de' || index(wfile_str,'_de_')==0) { set wfile_fmt = '%$(wfile_fmw).7f' }
             if(index(wfile_str,'_str')>0 && index(wfile_str,'_str')==strlen(wfile_str)-strlen('_str')) { set wfile_fmt = '%$(wfile_fmw)s' }
+            if(index(wfile_str,'_STR')>0 && index(wfile_str,'_STR')==strlen(wfile_str)-strlen('_STR')) { set wfile_fmt = '%$(wfile_fmw)s' }
             if(index(wfile_str,'Name')>=0) { set wfile_fmt = '%$(wfile_fmw)s' }
             if(index(wfile_fmt,'s')==-1) { set wfile_val = float(wfile_val) }
             # allow user-specified format
@@ -79,7 +86,10 @@ wfile 01
                 if(index(wfile_fmt,'g')>=0) {set wfile_fmt = wfile_fms}
                 if(index(wfile_fmt,'e')>=0) {set wfile_fmt = wfile_fms}
             }
-            print +$1 '$(wfile_fmt)' {wfile_val}
+            print +$1 ' $(wfile_fmt)' {wfile_val}
+            if(is_vector(wfile_separator) && $wfile_j!=dimen(wfile_headers)-1) {
+                print +$1 ' %s' {wfile_separator}
+            }
         }
         print +$1 '\n' {}
         # print progress

@@ -1,0 +1,28 @@
+# Aim:
+#   convert "datatable_Novak2017.dat"
+#   to "datatable_Novak2017_for_plot.plt"
+#   which is used by crabPlotDataFile.sm
+# 
+# Usage:
+#   echo "input datatable_Novak2017_for_plot.sm" | sm
+# 
+data "datatable_Novak2017.dat"
+read {z_lo 1 z_hi 2 SFR 3 SFR_err_lo 4 SFR_err_hi 5}
+set z = (z_lo+z_hi)/2.0
+set lgopz = lg(1.0+z)
+set SFR = SFR # they are using ChabrierIMF, same as Gruppioni et al. (2013) MNRAS
+set SFR_lo = SFR - SFR_err_lo
+set SFR_hi = SFR + SFR_err_hi
+print "datatable_Novak2017_for_plot.plt" '\# \n' {}
+print +"datatable_Novak2017_for_plot.plt" '\# x 1\n' {}
+print +"datatable_Novak2017_for_plot.plt" '\# y 2\n' {}
+print +"datatable_Novak2017_for_plot.plt" '\# yerr 3 4\n' {}
+print +"datatable_Novak2017_for_plot.plt" '\# ctype darkgray\n' {}
+print +"datatable_Novak2017_for_plot.plt" '\# ptype 3 3\n' {}
+print +"datatable_Novak2017_for_plot.plt" '\# expand 2.9\n' {}
+print +"datatable_Novak2017_for_plot.plt" '\# legend-size 0.75\n' {}
+print +"datatable_Novak2017_for_plot.plt" '\# legend-with-symbol 2.0\n' {}
+print +"datatable_Novak2017_for_plot.plt" '\# legend \"Novak et al. (2017)\"\n' {}
+print +"datatable_Novak2017_for_plot.plt" '\# \n' {}
+print +"datatable_Novak2017_for_plot.plt" '%12g %12g %12g %12g %12g %12g %12g\n' {lgopz SFR SFR_lo SFR_hi z z_lo z_hi}
+echo "Written to datatable_Novak2017_for_plot.plt"

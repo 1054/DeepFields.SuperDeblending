@@ -1,0 +1,384 @@
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+help points
+help expand
+quit
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+!ls ../Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_Histogram/list_*_Schechter_Correction_z_bin_*.txt
+!ls ../Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_Histogram/list_*_Schechter_Correction_z_bin_2.0_2.5_intrinsic.txt
+!cat ../Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_Histogram/list_*_Schechter_Correction_z_bin_2.0_2.5_intrinsic.txt
+!grep "rho(SMF_SFR)" ../Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_Histogram/list_*_Schechter_Correction_z_bin_$(zMinStr)_$(zMaxStr)_intrinsic.txt
+define zMIN 2.0
+define zMAX 2.5
+    set zMinStr = sprintf('%0.1d',$zMIN)
+    set zMaxStr = sprintf('%0.1d',$zMAX)
+    set zMinStr = sprintf('%0.1f',$zMIN)
+    set zMaxStr = sprintf('%0.1f',$zMAX)
+    set zMinStr = sprintf('%0.1f',$zMIN)
+    set zMaxStr = sprintf('%0.1f',$zMAX)
+    set zMinStr = sprintf('%0.1f',float($zMIN))
+    set zMaxStr = sprintf('%0.1f',float($zMAX))
+!grep "rho(SMF_SFR)" ../Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_Histogram/list_*_Schechter_Correction_z_bin_$(zMinStr)_$(zMaxStr)_intrinsic.txt
+!grep 'rho(SMF_SFR)' ../Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_Histogram/list_*_Schechter_Correction_z_bin_$(zMinStr)_$(zMaxStr)_intrinsic.txt
+quit
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+help label
+help axis
+help notation
+help label_offset
+quit
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+help xlabel
+quit
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT
+input datatable_Madau2014_IR_for_plot.sm
+QUIT
+input datatable_Madau2014_UV_for_plot.sm
+QUIT
+input datatable_RowanRobinson2016_for_plot.sm
+QUIT
+input datatable_Novak2017_for_plot.sm
+QUIT

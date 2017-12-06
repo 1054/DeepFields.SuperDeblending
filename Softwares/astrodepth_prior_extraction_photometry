@@ -125,21 +125,21 @@ for (( i=0; i<${#AstroDepth_INP_CATALOG[@]}; i++ )); do
         fi
         if [[ $(echo "${AstroDepth_INP_CATALOG[i]}" | tr '[:upper:]' '[:lower:]') == *".fits" ]]; then
             # if FITS data table, then we need python to read them. 
-            echo "#!/usr/bin/env python2.7"                                       >  "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
-            echo "#"                                                              >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
-            echo "import os, sys"                                                 >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
-            echo "sys.path.append('$AstroDepth_ScriptDir')"                       >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
-            echo "os.chdir('$(pwd -P)')"                                          >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
-            echo "from CrabFitsTable import CrabFitsTable"                        >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
-            echo "Cat = CrabFitsTable('${AstroDepth_INP_CATALOG[i]}')"            >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
-            echo "if Cat:"                                                        >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
-            echo "    Cat_ID = Cat.getColumn($AstroDepth_Catalog_ID_Column)"      >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
-            echo "    Cat_RA = Cat.getColumn($AstroDepth_Catalog_RA_Column)"      >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
-            echo "    Cat_DEC = Cat.getColumn($AstroDepth_Catalog_DEC_Column)"    >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
-            echo "    if len(Cat_ID)>0 and len(Cat_RA)>0 and len(Cat_DEC)>0:"     >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
-            echo "        Cat_ID = Cat_ID.astype(str)"                            >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
-            echo "        Cat_RA = Cat_RA.astype(float)"                          >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
-            echo "        Cat_DEC = Cat_DEC.astype(float)"                        >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "#!/usr/bin/env python"                                                                 >  "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "#"                                                                                     >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "import os, sys"                                                                        >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "sys.path.append('$AstroDepth_ScriptDir'+os.sep+'lib_python_dzliu'+os.sep+'crabtable')" >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "os.chdir('$(pwd -P)')"                                                                 >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "from CrabTable import CrabTable"                                                       >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "Cat = CrabTable('${AstroDepth_INP_CATALOG[i]}')"                                       >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "if Cat:"                                                                               >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "    Cat_ID = Cat.getColumn($AstroDepth_Catalog_ID_Column)"                             >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "    Cat_RA = Cat.getColumn($AstroDepth_Catalog_RA_Column)"                             >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "    Cat_DEC = Cat.getColumn($AstroDepth_Catalog_DEC_Column)"                           >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "    if len(Cat_ID)>0 and len(Cat_RA)>0 and len(Cat_DEC)>0:"                            >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "        Cat_ID = Cat_ID.astype(str)"                                                   >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "        Cat_RA = Cat_RA.astype(float)"                                                 >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "        Cat_DEC = Cat_DEC.astype(float)"                                               >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
             # <TODO> what if RA DEC are sexagesimal?
             
             # process mask column
@@ -342,6 +342,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             if [[ $(awk "BEGIN { if(${AstroDepth_INP_VALUE_RMS[j]}>0) print 1; else print 0;}") -eq 1 ]]; then
                 echo "We will generate an uniform RMS image with value ${AstroDepth_INP_VALUE_RMS[j]}!"
                 echo "${AstroDepth_INP_VALUE_RMS[j]}" > "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_rms_input.txt"
+                echo "${AstroDepth_INP_VALUE_RMS[j]}" > "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_sci_pixnoise.txt" #<20171123># bug corrected.
             else
                 echo "We will generate an uniform RMS image with value 1.0!"
                 echo "1.0" > "$AstroDepth_OutputDir/$AstroDepth_OutputName/image_rms_input.txt"
@@ -727,20 +728,6 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                     else
                         echo "Found existing \"fit_2.fits\"! We will not overwrite it unless given \"-overwrite gaussian\" option!"
                     fi
-                    # 
-                    if [[ ! -f "fit_3.fits" ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " gaussian " ]]; then
-                        echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit 3\""
-                        echo "macro read astrodepth_go_galfit.sm go_galfit 3" | sm > "astrodepth_go_galfit_3.log"
-                        # check output successful or not
-                        if [[ ! -f "fit_3.fits" ]]; then 
-                            echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_3\"! Sorry!"
-                            echo "Log file: \"astrodepth_go_galfit_3.log\""; cat "astrodepth_go_galfit_3.log"
-                            rm "astrodepth_lock_gaussian"
-                            exit 1
-                        fi
-                    else
-                        echo "Found existing \"fit_3.fits\"! We will not overwrite it unless given \"-overwrite gaussian\" option!"
-                    fi
                 else
                     echo "No catalog source with enough SNR for galfit! Do only getpix!"
                 fi
@@ -770,18 +757,18 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
             if [[ ! -f "No_catalog_source_within_image" ]]; then
                 if [[ ! -f "No_catalog_source_with_enough_getpix_SNR" ]]; then
                     # 
-                    if [[ ! -f "fit_4.fits" ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " sersic " ]]; then
-                        echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit 4\""
-                        echo "macro read astrodepth_go_galfit.sm go_galfit 4" | sm > "astrodepth_go_galfit_4.log"
+                    if [[ ! -f "fit_3.fits" ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " sersic " ]]; then
+                        echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit 3\""
+                        echo "macro read astrodepth_go_galfit.sm go_galfit 3" | sm > "astrodepth_go_galfit_3.log"
                         # check output successful or not
-                        if [[ ! -f "fit_4.fits" ]]; then 
-                            echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_4\"! Sorry!"
-                            echo "Log file: \"astrodepth_go_galfit_4.log\""; cat "astrodepth_go_galfit_4.log"
+                        if [[ ! -f "fit_3.fits" ]]; then 
+                            echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_3\"! Sorry!"
+                            echo "Log file: \"astrodepth_go_galfit_3.log\""; cat "astrodepth_go_galfit_3.log"
                             rm "astrodepth_lock_sersic"
                             exit 1
                         fi
                     else
-                        echo "Found existing \"fit_4.fits\"! We will not overwrite it unless given \"-overwrite sersic\" option!"
+                        echo "Found existing \"fit_3.fits\"! We will not overwrite it unless given \"-overwrite sersic\" option!"
                     fi
                 else
                     echo "No catalog source with enough SNR for galfit! Do only getpix!"
@@ -956,20 +943,6 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
                         fi
                     else
                         echo "Found existing \"fit_n3.fits\"! We will not overwrite it unless given \"-overwrite negative\" option!"
-                    fi
-                    # 
-                    if [[ ! -f "fit_n4.fits" ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " negative " ]]; then
-                        echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_n4\""
-                        echo "macro read astrodepth_go_galfit.sm go_galfit_n4" | sm > "astrodepth_go_galfit_n4.log"
-                        # check output successful or not
-                        if [[ ! -f "No_catalog_source_within_image" && ! -f "fit_n4.fits" ]]; then 
-                            echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine \"go_galfit_n4\"! Sorry!"
-                            echo "Log file: \"astrodepth_go_galfit_n4.log\""; cat "astrodepth_go_galfit_n4.log"
-                            rm "astrodepth_lock_negative"
-                            exit 1
-                        fi
-                    else
-                        echo "Found existing \"fit_n4.fits\"! We will not overwrite it unless given \"-overwrite negative\" option!"
                     fi
                 else
                     echo "No catalog source with enough SNR for galfit fitting! Do only getpix!"

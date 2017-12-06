@@ -44,6 +44,7 @@ while [[ $# -gt 0 ]]; do
             shift
             DS9GALFIT_TITLE="$1"
         fi
+        shift
         continue
     fi
     if [[ "$TempStr" == *".fits" ]]; then

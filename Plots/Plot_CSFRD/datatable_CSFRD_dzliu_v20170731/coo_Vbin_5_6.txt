@@ -1,0 +1,5 @@
+#      coo_z    coo_zmin    coo_zmax    coo_zcen    coo_zdis    coo_Vbin
+#
+        5.47           5           6         5.5           1   3.759e+05
+       5.551           5           6         5.5           1   3.759e+05
+        5.11           5           6         5.5           1   3.759e+05

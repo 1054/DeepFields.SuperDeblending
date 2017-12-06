@@ -1,0 +1,236 @@
+fit_CSFRD_Gladders2013
+    # 
+    #  echo "macro read a_dzliu_code_fit_CSFRD.sm fit_CSFRD_Gladders2013" | sm
+    # 
+    data "log_make_cosmic_sfr_plot.log"
+    read {lgopz 3 eCSFRD 5 CSFRD 6}
+    set z = 10**lgopz-1.0
+    declare all_param_a 0.f
+    declare all_param_b 0.f
+    declare all_chi2 0.f
+    declare all_norm 0.f
+    do loop_a = 1.30, 1.70, 0.01 {
+      do loop_b = 0.62, 0.70, 0.01 {
+        set param_a = $loop_a # 1.64
+        set param_b = $loop_b # 0.66
+        set f1 = func_Gladders2013_CSFRD(z, param_a, param_b)
+        set f1 = lg(f1)
+        set a1 = (CSFRD-f1)
+        stats a1 a1mean a1sigma a1kurt
+        set a1 = $a1mean
+        set chi2 = sum((CSFRD-f1-a1)**2)
+        #print {CSFRD f1}
+        #echo param_a=$(param_a) param_b=$(param_b) chi2=$(chi2)
+        set all_param_a = all_param_a concat param_a
+        set all_param_b = all_param_b concat param_b
+        set all_chi2 = all_chi2 concat chi2
+        set all_norm = all_norm concat a1
+      }
+    }
+    sort {all_chi2 all_param_a all_param_b all_norm}
+    print "log_fit_cosmic_sfr_by_Gladders2013_function.txt" {all_chi2 all_param_a all_param_b all_norm}
+    !head -n 15 "log_fit_cosmic_sfr_by_Gladders2013_function.txt"
+    #set coo = 0,15-1
+    #foreach var {all_chi2 all_param_a all_param_b all_norm} {set $var = $var[coo]}
+
+
+fit_CSFRD_MadauDickinson2014
+    # 
+    #  echo "macro read a_dzliu_code_fit_CSFRD.sm fit_CSFRD_MadauDickinson2014" | sm
+    # 
+    data "log_make_cosmic_sfr_plot.log"
+    read {lgopz 3 eCSFRD 5 CSFRD 6}
+    set z = 10**lgopz-1.0
+    declare all_param_a 0.f
+    declare all_param_b 0.f
+    declare all_param_c 0.f
+    declare all_chi2 0.f
+    declare all_norm 0.f
+    # 
+    # <20171028b> try fixing param_b to 2.90
+    #             previously I was using -- do loop_b = 2.9-1.9, 2.9+0.0, 0.02
+    # 
+    # <20171028c> try varying param_b from 2.90-1.0 to 2.90+1.0
+    #             previously I was using -- do loop_b = 2.9-1.9, 2.9+0.0, 0.02
+    # 
+    do loop_a = 2.7-3.5, 2.7+3.5, 0.05 {
+        do loop_b = 2.9-1.0, 2.9+1.0, 0.05 {
+            do loop_c = 5.6-0.6, 5.6+0.6, 0.05 {
+                set param_a = $loop_a # 2.7 -- 4.2
+                set param_b = $loop_b # 2.9 -- 2.2
+                set param_c = $loop_c # 5.6 -- 5.2
+                set f1 = func_MadauDickinson2014_CSFRD(z, param_a, param_b, param_c)
+                set f1 = lg(f1)
+                set a1 = (CSFRD-f1)
+                stats a1 a1mean a1sigma a1kurt
+                set a1 = $a1mean
+                set chi2 = sum((CSFRD-f1-a1)**2)
+                #print {CSFRD f1}
+                #echo param_a=$(param_a) param_b=$(param_b) chi2=$(chi2)
+                set all_param_a = all_param_a concat param_a
+                set all_param_b = all_param_b concat param_b
+                set all_param_c = all_param_c concat param_c
+                set all_chi2 = all_chi2 concat chi2
+                set all_norm = all_norm concat a1
+            }
+        }
+    }
+    sort {all_chi2 all_param_a all_param_b all_param_c all_norm}
+    print "log_fit_cosmic_sfr_by_MadauDickinson2014_function.txt" {all_chi2 all_param_a all_param_b all_param_c all_norm}
+    !head -n 15 "log_fit_cosmic_sfr_by_MadauDickinson2014_function.txt"
+    #set coo = 0,15-1
+    #foreach var {all_chi2 all_param_a all_param_b all_param_c all_norm} {set $var = $var[coo]}
+    #print {all_chi2 all_param_a all_param_b all_param_c all_norm}
+
+
+
+analyze_chi2_Gladders2013
+    # 
+    #  echo "macro read a_dzliu_code_fit_CSFRD.sm analyze_chi2_Gladders2013" | sm
+    # 
+    # 20171028
+    # 
+    data "log_fit_cosmic_sfr_by_Gladders2013_function.txt" read {chi2 1.f param_a 2.f param_b 3.f norm 4.f}
+    set N_param = 3
+    set d_chi2 = 3.53 # number of interesting parameters 3 --> Delta = 3.53, Press 1992 Book "Numerical Recipes in C" - Chapter 15.6 (PDF page 721 of 1018) -- this book cites both Avni 1976 and Lampton et al. 1976
+    vecminmax chi2 chi2_MIN chi2_MAX
+    # 
+    foreach var {param_a param_b norm} {
+        set revchi2 = 1/chi2
+        load crabPlot.sm
+        crabPlotOpenPS "log_fit_cosmic_sfr_by_Gladders2013_function_plot_chi2_distribution_"$var".eps"
+        limits $var revchi2
+        box
+        xlabel $var
+        ylabel "1/\chi^2"
+        points $var revchi2
+        ctype red ltype 2 rel $fx1 $(1/$chi2_MIN) draw $fx2 $(1/$chi2_MIN)
+        crabPlotClosePS
+        !rm "log_fit_cosmic_sfr_by_Gladders2013_function_plot_chi2_distribution_"$var".{eps,pdfmarks,pdfconverts}"
+    }
+    # 
+    set coo = (chi2<=($chi2_MIN+d_chi2))
+    foreach var {chi2 param_a param_b norm} {set $var = $var if(coo)}
+    stats_med param_a param_a_median param_a_siqr
+    stats_med param_b param_b_median param_b_siqr
+    stats_med norm    norm_median    norm_siqr
+    !date +'%Y-%m-%d %H:%M:%S %Z'           >  "log_fit_cosmic_sfr_by_Gladders2013_function_best_fit.txt"
+    !echo param_a_median = $param_a_median  >> "log_fit_cosmic_sfr_by_Gladders2013_function_best_fit.txt"
+    !echo param_b_median = $param_b_median  >> "log_fit_cosmic_sfr_by_Gladders2013_function_best_fit.txt"
+    !echo norm_median = $norm_median        >> "log_fit_cosmic_sfr_by_Gladders2013_function_best_fit.txt"
+    !cat                                       "log_fit_cosmic_sfr_by_Gladders2013_function_best_fit.txt"
+    # 2017-10-28 15:18:15 CEST
+    # param_a_median = 1.5
+    # param_b_median = 0.66
+    # norm_median = -0.2425
+
+
+
+analyze_chi2_MadauDickinson2014
+    # 
+    #  echo "macro read a_dzliu_code_fit_CSFRD.sm analyze_chi2_MadauDickinson2014" | sm
+    # 
+    # 20171028
+    # 
+    data "log_fit_cosmic_sfr_by_MadauDickinson2014_function.txt" read {chi2 1.f param_a 2.f param_b 3.f param_c 4.f norm 5.f}
+    set N_param = 4
+    set d_chi2 = 4.72 # number of interesting parameters 4 --> Delta = 4.72, Press 1992 Book "Numerical Recipes in C" - Chapter 15.6 (PDF page 721 of 1018) -- this book cites both Avni 1976 and Lampton et al. 1976
+    vecminmax chi2 chi2_MIN chi2_MAX
+    # 
+    foreach var {param_a param_b param_c norm} {
+        set revchi2 = 1/chi2
+        load crabPlot.sm
+        crabPlotOpenPS "log_fit_cosmic_sfr_by_MadauDickinson2014_function_plot_chi2_distribution_"$var".eps"
+        limits $var revchi2
+        box
+        xlabel $var
+        ylabel "1/\chi^2"
+        points $var revchi2
+        ctype red ltype 2 rel $fx1 $(1/$chi2_MIN) draw $fx2 $(1/$chi2_MIN)
+        crabPlotClosePS
+        !rm "log_fit_cosmic_sfr_by_MadauDickinson2014_function_plot_chi2_distribution_"$var".{eps,pdfmarks,pdfconverts}"
+    }
+    # 
+    vecminmax chi2 chi2_MIN chi2_MAX
+    set coo = (chi2<=($chi2_MIN+d_chi2))
+    foreach var {chi2 param_a param_b param_c norm} {set $var = $var if(coo)}
+    stats_med param_a param_a_median param_a_siqr
+    stats_med param_b param_b_median param_b_siqr
+    stats_med param_c param_c_median param_c_siqr
+    stats_med norm    norm_median    norm_siqr
+    !date +'%Y-%m-%d %H:%M:%S %Z'           >  "log_fit_cosmic_sfr_by_MadauDickinson2014_function_best_fit.txt"
+    !echo param_a_median = $param_a_median  >> "log_fit_cosmic_sfr_by_MadauDickinson2014_function_best_fit.txt"
+    !echo param_b_median = $param_b_median  >> "log_fit_cosmic_sfr_by_MadauDickinson2014_function_best_fit.txt"
+    !echo param_c_median = $param_c_median  >> "log_fit_cosmic_sfr_by_MadauDickinson2014_function_best_fit.txt"
+    !echo norm_median = $norm_median        >> "log_fit_cosmic_sfr_by_MadauDickinson2014_function_best_fit.txt"
+    !cat                                       "log_fit_cosmic_sfr_by_MadauDickinson2014_function_best_fit.txt"
+
+
+
+calc_cosmic_age 01
+    # 
+    if(!is_file("datatable_cosmic_age.txt")) {
+        set _cccosmic_z = 0.0,8.0,0.01
+        do _cccosmic_j=0,dimen(_cccosmic_z)-1 {
+            !lumdist $(_cccosmic_z[$_cccosmic_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/=/ /g' >> "datatable_cosmic_age.tmp"
+        }
+        if(is_file("datatable_cosmic_age.tmp")) {
+            verbose 0
+            data "datatable_cosmic_age.tmp" read {_cccosmic_t_age 3} # Gyr
+            verbose 1
+            print "datatable_cosmic_age.txt" {_cccosmic_z _cccosmic_t_age}
+        }
+    }
+    # 
+    if($?1) {
+        if(!is_vector(_cccosmic_z) || !is_vector(_cccosmic_t_age)) {
+            if(is_file("datatable_cosmic_age.txt")) {
+                verbose 0
+                data "datatable_cosmic_age.txt" read {_cccosmic_z 1 _cccosmic_t_age 2}
+                verbose 1
+            } else {exit}
+        }
+        set _input_z = float($1)
+        spline _cccosmic_z _cccosmic_t_age _input_z _output_t_age
+        set $0 = _output_t_age
+        return
+    } 
+
+
+func_Gladders2013_CSFRD 03
+    # input z
+    # input arg2 T0 -- an age parameter in unit of Gyr
+    # input arg3 tau -- an age width parameter in unit of Gyr
+    # output cosmic SFR Density, in Salpeter IMF
+    # paper: http://adsabs.harvard.edu/abs/2013ApJ...770...64G  Eq(1) Sec2.1
+    # example: set CSFRD = calc_Gladders2013_CSFRD(z,1.64,0.66)
+    set Gladders2013_z = float($1)
+    set Gladders2013_t_age = calc_cosmic_age(Gladders2013_z)
+    set Gladders2013_t0 = 1.64 # Gyr
+    set Gladders2013_tau = 0.66 # Gyr
+    if($?2) {set Gladders2013_t0 = float($2)}
+    if($?3) {set Gladders2013_tau = float($3)}
+    set Gladders2013_SFR_1 = 1.0/(Gladders2013_t_age*sqrt(2*pi*Gladders2013_tau**2))
+    set Gladders2013_SFR_2 = exp(-(ln(Gladders2013_t_age)-Gladders2013_t0)**2/(2*Gladders2013_tau**2))
+    set Gladders2013_SFR = Gladders2013_SFR_1 * Gladders2013_SFR_2
+    set $0 = Gladders2013_SFR
+    return
+
+
+func_MadauDickinson2014_CSFRD 04
+    # input z
+    # output cosmic SFR Density, in Salpeter IMF
+    # ref: https://ned.ipac.caltech.edu/level5/March14/Madau/Madau5.html#Table%201 Eq(15)
+    if($?1==0){print 'Usage: set CSFRD = calc_MadauDickinson2014_CSFRD(z)\n' {} return}
+    set MadauDickinson2014_z = float($1)
+    set MadauDickinson2014_a = 2.7
+    set MadauDickinson2014_b = 2.9
+    set MadauDickinson2014_c = 5.6
+    if($?2) {set MadauDickinson2014_a = float($2)}
+    if($?3) {set MadauDickinson2014_b = float($3)}
+    if($?4) {set MadauDickinson2014_c = float($4)}
+    set MadauDickinson2014_SFR = 0.015 * (1+MadauDickinson2014_z)**MadauDickinson2014_a / (1.0 + ((1+MadauDickinson2014_z)/MadauDickinson2014_b)**MadauDickinson2014_c )
+    set $0 = MadauDickinson2014_SFR
+    return
+
+

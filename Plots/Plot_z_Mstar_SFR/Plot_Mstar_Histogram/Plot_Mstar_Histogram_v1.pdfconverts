@@ -1,0 +1,5 @@
+#!/bin/bash
+gs -q -dSAFER -dNOPAUSE -dBATCH -sDEVICE=pdfwrite \
+   -sOutputFile=Plot_Mstar_Histogram_v1.pdf \
+                Plot_Mstar_Histogram_v1.eps \
+   -dDOPDFMARKS Plot_Mstar_Histogram_v1.pdfmarks

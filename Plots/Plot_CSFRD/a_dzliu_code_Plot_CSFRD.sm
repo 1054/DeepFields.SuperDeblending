@@ -1,0 +1,672 @@
+plot_CSFRD
+    # 
+    # this code is newer than make_cosmic_sfr_plot_with_uncertainty.sm
+    # 20160530
+    # 20160826
+    # 20170118 version submitted to ApJ
+    # 20170731 S/N limit 4 instead of 5
+    # 
+    # Usage:
+    #   echo "macro read a_dzliu_code_plot_csfrd.sm plot_CSFRD" | sm
+    #  
+    load astroSfig.sm
+    load crabPlot.sm
+    load crabPlotDataFile.sm
+    
+    # 
+    # Read input_date
+    if(!is_file("set_input_date")) {
+        !date +'%Y%m%d' > "set_input_date"
+    }
+    data "set_input_date" read {input_date 1.s}
+    
+    # 
+    # Read input_date
+    if(!is_file("set_do_corr")) {
+        !echo 0 > "set_do_corr"
+    }
+    data "set_do_corr" read {input_do_corr 1.d}
+    
+    # 
+    # DEFINE parameters
+    #define datadir "datatable_CSFRD_dzliu_v20170118"
+    #define limsnr 5.0
+    #define datadir "datatable_CSFRD_dzliu_v20170731"
+    #define limsnr 4.0
+    #define datadir "datatable_CSFRD_dzliu_v20171006"
+    #define limsnr 5.0
+    define datadir "datatable_CSFRD_dzliu_v"$(input_date)
+    define limsnr 5.0
+    if(!$?setDoVmax) {define setDoVmax 1} # whether show Vmax-corrected data points or not
+    if(!$?setDoLowz) {define setDoLowz 1} # whether show our low-z data points or not
+    if(!$?setDoOurs) {define setDoOurs 1} # whether show our data points or not
+    if(!$?setDoCorr) {define setDoCorr 0} # whether apply CSFRD_correction to our data points or not
+    if(!$?setDoSMFs) {define setDoSMFs 0} # whether show SMF-integrated data points or not
+    if(!$?setShowUpper) {define setShowUpper 0} # if we do Vmax inverse, then we show the data points as upper limits
+    if(!$?setDoVmaxInverse) {define setDoVmaxInverse 0} #<TODO># if use my wrong correction -- setDoVmaxInverse=1
+    if($setDoVmax && $setDoVmaxInverse) {define setShowUpper 1} # if we do Vmax inverse, then we show the data points as upper limits
+    # 
+    if(input_do_corr!=0) {define setDoCorr $(input_do_corr)}
+    
+    # 
+    # see Madau https://ned.ipac.caltech.edu/level5/March14/Madau/Madau5.html
+    
+    # 
+    # Prepare Output File Name
+    if($setDoVmax) {
+        if(!$setDoCorr) {
+            define outFilename "Plot_CSFRD_v1_VmaxCorrected"
+        } else {
+            define outFilename "Plot_CSFRD_v1_CompletenessCorrected"
+        }
+    } else {
+        define outFilename "Plot_CSFRD_v1_DirectlyMeasured"
+    }
+    
+    # 
+    # Open PostScript
+    crabPlotOpenPS $outFilename".eps"
+    
+    # 
+    # Plot Axes
+    plot_Axis_Top
+    plot_Axis_Bottom
+    
+    # 
+    # Plot literature CSFRD data points
+    if($setDoOurs && !$setDoCorr) {
+        plot_Data "datatable_Madau2014_IR_for_plot.plt"
+        plot_Data "datatable_Madau2014_UV_uncorrect_for_plot.plt"
+        plot_Data "datatable_Madau2014_UV_corrected_for_plot.plt"
+    } else {
+        plot_Data "datatable_RowanRobinson2016_for_plot.plt"
+        plot_Data "datatable_Novak2017_for_plot.plt"
+    }
+    # 
+    # Plot legend
+    #expand 0.75 lweight 2.4
+    crabPlotLegendExpand 0.75
+    crabPlotLegendWeight 2.4
+    if($setDoOurs) {
+        if(!$setDoCorr) {
+            if($setDoVmax) {
+                ctype red ptype 4 0 expand 1.5 crabPlotLegendWithSymbol "This work with FIR+mm sample (Vmax corrected)"
+            } else {
+                ctype red ptype 4 0 expand 1.5 crabPlotLegendWithSymbol "This work with FIR+mm sample (directly measured)"
+            }
+        } else {
+            ctype orange   ptype 4 0 angle   0 expand 0.9 crabPlotLegendWithSymbol "This work with Muzzin SMF-based correction"
+            ctype magenta  ptype 4 0 angle  45 expand 0.9 crabPlotLegendWithSymbol "This work with Ilbert SMF-based correction"
+            ctype seagreen ptype 3 0 angle 180 expand 0.9 crabPlotLegendWithSymbol "This work with Davidzon SMF-based correction"
+            #ctype cyan     ptype 4 2 angle   0 expand 0.9 crabPlotLegendWithSymbol "This work with Grazian SMF-based correction"
+            #ctype green    ptype 4 2 expand 0.9 crabPlotLegendWithSymbol "This work with Song SMF-based correction"
+            # 
+            ctype red 
+            DEFINE upper {{m -100 -100 100 -100 m 0 -100 0 +100 -100 +25 0 +100 100 +25 0 +100}}
+            ptype $upper
+            crabPlotLegendWithSymbol "This work, direct lower limits from FIR+mm sample"
+            # 
+            ctype red ptype 4 0 expand 1.5 crabPlotLegendWithSymbol 
+            crabPlotLegendWithSymbol "This work, directly added to Madau & Dickinson 2014"
+        }
+    }
+    if($setDoSMFs) {
+        #ctype cyan ptype 4 2 expand 0.9 crabPlotLegendWithSymbol "This work integrating \int\ SMF \times\ sSFR_{MS}"
+        ctype orange   ptype 4 2 expand 0.9 crabPlotLegendWithSymbol "This work integrating Muzzin SMF \times\ sSFR_{MS}"
+        ctype magenta  ptype 4 2 expand 0.9 crabPlotLegendWithSymbol "This work integrating Ilbert SMF \times\ sSFR_{MS}"
+        ctype seagreen ptype 4 2 expand 0.9 crabPlotLegendWithSymbol "This work integrating Davidzon SMF \times\ sSFR_{MS}"
+        ctype cyan     ptype 4 2 expand 0.9 crabPlotLegendWithSymbol "This work integrating Grazian SMF \times\ sSFR_{MS}"
+        ctype green    ptype 4 2 expand 0.9 crabPlotLegendWithSymbol "This work integrating Song SMF \times\ sSFR_{MS}"
+    }
+    if(!$setDoCorr) {
+        ctype darkgray ltype 2 ltype expand 0.5 crabPlotLegendWithLine "Gladders et al. (2013) lognormal"
+        ctype darkgray ltype 0                  crabPlotLegendWithLine "Madau & Dickinson (2014) double powerlaw"
+    } else {
+        set _crabPlot_legend_ws_pt = 8.0 ctype red ltype 0                  crabPlotLegendWithLine "Fitting Madau & Dickinson (2014)"
+        set _crabPlot_legend_ws_pt = 8.0 ctype red ltype 2 ltype expand 0.5 crabPlotLegendWithLine "Fitting Gladders et al. (2013)"
+        if(is_vector(_crabPlot_legend_ws_pt)) {unset _crabPlot_legend_ws_pt}
+    }
+    
+    # 
+    # Plot literature CSFRD curves
+    plot_MadauDickinson2014_CSFRD
+    plot_Gladders2013_CSFRD
+    
+
+    
+    # **********************************************************************************************************************
+    
+    # dzliu 2016 new 20160530
+    # dzliu 2017 new 20170118
+    
+    if($setDoOurs) {
+        if($setDoLowz) {
+            set zMinList = {0.0 0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 4.0 5.0}
+            set zMaxList = {0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0}
+            #set zMinList = {0.0 0.4 0.8 1.5 2.5 4.0 4.0} # 20171006a doubled z bin size
+            #set zMaxList = {0.4 0.8 1.5 2.5 4.0 6.0 6.0} # 20171006a doubled z bin size
+        } else {
+            set zMinList = {2.5 3.0 4.0}
+            set zMaxList = {3.0 4.0 6.0}
+        }
+    } else {
+        declare zMinList 0
+        declare zMaxList 0
+    }
+    
+    !mv "log_make_cosmic_sfr_plot.log" "log_make_cosmic_sfr_plot.log.backup" 2>/dev/null
+    
+    if($setDoOurs) {
+        if(!$setDoCorr) {
+            !printf "\#%14s%15s%15s%15s%15s\\\n" "z_low" "z_high" "lgoneplusz" "CSFRD" "eCSFRD" > "log_make_cosmic_sfr_plot.log"
+        } else {
+            !printf "\#%14s%15s%15s%15s%15s%15s%15s%20s\\\n" "z_low" "z_high" "lgoneplusz" "CSFRD" "eCSFRD" "cCSFRD" "fcorr" "SMF" > "log_make_cosmic_sfr_plot.log"
+        }
+    }
+    
+    if($setDoSMFs) {
+        # ****************************************
+        print +"log_make_cosmic_sfr_plot.log" '\# Below are empirical CSFRD integrated from SMF x sSFR_{MS} within each redshift bin\n' {}
+        plot_CSFRD_SMF_MS_SFR 0.2 0.5
+        plot_CSFRD_SMF_MS_SFR 0.5 1.0
+        plot_CSFRD_SMF_MS_SFR 1.0 1.5
+        plot_CSFRD_SMF_MS_SFR 1.5 2.0
+        plot_CSFRD_SMF_MS_SFR 2.0 2.5
+        plot_CSFRD_SMF_MS_SFR 2.5 3.0
+        plot_CSFRD_SMF_MS_SFR 3.0 4.0
+        plot_CSFRD_SMF_MS_SFR 4.0 5.0
+        plot_CSFRD_SMF_MS_SFR 5.0 6.0
+        # ****************************************
+    }
+    
+    #print +"log_make_cosmic_sfr_plot.log" '\# Below are 1/Vmax and boostrapping CSFRD from GOODSN Superdeblending 20160818 goodArea SNR>=$limsnr sources\n' {}
+    print +"log_make_cosmic_sfr_plot.log" '\# Below are 1/Vmax and boostrapping CSFRD from GOODSN Superdeblending 201612 goodArea SNR>=$limsnr sources\n' {}
+    do i=0,dimen(zMinList)-1 {
+        # Use the CSFRD MonteCarlo BootStrap results
+        # -- <        > see /home/dzliu/Cloud/2016/Publications/goodsn-cat/plots/calc_Vmax_and_CSFRD/
+        # -- <20170118> see /Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/calc_Vmax_and_CSFRD
+        #chdir "datatable_CSFRD_dzliu_v20160530"
+        #chdir "datatable_CSFRD_dzliu_v20160818"
+        #chdir "datatable_CSFRD_dzliu_v20170118"
+        #chdir "datatable_CSFRD_dzliu_v20170731"
+        chdir $datadir
+        input "Output_CSFRD_Bootstrap_z_"$(zMinList[$i])"_"$(zMaxList[$i])".txt"
+        #!echo '****************************************************************************************************'
+        #!cat  "Output_CSFRD_Bootstrap_z_"$(zMinList[$i])"_"$(zMaxList[$i])".txt"
+        #!echo '****************************************************************************************************'
+        chdir ".."
+        if($setDoVmax) {
+            set plt_x = lg(1+(zMIN+zMAX)/2.0)
+            set plt_y = lg(CSFRD_Vmax_Value)                  # calc_CSFRD_uncertainty.sm calc_CSFRD_bootstrap_half_in_z_bin
+            set plt_err = (CSFRD_Vmax_Error/CSFRD_Vmax_Value) # calc_CSFRD_uncertainty.sm calc_CSFRD_bootstrap_half_in_z_bin
+        } else {
+            set plt_x = lg(1+(zMIN+zMAX)/2.0)
+            set plt_y = lg(CSFRD_Vbin_Value)                  # calc_CSFRD_uncertainty.sm calc_CSFRD_bootstrap_half_in_z_bin
+            set plt_err = (CSFRD_Vbin_Error/CSFRD_Vbin_Value) # calc_CSFRD_uncertainty.sm calc_CSFRD_bootstrap_half_in_z_bin
+        }
+        set plt_z = 10**plt_x - 1
+        set plt_z1 = 0.0*plt_x + zMIN
+        set plt_z2 = 0.0*plt_x + zMAX
+        # 
+        # do CSFRD_correction or not
+        if($setDoCorr) {
+            # 
+            if(is_file("datatable__CSFRD_correction__Go.txt")) {
+                data "datatable__CSFRD_correction__Go.txt"
+                read {z_min_list 1 z_max_list 2 M_incomplete_list 3 N_correction_list 4 F_correction_list 5 S_correction_list 6.s}
+                foreach S_correction {Muzzin Ilbert Davidzon Grazian Song} {
+                    set plt_y_uncorrect = plt_y
+                    set plt_y_corrected = -99.
+                    set plt_corr_factor = -99.
+                    set S_correction = '$S_correction'
+                    if(sum(S_correction_list==S_correction && (plt_z>=z_min_list && plt_z<=z_max_list)) > 0) {
+                        set F_correction = F_correction_list if(S_correction_list==S_correction)
+                        set z_min_spline = z_min_list        if(S_correction_list==S_correction)
+                        set z_max_spline = z_max_list        if(S_correction_list==S_correction)
+                        set z_cen_spline = (z_min_spline + z_max_spline)/2.0
+                        interp2 z_cen_spline F_correction plt_z plt_corr_factor
+                        set plt_y_corrected = lg(10**plt_y / plt_corr_factor)
+                    }
+                    # 
+                    if(zMIN==0.0) {
+                        if(S_correction=='Muzzin' || S_correction=='Ilbert' || S_correction=='Davidzon') {
+                            set plt_y_corrected = plt_y
+                            set plt_corr_factor = 1.0
+                        }
+                    }
+                    # 
+                    # for CSFRDs in z>=4.0 bins, we plot as lower limits
+                    if(zMIN>=4.0) {
+                        set plt_y_corrected = -99.
+                    }
+                    # 
+                    if(plt_y_corrected>-99.) {
+                        if(S_correction=='Muzzin')   {ctype orange    ptype 4 0 ltype 0 angle   0 expand 3.5 lweight 5.5 }
+                        if(S_correction=='Ilbert')   {ctype magenta   ptype 4 0 ltype 0 angle  45 expand 3.5 lweight 5.5 }
+                        if(S_correction=='Davidzon') {ctype seagreen  ptype 3 0 ltype 0 angle 180 expand 3.5 lweight 5.5 }
+                        if(S_correction=='Grazian')  {ctype cyan      ptype 4 2 ltype 0 angle   0 expand 3.5 lweight 5.5 }
+                        if(S_correction=='Song')     {ctype green     ptype 4 0 ltype 0 angle  45 expand 3.5 lweight 5.5 }
+                        # 
+                        points plt_x plt_y_corrected
+                        # 
+                        # plot one error bar 
+                        if(zMIN<0.0) {
+                            if(S_correction=='Muzzin') {
+                                error_y plt_x plt_y_corrected plt_err
+                            }
+                        }
+                        # 
+                        angle 0
+                        # 
+                        define print_noheader 1
+                        print +"log_make_cosmic_sfr_plot.log" '%15g%15g%15g%15g%15g%15g%15g%20s\n' {plt_z1 plt_z2 plt_x plt_y plt_err plt_y_corrected plt_corr_factor S_correction}
+                        define print_noheader 0
+                    }
+                    # 
+                    # for CSFRDs in z>=4.0 bins, we plot as lower limits
+                    if(zMIN>=4.0) {
+                        if(S_correction=='Muzzin') {
+                            ctype red ptype 4 0 ltype 0 angle 0 expand 3.5 lweight 4.5 #<20170118> we plot all our own data points with red open squares
+                            #points plt_x plt_y
+                            errorbar plt_x plt_y plt_err 4
+                            DEFINE upper {{m 0 0 0 +300 -100 +130 0 +260 100 +130 0 +300}}
+                            ptype $upper
+                            points plt_x plt_y
+                        }
+                    }
+                    # 
+                    #<20170311># for CSFRDs in z=4.0-5.0 bin, we add our SFRD to the Madau2014 CSFRD
+                    if(zMIN==4.0 && zMAX==5.0) {
+                        if(S_correction=='Muzzin') {
+                            set plt_y_corrected = lg(10**plt_y+10**(-1.608266724))
+                            set plt_corr_factor = (10**plt_y) / (10**plt_y_corrected)
+                            set S_correction = 'Madau&Dickinson'
+                            ctype red ptype 4 0 ltype 0 angle 0 expand 3.5 lweight 5.5
+                            points plt_x plt_y_corrected
+                            define print_noheader 1
+                            print +"log_make_cosmic_sfr_plot.log" '%15g%15g%15g%15g%15g%15g%15g%20s\n' {plt_z1 plt_z2 plt_x plt_y plt_err plt_y_corrected plt_corr_factor S_correction}
+                            define print_noheader 0
+                        }
+                    }
+                    # 
+                    #<20170311># for CSFRDs in z=5.0-6.0 bin, we add our SFRD to the Madau2014 CSFRD
+                    if(zMIN==5.0 && zMAX==6.0) {
+                        if(S_correction=='Muzzin') {
+                            set plt_y_corrected = lg(10**plt_y+10**(-1.811477363))
+                            set plt_corr_factor = (10**plt_y) / (10**plt_y_corrected)
+                            set S_correction = 'Madau&Dickinson'
+                            ctype red ptype 4 0 ltype 0 angle 0 expand 3.5 lweight 5.5
+                            points plt_x plt_y_corrected
+                            define print_noheader 1
+                            print +"log_make_cosmic_sfr_plot.log" '%15g%15g%15g%15g%15g%15g%15g%20s\n' {plt_z1 plt_z2 plt_x plt_y plt_err plt_y_corrected plt_corr_factor S_correction}
+                            define print_noheader 0
+                        }
+                    }
+                }
+            } else {
+                print 'Error! Could not find \"datatable__CSFRD_correction__Go.txt\"! Please run \"a_dzliu_code_calc_CSFRD_incompleteness_correction.sm\"!\n' {}
+                exit
+            }
+            # 
+        }
+        if(!$setDoCorr) {
+            # 
+            ctype red ptype 4 0 ltype 0 angle 0 expand 3.5 lweight 4.5 #<20170118> we plot all our own data points with red open squares
+            points plt_x plt_y
+            error_y plt_x plt_y plt_err
+            expand 2.0 errorbar plt_x plt_y $(plt_x-lg(1+zMIN)) 1
+            expand 2.0 errorbar plt_x plt_y $(lg(1+zMAX)-plt_x) 3
+            angle 0 ptype 4 1 expand 3.0 lweight 4.5
+            define print_noheader 1
+            print +"log_make_cosmic_sfr_plot.log" '%15g%15g%15g%15g%15g\n' {plt_z1 plt_z2 plt_x plt_y plt_err}
+            define print_noheader 0
+            # 
+        }
+    }
+    
+    #!cat "log_make_cosmic_sfr_plot.log"
+    
+    # ****************************************
+    
+    # ****************************************
+    
+
+    !cat "log_make_cosmic_sfr_plot.log"
+    
+    
+    # 
+    # plot legend
+    # 
+    #if($setDoVmax) {
+    #    define plt_text "(Vmax corrected)"
+    #} else {
+    #    define plt_text "(directly measured)"
+    #}
+    
+    #set plt_x = $fx1+0.05*($fx2-$fx1)
+    #set plt_y = $fy1+0.95*($fy2-$fy1)
+    #ctype orange ptype 4 3 expand 1.5 lweight 3.5 points plt_x plt_y
+    #relocate $(plt_x) $(plt_y-0.03) expand 0.8 lweight 2.5 puts " Madau & Dickinson (2014) IR"
+    #set plt_y = plt_y-0.12
+    #ctype dodgerblue ptype 15 3 expand 1.5 lweight 3.5 points plt_x plt_y
+    #relocate $(plt_x) $(plt_y-0.03) expand 0.8 lweight 2.5 puts " Madau & Dickinson (2014) UV/Opt. (dust corrected)"
+    #set plt_y = plt_y-0.12
+    #ctype dodgerblue ptype 15 0 expand 1.5 lweight 3.5 points plt_x plt_y
+    #relocate $(plt_x) $(plt_y-0.03) expand 0.8 lweight 2.0 puts " Madau & Dickinson (2014) UV/Opt. (dust uncorrected)"
+    ##set plt_y = plt_y-0.12
+    ##ctype red ptype 4 0 expand 1.5 lweight 3.5 points plt_x plt_y
+    ##relocate $(plt_x) $(plt_y-0.03) expand 0.8 lweight 2.5 puts " This work FIR+mm (2.5<z<3.0) "$plt_text
+    ##set plt_y = plt_y-0.12
+    ##ctype red ptype 4 0 expand 1.5 lweight 3.5 angle 45 points plt_x plt_y angle 0
+    ##relocate $(plt_x) $(plt_y-0.03) expand 0.8 lweight 2.5 puts " This work FIR+mm (3.0<z<4.0) "$plt_text
+    ##set plt_y = plt_y-0.12
+    ##ctype red ptype 3 0 expand 1.5 lweight 3.5 points plt_x plt_y
+    ##relocate $(plt_x) $(plt_y-0.03) expand 0.8 lweight 2.5 puts " This work FIR+mm (4.0<z<6.0) "$plt_text
+    #set plt_y = plt_y-0.12
+    #ctype red ptype 15 3 expand 1.2 lweight 2.5 points plt_x plt_y
+    #relocate $(plt_x) $(plt_y-0.03) expand 0.8 lweight 2.5 puts " This work FIR+mm (0.0 \le \ z < 1.5) "$plt_text
+    #set plt_y = plt_y-0.12
+    #ctype red ptype 15 0 expand 1.2 lweight 2.5 points plt_x plt_y
+    #relocate $(plt_x) $(plt_y-0.03) expand 0.8 lweight 2.5 puts " This work FIR+mm (1.5 \le \ z < 2.5) "$plt_text
+    #set plt_y = plt_y-0.12
+    #ctype red ptype 4 0 expand 1.5 lweight 4.5 points plt_x plt_y
+    #relocate $(plt_x) $(plt_y-0.03) expand 0.8 lweight 2.5 puts " This work FIR+mm (2.5 \le \ z < 6.0) "$plt_text
+    #set plt_y = plt_y-0.12
+    #ctype cyan ptype 4 2 expand 1.5 lweight 3.0 points plt_x plt_y
+    #relocate $(plt_x) $(plt_y-0.03) expand 0.8 lweight 2.5 puts " Empirical \int \ SMF \times \ MS sSFR (Ilbert+,Muzzin+,Grazian+)"
+    #set plt_y = plt_y-0.12
+    #ctype gray ltype 2 ltype expand 0.5 rel $(plt_x-0.015) $(plt_y) draw $(plt_x+0.015) $(plt_y) ltype expand 1
+    #relocate $(plt_x) $(plt_y-0.03) expand 0.8 lweight 2.5 puts "  Gladders et al. (2013) lognormal"
+    #set plt_y = plt_y-0.12
+    #ctype gray ltype 0 ltype expand 0.5 rel $(plt_x-0.015) $(plt_y) draw $(plt_x+0.015) $(plt_y) ltype expand 1
+    #relocate $(plt_x) $(plt_y-0.03) expand 0.8 lweight 2.5 puts "  Madau & Dickinson (2014) double powerlaw"
+    ##ctype red expand 1.25 puts "This work"
+    
+    # 
+    # 
+    # 
+    #<20170311># overplot dzliu new best-fit CSFRD functions -- dzliu fitting (fit with z=4-5 data point)
+    #set plt_x = 0.01,8.0,0.1
+    #set plt_y = calc_Gladders2013_CSFRD(plt_x,1.58,0.70)
+    #set plt_y = plt_y * 10**(-0.197)
+    #ctype red ltype 2 lweight 12.5 connect (lg(plt_x+1)) (lg(plt_y))
+    # 
+    #<20170311># overplot dzliu new best-fit CSFRD functions -- dzliu fitting (fit with z=5-6 data point)
+    #if($setDoCorr) {
+    #    set plt_x = 0.01,8.0,0.1
+    #    set plt_y = calc_Gladders2013_CSFRD(plt_x,1.60,0.70)
+    #    set plt_y = plt_y * 10**(-0.2048)
+    #    ctype red ltype 2 lweight 12.5 connect (lg(plt_x+1)) (lg(plt_y))
+    #}
+    # 
+    #<20170816># overplot dzliu new best-fit CSFRD functions -- dzliu fitting (fit with SNR 4 sample)
+    #if($setDoCorr) {
+    #    set plt_x = 0.01,8.0,0.1
+    #    set plt_y = calc_Gladders2013_CSFRD(plt_x,1.50,0.70)
+    #    set plt_y = plt_y * 10**(-0.2563)
+    #    ctype red ltype 2 lweight 12.5 connect (lg(plt_x+1)) (lg(plt_y))
+    #}
+    # 
+    #<20170311># overplot dzliu new best-fit CSFRD functions -- dzliu fitting (fit with z=4-5 data point)
+    #set plt_x = 0.01,8.0,0.1
+    #set plt_y = calc_MadauDickinson2014_CSFRD(plt_x,4.1,2.25,5.2)
+    #set plt_y = plt_y * 10**(-0.3838)
+    #ctype red ltype 0 lweight 12.5 connect (lg(plt_x+1)) (lg(plt_y))
+    # 
+    #<20170311># overplot dzliu new best-fit CSFRD functions -- dzliu fitting (fit with z=5-6 data point)
+    #if($setDoCorr) {
+    #    set plt_x = 0.01,8.0,0.1
+    #    set plt_y = calc_MadauDickinson2014_CSFRD(plt_x,3.45,2.7,5.6)
+    #    set plt_y = plt_y * 10**(-0.3239)
+    #    ctype red ltype 0 lweight 12.5 connect (lg(plt_x+1)) (lg(plt_y))
+    #}
+    # 
+    #<20170816># overplot dzliu new best-fit CSFRD functions -- dzliu fitting (fit with SNR 4 sample)
+    #if($setDoCorr) {
+    #    set plt_x = 0.01,8.0,0.1
+    #    set plt_y = calc_MadauDickinson2014_CSFRD(plt_x,4.60,2.0,5.6)
+    #    set plt_y = plt_y * 10**(-0.4128)
+    #    ctype red ltype 0 lweight 12.5 connect (lg(plt_x+1)) (lg(plt_y))
+    #}
+    # 
+    #<20171028># overplot dzliu new best-fit CSFRD functions -- dzliu fitting (fit with SNR 5 sample, DataRelease 201706)
+    if($setDoCorr) {
+        set plt_x = 0.01,8.0,0.1
+        set plt_y = calc_Gladders2013_CSFRD(plt_x,1.50,0.66)
+        set plt_y = plt_y * 10**(-0.2404)
+        # calc 10**(-0.2425) # = 0.5721369547
+        # calc 10**(-0.2404) # = 0.5749101816
+        ctype red ltype 2 lweight 12.5 connect (lg(plt_x+1)) (lg(plt_y))
+    }
+    # 
+    #<20171028># overplot dzliu new best-fit CSFRD functions -- dzliu fitting (fit with SNR 5 sample, DataRelease 201706)
+    if($setDoCorr) {
+        set plt_x = 0.01,8.0,0.1
+        set plt_y = calc_MadauDickinson2014_CSFRD(plt_x,3.0,2.9,5.6)
+        set plt_y = plt_y * 10**(-0.1927) 
+        # calc 0.015 / 1.64 * 10**(-0.1957) # = 0.005828373984
+        # calc 0.015 / 1.64 * 10**(-0.1927) # = 0.005868774343
+        ctype red ltype 0 lweight 12.5 connect (lg(plt_x+1)) (lg(plt_y))
+    }
+    # 
+    crabPlotClosePS
+    !rm $outFilename".{pdfconverts,pdfmarks}"
+
+
+
+
+
+
+plot_Axis_Top
+    # 
+    # -- PLOT TOP AXIS t_age
+    # <BUG><FIXED><20171027><dzliu> #
+    # 
+    ticksize -1 10 0 0
+    #limits $(lg(calc_cosmic_age(0.0))) $(lg(calc_cosmic_age(8.5))) -2.5 0.4
+    limits $(lg(0.0+1)) $(lg(8.5+1)) -2.5 0.4
+    ctype default
+    location 4200 28500 3000 18000
+    box 4 4 3 4
+    if(!is_file("plot_axis_top_grid.txt")) {
+        set z_grid = 0.0,8.5,0.01
+        set cosmic_lookbacktime_grid = calc_cosmic_lookbacktime(z_grid)  
+        print "plot_axis_top_grid.txt" '%25.10f %35.10f\n'{z_grid cosmic_lookbacktime_grid}
+    } else {
+        data "plot_axis_top_grid.txt" read {z_grid 1.f cosmic_lookbacktime_grid 2.f}
+    }
+    set cosmic_lookbacktime_step = 0,12,1
+    interp2 cosmic_lookbacktime_grid z_grid cosmic_lookbacktime_step z_step
+    do i=0,dimen(cosmic_lookbacktime_step)-1 { # plot x top axis by hand
+        rel      $(lg(z_step[$i]+1)) $($fy2-0.03*($fy2-$fy1))
+        draw     $(lg(z_step[$i]+1)) $($fy2-0.00*($fy2-$fy1))
+        relocate $(lg(z_step[$i]+1)) $($fy2+0.05*($fy2-$fy1))
+        expand 1.35 lweight 3.5 putlabel 5 $(cosmic_lookbacktime_step[$i])
+    }
+    do i=1,1 { # plot x bottom label by hand
+        relocate $(0.5*($fx1+$fx2)) $($fy2+0.15*($fy2-$fy1))
+        expand 1.35 lweight 3.5 putlabel 5 "lookback time [Gyr]"
+    }
+
+
+
+plot_Axis_Bottom
+    # 
+    # -- PLOT BOTTOM AXIS (1+z)
+    # 
+    ticksize -1 1 0 0
+    limits $(lg(0.0+1)) $(lg(8.5+1)) -2.5 0.4
+    ctype default
+    location 4200 28500 3000 18000
+    box 0 2 3 0
+    #ylabel \raise+1500"log \Psi \ [M_{\odot} yr^{-1} Mpc^{-3}]"
+    do i=0,8 { # plot x bottom axis by hand
+        relocate $(lg($i+1)) $($fy1-0.05*($fy2-$fy1))
+        expand 1.35 lweight 3.5 putlabel 5 $i
+    }
+    do i=1,1 { # plot x bottom label by hand
+        relocate $(0.5*($fx2+$fx1)) $($fy1-0.15*($fy2-$fy1))
+        expand 1.85 lweight 3.5 putlabel 5 z
+    }
+    do i=1,1 { # plot y left label by hand
+        relocate $($fx1-0.15*($fx2-$fx1)) $(0.5*($fy2+$fy1))
+        expand 1.65 lweight 3.5 angle 90 putlabel 5 "log \Psi \ [M_{\odot} yr^{-1} Mpc^{-3}]"
+        angle 0
+    }
+
+
+
+plot_MadauDickinson2014_CSFRD 00
+    # 
+    # overplot empirical CSFRD functions -- Madau & Dickinson 2014
+    # 
+    set plt_x = 0.01,8.0,0.1
+    set plt_y = calc_MadauDickinson2014_CSFRD(plt_x)
+    set plt_y = plt_y/1.64 # convert SalpeterIMF to ChabrierIMF -- because Madau & Dickinson (2014) uses a factor of 1.64 (instead of 1.73 as used by Liu,Daddi,+2017)
+    ctype darkgray ltype 0 lweight 4.5 connect (lg(plt_x+1)) (lg(plt_y))
+    #relocate $(lg(0.35+1)) -1.7 lweight 3.5 expand 0.95 angle 20 
+    #puts "Madau & Dickinson (2014)"
+    #puts "double powerlaw"
+    #
+    #<20170311># spline z=4.5
+    set spli_x = (lg(plt_x+1)) set spli_y = (lg(plt_y)) set splo_x = (lg(4.5+1)) spline spli_x spli_y splo_x splo_y
+    echo "Madau & Dickinson 2014 z=4.5 lgCSFRD="$(splo_y)
+    set spli_x = (lg(plt_x+1)) set spli_y = (lg(plt_y)) set splo_x = (lg(5.5+1)) spline spli_x spli_y splo_x splo_y
+    echo "Madau & Dickinson 2014 z=5.5 lgCSFRD="$(splo_y)
+    # -1.608266724
+
+
+
+plot_Gladders2013_CSFRD 00
+    # overplot empirical CSFRD functions -- Gladders et al. 2013
+    set plt_y = calc_Gladders2013_CSFRD(plt_x,1.64,0.66)
+    #set plt_y = calc_Gladders2013_CSFRD(plt_x,5.16,1.93)
+    set plt_y = 0.96 * plt_y # http://arxiv.org/pdf/1604.00016.pdf Fig.1 Caption AUni=0.96
+    set plt_y = plt_y/1.64 # convert SalpeterIMF to ChabrierIMF -- because Madau & Dickinson (2014) uses a factor of 1.64 (instead of 1.73 as used by Liu,Daddi,+2017)
+    ctype darkgray ltype 2 lweight 4.5 connect (lg(plt_x+1)) (lg(plt_y))
+    #relocate $(lg(0.35+1)) -1.1 lweight 3.5 expand 0.95 angle 20 
+    #puts "Abramson et al. (2016)"
+    #puts "lognormal"
+    ctype default lweight 4.5 ltype 0 expand 1.5 angle 0
+
+
+
+
+
+
+
+
+
+
+
+
+plot_CSFRD_SMF_MS_SFR 02
+    # 
+    # ****************************************
+    # 
+    # ****************************************
+    # dzliu 2017 \int \ SMF \times \ MS sSFR
+    # -- see /Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_Histogram/plot_Mstar_histogram.sm 
+    # -- cat /Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_Histogram/list_*_Schechter_Correction_z_bin_4.0_6.0_intrinsic.txt
+    define zMIN $1
+    define zMAX $2
+    ctype cyan ptype 3 3 ltype 0 angle 0 expand 3.5 lweight 4.5
+    set plt_x = lg(1+($zMIN+$zMAX)/2)
+    set plt_y = -99. # sum up Sargent2014SFR(z,SMF)
+    set plt_err = -99. # 
+    set plt_z = ($zMIN+$zMAX)/2
+    set plt_z1 = 0.0*plt_x + $zMIN
+    set plt_z2 = 0.0*plt_x + $zMAX
+    # 
+    set zMinStr = sprintf('%0.1f',float($zMIN))
+    set zMaxStr = sprintf('%0.1f',float($zMAX))
+    !ls ../Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_Histogram/list_*_Schechter_Correction_z_bin_$(zMinStr)_$(zMaxStr)_intrinsic.txt
+    !grep 'rho(SMF_SFR)' ../Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_Histogram/list_*_Schechter_Correction_z_bin_$(zMinStr)_$(zMaxStr)_intrinsic.txt > list_SMF_CSFRD_z_bin_$(zMinStr)_$(zMaxStr).tmp
+    !cat list_SMF_CSFRD_z_bin_$(zMinStr)_$(zMaxStr).tmp | sed -e 's/.*list_//g' | sed -e 's/_Schechter_.*:/ /g' | sed -e 's/=/ /g' > list_SMF_CSFRD_z_bin_$(zMinStr)_$(zMaxStr).txt
+    data list_SMF_CSFRD_z_bin_$(zMinStr)_$(zMaxStr).txt
+    read {tmp_SMF_Paper 1.s tmp_SMF_CSFRD 3 tmp_MS_Name 8.s}
+    # 
+    ctype cyan expand 3.0 ptype 4 2 lweight 2.5
+    #
+    #-- plot an averaged SMF data point 
+    #stats tmp_SMF_CSFRD MEAN_SMF_CSFRD SIGMA_SMF_CSFRD KURT_SMF_CSFRD
+    #set plt_y = lg($MEAN_SMF_CSFRD)
+    #set plt_err = $SIGMA_SMF_CSFRD/$MEAN_SMF_CSFRD
+    #points plt_x plt_y
+    #error_y plt_x plt_y plt_err
+    # 
+    #-- plot all 3 SMF data points
+    do plt_i=0,dimen(tmp_SMF_CSFRD)-1 {
+        set plt_y = lg(tmp_SMF_CSFRD[$plt_i])
+        if(tmp_MS_Name[$plt_i]=='Sargent2014') {
+            if(tmp_SMF_Paper[$plt_i]=='Muzzin')   {ctype orange}
+            if(tmp_SMF_Paper[$plt_i]=='Ilbert')   {ctype magenta}
+            if(tmp_SMF_Paper[$plt_i]=='Davidzon') {ctype seagreen}
+            if(tmp_SMF_Paper[$plt_i]=='Grazian')  {ctype cyan}
+            if(tmp_SMF_Paper[$plt_i]=='Song')     {ctype green}
+            # 
+            # do SMF_renormalization
+            if(is_file("datatable__CSFRD_correction__SMF_renormalization.txt")) {
+                data "datatable__CSFRD_correction__SMF_renormalization.txt"
+                read {z_min_list 1 z_max_list 2 M_incomplete_list 3 N_correction_list 4 S_correction_list 5.s}
+                define N_correction_i 0
+                while { $N_correction_i < dimen(z_min_list) } {
+                    if(S_correction_list[$N_correction_i]==tmp_SMF_Paper[$plt_i]) {
+                        if(plt_z>=z_min_list[$N_correction_i] && plt_z<z_max_list[$N_correction_i]) {
+                            set plt_y = plt_y + N_correction_list[$N_correction_i]
+                            define N_correction_i $(dimen(z_min_list)) # break
+                        }
+                    }
+                    define N_correction_i $($N_correction_i+1)
+                }
+            }
+            # 
+            points plt_x plt_y
+        }
+    }
+    # 
+    define print_noheader 1
+    print +"log_make_cosmic_sfr_plot.log" '%15g%15g%15g%15g%15g\n' {plt_z1 plt_z2 plt_x plt_y plt_err}
+    define print_noheader 0
+    # 
+    # end
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

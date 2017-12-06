@@ -17,6 +17,9 @@ rfile 03
         # check verbose
         define rfile_verbose $verbose verbose 0
         # 
+        # clear vectors
+        rfile_clear_vectors
+        # 
         # determine column header line <20170909>
         define rfile_head_line 0
         define rfile_data_line 0

@@ -1,0 +1,29 @@
+# z    lg_SFRD_uncorr  e_lo e_hi  lg_SFRD_corr  e_lo e_hi    lg_L_FUV_D_u e_lo e_hi lg_L_FUV_D_c e_lo e_hi # Schiminovich2005 Table 1 (Llim=0.2L*) (AUV = 4.49-1.97*1.64 = 1.2592) (SFR = 1.4e-28 * 10**(LFUV+0.4*1.2592))
+#                                                                      
+0.055          -3.688  0.02 0.09        -2.118  0.02 0.09           23.97 0.02 0.09        25.54 0.02 0.09
+0.3            -2.988  0.18 0.17        -1.798  0.05 0.05           24.67 0.18 0.17        25.86 0.05 0.05
+0.5            -2.458  0.09 0.09        -1.688  0.08 0.15           25.20 0.09 0.09        25.97 0.08 0.15
+0.7            -2.178  0.05 0.05        -1.498  0.13 0.31           25.48 0.05 0.05        26.16 0.13 0.31
+1.0            -2.148  0.05 0.05        -1.548  0.13 0.31           25.51 0.05 0.05        26.11 0.13 0.31
+2.0            -1.628  0.12 0.13        -1.208  0.09 0.25           26.03 0.12 0.13        26.45 0.09 0.25
+2.9            -1.398  0.08 0.08        -1.138  0.07 0.17           26.26 0.08 0.08        26.52 0.07 0.17
+#3.0                0  0.17 0.31             0  0.17 0.31           26.22 0.17 0.31        25.58 0.17 0.31
+
+# 
+# data "datatable_Schiminovich2005.dat" read {lfuv_uncorr 8 elo_uncorr 9 ehi_uncorr 10}
+# set sfr_uncorr = lg(1.4e-28*10**(lfuv_uncorr)*1.57)
+# print {sfr_uncorr elo_uncorr ehi_uncorr}
+# 
+# set attenuation = 0.0 #<TODO># 0.4 * A_UV_mag_AB
+# data "datatable_Schiminovich2005.dat" read {lfuv_corr 11 elo_corr 12 ehi_corr 13}
+# set sfr_corr = lg(1.4e-28*10**(lfuv_corr+attenuation)*1.57)
+# print '%13.3f %5.2f %4.2f %13.3f %5.2f %4.2f\n' {sfr_uncorr elo_uncorr ehi_uncorr sfr_corr elo_corr ehi_corr}
+# 
+# the uncorr/corr in header means the correction for dust-obscured SFR (not the attenuation of UV)
+# UV attenuation have already been corrected
+# 
+# http://www.wolframalpha.com/
+# integrate 0.00 to inf x * x^-1.6 * exp(-x) dx = 2.21816
+# integrate 0.04 to inf x * x^-1.6 * exp(-x) dx = 1.53609
+# integrate 0.20 to inf x * x^-1.6 * exp(-x) dx = 0.97576
+# so convert Llim=0.20L* to Llim=0.04L* we need to multiply 1.57. 

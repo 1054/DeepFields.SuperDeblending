@@ -1,0 +1,733 @@
+usage
+    echo "Usage: macro read a_dzliu_code_Plot_Mstar_Histogram.sm plot_all"
+
+
+
+set_SNR_limit
+    define limsnr 5.0
+    #define limsnr 4.0
+
+read_Data
+    # 
+    #read_Data_201612
+    read_Data_201706
+    # 
+    # Redefine ID12646 Mstar
+    set Mstar = (id==12646) ? 1e-99 : Mstar
+    # 
+    # Redefine SB/MS
+    set flag_SB = (Mstar>1e-99 && SFR>1e-99) ? 'TBD' : 'unknown'
+    set flag_SB = (Mstar>1e-99 && SFR>1e-99 && dis_to_MS>=0.6)                  ? 'SB'    : flag_SB
+    set flag_SB = (Mstar>1e-99 && SFR>1e-99 && dis_to_MS>0.4 && dis_to_MS<0.6)  ? 'mixed' : flag_SB
+    set flag_SB = (Mstar>1e-99 && SFR>1e-99 && dis_to_MS<=0.4)                  ? 'MS'    : flag_SB
+
+read_Data_201706
+    # 
+    load crabDir.sm
+    set dir0 = GetCurrentPath()
+    set dir1 = GetDirPathVector("/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/")
+    set dir1 = dir1 concat 'datarelease'
+    set dir1 = dir1 concat '201706'
+    VisitDirPathVector dir1
+    macro read CatalogReader.sm go
+    VisitDirPathVector dir0
+    # 
+    #<20171027># add SFR_UV to make SFR_total
+    set SFR = SFR_total
+
+read_Data_201612
+    # 
+    load crabDir.sm
+    set dir0 = GetCurrentPath()
+    set dir1 = GetDirPathVector("/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/")
+    set dir1 = dir1 concat 'datarelease'
+    set dir1 = dir1 concat '201612'
+    VisitDirPathVector dir1
+    macro read CatalogReader.sm go
+    VisitDirPathVector dir0
+
+read_Data_20160909
+    # 
+    load crabDir.sm
+    set dir0 = GetCurrentPath()
+    set dir1 = GetDirPathVector("/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/")
+    set dir1 = dir1 concat 'datarelease'
+    set dir1 = dir1 concat '201609'
+    set dir1 = dir1 concat 'catalog_daddi_dzliu_goodsn_20160909'
+    VisitDirPathVector dir1
+    macro read CatalogReader.sm go
+    VisitDirPathVector dir0
+
+
+
+plot_all
+    # 
+    #  echo "macro read a_dzliu_code_Plot_Mstar_Histogram.sm plot_all" | sm
+    # 
+    #  Note: Copied from "plot_Mstar_histogram (before 20170118).sm"
+    #        Now this code is the latest developing version. 
+    #  
+    read_Data
+    plot_Mstar_histogram_zMIN_zMAX 0.2 0.5 0.054
+    plot_Mstar_histogram_zMIN_zMAX 0.5 1.0 0.07
+    plot_Mstar_histogram_zMIN_zMAX 1.0 1.5 0.09
+    plot_Mstar_histogram_zMIN_zMAX 1.5 2.0 0.11
+    plot_Mstar_histogram_zMIN_zMAX 2.0 2.5 0.13
+    plot_Mstar_histogram_zMIN_zMAX 2.5 3.0 0.15
+    plot_Mstar_histogram_zMIN_zMAX 3.0 4.0 0.36
+    plot_Mstar_histogram_zMIN_zMAX 4.0 5.0 0.36
+    plot_Mstar_histogram_zMIN_zMAX 5.0 6.0 0.36
+    
+    #plot_Mstar_histogram_zMIN_zMAX 3.5 4.5 0.36
+    #plot_Mstar_histogram_zMIN_zMAX 4.5 5.5 0.36
+
+plot_Mstar_histogram_z_02_05
+    # 
+    #  echo "macro read a_dzliu_code_Plot_Mstar_Histogram.sm plot_Mstar_histogram_z_02_05" | sm
+    #  
+    read_Data
+    # we estimate Gaussian sigma or Lorentzian tau as Ilbert 2013 0.04(1+z) dex
+    # calc 0.04*(1+(0.2+0.5)/2) # = 0.054 dex
+    plot_Mstar_histogram_zMIN_zMAX 0.2 0.5 0.054
+
+plot_Mstar_histogram_z_05_10
+    # 
+    #  echo "macro read a_dzliu_code_Plot_Mstar_Histogram.sm plot_Mstar_histogram_z_05_10" | sm
+    #  
+    read_Data
+    # we estimate Gaussian sigma or Lorentzian tau as Ilbert 2013 0.04(1+z) dex
+    # calc 0.04*(1+(0.5+1.0)/2) # = 0.07 dex
+    plot_Mstar_histogram_zMIN_zMAX 0.5 1.0 0.07
+
+plot_Mstar_histogram_z_10_15
+    # 
+    #  echo "macro read a_dzliu_code_Plot_Mstar_Histogram.sm plot_Mstar_histogram_z_10_15" | sm
+    #  
+    read_Data
+    # we estimate Gaussian sigma or Lorentzian tau as Ilbert 2013 0.04(1+z) dex
+    # calc 0.04*(1+(1.0+1.5)/2) # = 0.09 dex
+    plot_Mstar_histogram_zMIN_zMAX 1.0 1.5 0.09
+
+plot_Mstar_histogram_z_15_20
+    # 
+    #  echo "macro read a_dzliu_code_Plot_Mstar_Histogram.sm plot_Mstar_histogram_z_15_20" | sm
+    #  
+    read_Data
+    # we estimate Gaussian sigma or Lorentzian tau as Ilbert 2013 0.04(1+z) dex
+    # calc 0.04*(1+(1.5+2.0)/2) # = 0.11 dex
+    plot_Mstar_histogram_zMIN_zMAX 1.5 2.0 0.11
+
+plot_Mstar_histogram_z_20_25
+    # 
+    #  echo "macro read a_dzliu_code_Plot_Mstar_Histogram.sm plot_Mstar_histogram_z_20_25" | sm
+    #  
+    read_Data
+    # we estimate Gaussian sigma or Lorentzian tau as Ilbert 2013 0.04(1+z) dex
+    # calc 0.04*(1+(2.0+2.5)/2) # = 0.13 dex
+    plot_Mstar_histogram_zMIN_zMAX 2.0 2.5 0.13
+
+plot_Mstar_histogram_z_25_30
+    # 
+    #  echo "macro read a_dzliu_code_Plot_Mstar_Histogram.sm plot_Mstar_histogram_z_25_30" | sm
+    #  
+    read_Data
+    # we estimate Gaussian sigma or Lorentzian tau as Ilbert 2013 0.04(1+z) dex
+    # calc 0.04*(1+(2.5+3.0)/2) # = 0.15 dex
+    plot_Mstar_histogram_zMIN_zMAX 2.5 3.0 0.15
+
+plot_Mstar_histogram_z_3_4
+    # 
+    #  macro read a_dzliu_code_Plot_Mstar_Histogram.sm plot_Mstar_histogram_z_3_4
+    #  
+    read_Data
+    # we estimate Gaussian sigma or Lorentzian tau as Grazian 2015 0.36 dex
+    plot_Mstar_histogram_zMIN_zMAX 3.0 4.0 0.36
+
+plot_Mstar_histogram_z_3p5_4p5
+    # 
+    #  macro read a_dzliu_code_Plot_Mstar_Histogram.sm plot_Mstar_histogram_z_3p5_4p5
+    #  
+    read_Data
+    # we estimate Gaussian sigma or Lorentzian tau as Grazian 2015 0.36 dex
+    plot_Mstar_histogram_zMIN_zMAX 3.5 4.5 0.36
+
+plot_Mstar_histogram_z_4_6
+    # 
+    #  echo "macro read a_dzliu_code_Plot_Mstar_Histogram.sm plot_Mstar_histogram_z_4_6" | sm
+    #  
+    read_Data
+    # we estimate Gaussian sigma or Lorentzian tau as Grazian 2015 0.36 dex
+    plot_Mstar_histogram_zMIN_zMAX 4.0 6.0 0.36
+
+plot_Mstar_histogram_z_4_5
+    # 
+    #  echo "macro read a_dzliu_code_Plot_Mstar_Histogram.sm plot_Mstar_histogram_z_4_5" | sm
+    #  
+    read_Data
+    # we estimate Gaussian sigma or Lorentzian tau as Grazian 2015 0.36 dex
+    plot_Mstar_histogram_zMIN_zMAX 4.0 5.0 0.36
+
+plot_Mstar_histogram_z_5_6
+    # 
+    #  echo "macro read a_dzliu_code_Plot_Mstar_Histogram.sm plot_Mstar_histogram_z_5_6" | sm
+    #  
+    read_Data
+    # we estimate Gaussian sigma or Lorentzian tau as Grazian 2015 0.36 dex
+    plot_Mstar_histogram_zMIN_zMAX 5.0 6.0 0.36
+
+
+
+plot_Mstar_histogram_zMIN_zMAX 03
+    # 
+    #  macro read a_dzliu_code_Plot_Mstar_Histogram.sm plot_Mstar_histogram_zMIN_zMAX
+    #  
+    if(!$?2||!$?1) {
+        print 'Error! Please input zMIN and zMAX!\n' {}
+        return
+    }
+    define zMIN $1
+    define zMAX $2
+    set SMFbroaden = 0.0
+    # 
+    #<TODO># read_Data
+    # 
+    plot_Mstar_histogram
+    plot_Mstar_SFR_Contribution
+    # 
+    # do SMF broadening
+    if($?3) {
+        set SMFbroaden = $3
+    } else {
+        set SMFbroaden = 0.36 # 0.36 # Grazian2015 Table C.1
+        # set SMFbroaden = 0.36 # 0.04*(1+z) # Ilbert2013
+    }
+    plot_Mstar_histogram
+    plot_Mstar_SFR_Contribution
+
+
+
+
+
+
+set_axis_limit
+    limits 8.5 12.6 $(lg(0.5)) $(lg(5e3)) # set axis limit
+    #if($zMIN==0.2) {limits 8.5 12.6 $(lg(0.5)) $(lg(5e3))}
+    #if($zMIN==0.5) {limits 8.5 12.6 $(lg(0.5)) $(lg(5e3))}
+    #if($zMIN==1.0) {limits 8.5 12.6 $(lg(0.5)) $(lg(5e3))}
+    #if($zMIN==1.5) {limits 8.5 12.6 $(lg(0.5)) $(lg(5e3))}
+    #if($zMIN==2.5) {limits 8.5 12.6 $(lg(0.5)) $(lg(5e3))}
+    #if($zMIN==4.0) {limits 9.6 12.6 $(lg(0.5)) $(lg(5e2))}
+    
+set_axis_limit_plus_one
+    limits 8.5 12.6 $(lg(0.5)+1) $(lg(5e3)+1) # set axis limit plus one for the shading plotting problem
+    #if($zMIN==0.2) {limits 8.5 12.6 $(lg(0.5)+1) $(lg(5e3)+1)}
+    #if($zMIN==0.5) {limits 8.5 12.6 $(lg(0.5)+1) $(lg(5e3)+1)}
+    #if($zMIN==1.0) {limits 8.5 12.6 $(lg(0.5)+1) $(lg(5e3)+1)}
+    #if($zMIN==1.5) {limits 8.5 12.6 $(lg(0.5)+1) $(lg(5e3)+1)}
+    #if($zMIN==2.5) {limits 8.5 12.6 $(lg(0.5)+1) $(lg(5e3)+1)}
+    #if($zMIN==4.0) {limits 9.6 12.6 $(lg(0.5)+1) $(lg(5e2)+1)}
+    
+set_stellar_mass_uncertainty_broadening
+    #set SMFbroaden = 0.10 # 0.10 # <TODO> 0.15, 0.04*(1+z), or else
+    #if($zMIN==1.5) {set SMFbroaden = 0.05}
+    #if($zMIN==2.5) {set SMFbroaden = 0.10}
+    #if($zMIN==4.0) {set SMFbroaden = 1.00} # 0.36 # see Grazian 2015 Table 3 http://arxiv.org/pdf/1412.0532v1.pdf
+    #if($zMIN==5.0) {set SMFbroaden = 0.00} # 0.36 # see Grazian 2015 Table 3 http://arxiv.org/pdf/1412.0532v1.pdf
+
+set_axis_limit_Mstar_SFR
+    limits 8.5 12.6 $(lg(10)) $(lg(1e6)) # set axis limit for plotting Mstar versus SFR
+    #if($zMIN==0.2) {limits 8.5 12.6 $(lg(10)) $(lg(1e6))}
+    #if($zMIN==0.5) {limits 8.5 12.6 $(lg(10)) $(lg(1e6))}
+    #if($zMIN==1.0) {limits 8.5 12.6 $(lg(10)) $(lg(1e6))}
+    #if($zMIN==1.5) {limits 8.5 12.6 $(lg(10)) $(lg(1e6))}
+    #if($zMIN==2.5) {limits 8.5 12.6 $(lg(10)) $(lg(1e6))}
+    #if($zMIN==4.0) {limits 9.5 12.6 $(lg(10)) $(lg(1e6))}
+    
+set_axis_limit_Mstar_SFR_plus_one
+    limits 8.5 12.6 $(lg(10)+1) $(lg(1e6)+1) # set axis limit plus one for the shading plotting problem
+
+
+
+
+
+
+plot_Mstar_histogram
+    # 
+    # Check input
+    if(!$?zMIN || !$?zMAX) {print 'Error! plot_Mstar_histogram needs \$zMIN and \$zMAX be defined!\n' {} return}
+    # 
+    # Set zString (for file names)
+    if(SMFbroaden>0) {define bString "_broadened"} else {define bString "_intrinsic"}
+    define zString "_z_bin_"$(sprintf('%0.1f',float($zMIN)))"_"$(sprintf('%0.1f',float($zMAX)))$bString
+    # 
+    # set_SNR_limit
+    set_SNR_limit
+    # 
+    # PlotXY
+    set coo = Mstar>1e-99 && SFR>1e-99 && snrIR>=$limsnr && zphot>=$zMIN && zphot<$zMAX && goodArea #<TODO># && goodArea
+    set Obs_Mstar = Mstar   if(coo)
+    set Obs_SB    = flag_SB if(coo)
+    set Obs_SFR   = SFR     if(coo)
+    set Obs_id    = id      if(coo)
+    set Obs_z     = z       if(coo)
+    set Obs_Mstar = lg(Obs_Mstar)
+    sort {Obs_Mstar Obs_id Obs_z Obs_SFR Obs_SB}
+    print "list_Sources_sorted_by_Mstar"$zString".txt" '%12.0f%12g%15g%15g%15s\n' {Obs_id Obs_z Obs_Mstar Obs_SFR Obs_SB}
+    # 
+    # Set SMF broadening
+    #set_stellar_mass_uncertainty_broadening
+    # 
+    # Do Plot
+    load crabPlot.sm
+    crabPlotOpenPS "Plot_Mstar_Histogram_v1.eps"
+    # 
+    location 6500 30500 6500 24500
+    set_axis_limit # set axis limit
+    ticksize 0 0 -1 0
+    crabPlotDefaultPenForBox
+    box
+    # 
+    crabPlotDefaultPenForTitle
+    xlabel "log M_{*} [M_{\odot}]"
+    ylabel "N"
+    # 
+    crabPlotDefaultPenForPoints
+    get_hist Obs_Mstar Plt_x Plt_y 8.0 13.0 0.2
+    verbose 0
+    set Plt_y = (Plt_y>0) ? Plt_y : 1e-30
+    ctype blue ptype 4 1 histogram Plt_x (lg(Plt_y))
+    verbose 1
+    
+    # do the shading [20160503]
+    # -- in default the shading seems to have some problems with the area below Y=1, so we have to shift the Y axis by plus one
+    set_axis_limit_plus_one # set axis limit for shading
+    angle 85 ltype 1 lweight 2.0 shade histogram 220 Plt_x (lg(Plt_y)+1) angle 0 ltype 0 lweight 4.0
+    set_axis_limit # set axis limit for shading
+    
+    set coo_SB = (Obs_SB=='SB')
+    set Obs_Mstar_SB = Obs_Mstar if(coo_SB)
+    get_hist Obs_Mstar_SB Plt_x_SB Plt_y_SB 8.0 13.0 0.2
+    verbose 0
+    set Plt_y_SB = (Plt_y_SB>0) ? Plt_y_SB : 1e-30
+    ctype red histogram Plt_x_SB (lg(Plt_y_SB))
+    verbose 1
+    
+    # do the shading [20160503]
+    # -- in default the shading seems to have some problems with the area below Y=1, so we have to shift the Y axis by plus one
+    set_axis_limit_plus_one # set axis limit for shading
+    angle 95 ltype 1 lweight 2.0 shade histogram 180 Plt_x_SB (lg(Plt_y_SB)+1) angle 0 ltype 0 lweight 4.0
+    set_axis_limit # set axis limit for shading
+    
+    # 
+    # Compute number of sources and sum of SFR in each stellar mass bin
+    declare Bin_N   0
+    declare Bin_SFR 0
+    declare Bin_N_SB   0
+    declare Bin_SFR_SB 0
+    do i=8.0,13.0,0.2 {
+        set coo_bin = (Obs_Mstar>=$i && Obs_Mstar<($i+0.2))
+        if(sum(coo_bin)>0) {
+            set tmp_bin = Obs_SFR if(coo_bin)
+            set Bin_SFR = Bin_SFR concat $(sum(tmp_bin))
+            set Bin_N   = Bin_N   concat $(dimen(tmp_bin))
+        } else {
+            set Bin_SFR = Bin_SFR concat 1e-30 # 0.00
+            set Bin_N   = Bin_N   concat 0
+        }
+        # and additionally compute SB contribution
+        set coo_bin_SB = (Obs_Mstar>=$i && Obs_Mstar<($i+0.2) && Obs_SB=='SB')
+        if(sum(coo_bin_SB)>0) {
+            set tmp_bin_SB = Obs_SFR if(coo_bin_SB)
+            set Bin_SFR_SB = Bin_SFR_SB concat $(sum(tmp_bin_SB))
+            set Bin_N_SB   = Bin_N_SB   concat $(dimen(tmp_bin_SB))
+        } else {
+            set Bin_SFR_SB = Bin_SFR_SB concat 1e-30 # 0.00
+            set Bin_N_SB   = Bin_N_SB   concat 0
+        }
+    }
+    set OBS_N = Bin_N
+    set OBS_SFR = Bin_SFR
+    set OBS_N_SB = Bin_N_SB
+    set OBS_SFR_SB = Bin_SFR_SB
+    
+    # 
+    # Overplot SMF
+    if($zMIN>=0.0 && $zMAX<=4.0) {
+        overplot_SMF Muzzin
+        overplot_SMF Ilbert
+    }
+    if($zMIN>=3.5 && $zMAX<=7.5) {
+        overplot_SMF Grazian
+    }
+    if($zMIN>=3.5 && $zMAX<=8.5) {
+        if(SMFbroaden>0) {
+            overplot_SMF Song
+        }
+    }
+    if($zMIN>=0.0 && $zMAX<=6.0) {
+        overplot_SMF Davidzon
+    }
+    # 
+    overplot_legend
+    # 
+    crabPlotClosePS
+    # 
+    !cp "Plot_Mstar_Histogram_v1.eps" "Plot_Mstar_Histogram"$zString".eps"
+    !cp "Plot_Mstar_Histogram_v1.pdf" "Plot_Mstar_Histogram"$zString".pdf"
+
+
+
+
+
+
+overplot_SMF 01
+    # 
+    if(!$?1) {print 'Usage: overplot_SMF Muzzin|Ilbert|Grazian|Song|Davidzon\n' {} return}
+    if(!$?zMIN || !$?zMAX) {print 'Error! overplot_SMF needs \$zMIN and \$zMAX be defined!\n' {} return}
+    # 
+    # calc SMF and number of sources within certain skyarea and redshift range
+    load astroSfig.sm
+    # -- zVolume
+    define skyarea 134 # GOODSN goodArea | 165 arcmin**2
+    set zVolume = calc_comoving_volume($(($zMIN+$zMAX)/2.0),$(($zMAX-$zMIN)),$skyarea) # GOODSN $skyarea arcmin^2
+    # -- zInput
+    stats Obs_z Obs_z_MEAN Obs_z_SIGMA Obs_z_KURT
+    set zInput = $Obs_z_MEAN # ($zMIN+$zMAX)/2 # the weighted center of current z
+    # -- zBroaden
+    set zBroaden = SMFbroaden # the broadening of SMF at current z
+    # -- call "calc_SMF_"$1".sm"
+    macro read "calc_SMF_"$1".sm"
+    calc_SMF_$1 zInput zBroaden zVolume
+    # 
+    # Copy temporary files
+    if(!$?zString) {
+        define zString "_z_bin_"$(sprintf('%0.1f',float($zMIN)))"_"$(sprintf('%0.1f',float($zMAX)))
+    }
+    if(is_file("list_"$1"_Schechter.dat")) {
+        !mv "list_"$1"_Schechter.dat" "list_"$1"_Schechter"$zString".dat"
+    }
+    if(is_file("list_"$1"_Schechter_Convolved.dat")) {
+        !mv "list_"$1"_Schechter_Convolved.dat" "list_"$1"_Schechter_Convolved"$zString".dat"
+    }
+    if(is_file("list_"$1"_Schechter.idl.convolve.pdf")) {
+        !mv "list_"$1"_Schechter.idl.convolve.pdf" "list_"$1"_Schechter_idl_convolve"$zString".pdf"
+    }
+    # 
+    # print MS(z,Mstar)-derived SFR and real SFR in each Mstar bin to file
+    if(is_vector(OBS_SFR)) {
+        print "list_"$1"_Schechter_Contribution"$zString".dat" \
+              '%15g %15g %15g %15g %15g %15g %15g %15g %15g %15g\n' \
+              {SMF_M SMF_N SMF_SFR SargentSFR SchreiberSFR BetherminSFR OBS_N OBS_SFR OBS_N_SB OBS_SFR_SB}
+    }
+    # 
+    # print to file
+    verbose 0
+    !echo '****************************************************************************************************'  >  "list_"$1"_Schechter_Correction"$zString".txt"
+    !echo 'calc_comoving_volume = '$(zVolume)                                                                     >> "list_"$1"_Schechter_Correction"$zString".txt"
+    !echo 'sum(SMF_SFR) = '$(sum(SMF_SFR_1)) "\# - The Schechter Sargent2014 SFR"                                 >> "list_"$1"_Schechter_Correction"$zString".txt"
+    !echo 'rho(SMF_SFR) = '$(sum(SMF_SFR_1)/zVolume) "\# - The Schechter Sargent2014 SFR density"                 >> "list_"$1"_Schechter_Correction"$zString".txt"
+    !echo 'sum(SMF_SFR) = '$(sum(SMF_SFR_2)) "\# - The Schechter Schreiber2015 SFR"                               >> "list_"$1"_Schechter_Correction"$zString".txt"
+    !echo 'rho(SMF_SFR) = '$(sum(SMF_SFR_2)/zVolume) "\# - The Schechter Schreiber2015 SFR density"               >> "list_"$1"_Schechter_Correction"$zString".txt"
+    !echo 'sum(SMF_SFR) = '$(sum(SMF_SFR_3)) "\# - The Schechter Bethermin2015 SFR"                               >> "list_"$1"_Schechter_Correction"$zString".txt"
+    !echo 'rho(SMF_SFR) = '$(sum(SMF_SFR_3)/zVolume) "\# - The Schechter Bethermin2015 SFR density"               >> "list_"$1"_Schechter_Correction"$zString".txt"
+    !echo 'sum(OBS_SFR) = '$(sum(OBS_SFR)) "\# - The directly observed SFR"                                       >> "list_"$1"_Schechter_Correction"$zString".txt"
+    !echo 'rho(OBS_SFR) = '$(sum(OBS_SFR)/zVolume) "\# - The directly observed SFR density"                       >> "list_"$1"_Schechter_Correction"$zString".txt"
+    !echo '****************************************************************************************************'  >> "list_"$1"_Schechter_Correction"$zString".txt"
+    verbose 1
+    !echo "Outputing to list_"$1"_Schechter_Correction"$zString".txt"
+    !cat "list_"$1"_Schechter_Correction"$zString".txt"
+
+
+
+
+
+
+overplot_legend
+    # 
+    lweight 4.0 relocate (11500 22800)
+    expand 1.25 ctype blue puts $zMIN"<z<"$zMAX S/N>=$limsnr Total
+    expand 0.3 puts ""
+    expand 1.25 ctype red puts $zMIN"<z<"$zMAX S/N>=$limsnr Pure SB
+    expand 0.3 puts ""
+    if($zMIN>=0.0 && $zMAX<=4.0) {
+        if(SMFbroaden>0) {
+            expand 1.15 do_SMF_color_Ilbert puts "Ilbert et al. (2013) SMF \ast \ \sigma{M_{*}}\sim"$(SMFbroaden)"\,dex"
+            expand 0.3 puts ""
+            expand 1.15 do_SMF_color_Muzzin puts "Muzzin et al. (2013) SMF \ast \ \sigma{M_{*}}\sim"$(SMFbroaden)"\,dex"
+            expand 0.3 puts ""
+        } else {
+            expand 1.15 do_SMF_color_Ilbert puts "Ilbert et al. (2013) SMF"
+            expand 0.3 puts ""
+            expand 1.15 do_SMF_color_Muzzin puts "Muzzin et al. (2013) SMF"
+            expand 0.3 puts ""
+        }
+    }
+    if($zMIN>=3.5 && $zMAX<=7.5) {
+        if(SMFbroaden>0) {
+            expand 1.15 do_SMF_color_Grazian puts "Grazian et al. (2015) SMF \ast \ \sigma{M_{*}}\sim"$(SMFbroaden)"\,dex"
+            expand 0.3 puts ""
+        } else {
+            expand 1.15 do_SMF_color_Grazian puts "Grazian et al. (2015) SMF"
+            expand 0.3 puts ""
+        }
+    }
+    if($zMIN>=3.5 && $zMAX<=8.5) {
+        if(SMFbroaden>0) {
+            expand 1.15 do_SMF_color_Song puts "Song et al. (2015) SMF \ast \ uncorrected"
+            expand 0.3 puts ""
+        }
+    }
+    if($zMIN>=0.0 && $zMAX<=6.0) {
+        if(SMFbroaden>0) {
+            expand 1.15 do_SMF_color_Davidzon puts "Davidzon et al. (2017) SMF \ast \ \sigma{M_{*}}\sim"$(SMFbroaden)"\,dex"
+            expand 0.3 puts ""
+        } else {
+            expand 1.15 do_SMF_color_Davidzon puts "Davidzon et al. (2017) SMF"
+            expand 0.3 puts ""
+        }
+    }
+    lweight 4.0
+    # 
+    # plot the characteristic stellar mass at current redshift
+    ##if($zMIN==1.5 && $zMAX==2.5) {
+    ##    ctype default ltype 1
+    ##    #rel 10.66 $fy1 draw 10.66 $fy2 # Ilbert2013 SMF characteristic stellar mass
+    ##    #rel 10.73 $fy1 draw 10.73 $fy2 # Ilbert2013 SMF characteristic stellar mass
+    ##    rel 10.80 $fy1 draw 10.80 $fy2 # Muzzin2013 SMF characteristic stellar mass
+    ##    rel 10.85 $fy1 draw 10.85 $fy2 # Muzzin2013 SMF characteristic stellar mass
+    ##    ctype default ltype 0
+    ##}
+    ##if($zMIN==2.5 && $zMAX==4.0) {
+    ##    ctype default ltype 1
+    ##    rel 11.06 $fy1 draw 11.06 $fy2 # Muzzin2013 SMF characteristic stellar mass
+    ##    rel 11.56 $fy1 draw 11.56 $fy2 # Muzzin2013 SMF characteristic stellar mass
+    ##    ctype default ltype 0
+    ##}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+plot_Mstar_SFR_Contribution
+    plot_SFR_against_Schechter_Mstar
+
+plot_SFR_against_Schechter_Mstar
+    # 
+    # We will post-analyse the output of plot_Mstar_histogram
+    # 
+    # Check input
+    if(!$?zMIN || !$?zMAX) {print 'Error! plot_Mstar_histogram needs \$zMIN and \$zMAX be defined!\n' {} return}
+    # 
+    # Set zString (for file names)
+    if(SMFbroaden>0) {define bString "_broadened"} else {define bString "_intrinsic"}
+    define zString "_z_bin_"$(sprintf('%0.1f',float($zMIN)))"_"$(sprintf('%0.1f',float($zMAX)))$bString
+    # 
+    # Load rfile.sm
+    load rfile.sm
+    # 
+    # Do Plot
+    load crabPlot.sm
+    crabPlotOpenPS "Plot_Mstar_SFR_Contribution_v1.eps"
+    # 
+    location 6500 30500 6500 24500
+    set_axis_limit_Mstar_SFR
+    ticksize 0 0 -1 0
+    notation 0 0 -1 1
+    crabPlotDefaultPenForBox
+    box
+    # 
+    crabPlotDefaultPenForTitle
+    xlabel "log M_{*} [M_{\odot}]"
+    ylabel "SFR contribution [M_{\odot} yr^{-1}]"
+    # 
+    # do the shading
+    # -- in default the shading seems to have some problems with the area below Y=1, so we have to shift the Y axis by plus one
+    crabPlotDefaultPenForPoints
+    # 
+    set_axis_limit_Mstar_SFR
+    ctype blue histogram SMF_M (lg(OBS_SFR)) # this is the directly observed SFR in each Mstar bin
+    set_axis_limit_Mstar_SFR_plus_one
+    angle 85 ltype 1 lweight 2.0 shade histogram 220 SMF_M (lg(OBS_SFR)+1) angle 0 ltype 0 lweight 4.0
+    set_axis_limit_Mstar_SFR
+    # 
+    set_axis_limit_Mstar_SFR
+    ctype red histogram SMF_M (lg(OBS_SFR_SB)) # this is the directly observed SFR in SB population in each Mstar bin
+    set_axis_limit_Mstar_SFR_plus_one
+    angle 95 ltype 1 lweight 2.0 shade histogram 220 SMF_M (lg(OBS_SFR_SB)+1) angle 0 ltype 0 lweight 4.0
+    set_axis_limit_Mstar_SFR
+    # 
+    if($zMIN>=0.0 && $zMAX<=4.0) {
+        if(is_file("list_Ilbert_Schechter_Contribution"$zString".dat")) {
+            rfile "list_Ilbert_Schechter_Contribution"$zString".dat"
+            ## 
+            #set_axis_limit_Mstar_SFR
+            #ctype blue histogram SMF_M (lg(OBS_SFR)) # this is the directly observed SFR in each Mstar bin
+            #set_axis_limit_Mstar_SFR_plus_one
+            #angle 85 ltype 1 lweight 2.0 shade histogram 220 SMF_M (lg(OBS_SFR)+1) angle 0 ltype 0 lweight 4.0
+            #set_axis_limit_Mstar_SFR
+            ## 
+            #set_axis_limit_Mstar_SFR
+            #ctype red histogram SMF_M (lg(OBS_SFR_SB)) # this is the directly observed SFR in SB population in each Mstar bin
+            #set_axis_limit_Mstar_SFR_plus_one
+            #angle 95 ltype 1 lweight 2.0 shade histogram 220 SMF_M (lg(OBS_SFR_SB)+1) angle 0 ltype 0 lweight 4.0
+            #set_axis_limit_Mstar_SFR
+            # 
+            set_axis_limit_Mstar_SFR
+            do_SMF_color_Ilbert histogram SMF_M (lg(SMF_SFR)) # this is the SMF-converted SFR histogram
+            set_axis_limit_Mstar_SFR_plus_one
+            angle 45 ltype 1 lweight 2.0 shade histogram 800 SMF_M (lg(SMF_SFR)+1) angle 0 ltype 0 lweight 4.0
+            set_axis_limit_Mstar_SFR
+        }
+        if(is_file("list_Muzzin_Schechter_Contribution"$zString".dat")) {
+            rfile "list_Muzzin_Schechter_Contribution"$zString".dat"
+            ## 
+            #set_axis_limit_Mstar_SFR
+            #ctype blue histogram SMF_M (lg(OBS_SFR)) # this is the directly observed SFR in each Mstar bin
+            #set_axis_limit_Mstar_SFR_plus_one
+            #angle 85 ltype 1 lweight 2.0 shade histogram 220 SMF_M (lg(OBS_SFR)+1) angle 0 ltype 0 lweight 4.0
+            #set_axis_limit_Mstar_SFR
+            ## 
+            #set_axis_limit_Mstar_SFR
+            #ctype red histogram SMF_M (lg(OBS_SFR_SB)) # this is the directly observed SFR in SB population in each Mstar bin
+            #set_axis_limit_Mstar_SFR_plus_one
+            #angle 95 ltype 1 lweight 2.0 shade histogram 220 SMF_M (lg(OBS_SFR_SB)+1) angle 0 ltype 0 lweight 4.0
+            #set_axis_limit_Mstar_SFR
+            # 
+            set_axis_limit_Mstar_SFR
+            do_SMF_color_Muzzin histogram SMF_M (lg(SMF_SFR))
+            set_axis_limit_Mstar_SFR_plus_one
+            angle 60 ltype 1 lweight 2.0 shade histogram 600 SMF_M (lg(SMF_SFR)+1) angle 0 ltype 0 lweight 4.0
+            set_axis_limit_Mstar_SFR
+        }
+    }
+    if($zMIN>=3.5 && $zMAX<=7.5) {
+        if(is_file("list_Grazian_Schechter_Contribution"$zString".dat")) {
+            rfile "list_Grazian_Schechter_Contribution"$zString".dat"
+            ## 
+            #set_axis_limit_Mstar_SFR
+            #ctype blue histogram SMF_M (lg(OBS_SFR)) # this is the directly observed SFR in each Mstar bin
+            #set_axis_limit_Mstar_SFR_plus_one
+            #angle 85 ltype 1 lweight 2.0 shade histogram 220 SMF_M (lg(OBS_SFR)+1) angle 0 ltype 0 lweight 4.0
+            #set_axis_limit_Mstar_SFR
+            ## 
+            #set_axis_limit_Mstar_SFR
+            #ctype red histogram SMF_M (lg(OBS_SFR_SB)) # this is the directly observed SFR in SB population in each Mstar bin
+            #set_axis_limit_Mstar_SFR_plus_one
+            #angle 95 ltype 1 lweight 2.0 shade histogram 220 SMF_M (lg(OBS_SFR_SB)+1) angle 0 ltype 0 lweight 4.0
+            #set_axis_limit_Mstar_SFR
+            # 
+            set_axis_limit_Mstar_SFR
+            do_SMF_color_Grazian histogram SMF_M (lg(SMF_SFR))
+            set_axis_limit_Mstar_SFR_plus_one
+            angle 75 ltype 1 lweight 2.0 shade histogram 400 SMF_M (lg(SMF_SFR)+1) angle 0 ltype 0 lweight 4.0
+            set_axis_limit_Mstar_SFR
+        }
+    }
+    if($zMIN>=3.5 && $zMAX<=8.5) {
+        if(is_file("list_Song_Schechter_Contribution"$zString".dat")) {
+            rfile "list_Song_Schechter_Contribution"$zString".dat"
+            ## 
+            #set_axis_limit_Mstar_SFR
+            #ctype blue histogram SMF_M (lg(OBS_SFR)) # this is the directly observed SFR in each Mstar bin
+            #set_axis_limit_Mstar_SFR_plus_one
+            #angle 85 ltype 1 lweight 2.0 shade histogram 220 SMF_M (lg(OBS_SFR)+1) angle 0 ltype 0 lweight 4.0
+            #set_axis_limit_Mstar_SFR
+            ## 
+            #set_axis_limit_Mstar_SFR
+            #ctype red histogram SMF_M (lg(OBS_SFR_SB)) # this is the directly observed SFR in SB population in each Mstar bin
+            #set_axis_limit_Mstar_SFR_plus_one
+            #angle 95 ltype 1 lweight 2.0 shade histogram 220 SMF_M (lg(OBS_SFR_SB)+1) angle 0 ltype 0 lweight 4.0
+            #set_axis_limit_Mstar_SFR
+            # 
+            if(SMFbroaden>0) {
+                set_axis_limit_Mstar_SFR
+                do_SMF_color_Song histogram SMF_M (lg(SMF_SFR))
+                set_axis_limit_Mstar_SFR_plus_one
+                angle 65 ltype 1 lweight 2.0 shade histogram 450 SMF_M (lg(SMF_SFR)+1) angle 0 ltype 0 lweight 4.0
+                set_axis_limit_Mstar_SFR
+            }
+        }
+    }
+    if($zMIN>=0.0 && $zMAX<=6.0) {
+        if(is_file("list_Davidzon_Schechter_Contribution"$zString".dat")) {
+            rfile "list_Davidzon_Schechter_Contribution"$zString".dat"
+            # 
+            set_axis_limit_Mstar_SFR
+            do_SMF_color_Davidzon histogram SMF_M (lg(SMF_SFR)) # this is the SMF-converted SFR histogram
+            set_axis_limit_Mstar_SFR_plus_one
+            angle 45 ltype 1 lweight 2.0 shade histogram 800 SMF_M (lg(SMF_SFR)+1) angle 0 ltype 0 lweight 4.0
+            set_axis_limit_Mstar_SFR
+        }
+    }
+    # 
+    lweight 4.0 relocate (7700 22800)
+    expand 1.25 ctype blue puts $zMIN"<z<"$zMAX S/N>=$limsnr Total
+    expand 0.3 puts ""
+    expand 1.25 ctype red puts $zMIN"<z<"$zMAX S/N>=$limsnr Pure SB
+    expand 0.3 puts ""
+    lweight 3.5
+    if($zMIN>=0.0 && $zMAX<=4.0) {
+        if(SMFbroaden>0) {
+            expand 1.05 do_SMF_color_Ilbert puts "Ilbert+(2013) SMF-converted SFR histogram \ast\sigma"
+            expand 0.3 puts ""
+            expand 1.05 do_SMF_color_Muzzin puts "Muzzin+(2013) SMF-converted SFR histogram \ast\sigma"
+            expand 0.3 puts ""
+        } else {
+            expand 1.05 do_SMF_color_Ilbert puts "Ilbert+(2013) SMF-converted SFR histogram"
+            expand 0.3 puts ""
+            expand 1.05 do_SMF_color_Muzzin puts "Muzzin+(2013) SMF-converted SFR histogram"
+            expand 0.3 puts ""
+        }
+    }
+    if($zMIN>=3.5 && $zMAX<=7.5) {
+        if(SMFbroaden>0) {
+            expand 1.05 do_SMF_color_Grazian puts "Grazian+(2015) SMF-converted SFR histogram \ast\sigma"
+            expand 0.3 puts ""
+        } else {
+            expand 1.05 do_SMF_color_Grazian puts "Grazian+(2015) SMF-converted SFR histogram"
+            expand 0.3 puts ""
+        }
+    }
+    if($zMIN>=3.5 && $zMAX<=8.5) {
+        if(SMFbroaden>0) {
+            expand 1.05 do_SMF_color_Song puts "Song+(2016) SMF-converted SFR histogram \ast\sigma"
+            expand 0.3 puts ""
+        }
+    }
+    if($zMIN>=0.0 && $zMAX<=6.0) {
+        if(SMFbroaden>0) {
+            expand 1.05 do_SMF_color_Davidzon puts "Davidzon+(2017) SMF-converted SFR histogram \ast\sigma"
+            expand 0.3 puts ""
+        } else {
+            expand 1.05 do_SMF_color_Davidzon puts "Davidzon+(2017) SMF-converted SFR histogram"
+            expand 0.3 puts ""
+        }
+    }
+    lweight 4.0
+    # 
+    crabPlotClosePS
+    # 
+    !cp "Plot_Mstar_SFR_Contribution_v1.eps" "Plot_Mstar_SFR_Contribution"$zString".eps"
+    !cp "Plot_Mstar_SFR_Contribution_v1.pdf" "Plot_Mstar_SFR_Contribution"$zString".pdf"
+
+
+
+
+
+
+
+
+
+
+

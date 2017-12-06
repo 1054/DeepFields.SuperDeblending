@@ -1,0 +1,10 @@
+# z    lg_SFRD_uncorr  e_lo e_hi  lg_SFRD_corr  e_lo e_hi    lg_L_IR_D e_lo e_hi  # Caputi2007 Table 5 (SFR = 1.72e-10 * 10**(lg_L_IR_D)) -- Kennicut1998
+# 
+0.20                0     0    0        -2.274  0.08 0.08         7.49 0.08 0.08  # Caputi2007: "2.5e8 Lsun Mpc-3 from the Huang et al. (2006) 8 um LF" -- <dzliu> should be 3.1e7 Lsun Mpc-3 from Huang et al. (2007) (Table 4)
+1.00                0     0    0        -0.684  0.17 0.17         9.08 0.17 0.17
+1.93                0     0    0        -0.944  0.15 0.18         8.82 0.15 0.18
+
+# 
+# data "datatable_Caputi2007.dat" read {lir 8 elo 9 ehi 10}
+# set sfr = lg(1.72e-10*10**(lir))
+# print '%13.3f %5.2f %4.2f\n' {sfr elo ehi}

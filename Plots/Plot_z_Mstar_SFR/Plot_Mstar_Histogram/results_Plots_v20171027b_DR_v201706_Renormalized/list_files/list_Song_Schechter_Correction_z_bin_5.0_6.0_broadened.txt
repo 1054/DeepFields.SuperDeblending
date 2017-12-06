@@ -1,0 +1,11 @@
+****************************************************************************************************
+calc_comoving_volume = 375886.4417
+sum(SMF_SFR) = 1301056.714 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 3.461302589 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 1213977.773 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 3.229639695 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 1402548.582 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 3.731309317 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 2939.140541 # - The directly observed SFR
+rho(OBS_SFR) = 0.007819224678 # - The directly observed SFR density
+****************************************************************************************************

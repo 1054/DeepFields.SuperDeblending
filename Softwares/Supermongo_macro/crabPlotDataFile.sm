@@ -355,7 +355,14 @@ plot_Data 01
                         points $(xdat[$idat]) $(ydat[$idat])
                     }
                 } else { 
-                    ltype $(temp_connect) xdat ydat ltype 0 
+                    do idat=0,dimen(xdat)-2 {
+                        ctype_by_value $(cdat[$idat]) $(temp_crange[0]) $(temp_crange[1])
+                        set temp_connect_x = xdat[$idat] concat xdat[$idat+1]
+                        set temp_connect_y = ydat[$idat] concat ydat[$idat+1]
+                        ltype $(temp_connect) connect temp_connect_x temp_connect_y ltype 0 
+                        unset temp_connect_x
+                        unset temp_connect_y
+                    }
                 }
             }
             # 
@@ -505,14 +512,34 @@ plot_Data 01
                     #echo legend lweight $(_crabPlot_legend_pt)
                     #expand $(_crabPlot_legend_ps) lweight $(_crabPlot_legend_pt)
                     #<20170118># plot symbol with legend / legend with symbol <TODO> assuming the symbol has a size of +0.02*_crabPlot_legend_ps
-                    if(_crabPlot_legend_ws>0) {
-                        set _temp_legend_x = $fx1+_crabPlot_legend_px*($fx2-$fx1)
-                        set _temp_legend_y = $fy1+_crabPlot_legend_py*($fy2-$fy1)
-                        expand $(_crabPlot_legend_ps*float(_crabPlot_legend_ws)) lweight $(_crabPlot_legend_pt)
-                        points _temp_legend_x _temp_legend_y
-                        relocate $($fx1+(_crabPlot_legend_px+0.02*_crabPlot_legend_ps)*($fx2-$fx1)) $($fy1+_crabPlot_legend_py*($fy2-$fy1))
-                    } else {
+                    if(_crabPlot_legend_ws==0) {
                         relocate $($fx1+_crabPlot_legend_px*($fx2-$fx1)) $($fy1+_crabPlot_legend_py*($fy2-$fy1))
+                    } else {
+                        if(_crabPlot_legend_ws>0) {
+                            # if _crabPlot_legend_ws>0, then plot legend with symbol, otherwise with line
+                            set _temp_legend_x = $fx1+_crabPlot_legend_px*($fx2-$fx1)
+                            set _temp_legend_y = $fy1+_crabPlot_legend_py*($fy2-$fy1)
+                            expand $(_crabPlot_legend_ps*float(_crabPlot_legend_ws)) lweight $(_crabPlot_legend_pt)
+                            points _temp_legend_x _temp_legend_y
+                            relocate $($fx1+(_crabPlot_legend_px+0.02*_crabPlot_legend_ps)*($fx2-$fx1)) $($fy1+_crabPlot_legend_py*($fy2-$fy1))
+                        } else {
+                            # if _crabPlot_legend_ws>0, then plot legend with symbol, otherwise with line
+                            set _temp_legend_x =                         $fx1+(_crabPlot_legend_px-0.020*_crabPlot_legend_ps*float(-_crabPlot_legend_ws))*($fx2-$fx1)
+                            set _temp_legend_y =                         $fy1+(_crabPlot_legend_py+0.000*_crabPlot_legend_ps*float(-_crabPlot_legend_ws))*($fy2-$fy1)
+                            set _temp_legend_x = _temp_legend_x concat $($fx1+(_crabPlot_legend_px+0.015*_crabPlot_legend_ps*float(-_crabPlot_legend_ws))*($fx2-$fx1))
+                            set _temp_legend_y = _temp_legend_y concat $($fy1+(_crabPlot_legend_py+0.000*_crabPlot_legend_ps*float(-_crabPlot_legend_ws))*($fy2-$fy1))
+                            lweight $(_crabPlot_legend_pt)
+                            if(temp_connect>=0) {
+                                ltype $(temp_connect)
+                                ltype expand 0.5
+                            }
+                            connect _temp_legend_x _temp_legend_y
+                            if(temp_connect>=0) {
+                                ltype 0
+                                ltype expand 1.0
+                            }
+                            relocate $($fx1+(_crabPlot_legend_px+0.02*_crabPlot_legend_ps)*($fx2-$fx1)) $($fy1+_crabPlot_legend_py*($fy2-$fy1))
+                        }
                     }
                     #<20160721># color each data point
                     echo legend $(temp_legend[$temp_ichar])
@@ -527,6 +554,11 @@ plot_Data 01
                     }
                     #puts ""
                     set _crabPlot_legend_py = _crabPlot_legend_py - _crabPlot_legend_dy
+                    # 
+                    # unset
+                    unset _crabPlot_legend_ws # legend-with-symbol
+                    unset _crabPlot_legend_pt # legend-weight
+                    unset _crabPlot_legend_dy # legend-spacing
                 }
             }
         }
@@ -563,13 +595,14 @@ open_PS 01
     # 
     # Open PS
     define open_PS_filename $1
-    device postencap ""$1".eps"
-    define TeX_strings 1
-    xtcolours
-    add_ctype gray 230 230 230
-    add_ctype midgray 210 210 210
-    add_ctype darkgray 170 170 170
-    location 6000 30500 6000 25500
+    #device postencap ""$1".eps"
+    #define TeX_strings 1
+    #xtcolours
+    #add_ctype gray 230 230 230
+    #add_ctype midgray 210 210 210
+    #add_ctype darkgray 170 170 170
+    crabPlotOpenPS $1.eps
+    location 6500 30500 6500 25500
     #notation 0 0 -1 1.1
     #limits -0.5 7.5 -3.5 1.5
     #ticksize 1 1 -1 10
@@ -665,7 +698,13 @@ close_PS
     if(is_vector(_crabPlot_legend_py)) {unset _crabPlot_legend_py}
     if(is_vector(_crabPlot_legend_dy)) {unset _crabPlot_legend_dy}
     # 
-    ctype default
-    device nodevice
+    #ctype default
+    #device nodevice
+    
+    location $($gx1-500) $gx2 $gy1 $($gy2-3300)
+    crabPlotClosePS
+
+
+
 
 

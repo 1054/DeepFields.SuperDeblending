@@ -1,0 +1,11 @@
+
+
+
+    calc_SMF_Davidzon_backup_v20170707a_BUGGY.sm
+    calc_SMF_Davidzon.sm
+    --> I was using 
+            data "datatable_Davidzon2017_SMF_ALL.txt"
+        and 
+            set SchechterP = ($SMF_aMIN) * SchechterP_z$SMF_zMIN + ($SMF_aMAX) * SchechterP_z$SMF_zMIN  # [1/Mpc^3/dex]
+        was wrong!
+       

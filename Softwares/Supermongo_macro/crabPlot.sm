@@ -47,6 +47,14 @@ crabPlotOpenPS 01
     add_ctype gray 230 230 230
     add_ctype midgray 210 210 210
     add_ctype darkgray 170 170 170
+    add_ctype green2 0 229 0
+    add_ctype green3 0 183 0
+    add_ctype green4 0 164 0
+    add_ctype green5 0 147 0
+    add_ctype green6 0 128 0
+    #http://www.color-hex.com/color/00ff00
+    # 
+    # set 
     #echo gx1 = $gx1, gx2 = $gx2, gy1 = $gy1, gy2 = $gy2
     if($gx1==3500 && $gx2==31000 && $gy1==3500 && $gy2==31000) {
         location 5500 31500 9500 31500

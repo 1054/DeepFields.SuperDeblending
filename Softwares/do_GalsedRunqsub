@@ -189,7 +189,7 @@ for i in $runsedid; do
             cat "fit_parallel_HDFN/run_$i.sh"
             echo "-------------------------------------------------------------------------------------"
             if [[ $TRIALDRYRUN == 0 ]]; then
-                if [[ $(hostname) == *planer* || $(hostname) == *coast* ]]; then 
+                if [[ $(hostname) == *planer* || $(hostname) == *irfucoast* ]]; then 
                     echo $(hostname)
                     echo Counting qsub task "$(showq | grep $USER | wc -l)"
                     while      [[   30  -le "$(showq | grep $USER | wc -l)" ]]; do

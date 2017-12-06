@@ -1,0 +1,4 @@
+# z    lg_SFRD_uncorr  e_lo e_hi  lg_SFRD_corr  e_lo e_hi    lg_L_FUV_D_u e_lo e_hi lg_L_FUV_D_c e_lo e_hi # Oesch2013 Table 5 (SFR = 1.4e-28 * 10**(LFUV))
+# 
+9               -2.86  0.21 0.19             0     0    0            25.0 0.21 0.19
+10              -3.70  0.90 0.70             0     0    0            24.1 0.90 0.70

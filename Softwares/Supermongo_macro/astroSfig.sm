@@ -634,8 +634,8 @@ calc_dzliu_CII 04
         print '\ncalc_dzliu_CII:\n' {}
         print '\nL_TIR  = %15.7e  L_sun\nL_FIR  = %15.7e  L_sun\nJ_CII  = %15d\nv_CII  = %15.3f  GHz' \
                {_dzliu_LumTIR _dzliu_LumFIR _dzliu_Jupper _dzliu_ObsFreq}
-        print 'L_CII  = %15.7e  K km s-1 pc2\nF_CII  = %15f  Jy km s-1\nS_CII  = %15f  mJy\n\n' \
-               {_dzliu_LPrmCII _dzliu_FluxCII _dzliu_PeakCII}
+        print 'L_CII  = %15.7e  K km s-1 pc2\nL_CII  = %15.7e  K km s-1 pc2\nF_CII  = %15f  Jy km s-1\nS_CII  = %15f  mJy\n\n' \
+               {_dzliu_LPrmCII _dzliu_LumiCII _dzliu_FluxCII _dzliu_PeakCII}
         define print_noheader 0
     }
     set $0 = _dzliu_LPrmCII
@@ -1417,9 +1417,13 @@ calc_comoving_volume 03
     set $0 = _cosmic_Vc
     return
 
-calc_cosmic_age 01
+calc_cosmic_age 04
     # use lumdist (dzliu's software) to compute cosmic age
-    if($?1==0) {print 'Usage: set t = calc_cosmic_age(z)\n' {} return}
+    if($?1==0) {
+        print 'Usage: set t = calc_cosmic_age(z)\n' {} 
+        print '       set t = calc_cosmic_age(z,67.74,0.3089,0.6911) \# Planck Collaboration, et al., 2016, A\&A, 594, A13\n' {} 
+        return
+    }
     set _calc_cosmic_age_z = float($1)
     !rm .cosmic.comoving.distance.tmp 2>/dev/null
     define _calc_cosmic_age_j 0
@@ -1427,7 +1431,12 @@ calc_cosmic_age 01
         #if($verbose) {
         #    echo lumdist $(_calc_cosmic_age_z[$_calc_cosmic_age_j])
         #}
-        !lumdist $(_calc_cosmic_age_z[$_calc_cosmic_age_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
+        if($?4) {
+            #e.g.
+            !lumdist -h0 $2 -matter $3 -vaccum $4 $(_calc_cosmic_age_z[$_calc_cosmic_age_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
+        } else {
+            !lumdist $(_calc_cosmic_age_z[$_calc_cosmic_age_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
+        }
     }
     if(is_file(.cosmic.comoving.distance.tmp)) {
         verbose 0
@@ -1445,7 +1454,7 @@ calc_cosmic_lookbacktime 01
     define _calc_cosmic_age_j 0
     do _calc_cosmic_age_j=0,dimen(_calc_cosmic_age_z)-1 {
         #echo lumdist $(_calc_cosmic_age_z[$_calc_cosmic_age_j])
-        !lumdist $(_calc_cosmic_age_z[$_calc_cosmic_age_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/=/ /g' >> .cosmic.comoving.distance.tmp
+        !lumdist $(_calc_cosmic_age_z[$_calc_cosmic_age_j]) -verbose | grep 'lumdist t_age=' | sed -e 's/[=,]/ /g' >> .cosmic.comoving.distance.tmp
     }
     if(is_file(.cosmic.comoving.distance.tmp)) {
         verbose 0
@@ -2066,7 +2075,7 @@ calc_MH2 07
         print '       set M_H_2 = calc_MH2(\'dust\',Mdust,gas2dust)\n' {}
         print '       set M_H_2 = calc_MH2(\'dust\',SFR,Umean,gas2dust)\n' {}
         print '       set M_H_2 = calc_MH2(\'Scoville2016\',Lnu_rest850um)\n' {}
-        print '       set M_H_2 = calc_MH2(\'Scoville2016\',flux_Jy,lambda_um,z,beta,alpha850)\n' {}
+        print '       set M_H_2 = calc_MH2(\'Scoville2016\',flux_Jy,lambda_um,z,beta,alpha850,GammaRJ)\n' {}
         print '       set M_H_2 = calc_MH2(\'Groves2015\',flux_Jy,lambda_um,z)\n' {}
         return
     }
@@ -2191,7 +2200,7 @@ calc_MH2 07
                 set _calc_MH2_lambda = _calc_MH2_Snu*0.0 + $3
             } else {
                 define _calc_MH2_lambda 850.0
-                define _calc_MH2_lambda ? <"Wavelength lambda [um]?">
+                define _calc_MH2_lambda ? <"Wavelength lambda, obs-frame [um]?">
                 set _calc_MH2_lambda = _calc_MH2_Snu*0.0 + $_calc_MH2_lambda
             }
             if($?4) {
@@ -2215,6 +2224,21 @@ calc_MH2 07
                 define _calc_MH2_alpha850 ? <"850um monochromatic luminosity to gas mass ratio?">
                 set _calc_MH2_alpha850 = _calc_MH2_Snu*0.0 + $_calc_MH2_alpha850
             }
+            if($?7) {
+                set _calc_MH2_GammaRJ = _calc_MH2_Snu*0.0 + $7
+                set _calc_MH2_Gamma0 = 0.71
+            } else {
+                set _calc_MH2_c = 2.99792458e10 # cm/s
+                set _calc_MH2_nu = 2.99792458e5/(_calc_MH2_lambda/(1+_calc_MH2_z))*1e9 # Hz, note that lamda has a unit of um. 
+                set _calc_MH2_Tdust = 25 # K
+                set _calc_MH2_Planck = 2 * 6.62606957e-27 * _calc_MH2_nu**3 / _calc_MH2_c**2
+                set _calc_MH2_Planck = _calc_MH2_Planck * 1/(exp((6.62606957e-27*_calc_MH2_nu)/(1.3806488e-16*_calc_MH2_Tdust))-1)
+                set _calc_MH2_RayleighJeans = 2 * _calc_MH2_nu**2 / _calc_MH2_c**2 * (1.3806488e-16*_calc_MH2_Tdust)
+                #define _calc_MH2_GammaRJ $(_calc_MH2_RayleighJeans/_calc_MH2_Planck)
+                #define _calc_MH2_GammaRJ ? <"Rayleigh-Jeans Correction?">
+                set _calc_MH2_GammaRJ = _calc_MH2_Snu*0.0 + (_calc_MH2_Planck/_calc_MH2_RayleighJeans)
+                set _calc_MH2_Gamma0 = 0.7054493846
+            }
             if(dimen(_calc_MH2_Snu) != dimen(_calc_MH2_lambda) || dimen(_calc_MH2_Snu) != dimen(_calc_MH2_beta)) {
                 print '\nError! Vectors \"_calc_MH2_Snu\", \"_calc_MH2_lambda\" and \"_calc_MH2_beta\" have different dimensions!\n\n' {}
                 echo dimen(_calc_MH2_Snu) = $(dimen(_calc_MH2_Snu))
@@ -2224,10 +2248,12 @@ calc_MH2 07
             }
             set _calc_MH2_Snu = (_calc_MH2_Snu<=0.0) ? 1e-99 : _calc_MH2_Snu
             set _calc_MH2_Snu_rest850um = _calc_MH2_Snu * ((_calc_MH2_lambda/(1+_calc_MH2_z))/(850.0))**(2.0+_calc_MH2_beta) # convert to rest-frame 850um flux density, Jy
+            #set _calc_MH2_Snu_rest850um = _calc_MH2_Snu_rest850um * _calc_MH2_GammaRJ/_calc_MH2_Gamma0 # Scoville+2016 is wrong! Scoville+2017_ApJ_837_150 is correct!
+            set _calc_MH2_Snu_rest850um = _calc_MH2_Snu_rest850um * _calc_MH2_Gamma0/_calc_MH2_GammaRJ # Scoville+2016 is wrong! Scoville+2017_ApJ_837_150 is correct!
             set _calc_MH2_z = (_calc_MH2_z<=0.0) ? 1e-99 : _calc_MH2_z
             set _calc_MH2_dL = calc_lumdist(_calc_MH2_z)
             set _calc_MH2_Lnu = 1.19e27 * _calc_MH2_Snu_rest850um / (1+_calc_MH2_z) * _calc_MH2_dL**2 # erg s-1 Hz-1, see Hughes 2017 - 1702.07350.pdf (page 3 right)
-            set _calc_MH2_lgMH2_Scoville2016 = lg(1.78 * _calc_MH2_Snu_rest850um*1e3 / (1+_calc_MH2_z) * (_calc_MH2_dL/1e3)**2 * (6.7e19/_calc_MH2_alpha850) * 1e10) # Scoville et al. 2016 (appendix and also page 16 equation 16)
+            set _calc_MH2_lgMH2_Scoville2016 = lg(1.78 * _calc_MH2_Snu_rest850um*1e3 / (1+_calc_MH2_z) * (_calc_MH2_dL/1e3)**2 * (6.7e19/_calc_MH2_alpha850) * 1e10) # Scoville et al. 2016ApJ...820...83S (appendix and also page 16 equation 16)
         }
         set _calc_MH2_Lnu = (_calc_MH2_Lnu<=0.0) ? 1e-99 : _calc_MH2_Lnu
         set _calc_MH2_lgMH2 = lg(_calc_MH2_Lnu) * 0.93 - 17.74 # Hughes 2017 - 1702.07350.pdf (page 4, equation 5)

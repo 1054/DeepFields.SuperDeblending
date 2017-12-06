@@ -1,0 +1,7 @@
+# 2017-10-06 16:19:44
+set zMIN = 4  # The redshift bin 4 6
+set zMAX = 6  # The redshift bin 4 6
+set CSFRD_Vmax_Value = 0.05097230842  # The Vmax-corrected cosmic SFR density in redshift bin 4 6
+set CSFRD_Vmax_Error = 0.02857547023  # The Vmax-corrected cosmic SFR density in redshift bin 4 6
+set CSFRD_Vbin_Value = 0.01476775066  # The directly measured cosmic SFR density in redshift bin 4 6
+set CSFRD_Vbin_Error = 0.001205665375  # The directly measured cosmic SFR density in redshift bin 4 6

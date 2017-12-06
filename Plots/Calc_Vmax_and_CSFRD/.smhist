@@ -1,0 +1,12 @@
+macro read calc_Vmax.sm calc_Vmax
+QUIT
+macro read calc_CSFRD_bootstrap_without_withdrawal.sm calc_CSFRD_bootstrap
+QUIT
+macro read calc_Vmax.sm calc_Vmax
+QUIT
+macro read calc_CSFRD_bootstrap_without_withdrawal.sm calc_CSFRD_bootstrap
+QUIT
+macro read calc_Vmax.sm calc_Vmax
+QUIT
+macro read calc_CSFRD_bootstrap_without_withdrawal.sm calc_CSFRD_bootstrap
+QUIT

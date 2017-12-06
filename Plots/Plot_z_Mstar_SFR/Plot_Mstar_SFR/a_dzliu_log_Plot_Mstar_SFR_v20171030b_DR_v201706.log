@@ -1,0 +1,278 @@
+Read lines 1 to 29 from datatable__M_incomplete.txt
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/Plots/Plot_z_Mstar_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201706"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Cloud
+VisitDirPathVector: chdir Github
+VisitDirPathVector: chdir DeepFields.SuperDeblending
+VisitDirPathVector: chdir datarelease
+VisitDirPathVector: chdir 201706
+CatalogReader: 
+Read these vectors: snrIR, z, zphot, zspec, ubestfit (z equals zphot, zphot equals zspec when available)
+Read these vectors: coo_SED (=-1,0,1), coo_AGN (=0,1), coo_FIR (=0,1)
+Read these vectors: SFR_of_MS, lgSFR_of_MS, dis_to_MS (dex), flag_SB (string)
+Read these vectors: xfSFR, xeSFR
+Read these vectors: Mstar, Mstar_err, lgMstar, lgMstar_err
+Read these vectors: SFR,   SFR_err,   lgSFR,   lgSFR_err,   eSFR,   SFR_IR,   SFR_IR_err
+Read these vectors: LIR,   LIR_err,   lgLIR,   lgLIR_err,   eLIR
+Read these vectors: Umean, Umean_err, lgUmean, lgUmean_err, eUmean
+Read these vectors: Mdust, Mdust_err, lgMdust, lgMdust_err, eMdust
+Read these vectors: SSFR,  SSFR_err,  lgSSFR,  lgSSFR_err,  eSSFR
+Read these vectors: SFR_total 
+Read these vectors: Mgas,  lgMgas,    dL (lumdist)
+CatalogReader: done!
+
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201706"
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/Plots/Plot_z_Mstar_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Cloud
+VisitDirPathVector: chdir Github
+VisitDirPathVector: chdir DeepFields.SuperDeblending
+VisitDirPathVector: chdir Plots
+VisitDirPathVector: chdir Plot_z_Mstar_SFR
+VisitDirPathVector: chdir Plot_Mstar_SFR
+Number of goodArea detected sources is 107 between 0.2 and 0.5
+Number of goodArea detected sources without Mstar is 0 between 0.2 and 0.5
+plt_x_MEAN = 10.0666
+plt_y_MEAN = 0.6236634841
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 103
+Number of SB 4
+Fraction of SB 0.03738317757
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 107 between 0.2 and 0.5
+Number of goodArea detected sources without Mstar is 0 between 0.2 and 0.5
+plt_x_MEAN = 10.0666
+plt_y_MEAN = 0.6236634841
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 103
+Number of SB 4
+Fraction of SB 0.03738317757
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 107 between 0.2 and 0.5
+Number of goodArea detected sources without Mstar is 0 between 0.2 and 0.5
+plt_x_MEAN = 10.0666
+plt_y_MEAN = 0.6236634841
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 103
+Number of SB 4
+Fraction of SB 0.03738317757
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 292 between 0.5 and 1
+Number of goodArea detected sources without Mstar is 1 between 0.5 and 1
+plt_x_MEAN = 10.24612196
+plt_y_MEAN = 1.087581412
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 270
+Number of SB 22
+Fraction of SB 0.07534246575
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 292 between 0.5 and 1
+Number of goodArea detected sources without Mstar is 1 between 0.5 and 1
+plt_x_MEAN = 10.24612196
+plt_y_MEAN = 1.087581412
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 270
+Number of SB 22
+Fraction of SB 0.07534246575
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 292 between 0.5 and 1
+Number of goodArea detected sources without Mstar is 1 between 0.5 and 1
+plt_x_MEAN = 10.24612196
+plt_y_MEAN = 1.087581412
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 270
+Number of SB 22
+Fraction of SB 0.07534246575
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 161 between 1 and 1.5
+Number of goodArea detected sources without Mstar is 1 between 1 and 1.5
+plt_x_MEAN = 10.48308083
+plt_y_MEAN = 1.593038576
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 150
+Number of SB 11
+Fraction of SB 0.06832298137
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 161 between 1 and 1.5
+Number of goodArea detected sources without Mstar is 1 between 1 and 1.5
+plt_x_MEAN = 10.48308083
+plt_y_MEAN = 1.593038576
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 150
+Number of SB 11
+Fraction of SB 0.06832298137
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 161 between 1 and 1.5
+Number of goodArea detected sources without Mstar is 1 between 1 and 1.5
+plt_x_MEAN = 10.48308083
+plt_y_MEAN = 1.593038576
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 150
+Number of SB 11
+Fraction of SB 0.06832298137
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 72 between 1.5 and 2
+Number of goodArea detected sources without Mstar is 0 between 1.5 and 2
+plt_x_MEAN = 10.58856666
+plt_y_MEAN = 1.943047727
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 63
+Number of SB 9
+Fraction of SB 0.125
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 72 between 1.5 and 2
+Number of goodArea detected sources without Mstar is 0 between 1.5 and 2
+plt_x_MEAN = 10.58856666
+plt_y_MEAN = 1.943047727
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 63
+Number of SB 9
+Fraction of SB 0.125
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 72 between 1.5 and 2
+Number of goodArea detected sources without Mstar is 0 between 1.5 and 2
+plt_x_MEAN = 10.58856666
+plt_y_MEAN = 1.943047727
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 63
+Number of SB 9
+Fraction of SB 0.125
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 78 between 2 and 2.5
+Number of goodArea detected sources without Mstar is 1 between 2 and 2.5
+plt_x_MEAN = 10.752939
+plt_y_MEAN = 2.233266188
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 68
+Number of SB 10
+Fraction of SB 0.1282051282
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 78 between 2 and 2.5
+Number of goodArea detected sources without Mstar is 1 between 2 and 2.5
+plt_x_MEAN = 10.752939
+plt_y_MEAN = 2.233266188
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 68
+Number of SB 10
+Fraction of SB 0.1282051282
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 78 between 2 and 2.5
+Number of goodArea detected sources without Mstar is 1 between 2 and 2.5
+plt_x_MEAN = 10.752939
+plt_y_MEAN = 2.233266188
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 68
+Number of SB 10
+Fraction of SB 0.1282051282
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 22 between 2.5 and 3
+Number of goodArea detected sources without Mstar is 0 between 2.5 and 3
+plt_x_MEAN = 10.75287393
+plt_y_MEAN = 2.403977538
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 20
+Number of SB 2
+Fraction of SB 0.09090909091
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 22 between 2.5 and 3
+Number of goodArea detected sources without Mstar is 0 between 2.5 and 3
+plt_x_MEAN = 10.75287393
+plt_y_MEAN = 2.403977538
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 20
+Number of SB 2
+Fraction of SB 0.09090909091
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 22 between 2.5 and 3
+Number of goodArea detected sources without Mstar is 0 between 2.5 and 3
+plt_x_MEAN = 10.75287393
+plt_y_MEAN = 2.403977538
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 20
+Number of SB 2
+Fraction of SB 0.09090909091
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 33 between 3 and 4
+Number of goodArea detected sources without Mstar is 2 between 3 and 4
+plt_x_MEAN = 10.85892813
+plt_y_MEAN = 2.621198255
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 27
+Number of SB 6
+Fraction of SB 0.1818181818
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 33 between 3 and 4
+Number of goodArea detected sources without Mstar is 2 between 3 and 4
+plt_x_MEAN = 10.85892813
+plt_y_MEAN = 2.621198255
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 27
+Number of SB 6
+Fraction of SB 0.1818181818
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 33 between 3 and 4
+Number of goodArea detected sources without Mstar is 2 between 3 and 4
+plt_x_MEAN = 10.85892813
+plt_y_MEAN = 2.621198255
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 27
+Number of SB 6
+Fraction of SB 0.1818181818
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 10 between 4 and 5
+Number of goodArea detected sources without Mstar is 0 between 4 and 5
+plt_x_MEAN = 11.31196603
+plt_y_MEAN = 2.922744454
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 8
+Number of SB 2
+Fraction of SB 0.2
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 10 between 4 and 5
+Number of goodArea detected sources without Mstar is 0 between 4 and 5
+plt_x_MEAN = 11.31196603
+plt_y_MEAN = 2.922744454
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 8
+Number of SB 2
+Fraction of SB 0.2
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 10 between 4 and 5
+Number of goodArea detected sources without Mstar is 0 between 4 and 5
+plt_x_MEAN = 11.31196603
+plt_y_MEAN = 2.922744454
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 8
+Number of SB 2
+Fraction of SB 0.2
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 3 between 5 and 6
+Number of goodArea detected sources without Mstar is 0 between 5 and 6
+plt_x_MEAN = 11.21132625
+plt_y_MEAN = 2.991717168
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 2
+Number of SB 1
+Fraction of SB 0.3333333333
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 3 between 5 and 6
+Number of goodArea detected sources without Mstar is 0 between 5 and 6
+plt_x_MEAN = 11.21132625
+plt_y_MEAN = 2.991717168
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 2
+Number of SB 1
+Fraction of SB 0.3333333333
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+Number of goodArea detected sources is 3 between 5 and 6
+Number of goodArea detected sources without Mstar is 0 between 5 and 6
+plt_x_MEAN = 11.21132625
+plt_y_MEAN = 2.991717168
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 2
+Number of SB 1
+Fraction of SB 0.3333333333
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 

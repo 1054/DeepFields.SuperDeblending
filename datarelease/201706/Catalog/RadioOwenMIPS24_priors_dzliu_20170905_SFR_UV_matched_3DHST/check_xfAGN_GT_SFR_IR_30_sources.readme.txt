@@ -1,0 +1,10 @@
+20171028
+check the optical images for 30 sources with
+(goodArea==1 && SNR_IR>=5 && xfAGN>SFR_IR)
+
+Most of them are very bright in optical images, 
+and with a point-like source at the galaxy center, 
+except for the following IDs:
+10669, 10749, 11388, 3417, 5438, 8427, 
+2324?, 255?, 3417, 
+

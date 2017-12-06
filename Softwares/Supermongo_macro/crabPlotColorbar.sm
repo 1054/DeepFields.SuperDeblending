@@ -17,7 +17,7 @@ crabPlotColorbar 00
 
 plotColorBar_demo 00
     # 
-    #     macro read plotColorBar.sm plotColorBar_demo
+    #     load crabPlotColorbar.sm plotColorBar_demo
     # 
     #     crabPlotColorbar is a quick macro to plot colorbar and set color array according to the input data array
     # 

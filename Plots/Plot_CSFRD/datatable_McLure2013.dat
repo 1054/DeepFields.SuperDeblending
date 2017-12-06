@@ -1,0 +1,16 @@
+# z    lg_SFRD_uncorr  e_lo e_hi  lg_SFRD_corr  e_lo e_hi    lg_L_FUV_D_u e_lo e_hi lg_L_FUV_D_c e_lo e_hi # McLure2013 Figure 7 (SFR = 1.4e-28 * 10**(LFUV))
+# 
+6              -1.854  0.08 0.08             0     0    0            26.0 0.08 0.08
+7              -2.054  0.05 0.05             0     0    0            25.8 0.05 0.05
+8              -2.254  0.08 0.08             0     0    0            25.6 0.08 0.08
+9              -2.654  0.20 0.20             0     0    0            25.2  0.2  0.2
+
+
+# 
+# McLure2013 Figure 7 (SFR = 1.4e-28 * 10**(LFUV))
+# 
+# data "datatable_McLure2013.dat" read {lfuv_uncorr 8 elo_uncorr 9 ehi_uncorr 10}
+# set sfr_uncorr = lg(1.4e-28*10**(lfuv_uncorr))
+# print '%13.3f %5.2f %4.2f\n' {sfr_uncorr elo_uncorr ehi_uncorr lfuv_uncorr elo_uncorr ehi_uncorr}
+# set k_dust = 
+# set sfr_corr = sfr_uncorr * (k_dust-1)

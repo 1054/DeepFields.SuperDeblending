@@ -1,0 +1,66 @@
+go_plot
+    # 
+    #  echo "macro read a_dzliu_code_plot_figure_4_SFR_UV_to_IR_ratio_versus_Mstar.sm go_plot" | sm
+    # 
+    load rfile.sm
+    rfile "datatable_CrossMatched_selected_columns_converted_to_SFRs.txt"
+    
+    set plot_x = lg(Mstar)         if(SFR_UV_method==1 && SNR_IR>=5 && goodArea==1)
+    set plot_y = lg(SFR_UV/SFR_IR) if(SFR_UV_method==1 && SNR_IR>=5 && goodArea==1)
+    set plot_z = z_IR              if(SFR_UV_method==1 && SNR_IR>=5 && goodArea==1)
+    
+    load crabPlot.sm
+    crabPlotOpenPS "Plot_correlation_Ratio_SFR_UV_IR_versus_Mstar_goodArea.eps"
+    crabPlotDefaultPenForBox
+    limits 7 12.5 -4.5 3.0
+    ticksize -1 10 -1 10
+    notation -1 1 -1 1
+    box
+    crabPlotDefaultPenForTitle
+    xlabel "log M_{*}"
+    ylabel "SFR_{UV}/SFR_{IR}"
+    crabPlotDefaultPenForPoints
+    # 
+    set coo = (plot_z<1.0)
+    set plot_xx = plot_x if(coo)
+    set plot_yy = plot_y if(coo)
+    ctype seagreen ptype 4 1 points plot_xx plot_yy
+    # 
+    set coo = (plot_z>=1.0 && plot_z<2.0)
+    set plot_xx = plot_x if(coo)
+    set plot_yy = plot_y if(coo)
+    ctype skyblue ptype 4 1 points plot_xx plot_yy
+    # 
+    set coo = (plot_z>=2.0 && plot_z<3.0)
+    set plot_xx = plot_x if(coo)
+    set plot_yy = plot_y if(coo)
+    ctype magenta ptype 4 1 points plot_xx plot_yy
+    # 
+    set coo = (plot_z>=3.0)
+    set plot_xx = plot_x if(coo)
+    set plot_yy = plot_y if(coo)
+    ctype red ptype 4 1 points plot_xx plot_yy
+    # 
+    crabPlotDefaultPenForConnect
+    lweight 5.0
+    set line_x = 9.6,11.8,0.05
+    set line_y = 13.3-1.4*line_x
+    connect line_x line_y
+    set line_x = 7.6,9.6,0.05
+    set line_y = line_x*0.0+lg(0.223262)
+    connect line_x line_y
+    # 
+    crabPlotDefaultPenForLegend
+    crabPlotLegend 0.06 0.92 "``goodArea'' FIR+mm sources with UV and M_{*} : "
+    ctype seagreen ptype 4 1  crabPlotLegendWithSymbol "z<1"
+    ctype skyblue  ptype 4 1  crabPlotLegendWithSymbol "1{\le}z<2"
+    ctype magenta  ptype 4 1  crabPlotLegendWithSymbol "2{\le}z<3"
+    ctype red      ptype 4 1  crabPlotLegendWithSymbol "z{\ge}3"
+    crabPlotClosePS
+    !open "Plot_correlation_Ratio_SFR_UV_IR_versus_Mstar_goodArea.pdf"
+    !rm "Plot_correlation_Ratio_SFR_UV_IR_versus_Mstar_goodArea.{eps,pdfmarks,pdfconverts}" 2>/dev/null
+
+
+
+
+

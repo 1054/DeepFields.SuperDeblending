@@ -1,0 +1,88 @@
+calc_CSFRD_incompleteness_correction
+    # 
+    # Usage: 
+    #    echo "macro read a_dzliu_code_calc_CSFRD_incompleteness_correction.sm calc_CSFRD_incompleteness_correction" | sm
+    # 
+    # Note: 
+    #    The result of this code will be used in 
+    #    /Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR/a_dzliu_code_Plot_Mstar_SFR.sm 
+    # 
+    set zMinList = {0.2 0.5 1.0 1.5 2.0 2.5 3.0 4.0 5.0}
+    set zMaxList = {0.5 1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0}
+    #set M_incomplete_list = {9.7 10.1 10.5 10.7 10.7 10.9 10.9}
+    declare M_incomplete_list 0
+    declare N_correction_list 0
+    declare S_correction_list 0.s # the used SMF
+    declare F_correction_list 0 # fraction
+    declare z_min_list 0
+    declare z_max_list 0
+    define Percent_incomplete 50.0
+    verbose 0
+    # 
+    load rfile.sm
+    # 
+    #echo chdir "results_Plots_v20171027a_DR_v201706/list_files"
+    #chdir "results_Plots_v20171027a_DR_v201706/list_files"
+    # 
+    do i=0,dimen(zMinList)-1 {
+        define zMIN $(zMinList[$i])
+        define zMAX $(zMaxList[$i])
+        set zMinStr = sprintf('%0.1f',float($zMIN))
+        set zMaxStr = sprintf('%0.1f',float($zMAX))
+        echo "z bin "$(zMinStr)" "$(zMaxStr)
+        # 
+        foreach SMF_Paper {Grazian Muzzin Ilbert Song Davidzon} {
+            # 
+            declare M_incomplete 0
+            declare N_correction 0
+            declare S_correction 0.s
+            declare F_correction 0
+            # 
+            if(is_file("list_"$SMF_Paper"_Schechter_Contribution_z_bin_"$(zMinStr)"_"$(zMaxStr)"_broadened.dat")) {
+                rfile "list_"$SMF_Paper"_Schechter_Contribution_z_bin_"$(zMinStr)"_"$(zMaxStr)"_broadened.dat"
+                #read {SMF_M 1 SMF_N 2 OBS_N 7}
+                # 
+                # compute since which stellar mass (M_incomplete) the N > N_SMF
+                define j 0
+                while {$j < dimen(SMF_M)} {
+                    if($j > 0 && OBS_N[$j] > ($Percent_incomplete/100.0)*SMF_N[$j]) {
+                        echo "z bin "$(zMinStr)" "$(zMaxStr)", SMF "$SMF_Paper", M_incomplete "$((SMF_M[$j-1]+SMF_M[$j])/2.0)
+                        set M_incomplete = $((SMF_M[$j-1]+SMF_M[$j])/2.0)
+                        define j $(dimen(SMF_M))
+                    }
+                    define j $($j+1)
+                }
+                # 
+                # fit the M > M_incomplete SFR histogram
+                set SMF_SFR_fit = SMF_SFR if(SMF_M>=M_incomplete[dimen(M_incomplete)-1] && OBS_SFR>1e-3) # >1e-3 Msun is the valid data range
+                set OBS_SFR_fit = OBS_SFR if(SMF_M>=M_incomplete[dimen(M_incomplete)-1] && OBS_SFR>1e-3) # >1e-3 Msun is the valid data range
+                set SMF_M_fit   = SMF_M   if(SMF_M>=M_incomplete[dimen(M_incomplete)-1] && OBS_SFR>1e-3) # >1e-3 Msun is the valid data range
+                set N_corr_fit = lg(OBS_SFR_fit/SMF_SFR_fit) # in dex
+                set N_corr_fit_mean = $(sum(N_corr_fit)/float(dimen(N_corr_fit)))
+                print {SMF_M_fit N_corr_fit N_corr_fit_mean}
+                set N_correction = $(N_corr_fit_mean)
+                set S_correction = '$SMF_Paper'
+                set F_correction = $(sum(OBS_SFR)/sum(SMF_SFR*(10**N_corr_fit_mean)))
+                # 
+                # 
+            }
+            # 
+            if(dimen(M_incomplete)>0) {
+                set M_incomplete_list = M_incomplete_list concat M_incomplete
+                set N_correction_list = N_correction_list concat N_correction
+                set S_correction_list = S_correction_list concat S_correction
+                set F_correction_list = F_correction_list concat F_correction
+                set z_min_list = z_min_list concat $zMIN
+                set z_max_list = z_max_list concat $zMAX
+            }
+            # 
+        }
+        # 
+    }
+    # 
+    print "datatable__CSFRD_correction__v1.txt" '%14.1f%14.1f%20.3f%20.3f%20.6f%20s\n' {z_min_list z_max_list M_incomplete_list N_correction_list F_correction_list S_correction_list}
+    echo ""
+    !cat "datatable__CSFRD_correction__v1.txt"
+    echo ""
+
+

@@ -1,0 +1,204 @@
+calc_SMF_Ilbert 03
+    # 
+    # Ilbert et al. 2013 is using Chabrier IMF, Same as ours.
+    # <Done> need to compare with Ilbert2013 Figure A.2, yes, matched!
+    #data "datatable_Ilbert2013_SMF_SFG.txt"
+    #data "datatable_Ilbert2013_SMF_ALL.txt"
+    # 
+    # 
+    # Check input argument 1
+    # Input argument 1 should be the redshift
+    if(!$?1) {print 'Usage: calc_SMF_Ilbert z\n' {} return}
+    set SMF_zInput = $1
+    # 
+    # 
+    # Check input argument 2
+    # Input argument 2 should be the uncertainty on stellar mass in dex, which is the cause of the broadening of SMF
+    if($?2) {set SMF_broaden = $2} else {set SMF_broaden = 0.0}
+    # 
+    # 
+    # Check input argument 3
+    # Input argument 3 should be the comoving volume
+    if($?3) {set SMF_cmvol = $3} else {set SMF_cmvol = 0.0}
+    # 
+    # 
+    # Read data table
+    data "datatable_Ilbert2013_SMF_SFG.txt"
+    lines 3 1
+    read {SMF_M_z0p35 5 SMF_P_z0p35a 6 SMF_A_z0p35a 7 SMF_P_z0p35b 8 SMF_A_z0p35b 9}
+    lines 4 1
+    read {SMF_M_z0p65 5 SMF_P_z0p65a 6 SMF_A_z0p65a 7 SMF_P_z0p65b 8 SMF_A_z0p65b 9}
+    lines 5 1
+    read {SMF_M_z0p95 5 SMF_P_z0p95a 6 SMF_A_z0p95a 7 SMF_P_z0p95b 8 SMF_A_z0p95b 9}
+    lines 6 1
+    read {SMF_M_z1p30 5 SMF_P_z1p30a 6 SMF_A_z1p30a 7 SMF_P_z1p30b 8 SMF_A_z1p30b 9}
+    lines 7 1
+    read {SMF_M_z1p75 5 SMF_P_z1p75a 6 SMF_A_z1p75a 7 SMF_P_z1p75b 8 SMF_A_z1p75b 9}
+    lines 8 1
+    read {SMF_M_z2p25 5 SMF_P_z2p25a 6 SMF_A_z2p25a 7 SMF_P_z2p25b 8 SMF_A_z2p25b 9}
+    lines 9 1
+    read {SMF_M_z2p75 5 SMF_P_z2p75a 6 SMF_A_z2p75a 7 SMF_P_z2p75b 8 SMF_A_z2p75b 9}
+    lines 10 1
+    read {SMF_M_z3p50 5 SMF_P_z3p50a 6 SMF_A_z3p50a 7 SMF_P_z3p50b 8 SMF_A_z3p50b 9}
+    # 
+    # 
+    # Choose zMin and zMax
+    if(SMF_zInput<0.2 || SMF_zInput>4.0) {print 'Error! calc_SMF_Ilbert is only applicable for 0.2<z<4.0!\n' {} return}
+    if(SMF_zInput>=0.2 && SMF_zInput<0.65)  {define SMF_zMIN 0p35 define SMF_zMAX 0p65 set SMF_zLower=0.35 set SMF_zUpper=0.65}
+    if(SMF_zInput>=0.65 && SMF_zInput<0.95) {define SMF_zMIN 0p65 define SMF_zMAX 0p95 set SMF_zLower=0.65 set SMF_zUpper=0.95}
+    if(SMF_zInput>=0.95 && SMF_zInput<1.30) {define SMF_zMIN 0p95 define SMF_zMAX 1p30 set SMF_zLower=0.95 set SMF_zUpper=1.30}
+    if(SMF_zInput>=1.30 && SMF_zInput<1.75) {define SMF_zMIN 1p30 define SMF_zMAX 1p75 set SMF_zLower=1.30 set SMF_zUpper=1.75}
+    if(SMF_zInput>=1.75 && SMF_zInput<2.25) {define SMF_zMIN 1p75 define SMF_zMAX 2p25 set SMF_zLower=1.75 set SMF_zUpper=2.25}
+    if(SMF_zInput>=2.25 && SMF_zInput<2.75) {define SMF_zMIN 2p25 define SMF_zMAX 2p75 set SMF_zLower=2.25 set SMF_zUpper=2.75}
+    if(SMF_zInput>=2.75 && SMF_zInput<=4.0) {define SMF_zMIN 2p75 define SMF_zMAX 3p50 set SMF_zLower=2.75 set SMF_zUpper=3.50}
+    define SMF_aMAX $((SMF_zInput-SMF_zLower)/(SMF_zUpper-SMF_zLower))
+    define SMF_aMIN $((SMF_zUpper-SMF_zInput)/(SMF_zUpper-SMF_zLower))
+    if($SMF_aMIN<0) {
+        define SMF_aMIN 0.0
+        define SMF_aMAX 1.0
+    }
+    echo "zInput = "$(SMF_zInput)
+    echo "zLower = "$(SMF_zLower)
+    echo "zUpper = "$(SMF_zUpper)
+    echo "aLower = "$SMF_aMIN
+    echo "aUpper = "$SMF_aMAX
+    # 
+    # 
+    # Construct Schechter function
+    set SMF_dM = 0.01
+    set SchechterM = 6.0,14.0,$(SMF_dM) # <20160502> edaddi, dzliu, convolve with M_* uncertainty
+    set SchechterM_z$SMF_zMIN = 10**(SchechterM-SMF_M_z$SMF_zMIN)
+    set SchechterS_z$SMF_zMIN""a = SMF_P_z$SMF_zMIN""a * SchechterM_z$SMF_zMIN**(1.0+SMF_A_z$SMF_zMIN""a)
+    set SchechterS_z$SMF_zMIN""b = SMF_P_z$SMF_zMIN""b * SchechterM_z$SMF_zMIN**(1.0+SMF_A_z$SMF_zMIN""b)
+    set SchechterS_z$SMF_zMIN = SchechterS_z$SMF_zMIN""a + SchechterS_z$SMF_zMIN""b
+    set SchechterP_z$SMF_zMIN = exp(-SchechterM_z$SMF_zMIN)*SchechterS_z$SMF_zMIN # /SMF_M_z$SMF_zMIN # Ilbert2013 needs to devide lg(M_character) <TODO> ???
+    set SchechterM_z$SMF_zMAX = 10**(SchechterM-SMF_M_z$SMF_zMAX)
+    set SchechterS_z$SMF_zMAX""a = SMF_P_z$SMF_zMAX""a * SchechterM_z$SMF_zMAX**(1.0+SMF_A_z$SMF_zMAX""a)
+    set SchechterS_z$SMF_zMAX""b = SMF_P_z$SMF_zMAX""b * SchechterM_z$SMF_zMAX**(1.0+SMF_A_z$SMF_zMAX""b)
+    set SchechterS_z$SMF_zMAX = SchechterS_z$SMF_zMAX""a + SchechterS_z$SMF_zMAX""b
+    set SchechterP_z$SMF_zMAX = exp(-SchechterM_z$SMF_zMAX)*SchechterS_z$SMF_zMAX # /SMF_M_z$SMF_zMAX # Ilbert2013 needs to devide lg(M_character) <TODO> ???
+    set SchechterP = ($SMF_aMIN) * SchechterP_z$SMF_zMIN + ($SMF_aMAX) * SchechterP_z$SMF_zMAX  # [1/Mpc^3/dex]
+    set SchechterP = (SchechterP>0) ? SchechterP : 1e-99
+    set SchechterP_log10 = lg(SchechterP)
+    # 
+    # 
+    # <added> convolve with M_* uncertainty 0.2 dex, see Ilbert et al. 2013 Appendix A
+    # <20160502> edaddi, dzliu (needs IDL and astronlib)
+    print "list_Ilbert_Schechter.dat" '%20g%20g%20g\n' {SchechterM SchechterP SchechterP_log10}
+    if(SMF_broaden>0) {
+        set SchechterM_Intrinsic = SchechterM
+        set SchechterP_Intrinsic = SchechterP
+        set SchechterP_Intrinsic_log10 = SchechterP_log10
+        # <20160614> !idl -quiet -e "run_dzliu_convolve_gaussian_1d,\'list_Ilbert_Schechter.dat\',\'list_Ilbert_Schechter_Convolved.dat\',"$(SMF_broaden)","$(SMF_dM)""
+        !idl -quiet -e "run_dzliu_convolve_ilbert_2013_l_g_function,\'list_Ilbert_Schechter.dat\',\'list_Ilbert_Schechter_Convolved.dat\',"$(SMF_broaden)",0.5,"$(SMF_dM)""
+        if(is_vector(SchechterM_Convolved)) {unset SchechterM_Convolved}
+        if(is_vector(SchechterP_Convolved)) {unset SchechterP_Convolved}
+        data "list_Ilbert_Schechter_Convolved.dat" read {SchechterM_Convolved 1 SchechterP_Convolved 2}
+        if(!is_vector(SchechterM_Convolved) || !is_vector(SchechterP_Convolved)) {print 'Error! Failed to run IDL convolve gaussian 1d!\n' {} define aaa ?}
+        set SchechterP_Convolved_log10 = lg(SchechterP_Convolved)
+        # set output vectors
+        set SchechterM = SchechterM_Convolved
+        set SchechterP = SchechterP_Convolved
+        set SchechterP_log10 = SchechterP_Convolved_log10
+    }
+    # 
+    # 
+    # compute comoving volume
+    #<TODO># if(1) {
+    #<TODO>#     load astroSfig.sm
+    #<TODO>#     verbose 0
+    #<TODO>#     set SMF_cmvol = calc_comoving_volume($(($zMIN+$zMAX)/2.0),$(($zMAX-$zMIN)),$skyarea) # GOODSN $skyarea arcmin^2
+    #<TODO>#     verbose 1
+    #<TODO># }
+    # 
+    # 
+    # regrid
+    if(1) {
+        set SchechterM_Temp = SchechterM
+        set SchechterP_Temp = SchechterP
+        set SMF_dM = 0.2
+        set SchechterM = 8.0,13.0,$(SMF_dM)
+        spline SchechterM_Temp SchechterP_Temp SchechterM SchechterP
+        if(is_vector(SchechterM_Temp)) {unset SchechterM_Temp}
+        if(is_vector(SchechterP_Temp)) {unset SchechterP_Temp}
+    }
+    # 
+    # 
+    # convert SMF to real source numbers
+    if(SMF_cmvol>0) {
+        set SMF_N = SchechterP * SMF_cmvol * SMF_dM # histogram inteval $(SMF_dM) dex -- should be consistent with plot_Mstar_histogram.sm
+        set SMF_M = SchechterM + SMF_dM/2.0 # plotting shift
+        # 
+        # do SMF renormalization to the observed data points (if needed)
+        do_SMF_renormalization
+        # 
+        # do the plot
+        do_SMF_histogram
+        # 
+        # compute the MS and save into output vectors
+        load astroSfig.sm
+        set logSchreiberSFR = calc_Schreiber2014_SFR(SMF_zInput,SMF_M)
+        set SchreiberSFR = 10**logSchreiberSFR
+        set logSargentSFR = calc_Sargent2014_SFR(SMF_zInput,SMF_M)
+        set SargentSFR = 10**logSargentSFR
+        set logBetherminSFR = calc_Bethermin2014_SFR(SMF_zInput,SMF_M)
+        set BetherminSFR = 10**logBetherminSFR
+        set SMF_SFR_1 =   SargentSFR * SMF_N
+        set SMF_SFR_2 = SchreiberSFR * SMF_N
+        set SMF_SFR_3 = BetherminSFR * SMF_N
+        set SMF_SFR   = SMF_SFR_2
+    }
+
+do_SMF_renormalization 00
+    if(1) {
+        if(is_file("datatable__CSFRD_correction__SMF_renormalization.txt")) {
+            data "datatable__CSFRD_correction__SMF_renormalization.txt"
+            read {z_min_list 1 z_max_list 2 M_incomplete_list 3 N_correction_list 4 F_correction_list 5.f S_correction_list 6.s}
+            define N_correction_i 0
+            while { $N_correction_i < dimen(z_min_list) } {
+                if(S_correction_list[$N_correction_i]=='Ilbert') {
+                    if(SMF_zInput>=z_min_list[$N_correction_i] && SMF_zInput<z_max_list[$N_correction_i]) {
+                        set SMF_N = SMF_N * 10**N_correction_list[$N_correction_i]
+                        echo "do_SMF_renormalization: corrected by a factor of "$(10**N_correction_list[$N_correction_i])
+                        define N_correction_i $(dimen(z_min_list)) # break
+                    }
+                }
+                define N_correction_i $($N_correction_i+1)
+            }
+        }
+    }
+
+do_SMF_color_Ilbert 00
+    set SMF_color = {magenta} #<TODO># 
+    ctype $(SMF_color) 
+
+do_SMF_histogram 00
+    if(is_vector(SMF_M) && is_vector(SMF_N)) {
+        # 
+        # do the histogram
+        do_SMF_color_Ilbert
+        histogram (SMF_M) (lg(SMF_N))
+        #points (SMF_M) (lg(SMF_N))
+        # 
+        # do the shading [20160503] 
+        # -- in default the shading seems to have some problems with the area below Y=1, so we have to shift the Y axis by plus one
+        save_SMF_axis_limit
+        set_SMF_axis_limit_plus_one # set axis limit for shading
+        angle 60 ltype 1 lweight 1.0 shade histogram 600 (SMF_M) (lg(SMF_N)+1) angle 0 ltype 0 lweight 4.0
+        restore_SMF_axis_limit # restore axis limit
+        ctype default
+    }
+
+save_SMF_axis_limit 00
+    define SMF_fx1 $fx1
+    define SMF_fx2 $fx2
+    define SMF_fy1 $fy1
+    define SMF_fy2 $fy2
+    
+set_SMF_axis_limit_plus_one 00
+    limits $SMF_fx1 $SMF_fx2 $($SMF_fy1+1) $($SMF_fy2+1) # set axis limit plus one
+
+restore_SMF_axis_limit 00
+    limits $SMF_fx1 $SMF_fx2 $SMF_fy1 $SMF_fy2 # restore axis limit
+
+

@@ -34,7 +34,7 @@ read_pixnoise 00
     if(is_file("image_sci_pixnoise.txt")) {
         if(is_vector(pixnoise)) {unset pixnoise}
         data "image_sci_pixnoise.txt" read {pixnoise 1}
-        if(!is_vector(pixnoise)) {!rm "image_sci_pixnoise.txt"} # added a check here
+        if(!is_vector(pixnoise)) {!rm "image_sci_pixnoise.txt"} else {return} # added a check here
     }
     if(!is_file("image_sci_pixnoise.txt")) {
         !CrabPhotImageStatistics "image_sci.fits" > "image_sci_pixstats.txt"
@@ -51,11 +51,15 @@ read_pixnoise 00
 
 
 calc_beamarea 00
-    if(is_file("image_sci_beamarea.txt")) {
+    if(is_vector(beamarea)) {unset beamarea}
+    if(is_vector(beam_maj)) {unset beam_maj}
+    if(is_vector(beam_min)) {unset beam_min}
+    if(is_vector(beam_pa))  {unset beam_pa}
+    if(is_file("image_sci_beamarea.txt") && is_file("image_sci_beamsize.txt")) {
         #!mv "image_sci_beamarea.txt" "image_sci_beamarea.txt.backup"
-        if(is_vector(beamarea)) {unset beamarea}
         data "image_sci_beamarea.txt" read {beamarea 1.f}
-        if(!is_vector(beamarea)) {
+        data "image_sci_beamsize.txt" read {beam_maj 1.f beam_min 2.f beam_pa 3.f}
+        if(!is_vector(beamarea) || !is_vector(beam_maj) || !is_vector(beam_min) || !is_vector(beam_pa)) {
             !rm image_sci_beamarea.* 2>/dev/null
             !rm image_sci_beamarea_sinc.* 2>/dev/null
         } else {
@@ -68,43 +72,52 @@ calc_beamarea 00
     if(!is_file("image_sci_beamarea.txt")) {
         if(is_vector(beamarea)) {unset beamarea}
         if(is_file("image_sci.fits")) {
-            !gethead "image_sci.fits" "BMAJ" "BMIN" "BPA" > "image_sci_beamarea.tmp"
-            if(is_vector(tmp_bmaj)) {unset tmp_bmaj}
-            if(is_vector(tmp_bmin)) {unset tmp_bmin}
-            if(is_vector(tmp_bpa)) {unset tmp_bpa}
-            data "image_sci_beamarea.tmp" read {tmp_bmaj 1 tmp_bmin 2 tmp_bpa 3}
-            !rm "image_sci_beamarea.tmp"
-            if(is_vector(tmp_bmaj) && is_vector(tmp_bmin) && is_vector(tmp_bpa)) {
-                set beamarea = pi/(4.0*ln(2)) * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
-                set beamarea_sinc = pi * (tmp_bmaj/1.89549*3600.0 * tmp_bmin/1.89549*3600.0) # arcsec-square
-                set beamarea_circle = pi/4.0 * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
+            !gethead "image_sci.fits" "BMAJ" "BMIN" "BPA" > "image_sci_beamsize.tmp"
+            if(is_vector(beam_maj)) {unset beam_maj}
+            if(is_vector(beam_min)) {unset beam_min}
+            if(is_vector(beam_pa))  {unset beam_pa}
+            data "image_sci_beamsize.tmp" read {beam_maj 1 beam_min 2 beam_pa 3}
+            if(is_vector(beam_maj) && is_vector(beam_min) && is_vector(beam_pa)) {
+                set beam_maj = beam_maj * 3600.0 # arcsec
+                set beam_min = beam_min * 3600.0 # arcsec
+                print "image_sci_beamsize.txt" '%18.10f %18.10f %18.10f\n'{beam_maj beam_min beam_pa}
+                set beamarea = pi/(4.0*ln(2)) * (beam_maj * beam_min) # arcsec-square
+                set beamarea_sinc = pi * (beam_maj/1.89549 * beam_min/1.89549) # arcsec-square
+                set beamarea_circle = pi/4.0 * (beam_maj * beam_min) # arcsec-square
                 define print_noheader 1
                 print "image_sci_beamarea.txt" '%g\n' {beamarea}
                 print "image_sci_beamarea_sinc.txt" '%g\n' {beamarea_sinc}
                 print "image_sci_beamarea_circle.txt" '%g\n' {beamarea_circle}
                 define print_noheader 0
+            } else {
+                print 'Warning! Failed to gethead "image_sci.fits" "BMAJ" "BMIN" "BPA"! Try next method to estimate beam_maj, beam_min, beam_pa and beamarea!\n' {}
             }
+            !rm "image_sci_beamsize.tmp"
         }
     }
     if(!is_file("image_sci_beamarea.txt")) {
         if(is_vector(beamarea)) {unset beamarea}
         if(is_file("image_psf.fits")) {
-            !gethead "image_psf.fits" "BMAJ" "BMIN" "BPA" > "image_psf_beamarea.tmp"
-            if(is_vector(tmp_bmaj)) {unset tmp_bmaj}
-            if(is_vector(tmp_bmin)) {unset tmp_bmin}
-            if(is_vector(tmp_bpa)) {unset tmp_bpa}
-            data "image_psf_beamarea.tmp" read {tmp_bmaj 1 tmp_bmin 2 tmp_bpa 3}
-            !rm "image_psf_beamarea.tmp"
-            if(is_vector(tmp_bmaj) && is_vector(tmp_bmin) && is_vector(tmp_bpa)) {
-                set beamarea = pi/(4.0*ln(2)) * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
-                set beamarea_sinc = pi * (tmp_bmaj/1.89549*3600.0 * tmp_bmin/1.89549*3600.0) # arcsec-square
-                set beamarea_circle = pi/4.0 * (tmp_bmaj*3600.0 * tmp_bmin*3600.0) # arcsec-square
+            !gethead "image_psf.fits" "BMAJ" "BMIN" "BPA" > "image_psf_beamsize.tmp"
+            if(is_vector(beam_maj)) {unset beam_maj}
+            if(is_vector(beam_min)) {unset beam_min}
+            if(is_vector(beam_pa))  {unset beam_pa}
+            data "image_psf_beamsize.tmp" read {beam_maj 1 beam_min 2 beam_pa 3}
+            if(is_vector(beam_maj) && is_vector(beam_min) && is_vector(beam_pa)) {
+                set beamarea = pi/(4.0*ln(2)) * (beam_maj*3600.0 * beam_min*3600.0) # arcsec-square
+                set beamarea_sinc = pi * (beam_maj/1.89549*3600.0 * beam_min/1.89549*3600.0) # arcsec-square
+                set beamarea_circle = pi/4.0 * (beam_maj*3600.0 * beam_min*3600.0) # arcsec-square
+                print "image_psf_beamsize.txt" '%18.10f %18.10f %18.10f\n'{beam_maj beam_min beam_pa}
                 define print_noheader 1
-                print "image_sci_beamarea.txt" '%g\n' {beamarea}
-                print "image_sci_beamarea_sinc.txt" '%g\n' {beamarea_sinc}
-                print "image_sci_beamarea_circle.txt" '%g\n' {beamarea_circle}
+                print "image_psf_beamarea.txt" '%g\n' {beamarea}
+                print "image_psf_beamarea_sinc.txt" '%g\n' {beamarea_sinc}
+                print "image_psf_beamarea_circle.txt" '%g\n' {beamarea_circle}
                 define print_noheader 0
+                !cp "image_psf_beamsize.txt" "image_sci_beamarea.txt"
+            } else {
+                print 'Warning! Failed to gethead "image_psf.fits" "BMAJ" "BMIN" "BPA"! Try next method to estimate beam_maj, beam_min, beam_pa and beamarea!\n' {}
             }
+            !rm "image_psf_beamsize.tmp"
         }
     }
     if(!is_file("image_sci_beamarea.txt")) {
@@ -128,10 +141,15 @@ calc_beamarea 00
             set temp_gaussian_fwhm = 2*sqrt(2*ln(2)) * temp_gaussian_sigma
             #set beamarea = float(sum(image_psf_pixel_values>=$image_psf_pixel_max*0.5))*pixscale*pixscale # arcsec-square
             set beamarea = pi/(4.0*ln(2)) * temp_gaussian_fwhm**2 # arcsec-square
+            set beam_maj = temp_gaussian_fwhm
+            set beam_min = temp_gaussian_fwhm
+            set beam_pa = 0.0
+            print "image_sci_beamsize.txt" '%g %g %g\n' {beam_maj beam_min beam_pa}
             define print_noheader 1
             print "image_sci_beamarea.txt" '%g\n' {beamarea}
             print "image_sci_beamarea.warning.txt" 'Warning! No BMAJ BMIN BPA keywords in image_sci.fits or image_psf.fits, estimating beamarea from image_psf.fits assuming Gaussian area and peak relation.\n' {}
             define print_noheader 0
+            !cat "image_sci_beamarea.warning.txt"
             #
             #define print_noheader 1
             #print "image_sci_beamarea.txt" '%g\n' {beamarea}
@@ -144,8 +162,8 @@ calc_beamarea 00
             #<20170923># define print_noheader 0
         }
     }
-    if(!is_vector(beamarea)) {
-        print 'Error! Failed to get beamarea!!\n' {}
+    if(!is_vector(beamarea) || !is_vector(beam_maj) || !is_vector(beam_min) || !is_vector(beam_pa)) {
+        print 'Error! Failed to get beamarea, beam_maj, beam_min and beam_pa!!\n' {}
         !sleep 9999999999999999999999999
         exit
     }
@@ -390,6 +408,8 @@ go_galfit 01
     }
     read_data
     read_pixscale
+    read_pixnoise
+    calc_fluxconv
     mask_prior_sources
     # --> px, py, id, cat_index, cat_id, pb_corr, pb_corr_from_pb_image
     # 
@@ -433,8 +453,10 @@ go_galfit 01
             data $previous_fit.result.chisq.txt
             read {ResultFluxRedChisq 2.f}
             # 
-            set Vary_X = (ResultMagsErr<0.33) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
-            set Vary_Y = (ResultMagsErr<0.33) ? 0.5/abs(pixscale) : 0 # maximum 0.5 arcsec
+            # allow vary
+            set Allow_To_Vary = (ResultMagsErr>0 && ResultMagsErr<0.33) || (ResultMags<-2.5*lg(3.0*pixnoise/fluxconv)) #<TODO># 
+            set Vary_X = (Allow_To_Vary) ? 0.7/abs(pixscale) : 0 # maximum 0.7 arcsec #<before><20171123># maximum 0.5 arcsec
+            set Vary_Y = (Allow_To_Vary) ? 0.7/abs(pixscale) : 0 # maximum 0.7 arcsec #<before><20171123># maximum 0.5 arcsec
             set Vary_X = (Vary_X>20) ? 20 : Vary_X # maximum 20 pixel, i.e. only valid when pixscale < 0.025 arcsec. #<added><20170607><dzliu>#
             set Vary_Y = (Vary_Y>20) ? 20 : Vary_Y # maximum 20 pixel, i.e. only valid when pixscale < 0.025 arcsec. #<added><20170607><dzliu>#
             initGalfitParam px py Vary_X Vary_Y
@@ -449,56 +471,47 @@ go_galfit 01
             # 
             if('$1'=='1' || '$1'=='n1') { 
                 # varied position PSF
-                set Mags = (ResultMagsErr<0.25 && ResultMags<Mags) ? ResultMags : Mags # use previous step magnitude results
+                set Allow_To_Use_Preivous_Mags = ((ResultMagsErr>0 && ResultMagsErr<0.25) || (ResultMags<-2.5*lg(3.0*pixnoise/fluxconv))) && (ResultMags<Mags) #<TODO># 
+                set Mags = (Allow_To_Use_Preivous_Mags) ? ResultMags : Mags # use previous step magnitude results
             }
             if('$1'=='2' || '$1'=='n2') { 
-                # round Gaussian
-                set Mags         = (ResultMagsErr<0.25 && ResultMags<Mags)  ? ResultMags        : Mags # use previous step magnitude results, but only when the fitted magnitude is not fainter than the initial magnitude
-                set Type         = (ResultMagsErr<0.25)                     ? 'gaussian'        : Type
-                set Rads         = (ResultMagsErr<0.25)                     ? 0.5/abs(pixscale) : Rads # initial guess 0.5 arcsec Gaussian FWHM
-                set Elli         = (ResultMagsErr<0.25)                     ? 1.0               : Elli # initial guess of b/a ratio: 1.0
-                set ParamFitRads = (ResultMagsErr<0.25)                     ? 1                 : ParamFitRads
-                set ParamFitElli = (ResultMagsErr<0.25)                     ? 0                 : ParamFitElli
-                set ParamMinElli = (ResultMagsErr<0.25)                     ? 1.0               : ParamMinElli # b/a ratio, i.e. q in galfit input file
-                set ParamMaxElli = (ResultMagsErr<0.25)                     ? 1.0               : ParamMaxElli # b/a ratio, i.e. q in galfit input file
-                set ParamFitRoti = (ResultMagsErr<0.25)                     ? 0                 : ParamFitRoti
+                # elliptic Gaussian
+                set Allow_To_Fit_Gaussian = ((ResultMagsErr>0 && ResultMagsErr<0.20) || (ResultMags<-2.5*lg(3.0*pixnoise/fluxconv))) #<TODO># 
+                set Mags         = (Allow_To_Fit_Gaussian && ResultMags<Mags)  ? ResultMags         : Mags # use previous step magnitude results, but only when the fitted magnitude is not fainter than the initial magnitude
+                set Type         = (Allow_To_Fit_Gaussian)                     ? 'gaussian'         : Type
+                set Rads         = (Allow_To_Fit_Gaussian)                     ? 0.25/abs(pixscale) : Rads # initial guess 0.25 arcsec Gaussian FWHM #<before><20171123># 0.5 arcsec
+                set Rads         = (Allow_To_Fit_Gaussian && ResultRads>0)     ? ResultRads         : Rads # use previous Gaussian FWHM if possible
+                set Elli         = (Allow_To_Fit_Gaussian)                     ? 1.0                : Elli # initial guess of b/a ratio: 1.0
+                set Roti         = (Allow_To_Fit_Gaussian)                     ? 0.0                : Roti # initial guess of position angle: 0.0 degree
+                set ParamFitRads = (Allow_To_Fit_Gaussian)                     ? 1                  : ParamFitRads
+                set ParamFitElli = (Allow_To_Fit_Gaussian)                     ? 1                  : ParamFitElli
+                set ParamMinElli = (Allow_To_Fit_Gaussian)                     ? 0.2                : ParamMinElli # b/a ratio, i.e. q in galfit input file
+                set ParamMaxElli = (Allow_To_Fit_Gaussian)                     ? 1.0                : ParamMaxElli # b/a ratio, i.e. q in galfit input file
+                set ParamFitRoti = (Allow_To_Fit_Gaussian)                     ? 1                  : ParamFitRoti
+                set ParamMinRoti = (Allow_To_Fit_Gaussian)                     ? -360.0             : ParamMinRoti
+                set ParamMaxRoti = (Allow_To_Fit_Gaussian)                     ? 360.0              : ParamMaxRoti
             }
             if('$1'=='3' || '$1'=='n3') { 
-                # elliptic Gaussian
-                set Mags         = (ResultMagsErr<0.20 && ResultMags<Mags)  ? ResultMags        : Mags # use previous step magnitude results, but only when the fitted magnitude is not fainter than the initial magnitude
-                set Type         = (ResultMagsErr<0.20)                     ? 'gaussian'        : Type
-                set Rads         = (ResultMagsErr<0.20)                     ? 0.5/abs(pixscale) : Rads # initial guess 0.5 arcsec Gaussian FWHM
-                set Rads         = (ResultMagsErr<0.20 && ResultRads>0)     ? ResultRads        : Rads # use previous Gaussian FWHM if possible
-                set Elli         = (ResultMagsErr<0.20)                     ? 1.0               : Elli # initial guess of b/a ratio: 1.0
-                set Roti         = (ResultMagsErr<0.20)                     ? 0.0               : Roti # initial guess of position angle: 0.0 degree
-                set ParamFitRads = (ResultMagsErr<0.20)                     ? 1                 : ParamFitRads
-                set ParamFitElli = (ResultMagsErr<0.20)                     ? 1                 : ParamFitElli
-                set ParamMinElli = (ResultMagsErr<0.20)                     ? 0.2               : ParamMinElli # b/a ratio, i.e. q in galfit input file
-                set ParamMaxElli = (ResultMagsErr<0.20)                     ? 1.0               : ParamMaxElli # b/a ratio, i.e. q in galfit input file
-                set ParamFitRoti = (ResultMagsErr<0.20)                     ? 1                 : ParamFitRoti
-                set ParamMinRoti = (ResultMagsErr<0.20)                     ? -360.0            : ParamMinRoti
-                set ParamMaxRoti = (ResultMagsErr<0.20)                     ? 360.0             : ParamMaxRoti
-            }
-            if('$1'=='4' || '$1'=='n4') { 
                 # elliptic sersic
-                set Mags         = (ResultMagsErr<0.20 && ResultMags<Mags)                              ? ResultMags                    : Mags # use previous step magnitude results, but only when the fitted magnitude is not fainter than the initial magnitude
-                set Mags         = (ResultMagsErr<0.20 && ResultFluxRedChisq>=2.0)                      ? ResultMags-2.5*lg(0.5)        : Mags # use previous step magnitude results, but note that for bad chisq sources we need to set fainter starting magnitude
-                set Type         = (ResultMagsErr<0.20)                                                 ? 'sersic'                      : Type
-                set Rads         = (ResultMagsErr<0.20)                                                 ? 0.5/abs(pixscale)/2.0         : Rads # initial guess 0.5 arcsec Gaussian FWHM
-                set Rads         = (ResultMagsErr<0.20 && ResultRads>0.0 && ResultFluxRedChisq<=2.0)    ? ResultRads/ResultPixScale/2.0 : Rads # use previous Gaussian FWHM if possible, but note that for bad chisq sources we might better fall back to the default initial guess. Also, note that galfit Sersic Radius = Gaussian FWHM / 2.0
-                set Elli         = (ResultMagsErr<0.20)                                                 ? 1.0                           : Elli # initial guess of b/a ratio: 1.0
-                set Elli         = (ResultMagsErr<0.20 && ResultRads>0.0 && ResultFluxRedChisq<=2.0)    ? ResultElli                    : Elli # use previous Gaussian b/a ratio if possible, but note that for bad chisq sources we might better fall back to the default initial guess
-                set Roti         = (ResultMagsErr<0.20)                                                 ? 0.0                           : Roti # initial guess of position angle: 0.0 degree
-                set Roti         = (ResultMagsErr<0.20 && ResultRads>0.0 && ResultFluxRedChisq<=2.0)    ? ResultRoti                    : Roti # use previous position angle if possible, but note that for bad chisq sources we might better fall back to the default initial guess
-                set Sers         = (ResultMagsErr<0.20)                                                 ? 1.0                           : Sers # initial guess of Sersic n index: 1.0
-                set ParamFitRads = (ResultMagsErr<0.20)                                                 ? 1                             : ParamFitRads
-                set ParamFitElli = (ResultMagsErr<0.20)                                                 ? 1                             : ParamFitElli
-                set ParamMinElli = (ResultMagsErr<0.20)                                                 ? 0.2                           : ParamMinElli # b/a ratio, i.e. q in galfit input file
-                set ParamMaxElli = (ResultMagsErr<0.20)                                                 ? 1.0                           : ParamMaxElli # b/a ratio, i.e. q in galfit input file
-                set ParamFitRoti = (ResultMagsErr<0.20)                                                 ? 1                             : ParamFitRoti
-                set ParamMinRoti = (ResultMagsErr<0.20)                                                 ? -360.0                        : ParamMinRoti
-                set ParamMaxRoti = (ResultMagsErr<0.20)                                                 ? 360.0                         : ParamMaxRoti
-                set ParamFitSers = (ResultMagsErr<0.20)                                                 ? 0                             : ParamFitSers # do not fit Sersic index n
+                set Allow_To_Fit_Sersic = ((ResultMagsErr>0 && ResultMagsErr<0.20) || (ResultMags<-2.5*lg(3.0*pixnoise/fluxconv))) #<TODO># 
+                set Mags         = (Allow_To_Fit_Sersic && ResultMags<Mags)                              ? ResultMags                     : Mags # use previous step magnitude results, but only when the fitted magnitude is not fainter than the initial magnitude
+                set Mags         = (Allow_To_Fit_Sersic && ResultFluxRedChisq>=2.0)                      ? ResultMags-2.5*lg(0.5)         : Mags # use previous step magnitude results, but note that for bad chisq sources we need to set fainter starting magnitude
+                set Type         = (Allow_To_Fit_Sersic)                                                 ? 'sersic'                       : Type
+                set Rads         = (Allow_To_Fit_Sersic)                                                 ? 0.25/abs(pixscale)/2.0         : Rads # initial guess 0.25 arcsec Gaussian FWHM #<before><20171123># 0.5 arcsec
+                set Rads         = (Allow_To_Fit_Sersic && ResultRads>0.0 && ResultFluxRedChisq<=2.0)    ? ResultRads/ResultPixScale/2.0  : Rads # use previous Gaussian FWHM if possible, but note that for bad chisq sources we might better fall back to the default initial guess. Also, note that galfit Sersic Radius = Gaussian FWHM / 2.0
+                set Elli         = (Allow_To_Fit_Sersic)                                                 ? 1.0                            : Elli # initial guess of b/a ratio: 1.0
+                set Elli         = (Allow_To_Fit_Sersic && ResultRads>0.0 && ResultFluxRedChisq<=2.0)    ? ResultElli                     : Elli # use previous Gaussian b/a ratio if possible, but note that for bad chisq sources we might better fall back to the default initial guess
+                set Roti         = (Allow_To_Fit_Sersic)                                                 ? 0.0                            : Roti # initial guess of position angle: 0.0 degree
+                set Roti         = (Allow_To_Fit_Sersic && ResultRads>0.0 && ResultFluxRedChisq<=2.0)    ? ResultRoti                     : Roti # use previous position angle if possible, but note that for bad chisq sources we might better fall back to the default initial guess
+                set Sers         = (Allow_To_Fit_Sersic)                                                 ? 1.0                            : Sers # initial guess of Sersic n index: 1.0
+                set ParamFitRads = (Allow_To_Fit_Sersic)                                                 ? 1                              : ParamFitRads
+                set ParamFitElli = (Allow_To_Fit_Sersic)                                                 ? 1                              : ParamFitElli
+                set ParamMinElli = (Allow_To_Fit_Sersic)                                                 ? 0.2                            : ParamMinElli # b/a ratio, i.e. q in galfit input file
+                set ParamMaxElli = (Allow_To_Fit_Sersic)                                                 ? 1.0                            : ParamMaxElli # b/a ratio, i.e. q in galfit input file
+                set ParamFitRoti = (Allow_To_Fit_Sersic)                                                 ? 1                              : ParamFitRoti
+                set ParamMinRoti = (Allow_To_Fit_Sersic)                                                 ? -360.0                         : ParamMinRoti
+                set ParamMaxRoti = (Allow_To_Fit_Sersic)                                                 ? 360.0                          : ParamMaxRoti
+                set ParamFitSers = (Allow_To_Fit_Sersic)                                                 ? 0                              : ParamFitSers # do not fit Sersic index n
             }
         }
         # 
@@ -517,6 +530,36 @@ go_galfit 01
         writeGalfitParam fit_$1.param
         writeGalfitLimit fit_$1.limit
         writeGalfitInput fit_$1.input image_sci.fits fit_$1.fits image_rms.fits image_psf.fits fit_$1.limit
+        exec_galfit $1
+        if(is_file(fit_$1.fits)) {
+            readGalfitResult fit_$1.fits
+            print_result fit_$1
+        }
+    }
+
+
+
+
+
+
+exec_galfit 01
+    # usage: 
+    #   exec_galfit 0
+    #   exec_galfit 1
+    #   exec_galfit 2
+    #   exec_galfit 3
+    # 
+    if($?1) {
+        # 
+        # check previous files
+        if(is_file("fit_"$1".failed")) {
+            !rm "fit_"$1".failed"
+        }
+        if(is_file("fit_"$1".log")) {
+            !rm "fit_"$1".log"
+        }
+        # 
+        # exec galfit
         if(is_file("fit_with_galfit255")) {
             !galfit255 fit_$1.input > fit_$1.out 2>&1
         } else {
@@ -526,10 +569,33 @@ go_galfit 01
                 !galfit fit_$1.input > fit_$1.out 2>&1
             }
         }
-        if(is_file(fit.log)) {!mv fit.log fit_$1.log}
-        if(is_file(fit_$1.fits)) {
-            readGalfitResult fit_$1.fits
-            print_result fit_$1
+        # 
+        # get fit.log
+        if(is_file(fit.log)) {
+            !mv fit.log "fit_"$1".log"
+        } else {
+            !date "+%Y-%m-%d %H:%M:%S %Z" > "fit_"$1".failed"
+            !echo "Failed to fit with galfit! fit.log was not found!" >> "fit_"$1".failed"
+            return
+        }
+        # 
+        # check if fit.log contains nan or not
+        !cat "fit_"$1".log" | grep -q -r "\\\bnan\\\b"
+        if($exit_status==0) {
+            # found nan!
+            # re-do galfit
+            if(!is_file("fit_with_galfit30") && !is_file("fit_with_galfit255")) {
+                !touch "fit_with_galfit30"
+                exec_galfit $1
+            } else {
+                if(!is_file("fit_with_galfit255")) {
+                    !touch "fit_with_galfit255"
+                    exec_galfit $1
+                } else {
+                    !date "+%Y-%m-%d %H:%M:%S %Z" > "fit_"$1".failed"
+                    !echo "Failed to fit with galfit! fit.log contains nan!" >> "fit_"$1".failed"
+                }
+            }
         }
     }
 
@@ -612,7 +678,7 @@ print_result 02
                 set ResultNumbFreeParam[$i] = 6
             }
             if(ResultNumbFreeParam[$i]==0 && ResultType[$i]=='sersic') {
-                set ResultNumbFreeParam[$i] = 7
+                set ResultNumbFreeParam[$i] = (ResultSersErr[$i]>0) ? 7 : 6
             }
         }
         # 
@@ -666,8 +732,13 @@ print_result 02
         set source_area_in_arcsec = pi/(4*ln(2)) * maj*min # in unit of arcsec-sq.
         set source_area_in_beam = source_area_in_arcsec / beam_area # in unit of beamarea
         set convol_area_in_pix = sqrt((beam_area/(pix_scale*pix_scale))**2 + source_area_in_pix**2)
-        set convol_area_in_arcsec = sqrt(beam_area**2 + source_area_in_arcsec**2)
-        set convol_area_in_beam = sqrt(1.0**2 + source_area_in_beam**2)
+        #set convol_area_in_arcsec = sqrt(beam_area**2 + source_area_in_arcsec**2) #<BUGGY><20171223># convol_area is not the direct square root of the sum of squared two area. 
+        set convol_maj = sqrt(beam_maj**2 + maj**2) # arcsec
+        set convol_min = sqrt(beam_min**2 + min**2) # arcsec
+        set convol_area_in_arcsec = pi/(4*ln(2)) * convol_maj * convol_min
+        set convol_area_in_beam = convol_area_in_arcsec / beam_area
+        set source_peak = f / convol_area_in_beam #<BUG><CORRECTED><20171123># dzliu, Yoshinobu, Philipp
+        #<20171123># See Gaussian convolved sigma here -- http://www.tina-vision.net/docs/memos/2003-003.pdf -- Page 7 Top
         #set f_peak = f / pix_area # now this is the peak pixel flux with unit of Jy/pixel
         #set f_peak = f_peak / (pixscale**2) * beamarea
         #set f_peak_err = ResultFluxErr
@@ -703,6 +774,16 @@ print_result 02
         print $1.result.source_area.txt '%25g %25g %25g %25g %25g %25g %15.0f %15s\n' \
             {source_area_in_pix source_area_in_arcsec source_area_in_beam convol_area_in_pix convol_area_in_arcsec convol_area_in_beam cat_index cat_id}
         #<above><added><20170923><dzliu>#
+        # 
+        # 
+        #<below><added><20171123><dzliu>#
+        set _beam_maj = maj>0 ? beam_maj : beam_maj
+        set _beam_min = min>0 ? beam_min : beam_min
+        print $1.result.source_peak.txt '%25g %25g %25g %25g %25g %25g %25g %25g %25g %15.0f %15s\n' \
+            {source_peak f_peak f maj min _beam_maj _beam_min convol_maj convol_min cat_index cat_id}
+        unset _beam_maj
+        unset _beam_min
+        #<above><added><20171123><dzliu>#
         # 
         # 
         #<below><added><20170822><dzliu>#

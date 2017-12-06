@@ -1,0 +1,143 @@
+convert_to_SFR_UV
+    # 
+    #  echo "macro read a_dzliu_code_step_2_convert_to_SFR_UV.sm.sm convert_to_SFR_UV" | sm
+    # 
+    load rfile.sm
+    rfile "datatable_CrossMatched_selected_columns.txt"
+    set Mstar = (Mstar<=0) ? 1e-99 : Mstar
+    set SFR_IR = (SFR<=0) ? 1e-99 : SFR
+    set eSFR_IR = eSFR
+    
+    load astroSfig.sm
+    set dL = calc_lumdist(z_IR)
+    set dL_cm = dL*3.086e+24
+    set SFR_UV1400 = S1400>0 ? 1.4e-28 * 4*pi*dL_cm**2 * S1400*1e-23 : -99 # Kennicutt 1998 ARAA Eq.(1)
+    set SFR_UV1700 = S1400>0 ? 1.4e-28 * 4*pi*dL_cm**2 * S1700*1e-23 : -99 # Kennicutt 1998 ARAA Eq.(1)
+    
+    set SFR_UV1400 = S1400>0 ? SFR_UV1400 / 1.73 : -99 # convert from Salpeter IMF to Chabrier IMF
+    set SFR_UV1700 = S1400>0 ? SFR_UV1700 / 1.73 : -99 # convert from Salpeter IMF to Chabrier IMF
+    
+    # calc the median SFR_UV/SFR_IR of the whole sample <20171030>
+    set R_SFR_UV_SFR_IR = SFR_UV1400 / SFR_IR if(S1400>0 && SFR_IR>1)
+    vecminmax R_SFR_UV_SFR_IR R_SFR_UV_SFR_IR_Min R_SFR_UV_SFR_IR_Max
+    stats R_SFR_UV_SFR_IR R_SFR_UV_SFR_IR_Mean R_SFR_UV_SFR_IR_Sigma R_SFR_UV_SFR_IR_Kurt
+    stats_med R_SFR_UV_SFR_IR R_SFR_UV_SFR_IR_Median R_SFR_UV_SFR_IR_SIQR
+    set N = dimen(R_SFR_UV_SFR_IR)
+    set R_Min = float($R_SFR_UV_SFR_IR_Min)
+    set R_Max = float($R_SFR_UV_SFR_IR_Max)
+    set R_Mean = float($R_SFR_UV_SFR_IR_Mean)
+    set R_Median = float($R_SFR_UV_SFR_IR_Median)
+    set R_Sigma = float($R_SFR_UV_SFR_IR_Sigma)
+    print "Table_R_SFR_UV_SFR_IR.txt" '%15d %15g %15g %15g %15g %15g\n' {N R_Min R_Max R_Median R_Mean R_Sigma}
+    
+    # calc the median SFR_UV/SFR_IR of the low stellar mass sample <20171030>
+    set R_SFR_UV_SFR_IR = SFR_UV1400 / SFR_IR if(S1400>0 && SFR_IR>1 && lg(Mstar)<9.6 && Mstar>1)
+    vecminmax R_SFR_UV_SFR_IR R_SFR_UV_SFR_IR_Min R_SFR_UV_SFR_IR_Max
+    stats R_SFR_UV_SFR_IR R_SFR_UV_SFR_IR_Mean R_SFR_UV_SFR_IR_Sigma R_SFR_UV_SFR_IR_Kurt
+    stats_med R_SFR_UV_SFR_IR R_SFR_UV_SFR_IR_Median R_SFR_UV_SFR_IR_SIQR
+    set N_low_mass = dimen(R_SFR_UV_SFR_IR)
+    set R_Min_low_mass = float($R_SFR_UV_SFR_IR_Min)
+    set R_Max_low_mass = float($R_SFR_UV_SFR_IR_Max)
+    set R_Mean_low_mass = float($R_SFR_UV_SFR_IR_Mean)
+    set R_Median_low_mass = float($R_SFR_UV_SFR_IR_Median)
+    set R_Sigma_low_mass = float($R_SFR_UV_SFR_IR_Sigma)
+    print "Table_R_SFR_UV_SFR_IR_lgMstar_LT_9.6.txt" '%18d %18g %18g %18g %18g %18g\n' {N_low_mass R_Min_low_mass R_Max_low_mass R_Median_low_mass R_Mean_low_mass R_Sigma_low_mass}
+    
+    #set SFR_UV_from_Mstar = (Mstar>1.445e8) ? 10**(13.3-1.4*lg(Mstar)) * SFR_IR : -99
+    #set SFR_UV_from_Mstar = (SFR_UV_from_Mstar>0 && lg(Mstar)<9.6) ? 0.5961754054745767 : SFR_UV_from_Mstar # I use ID 885 as template, its SFR_UV1400/SFR_IR = 0.5961754054745767, Mstar = 1.445E8, z_spec = 0.9032, see '/Users/dzliu/Work/DeepFields/Works/GOODSN_Photometry/Galsed_Final_v20171027_before_fitting/fit_plots_HDFN/Plot_SED_885.pdf'
+    set SFR_UV_from_Mstar = (lg(Mstar)>=9.6 && Mstar>1) ? SFR_IR * 10**(13.3-1.4*lg(Mstar)) : -99
+    set SFR_UV_from_Mstar = (lg(Mstar)<9.6 && Mstar>1) ? SFR_IR * R_Median_low_mass : SFR_UV_from_Mstar # Emanuele: use the median for all low mass
+    #set SFR_UV_from_SFR_IR = (SFR_IR>1.0) ? 10**(0.3-1.4*lg(SFR_IR)) * SFR_IR : -99
+    set SFR_UV_for_noUV_noMstar = (SFR_UV1400<=0 && SFR_UV_from_Mstar<=0) ? SFR_IR * R_Median : -99
+    set SFR_UV_for_AGN = (xfAGN>1 && xfAGN>SFR_IR) ? SFR_IR * R_Median : -99
+    set SFR_UV        = (SFR_UV1400>0) ? SFR_UV1400 : -99
+    set SFR_UV_method = (SFR_UV1400>0) ? 1 : -99
+    set SFR_UV        = (SFR_UV1400<=0 && lg(Mstar)>=9.6 && Mstar>1) ? SFR_UV_from_Mstar : SFR_UV
+    set SFR_UV_method = (SFR_UV1400<=0 && lg(Mstar)>=9.6 && Mstar>1) ? 2 : SFR_UV_method
+    set SFR_UV        = (SFR_UV1400<=0 && lg(Mstar)<9.6 && Mstar>1) ? SFR_UV_from_Mstar : SFR_UV
+    set SFR_UV_method = (SFR_UV1400<=0 && lg(Mstar)<9.6 && Mstar>1) ? 2.5 : SFR_UV_method
+    set SFR_UV        = (SFR_UV1400<=0 && SFR_UV_from_Mstar<=0) ? SFR_UV_for_noUV_noMstar : SFR_UV
+    set SFR_UV_method = (SFR_UV1400<=0 && SFR_UV_from_Mstar<=0) ? 3 : SFR_UV_method
+    set SFR_UV        = (xfAGN>1 && xfAGN>SFR_IR) ? SFR_UV_for_AGN : SFR_UV
+    set SFR_UV_method = (xfAGN>1 && xfAGN>SFR_IR) ? 4 : SFR_UV_method
+    #set SFR_UV = (SFR_UV<=0 && SFR_UV_from_Mstar<=0 && SFR_UV_from_SFR_IR>0) ? SFR_UV_from_SFR_IR : SFR_UV
+    #set SFR_UV = (SFR_UV1400<=0 && SFR_UV_from_Mstar<=0) ? SFR_UV_from_Median : SFR_UV
+    
+    # 
+    # calc SFR_total
+    echo sum(SFR_UV==-99) = $(sum(SFR_UV==-99))
+    echo sum(SFR_UV<=0) = $(sum(SFR_UV<=0))
+    set SFR_total = (SFR_UV>0) ? SFR_UV + SFR_IR : SFR_IR
+    
+    # 
+    # check number of sources
+    echo "---------------------------"
+    foreach var {SFR_UV1400 SFR_UV1700 SFR_UV_from_Mstar SFR_UV_for_noUV_noMstar SFR_UV_for_AGN} {
+        echo sum($var>=0) = $(sum($var>=0))
+    }
+    echo "---------------------------"
+    foreach var {SFR_UV1400 SFR_UV1700 SFR_UV_from_Mstar SFR_UV_for_noUV_noMstar SFR_UV_for_AGN} {
+        echo sum($var>=0 && SNR_IR>=5 && goodArea==1) = $(sum($var>=0 && SNR_IR>=5 && goodArea==1))
+    }
+    echo "---------------------------"
+    foreach var {1 2 2.5 3 4} {
+        echo sum(SFR_UV_method==$var) = $(sum(SFR_UV_method==$var))
+    }
+    echo "---------------------------"
+    foreach var {1 2 2.5 3 4} {
+        print 'sum(SFR_UV_method==$var && SNR_IR>=5 && goodArea==1) = $(sum(SFR_UV_method==$var && SNR_IR>=5 && goodArea==1))' {}
+        if($var==1)   { print '   (has UV no AGN)' {} }
+        if($var==2)   { print '   (no UV, no AGN, has Mstar and lgMstar>=9.6)' {} }
+        if($var==2.5) { print '   (no UV, no AGN, has Mstar and lgMstar<9.6, take the median SFR_UV/SFR_IR = $(R_Median_low_mass))' {} }
+        if($var==3)   { print '   (no UV, no AGN, no Mstar, take the median SFR_UV/SFR_IR = $(R_Median))' {} }
+        if($var==4)   { print '   (has AGN, take the median SFR_UV/SFR_IR = $(R_Median))' {} }
+        print '\n' {}
+    }
+    echo "---------------------------"
+    
+    load crabPlot.sm
+    crabPlotOpenPS "Plot_SFR_UV_and_IR_v1.eps"
+    crabPlotDefaultPenForBox
+    limits -2 4 -2 4
+    ticksize -1 10 -1 10
+    notation -2 2 -2 2
+    box
+    xlabel "SFR_{UV}"
+    ylabel "SFR_{FIR+mm}"
+    crabPlotDefaultPenForPoints
+    # 
+    ptype 4 1
+    # 
+    # plot 5<S/N_FIR+mm<10
+    set plot_x = SFR_UV if(SFR_UV>0 && SFR_IR>0 && SNR_IR<10 && SNR_IR>=5)
+    set plot_y = SFR_IR if(SFR_UV>0 && SFR_IR>0 && SNR_IR<10 && SNR_IR>=5)
+    set plot_x = lg(plot_x)
+    set plot_y = lg(plot_y)
+    ctype dodgerblue points plot_x plot_y
+    # 
+    # plot S/N_FIR+mm>10
+    set plot_x = SFR_UV if(SFR_UV>0 && SFR_IR>0 && SNR_IR>=10)
+    set plot_y = SFR_IR if(SFR_UV>0 && SFR_IR>0 && SNR_IR>=10)
+    set plot_x = lg(plot_x)
+    set plot_y = lg(plot_y)
+    ctype seagreen points plot_x plot_y
+    # 
+    ctype darkgray
+    ltype 1
+    rel $fx1 $fx1 draw $fx2 $fx2
+    # 
+    ctype darkgray
+    ltype 2
+    rel $fx1 $($fx1+1.0) draw $fx2 $($fx2+1.0)
+    # 
+    crabPlotClosePS
+    !rm "Plot_SFR_UV_and_IR_v1.{pdfconverts,pdfmarks,eps}"
+    #!open "Plot_SFR_UV_and_IR_v1.pdf"
+    
+    print "datatable_CrossMatched_selected_columns_converted_to_SFRs.txt" \
+            '%15.0f %15.0f %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %15g %20g %26g %22g %22g %22.1f\n' \
+            {id id_3DHST SNR_IR goodArea z_IR dL Mstar xfAGN xeAGN SFR_IR eSFR_IR SFR_UV S1400 S1700 SFR_UV1400 SFR_UV1700 SFR_UV_from_Mstar SFR_UV_for_noUV_noMstar SFR_UV_for_AGN SFR_total SFR_UV_method}
+
+
+
+

@@ -123,6 +123,12 @@ xfitAGN	01
 		#define dirfile "fit_matrix_HDFN" #<20170315># obsolete
 		#verbose 0
 		
+		if(is_file(fit_with_optical_zphot_precision)) {
+			data fit_with_optical_zphot_precision read {rel_precision_zphot_var 1.f}
+			define rel_precision_zphot $(rel_precision_zphot_var)
+			unset rel_precision_zphot_var
+		}
+		
 		### macro read default.sm rfile $(in_Catalog)
 		
 		### macro read Chiara_N.sm sSFR   ### COMPATIBLE
@@ -231,8 +237,11 @@ xfitAGN	01
 					set df$xBand = df$xBand * 1e3
 				} #<Added><20170927># 
 				
-				if(df$xBand>0.0 && df$xBand<f$xBand/10.0) {
-					set df$xBand = f$xBand/10.0
+				# constrian the S/N not higher than 10.0, except for ALMA data
+				if(!index(in_Names[$in_Index],'ALMA')>=0) {
+					if(df$xBand>0.0 && df$xBand<f$xBand/10.0) {
+						set df$xBand = f$xBand/10.0
+					}
 				}
 				
 				set xNames = xNames concat '$(in_Names[$in_Index])'
@@ -240,8 +249,8 @@ xfitAGN	01
 				set wW = wW concat  $(in_Waves[$in_Index])
 				set xF = xF concat 'f$xBand'
 				set xdF = xdF concat 'df$xBand'
-				set df$xBand = df$xBand>0.0 ? df$xBand : 1e5 					# For single band non-detect sources, set very large error. 
-				set df$xBand = f$xBand/df$xBand<10.0 ? df$xBand : f$xBand/10.0  # Error should not be too small.
+				set df$xBand = df$xBand>0.0 ? df$xBand : 1e30                    # For single band non-detect sources, set very large error. 
+				#set df$xBand = f$xBand/df$xBand<10.0 ? df$xBand : f$xBand/10.0  # Error should not be too small.
 			}
 		}
 		

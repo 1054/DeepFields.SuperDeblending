@@ -1,0 +1,11 @@
+do_test_smooth_CII
+    # 
+    #  echo "macro read do_test_smooth_CII.sm do_test_smooth_CII" | sm
+    # 
+    data dump_template_CII_SED
+    read {wave 1.f freq 2.f flux 3.f smooth 4.f}
+    echo sum(flux) = $(sum(flux))
+    echo sum(smooth) = $(sum(smooth))
+    # sum(flux) = 81187.39079
+    # sum(smooth) = 100940.2899 
+

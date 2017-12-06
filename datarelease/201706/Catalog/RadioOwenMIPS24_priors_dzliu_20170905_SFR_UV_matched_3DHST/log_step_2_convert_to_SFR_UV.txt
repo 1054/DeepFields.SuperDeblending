@@ -1,0 +1,49 @@
+Read column 1 as id
+Read column 2 as ra
+Read column 3 as dec
+Read column 4 as id_3DHST
+Read column 5 as ra_3DHST
+Read column 6 as dec_3DHST
+Read column 7 as z_IR
+Read column 8 as ez_IR
+Read column 9 as Mstar
+Read column 10 as xfAGN
+Read column 11 as xeAGN
+Read column 12 as SFR
+Read column 13 as eSFR
+Read column 14 as sSFR
+Read column 15 as SNR_IR
+Read column 16 as goodArea
+Read column 17 as m1400
+Read column 18 as m1700
+Read column 19 as S1400
+Read column 20 as S1700
+sum(SFR_UV==-99) = 0
+sum(SFR_UV<=0) = 0
+---------------------------
+sum(SFR_UV1400>=0) = 2524
+sum(SFR_UV1700>=0) = 2524
+sum(SFR_UV_from_Mstar>=0) = 3229
+sum(SFR_UV_for_noUV_noMstar>=0) = 77
+sum(SFR_UV_for_AGN>=0) = 54
+---------------------------
+sum(SFR_UV1400>=0 && SNR_IR>=5 && goodArea==1) = 759
+sum(SFR_UV1700>=0 && SNR_IR>=5 && goodArea==1) = 759
+sum(SFR_UV_from_Mstar>=0 && SNR_IR>=5 && goodArea==1) = 797
+sum(SFR_UV_for_noUV_noMstar>=0 && SNR_IR>=5 && goodArea==1) = 8
+sum(SFR_UV_for_AGN>=0 && SNR_IR>=5 && goodArea==1) = 28
+---------------------------
+sum(SFR_UV_method==1) = 2488
+sum(SFR_UV_method==2) = 585
+sum(SFR_UV_method==2.5) = 109
+sum(SFR_UV_method==3) = 70
+sum(SFR_UV_method==4) = 54
+---------------------------
+sum(SFR_UV_method==1 && SNR_IR>=5 && goodArea==1) = 732   (has UV no AGN)
+sum(SFR_UV_method==2 && SNR_IR>=5 && goodArea==1) = 35   (no UV, no AGN, has Mstar and lgMstar>=9.6)
+sum(SFR_UV_method==2.5 && SNR_IR>=5 && goodArea==1) = 2   (no UV, no AGN, has Mstar and lgMstar<9.6, take the median SFR_UV/SFR_IR = 0.2232622144)
+sum(SFR_UV_method==3 && SNR_IR>=5 && goodArea==1) = 8   (no UV, no AGN, no Mstar, take the median SFR_UV/SFR_IR = 0.1092550748)
+sum(SFR_UV_method==4 && SNR_IR>=5 && goodArea==1) = 28   (has AGN, take the median SFR_UV/SFR_IR = 0.1092550748)
+---------------------------
+crabPlotOpenPS: Opening "Plot_SFR_UV_and_IR_v1.eps" 
+crabPlotClosePS: Output to "Plot_SFR_UV_and_IR_v1.eps"! 

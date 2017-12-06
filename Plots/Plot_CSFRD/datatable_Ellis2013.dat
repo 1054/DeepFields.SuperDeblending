@@ -1,0 +1,12 @@
+# z    lg_SFRD_uncorr  e_lo e_hi  lg_SFRD_corr  e_lo e_hi    lg_L_FUV_D_u e_lo e_hi lg_L_FUV_D_c e_lo e_hi # Ellis 2013 Figure 4 (SFR = 1.4e-28 * 10**(LFUV))
+# 
+9.0            -2.854  0.30 0.30             0     0    0            25.0  0.3  0.3
+10.0           -2.954  0.30 0.30             0     0    0            24.9  0.3  0.3
+11.0           -2.854  1.50 0.00             0     0    0            25.0  1.5  0.0
+12.0           -3.154  0.50 1.50             0     0    0            24.7  0.5  1.5
+
+
+# 
+# data "datatable_Ellis2013.dat" read {lfuv_uncorr 8 elo_uncorr 9 ehi_uncorr 10}
+# set sfr_uncorr = lg(1.4e-28*10**(lfuv_uncorr))
+# print '%13.3f %5.2f %4.2f\n' {sfr_uncorr elo_uncorr ehi_uncorr}

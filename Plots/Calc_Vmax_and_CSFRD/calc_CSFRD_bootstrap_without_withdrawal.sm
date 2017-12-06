@@ -1,0 +1,332 @@
+calc_CSFRD_bootstrap 00
+    # 
+    #   20160511?
+    #   20170118
+    #   could do a series
+    #   of bootstrap in each bin: for hundred times, select FULL
+    #   sample (at random and allowing repetitions if they arise)
+    #   and compute SFRD. After take average and rms of the
+    #   computed values. rms will be your error. 
+    #   (considered Bethermin's comment in the email on 2016-10-11)
+    # 
+    #   macro read calc_CSFRD_bootstrap_without_withdrawal.sm calc_CSFRD_bootstrap
+    # 
+    # 
+    #macro read calc_Vmax.sm calc_Vmax
+    # 
+    #set CurDir = GetDirPathVector()
+    #set CatDir = GetDirPathVector("/home/dzliu/Cloud/Github/DeepFields.SuperDeblending/")
+    #set CatDir = CatDir concat 'datarelease'
+    #set CatDir = CatDir concat '201608'
+    #set CatDir = CatDir concat 'catalog_daddi_dzliu_goodsn_2016C_850um'
+    #VisitDirPathVector CatDir
+    #macro read CatalogReader.sm go
+    #data "Catalog/RadioOwenMIPS24_priors_dzliu_20160818_zMax_for_SNR_5.txt"
+    # 
+    macro read calc_Vmax.sm
+    read_Data
+    set_SNR_limit
+    # 
+    # 
+    # 
+    # Read zMax
+    # -- This file is computed from macro read calc_Vmax.sm calc_Vmax
+    data "RadioOwenMIPS24_priors_dzliu_"$dataver"_zMax_for_SNR_"$limsnr".txt"
+    read {zmax_for_Vmax 3}
+    # 
+    # 
+    # Read output_date
+    if(!is_file("set_output_date")) {
+        !date +'%Y%m%d' > "set_output_date"
+    }
+    data "set_output_date" read {output_date 1.s}
+    # 
+    # 
+    #!mkdir "datatable_CSFRD_dzliu_v20160818"
+    #chdir "datatable_CSFRD_dzliu_v20160818"
+    #!mkdir "datatable_CSFRD_dzliu_v20160826"
+    #chdir "datatable_CSFRD_dzliu_v20160826"
+    #!mkdir "datatable_CSFRD_dzliu_v20170117"
+    #chdir "datatable_CSFRD_dzliu_v20170117"
+    #!mkdir "datatable_CSFRD_dzliu_v20170118"
+    #chdir "datatable_CSFRD_dzliu_v20170118"
+    #!mkdir "datatable_CSFRD_dzliu_v20170731"
+    #chdir "datatable_CSFRD_dzliu_v20170731"
+    #!mkdir "datatable_CSFRD_dzliu_v20171003"
+    #chdir "datatable_CSFRD_dzliu_v20171003"
+    #!mkdir "datatable_CSFRD_dzliu_v20171006"
+    #chdir "datatable_CSFRD_dzliu_v20171006"
+    #!mkdir "datatable_CSFRD_dzliu_v20171007"
+    #chdir "datatable_CSFRD_dzliu_v20171007"
+    #!mkdir "datatable_CSFRD_dzliu_v20171027"
+    #chdir "datatable_CSFRD_dzliu_v20171027"
+    #-- using output_date since 20171031
+    !mkdir "datatable_CSFRD_dzliu_v"$(output_date)
+    chdir "datatable_CSFRD_dzliu_v"$(output_date)
+    # 
+    # 
+    ###set zMinList = {0.2 0.5 1.0 1.5 2.5 3.0 4.0}
+    ###set zMaxList = {0.5 1.0 1.5 2.5 3.0 4.0 6.0}
+    #set zMinList = {0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9} # 20160518
+    #set zMaxList = {0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0} # 20160518
+    #set zMinList = {0.0 0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 4.0} # 20160825
+    #set zMaxList = {0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 4.0 6.0} # 20160825
+    #set zMinList = {4.0 5.0} # 20170117ab
+    #set zMaxList = {5.0 6.0} # 20170117ab
+    #set zMinList = {0.0 0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 4.0 5.0} # 20170117ab
+    #set zMaxList = {0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0} # 20170117ab
+    #set zMinList = {0.0 0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 4.0 5.0 4.0 5.0} # 20170118a
+    #set zMaxList = {0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0 6.0 7.0} # 20170118a
+    #set zMinList = {0.0 0.4 0.8 1.5 2.5 4.0 4.0} # 20171006a doubled z bin size
+    #set zMaxList = {0.4 0.8 1.5 2.5 4.0 6.0 6.0} # 20171006a doubled z bin size
+    set zMinList = {0.0 0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 4.0 5.0 4.0} # 20171007b
+    set zMaxList = {0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0 6.0} # 20171007b
+    # 
+    # 
+    #define GOODSNAREA 165
+    define GOODSNAREA 134 #<20160513># goodArea see /home/dzliu/Cloud/2016/Publications/goodsn-cat/plots/calc_goodArea_area/calc_goodArea_area.txt
+    # 
+    # 
+    # <20170118><dzliu># speed up by using calc_comoving_volume_prepare and calc_comoving_volume_quick
+    calc_comoving_volume_prepare
+    # 
+    # 
+    # <20170118><dzliu># define Nboostrap
+    define Nboostrap 1000
+    # 
+    # 
+    # Loop
+    do zi = 0,dimen(zMinList)-1 {
+        # 
+        echo ""
+        # 
+        set coo_Volume = calc_comoving_volume($(zMinList[$zi]),$(zMaxList[$zi]),$GOODSNAREA) # GOODSN 165 arcmin^2
+        echo "Computing comoving volume "$(zMinList[$zi])" "$(zMaxList[$zi])
+        # 
+        set coo_Sample = SFR>0 && snrIR>=5 && zphot>=$(zMinList[$zi]) && zphot<$(zMaxList[$zi]) && goodArea #<20160826># goodArea, ignore Mstar
+        echo "Selecting "$(sum(coo_Sample))" out of "$(dimen(coo_Sample))" sources within "$(zMinList[$zi])" "$(zMaxList[$zi])
+        # 
+        declare CSFRD_Vmax_Bootstrap 0
+        declare CSFRD_Vbin_Bootstrap 0
+        set i_Bootstrap = 1,$Nboostrap
+        foreach i i_Bootstrap {
+            if($i==1 || ($i)%($Nboostrap/20)==0) {echo "Bootstrapping "$i"/"$Nboostrap}
+            calc_CSFRD_bootstrap_in_z_bin $(zMinList[$zi]) $(zMaxList[$zi])
+            set CSFRD_Vmax = CSFRD_Vmax if(CSFRD_Vbin>0) #<Added><20160826># fix zero z bin problem
+            set CSFRD_Vbin = CSFRD_Vbin if(CSFRD_Vbin>0) #<Added><20160826># fix zero z bin problem
+            set CSFRD_Vmax_Bootstrap = CSFRD_Vmax_Bootstrap concat CSFRD_Vmax
+            set CSFRD_Vbin_Bootstrap = CSFRD_Vbin_Bootstrap concat CSFRD_Vbin
+        }
+        print "Output_CSFRD_Bootstrap_z_"$zMIN"_"$zMAX".dat" '%10d%28g%28g\n' {i_Bootstrap CSFRD_Vmax_Bootstrap CSFRD_Vbin_Bootstrap}
+        stats CSFRD_Vmax_Bootstrap CSFRD_Vmax_Value CSFRD_Vmax_Error CSFRD_Vmax_kurtosis
+        stats CSFRD_Vbin_Bootstrap CSFRD_Vbin_Value CSFRD_Vbin_Error CSFRD_Vbin_kurtosis
+        !echo "\# " \$(date +'%Y-%m-%d %H:%M:%S') > "Output_CSFRD_Bootstrap_z_"$zMIN"_"$zMAX".txt"
+        print +"Output_CSFRD_Bootstrap_z_"$zMIN"_"$zMAX".txt" \
+               'set zMIN = $zMIN  \# The redshift bin $zMIN $zMAX\n' {}
+        print +"Output_CSFRD_Bootstrap_z_"$zMIN"_"$zMAX".txt" \
+               'set zMAX = $zMAX  \# The redshift bin $zMIN $zMAX\n' {}
+        print +"Output_CSFRD_Bootstrap_z_"$zMIN"_"$zMAX".txt" \
+               'set CSFRD_Vmax_Value = $CSFRD_Vmax_Value  \# The Vmax-corrected cosmic SFR density in redshift bin $zMIN $zMAX\n' {}
+        print +"Output_CSFRD_Bootstrap_z_"$zMIN"_"$zMAX".txt" \
+               'set CSFRD_Vmax_Error = $CSFRD_Vmax_Error  \# The Vmax-corrected cosmic SFR density in redshift bin $zMIN $zMAX\n' {}
+        print +"Output_CSFRD_Bootstrap_z_"$zMIN"_"$zMAX".txt" \
+               'set CSFRD_Vbin_Value = $CSFRD_Vbin_Value  \# The directly measured cosmic SFR density in redshift bin $zMIN $zMAX\n' {}
+        print +"Output_CSFRD_Bootstrap_z_"$zMIN"_"$zMAX".txt" \
+               'set CSFRD_Vbin_Error = $CSFRD_Vbin_Error  \# The directly measured cosmic SFR density in redshift bin $zMIN $zMAX\n' {}
+        
+    }
+    
+    chdir ".."
+    
+    # Done!
+
+
+
+
+
+
+calc_CSFRD_bootstrap_in_z_bin 02
+    # 
+    # We randomly select half sources in each z bin and compute CSFRD
+    # Note that the real CSFRD is twice the boostrap half-sample CSFRD
+    # 
+    if(!$?2) {print 'Error! Input of calc_CSFRD_bootstrap_in_z_bin should be two values: zMIN zMAX\n' {} return}
+    load astroSfig.sm
+    define zMIN $1
+    define zMAX $2
+    # 
+    ##set coo = Mstar>0 && SFR>0 && snrIR>=5 && zphot>$zMIN && zphot<$zMAX
+    #set coo = Mstar>0 && SFR>0 && snrIR>=5 && zphot>$zMIN && zphot<$zMAX && goodArea #<20160513># goodArea
+    #set coo = SFR>0 && snrIR>=5 && zphot>=$zMIN && zphot<$zMAX && goodArea #<20160826># goodArea, ignore Mstar
+    set coo = SFR>0 && snrIR>=$limsnr && zphot>=$zMIN && zphot<$zMAX && goodArea #<20170731># goodArea, ignore Mstar
+    set coo_Mstar = lgMstar if(coo)
+    set coo_SB = flag_SB if(coo) # flag_SB_MS if(coo)
+    set coo_SFR = SFR if(coo)
+    set coo_id = id if(coo)
+    set coo_z = z if(coo)
+    set coo_goodArea = goodArea if(coo)
+    set coo_zmax_for_Vmax = zmax_for_Vmax if(coo)
+    set coo_zmax = zmax_for_Vmax if(coo)
+    set coo_SNR = snrIR if(coo)
+    # 
+    #<commented><20160512><dzliu><this could be a bug!># set coo_v = coo_Mstar
+    #<commented><20160512><dzliu><this could be a bug!># sort {coo_v coo_id coo_z coo_Mstar coo_SFR coo_SB}
+    #<commented><20160512><dzliu><this could be a bug!># print "list_of_selected_Sources_sorted_by_Mstar.txt" '%12.0f%12g%15g%15g%15s\n' {coo_id coo_z coo_Mstar coo_SFR coo_SB}
+    # 
+    #<added><20160530><dzliu><daddi> bootstrap
+    #<modified><20170118><dzliu> bootstrap with full sample Nsources, see Bethermin's comment in the email on 2016-10-11
+    set coo_random = int(random(sum(coo)) * (sum(coo)-1) + 0.5)
+    #echo $(sum(coo)) $(dimen(coo))
+    #print {coo_random}
+    #define aaa 1
+    #define aaa ?
+    #
+    set coo_Mstar = coo_Mstar[coo_random]
+    set coo_SB = coo_SB[coo_random]
+    set coo_SFR = coo_SFR[coo_random]
+    set coo_id = coo_id[coo_random]
+    set coo_z = coo_z[coo_random]
+    set coo_goodArea = coo_goodArea[coo_random]
+    set coo_zmax_for_Vmax = coo_zmax_for_Vmax[coo_random]
+    set coo_zmax = coo_zmax[coo_random]
+    set coo_SNR = coo_SNR[coo_random]
+    
+    # 
+    verbose 0
+    set coo_zmin = coo_z*0.0+$zMIN
+    #set coo_zmax = (coo_zmax_for_Vmax<$zMAX) ? $zMAX : coo_zmax_for_Vmax #<TODO># 
+    set coo_zmax = (coo_zmax_for_Vmax>$zMAX) ? $zMAX : coo_zmax_for_Vmax #<TODO># 
+    set coo_zcen = (coo_zmin+coo_zmax)/2.0
+    set coo_zdis = (coo_zmax-coo_zmin)
+    set coo_Vmax = calc_comoving_volume_quick(coo_zdis)
+    print "coo_Vmax_"$zMIN"_"$zMAX".txt" {coo_z coo_zmin coo_zmax coo_zcen coo_zdis coo_Vmax}
+    # 
+    set coo_zmin = coo_z*0.0+$zMIN
+    set coo_zmax = coo_z*0.0+$zMAX
+    set coo_zcen = (coo_zmin+coo_zmax)/2.0
+    set coo_zdis = (coo_zmax-coo_zmin)
+    set coo_Vbin = calc_comoving_volume_quick(coo_zdis)
+    if(dimen(coo_Vbin)==1) {set coo_Vbin = coo_Vbin + coo_Vmax*0.0}
+    print "coo_Vbin_"$zMIN"_"$zMAX".txt" {coo_z coo_zmin coo_zmax coo_zcen coo_zdis coo_Vbin}
+    # 
+    set coo_zmin = coo_z*0.0+$zMIN
+    set coo_zmax = coo_z
+    set coo_zcen = (coo_zmin+coo_zmax)/2.0
+    set coo_zdis = (coo_zmax-coo_zmin)
+    set coo_Vsou = calc_comoving_volume_quick(coo_zdis)
+    # 
+    set obso_SFR = coo_SFR
+    set ave_Vmax = sum(coo_Vmax)/float(dimen(coo_Vmax))
+    set ave_Vsou = sum(coo_Vsou)/float(dimen(coo_Vsou))
+    verbose 1
+    # 
+    # <20160512>
+    # set coo_v = coo_Mstar
+    # sort {coo_v coo_id coo_z coo_zmax coo_SNR coo_Mstar coo_SFR coo_Vmax coo_Vsou coo_Vbin coo_goodArea coo_SB}
+    # print "list_of_selected_Sources_sorted_by_Mstar_in_z_bin_"$zMIN"_"$zMAX".txt" '%12.0f%12g%15g%15g%15g%15g%15g%15g%15g%15g%15s\n' \
+    #            {coo_id coo_z coo_zmax coo_SNR coo_Mstar coo_SFR coo_Vmax coo_Vsou coo_Vbin coo_goodArea coo_SB}
+    # # 
+    # !echo 'comovingvolume(Vbin) = '$(coo_Vbin) "\# - The redshift bin comoving volume for GOODSN "$GOODSNAREA" arcmin^2"   > "Output_CSFRD_Vmax_Measurement_z_"$zMIN"_"$zMAX".txt"
+    # !echo 'comovingvolume(Vmax) = '$(ave_Vmax) "\# - The average Vmax comoving volume for GOODSN "$GOODSNAREA" arcmin^2"  >> "Output_CSFRD_Vmax_Measurement_z_"$zMIN"_"$zMAX".txt"
+    # !echo 'sum(obso_SFR) = '$(sum(obso_SFR)) "\# - The directly observed SFR \(and density below\)"                       >> "Output_CSFRD_Vmax_Measurement_z_"$zMIN"_"$zMAX".txt"
+    # !echo 'rho(obso_SFR) = '$(sum(obso_SFR/coo_Vmax)) "\# - The SFR density with Vmax comoving volume"                    >> "Output_CSFRD_Vmax_Measurement_z_"$zMIN"_"$zMAX".txt"
+    # #!cat "Output_CSFRD_Vmax_Measurement.txt"
+    # 
+    # !echo 'comovingvolume(Vbin) = '$(coo_Vbin) "\# - The redshift bin comoving volume for GOODSN "$GOODSNAREA" arcmin^2"   > "Output_CSFRD_Direct_Measurement_z_"$zMIN"_"$zMAX".txt"
+    # !echo 'comovingvolume(Vmax) = '$(ave_Vmax) "\# - The average Vmax comoving volume for GOODSN "$GOODSNAREA" arcmin^2"  >> "Output_CSFRD_Direct_Measurement_z_"$zMIN"_"$zMAX".txt"
+    # !echo 'sum(obso_SFR) = '$(sum(obso_SFR)) "\# - The directly observed SFR \(and density below\)"                       >> "Output_CSFRD_Direct_Measurement_z_"$zMIN"_"$zMAX".txt"
+    # !echo 'rho(obso_SFR) = '$(sum(obso_SFR/coo_Vbin)) "\# - The SFR density with redshift bin comoving volume"            >> "Output_CSFRD_Direct_Measurement_z_"$zMIN"_"$zMAX".txt" # GOODSN 165 arcmin^2
+    # #!cat "Output_CSFRD_Direct_Measurement.txt"
+    # 
+    # <20160530>
+    set CSFRD_Vmax = sum(obso_SFR/coo_Vmax)
+    set CSFRD_Vbin = sum(obso_SFR/coo_Vbin)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+calc_comoving_volume_prepare 00
+    # calculate a grid of comoving volume "coo_zvol" for each zMIN
+    load astroSfig.sm
+    define Done_comoving_volume_prepare 0
+    echo "calc_comoving_volume_prepare"
+    if($?GOODSNAREA) {
+        if(is_vector(zMinList) && is_vector(zMaxList)) {
+            do i=0, dimen(zMinList)-1 {
+                declare coo_zmin 0
+                declare coo_zmax 0
+                declare coo_zcen 0
+                declare coo_zdis 0
+                declare coo_zvol 0
+                define zMIN $(zMinList[$i])
+                echo "calc_comoving_volume_prepare zMIN="$zMIN" (grid precision delta-z=0.02)"
+                do zMAX=$(zMinList[$i]), $(zMaxList[$i]), $((zMaxList[$i]-zMinList[$i])/50.0) {
+                    set tmp_zcen = ($zMIN+$zMAX)/2.0
+                    set tmp_zdis = ($zMAX-$zMIN)
+                    set tmp_zvol = calc_comoving_volume(tmp_zcen,tmp_zdis,$GOODSNAREA)
+                    set coo_zmin = coo_zmin concat ($zMIN)
+                    set coo_zmax = coo_zmax concat ($zMAX)
+                    set coo_zcen = coo_zcen concat ($(tmp_zcen))
+                    set coo_zdis = coo_zdis concat ($(tmp_zdis))
+                    set coo_zvol = coo_zvol concat ($(tmp_zvol))
+                }
+                print "coo_zvol_for_zmin_"$zMIN".txt" '%12.4f%12.4f%12.4f%12.4f%16.8g\n' {coo_zmin coo_zmax coo_zcen coo_zdis coo_zvol}
+            }
+            define Done_comoving_volume_prepare 1
+        }
+    }
+
+
+
+calc_comoving_volume_quick 01
+    # 
+    # Note that the input are: zmin and zdis (not zcen and zdis!)
+    # 
+    declare out_zvol 0
+    if($?Done_comoving_volume_prepare) {
+        if($Done_comoving_volume_prepare) {
+            if($?zMIN) {
+                if(is_file("coo_zvol_for_zmin_"$zMIN".txt")) {
+                    data "coo_zvol_for_zmin_"$zMIN".txt" read {tmp_zdis 4 tmp_zvol 5}
+                    set inp_zdis = ($1)
+                    #spline tmp_zdis tmp_zvol inp_zdis out_zvol
+                    interp2 tmp_zdis tmp_zvol inp_zdis out_zvol
+                }
+            }
+        }
+    }
+    set $0 = out_zvol
+    return
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

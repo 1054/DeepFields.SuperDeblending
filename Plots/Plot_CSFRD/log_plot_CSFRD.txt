@@ -1,0 +1,48 @@
+Read lines 1 to 1 from set_input_date
+Read lines 1 to 1 from set_do_corr
+crabPlotOpenPS: Opening "Plot_CSFRD_v1_VmaxCorrected.eps" 
+Read lines 1 to 853 from plot_axis_top_grid.txt
+Extending i/o stack
+
+delete _index delete _x1 delete _y1 delete _x2 delete _y2 
+Reading and plotting datatable_Madau2014_IR_for_plot.plt
+ctype orange
+xcol 1
+ycol 2
+yecol 3 4
+legend Madau & Dickinson (2014) IR
+legend expand 0.75
+legend lweight 3.5
+Reading and plotting datatable_Madau2014_UV_uncorrect_for_plot.plt
+ctype dodgerblue
+xcol 1
+ycol 2
+yecol 3 4
+legend Madau & Dickinson (2014) UV/Opt. (dust uncorrected)
+legend expand 0.75
+legend lweight 3.5
+Reading and plotting datatable_Madau2014_UV_corrected_for_plot.plt
+ctype dodgerblue
+xcol 1
+ycol 2
+yecol 3 4
+legend Madau & Dickinson (2014) UV/Opt. (dust corrected)
+legend expand 0.75
+legend lweight 3.5
+Madau & Dickinson 2014 z=4.5 lgCSFRD=-1.608266724
+Madau & Dickinson 2014 z=5.5 lgCSFRD=-1.811477363
+#         z_low         z_high     lgoneplusz          CSFRD         eCSFRD
+# Below are 1/Vmax and boostrapping CSFRD from GOODSN Superdeblending 201612 goodArea SNR>=5 sources
+              0            0.2      0.0413927       -1.85161       0.163946
+            0.2            0.4       0.113943       -1.81821       0.113683
+            0.4            0.6       0.176091       -1.34867      0.0770781
+            0.6            0.8       0.230449       -1.53102      0.0961594
+            0.8              1       0.278754       -1.19897      0.0671891
+              1            1.5       0.352183       -1.26258       0.062252
+            1.5              2       0.439333       -1.38328       0.074784
+              2            2.5       0.511883       -1.16952      0.0565354
+            2.5              3       0.574031        -1.5339       0.146383
+              3              4       0.653213       -1.35256      0.0864811
+              4              5       0.740363       -1.61896       0.145308
+              5              6       0.812913       -2.03989       0.163513
+crabPlotClosePS: Output to "Plot_CSFRD_v1_VmaxCorrected.eps"! 

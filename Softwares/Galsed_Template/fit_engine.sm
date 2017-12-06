@@ -95,6 +95,21 @@ goxfitAGN 01
 							verbose 0
 							
 							set fSED_AGN = fagn$xxxAGN * $aaaAGN
+								
+							#<20171027># get chi2 for AGN data point fitting
+							set obs_w = lg(wW/(1+$(zrange[$xxZ])))
+							set obs_f = fF
+							set obs_df = dfF
+							set obs_w_match = obs_w if(coAGN)
+							set obs_f_match = obs_f if(coAGN)
+							set obs_df_match = obs_df if(coAGN)
+							set template_w = xxWS # SED template wavelength grid
+							set template_f = fSED_AGN # SED template wavelength grid
+							set template_w_match = obs_w_match
+							spline template_w template_f template_w_match template_f_match
+							set chi2_AGN = sum((obs_f_match-template_f_match)**2/obs_df_match**2)
+							set diff_AGN = (obs_f_match-template_f_match)/obs_df_match
+							#<20171027><DEBUG># print {obs_w_match obs_f_match obs_df_match template_w_match template_f_match}
 							
 							
 							### -- Fitting Stellar SED
@@ -119,6 +134,7 @@ goxfitAGN 01
 								spline xxWS fSED_AGN S_wW SWAGN
 								set SWAGN = SWAGN>0 ? SWAGN : 0
 								
+								# subtract AGN and fit the rest
 								set S_fF = S_fF-SWAGN
 								
 								spline xxWS XStar_IRAC S_wW SWSFR
@@ -154,23 +170,29 @@ goxfitAGN 01
 								set Star_IRAC = XStar_IRAC*10**(-0.4*$xebv*(-0.88+2.7/10**xxWS))*$aStar ## <Added><20141222><EDADDI> add reddening
 								
 								define Schi2 $(sum((S_fF-SWSFR)**2/S_dfF**2))
-								set Sdiff = (S_fF-SWSFR)/S_dfF
+								#set Sdiff = (S_fF-SWSFR)/S_dfF # variable not used <20171027>
 								
 								
 								#<20170928># 
-								set obs_w = S_wW
-								set obs_f = S_fF
-								set obs_df = S_dfF
-								set obs_f_match = obs_f
-								set obs_df_match = obs_df
-								set template_w_match = obs_w
-								set template_f_match = SWSFR # spline template_w template_f template_w_match template_f_match
-								set fSED_star = Star_IRAC
+								#<20171027># 
+								set obs_w = lg(wW/(1+$(zrange[$xxZ])))
+								set obs_f = fF
+								set obs_df = dfF
+								set obs_w_match = obs_w if(coSTAR)
+								set obs_f_match = obs_f if(coSTAR)
+								set obs_df_match = obs_df if(coSTAR)
+								set template_w = xxWS
+								set template_f = Star_IRAC
+								set template_w_match = obs_w_match
+								spline template_w template_f template_w_match template_f_match
+								set fSED_star = template_f
 								set chi2_star = sum((obs_f_match-template_f_match)**2/obs_df_match**2)
 								set diff_star = (obs_f_match-template_f_match)/obs_df_match
 								
 								
 							} else {
+								
+								# no data point for stellar SED fitting
 								
 								define aStar 0
 								define aSFR 0
@@ -178,12 +200,9 @@ goxfitAGN 01
 								define Schi2 0
 								
 								#<20170928># 
-								set obs_f_match = _fF
-								set obs_df_match = _dfF
-								set template_f_match = obs_f_match*0.0
 								set fSED_star = XStar_IRAC*0.0
 								set chi2_star = 0.0
-								set diff_star = (obs_f_match-template_f_match)/obs_df_match
+								set diff_star = (obs_f_match-0.0)/obs_df_match
 							}
 							
 							### -- Fitting Dust SED
@@ -213,16 +232,16 @@ goxfitAGN 01
 								###<DZLIU><Modified>### we should use the upper limit instead in that case. 
 								###<DZLIU><Modified>### This could be checked. 
 								
-								set obs_w = _wW
-								set obs_f = _fF
-								set obs_df = _dfF
-								set obs_w_match = obs_w # rest-frame
-								set obs_f_match = (obs_f>2.0*obs_df) ? obs_f : (obs_f+2.0*obs_df) # we use f+2*df when fitting upper limits
-								set obs_df_match = obs_df # dfF
+								#<20171027># 
+								set obs_w = lg(wW/(1+$(zrange[$xxZ])))
+								set obs_f = fF
+								set obs_df = dfF
+								set obs_w_match = obs_w if(coSFR) # rest-frame
+								set obs_f_match = (obs_f>2.0*obs_df) ? obs_f : (obs_f+2.0*obs_df) if(coSFR) # we use f+2*df when fitting upper limits
+								set obs_df_match = obs_df if(coSFR)
 								set template_w = xxWS
 								set template_f = fsfr$xxU""_for_qIR_with_z
-								set template_w_match = obs_w
-								
+								set template_w_match = obs_w_match
 								#spline xxWS fsfr$xxU""_for_qIR_with_z _wW WSFR
 								#set WSFR = WSFR>0 ? WSFR : 0
 								spline template_w template_f template_w_match template_f_match
@@ -234,7 +253,7 @@ goxfitAGN 01
 								if($aSFR<0) {define aSFR 0}
 								set template_f_match = template_f_match * $aSFR
 								
-								set obs_f_match = obs_f
+								set obs_f_match = obs_f if(coSFR) # but when calculate chi2, we use original flux density data point
 								set fSED_dust = template_f * $aSFR
 								set chi2_dust = sum((obs_f_match-template_f_match)**2/obs_df_match**2)
 								set diff_dust = ((obs_f_match-template_f_match)**2/obs_df_match**2)
@@ -303,36 +322,59 @@ goxfitAGN 01
 									#echo ""
 									#echo template_LIR = $(template_LIR)
 									#echo template_z = $(template_z)
-									set template_CII_L = calc_dzliu_CII(template_LIR, template_z, template_CII_FWHM)
-									set template_CII_S = S_CII
+									if(is_file("fit_with_CII_FWHM")) {
+										data "fit_with_CII_FWHM" read {template_CII_FWHM 1.f}
+										if(!is_vector(template_CII_FWHM)) {print 'Error! Failed to read \"fit_with_CII_FWHM\"!' {} exit}
+									}
+									if(is_file("fit_with_CII_Peak_Intensity")) {
+										data "fit_with_CII_Peak_Intensity" read {template_CII_S 1.f}
+										if(!is_vector(template_CII_S)) {print 'Error! Failed to read \"fit_with_CII_Peak_Intensity\"!' {} exit}
+										#set template_CII_F = template_CII_S * template_CII_FWHM / 1e3 # Jy km/s
+										#set template_CII_L = convert_flux2lprm(template_z,template_CII_F,1900.53690)
+									} else {
+										set template_CII_L = calc_dzliu_CII(template_LIR, template_z, template_CII_FWHM)
+										set template_CII_S = S_CII # S_CII is the output of astroSfig.sm macro calc_dzliu_CII(), in unit of mJy
+									}
 									set template_CII_FREQ = 1900.53690/(1+template_z) # GHz, obs-frame
 									set template_CII_WAVE = 2.99792458e5/template_CII_FREQ # um, obs-frame
 									set template_CII_SIGMA = template_CII_FWHM / (2*sqrt(2*ln(2))) # km/s line width, gaussian sigma
-									set template_CII_FREQ_GRID = template_CII_FREQ+4.0,template_CII_FREQ-4.0,-0.01 # grid covers 8 GHz
+									set template_CII_FREQ_GRID = template_CII_FREQ+4.0,template_CII_FREQ-4.0,-0.005 # grid covers 8 GHz, grid size -0.005
 									set template_CII_WAVE_GRID = 2.99792458e5/template_CII_FREQ_GRID
 									vecminmax template_CII_WAVE_GRID template_CII_WAVE_MIN template_CII_WAVE_MAX
 									set template_CII_VEL = (template_CII_FREQ_GRID - template_CII_FREQ) / template_CII_FREQ * 2.99792458e5 # km/s relative to [CII] line center
-									set template_CII_SED = gauss(template_CII_VEL, 0.0, $(template_CII_SIGMA)) * template_CII_S * 1e3 # normalized to 'per_dust_SED_S_CII_158um' Jy km/s
+									set template_CII_SED = gauss(template_CII_VEL, 0.0, $(template_CII_SIGMA)) * template_CII_S * sqrt(2*pi)*template_CII_SIGMA # normalized to CII line peak
 									
-									smooth template_CII_SED template_CII_SED_smooth $(dimen(template_CII_FREQ_GRID))   #<TODO># smooth to 8GHz ALMA bandwidth
-									spline template_CII_WAVE_GRID template_CII_SED_smooth template_w template_CII_SED_spline
+									#smooth template_CII_SED template_CII_SED_smooth $(dimen(template_CII_FREQ_GRID))   #<TODO># smooth to 8GHz ALMA bandwidth
+									#spline template_CII_WAVE_GRID template_CII_SED_smooth template_w template_CII_SED_spline
 									#print "aaa_adding_CII_smoothed.txt" <template_CII_WAVE_GRID template_CII_SED template_CII_SED_smooth>
+									#<20171122># do simple sum
+									set template_CII_SED_smooth = template_CII_SED*0.0 + sum(template_CII_SED)/dimen(template_CII_SED)
+									set template_CII_SED_spline = template_w*0.0 + sum(template_CII_SED)/dimen(template_CII_SED)
+									#<20171122># ------------^
 									set template_CII_cid = 0,dimen(template_w)-1
 									set template_CII_cid = template_CII_cid if(template_w>$template_CII_WAVE_MIN && template_w<$template_CII_WAVE_MAX)
 									set template_CII_SED_to_add = template_CII_SED_spline*0.0
 									set template_CII_SED_to_add[template_CII_cid] = template_CII_SED_spline[template_CII_cid] / $aSFR
 									#print "aaa_adding_CII.txt" <template_w template_w template_CII_SED_to_add fsfr$xname""_for_qIR_with_z>
 									#echo "fit_with_CII with L_IR "$(template_LIR)" S_CII "$(template_CII_S)
+									#print "dump_template_CII_SED" '%18.10g %18.10g %18.10g %18.10g\n' {template_CII_WAVE_GRID template_CII_FREQ_GRID template_CII_SED template_CII_SED_smooth}
+									#print "dump_template_CII_SED_to_add" '%18.10g %18.10g\n' {template_w template_CII_SED_to_add}
+									#print "dump_template_CII_L" {template_CII_L}
+									#print "dump_template_CII_S" {template_CII_S}
+									#vecminmax template_CII_VEL template_CII_VEL_MIN template_CII_VEL_MAX
+									#set template_CII_VEL_WIDTH = abs($template_CII_VEL_MAX-$template_CII_VEL_MIN)
+									#print "dump_template_CII_LINE_WIDTH_BAND_WIDTH_PERCENTAGE" '$($(template_CII_SIGMA)/$(template_CII_VEL_WIDTH)) \# $(template_CII_SIGMA)/$(template_CII_VEL_WIDTH)\n' {}
 									
-									set obs_w = _wW
-									set obs_f = _fF
-									set obs_df = _dfF
-									set obs_w_match = obs_w # rest-frame
-									set obs_f_match = (obs_f>2.0*obs_df) ? obs_f : (obs_f+2.0*obs_df) # we use f+2*df when fitting upper limits
-									set obs_df_match = obs_df # dfF
+									#<20171027># 
+									set obs_w = lg(wW/(1+$(zrange[$xxZ])))
+									set obs_f = fF
+									set obs_df = dfF
+									set obs_w_match = obs_w if(coSFR) # rest-frame
+									set obs_f_match = (obs_f>2.0*obs_df) ? obs_f : (obs_f+2.0*obs_df) if(coSFR) # we use f+2*df when fitting upper limits
+									set obs_df_match = obs_df if(coSFR)
 									set template_w = xxWS
 									set template_f = fsfr$xxU""_for_qIR_with_z + template_CII_SED_to_add
-									set template_w_match = obs_w
+									set template_w_match = obs_w_match
 									spline template_w template_f template_w_match template_f_match
 									set template_f_match = template_f_match>0 ? template_f_match : 0
 									
@@ -340,7 +382,7 @@ goxfitAGN 01
 									if($aSFR<0) {define aSFR 0}
 									set template_f_match = template_f_match * $aSFR
 									
-									set obs_f_match = obs_f
+									set obs_f_match = obs_f if(coSFR)
 									set fSED_dust = template_f * $aSFR
 									set chi2_dust = sum((obs_f_match-template_f_match)**2/obs_df_match**2)
 									set diff_dust = ((obs_f_match-template_f_match)**2/obs_df_match**2)
@@ -351,43 +393,40 @@ goxfitAGN 01
 								
 							} else {
 								
-								set obs_w = _wW
-								set obs_f = _fF
-								set obs_df = _dfF
-								
-								set template_w = xxWS
-								set template_f = fsfr$xxU""_for_qIR_with_z
-								set template_w_match = obs_w
-								set template_f_match = obs_f*0 # spline template_w template_f template_w_match template_f_match
+								# no data point for dust SED fitting
 								
 								define aSFR 0.0
 								
-								set obs_f_match = obs_f
+								set template_w = xxWS
+								set template_f = fsfr$xxU""_for_qIR_with_z
 								set fSED_dust = template_f * 0.0
-								set chi2_dust = sum((obs_f_match-template_f_match)**2/obs_df_match**2)
-								set diff_dust = ((obs_f_match-template_f_match)**2/obs_df_match**2)
+								set chi2_dust = 0.0
+								declare diff_dust 0.f
 								
-								set WSFR = template_f_match
+								#<20171027># set WSFR = template_f_match # variable not used after here <20171027>
 								
 							}
 							
-							set Xtemplate = fSED_dust + fSED_AGN
+							set Xtemplate = fSED_star + fSED_dust + fSED_AGN # fSED_* have a common wavelength grid of 'xxWS'
 							
 							set XwaveFIT = out_Waves
 							
-							set XwaveFIT=lg(XwaveFIT/(1+$(zrange[$xxZ])))
+							set XwaveFIT = lg(XwaveFIT/(1+$(zrange[$xxZ])))
 							
 							spline xxWS Xtemplate XwaveFIT XfluxFIT
 							
 							
 							
-							define chi2 $(sum((_fF-WSFR)**2/_dfF**2))
+							#define chi2 $(sum((_fF-WSFR)**2/_dfF**2))
 							
-							set diff = (_fF-WSFR)/_dfF
+							#set diff = (_fF-WSFR)/_dfF # variable not used <20171027>
 
-							define Rchi2 $chi2 #<Added><20141103><DzLIU>#
+							#define Rchi2 $chi2 #<Added><20141103><DzLIU>#
+							define Rchi2 $(chi2_dust)
 							
-							define chi2 $($chi2+$Schi2) ### <20141222><EDADDI>
+							#define chi2 $($chi2+$Schi2) ### <20141222><EDADDI>
+							define chi2 $(sqrt(chi2_AGN**2 + chi2_star**2 + chi2_dust**2))
+							#<20171027><DEBUG># echo chi2_AGN=$(chi2_AGN) chi2_star=$(chi2_star) chi2_dust=$(chi2_dust)
 							
 							### <Added><20141028><DZLIU> ###
 							#<20170911># if($?chi2_min_U==0) { 

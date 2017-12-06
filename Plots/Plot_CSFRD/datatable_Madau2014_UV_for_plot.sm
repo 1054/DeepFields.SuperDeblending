@@ -1,0 +1,43 @@
+# Aim:
+#   convert "datatable_Madau2014_UV.dat"
+#   to "datatable_Madau2014_UV_for_plot.plt"
+#   which is used by crabPlotDataFile.sm
+# 
+# Usage:
+#   echo "input datatable_Madau2014_UV_for_plot.sm" | sm
+# 
+data "datatable_Madau2014_UV.dat"
+read {z_lo 1 z_hi 2 SFR_u 3 SFR_u_err_lo 4 SFR_u_err_hi 5 SFR_c 6 SFR_c_err_lo 7 SFR_c_err_hi 8 ref 11.s}
+set z = (z_lo+z_hi)/2.0
+set lgopz = lg(1.0+z)
+set SFR = SFR_u - lg(1.64) # convert SalpeterIMF to ChabrierIMF, by a factor of 1.64 (Figure 4) -- Madau & Dickinson 2014
+set SFR_lo = SFR - SFR_u_err_lo
+set SFR_hi = SFR + SFR_u_err_hi
+print "datatable_Madau2014_UV_uncorrect_for_plot.plt" '\# \n' {}
+print +"datatable_Madau2014_UV_uncorrect_for_plot.plt" '\# x 1\n' {}
+print +"datatable_Madau2014_UV_uncorrect_for_plot.plt" '\# y 2\n' {}
+print +"datatable_Madau2014_UV_uncorrect_for_plot.plt" '\# yerr 3 4\n' {}
+print +"datatable_Madau2014_UV_uncorrect_for_plot.plt" '\# ctype dodgerblue\n' {}
+print +"datatable_Madau2014_UV_uncorrect_for_plot.plt" '\# ptype 15 0\n' {}
+print +"datatable_Madau2014_UV_uncorrect_for_plot.plt" '\# legend-size 0.75\n' {}
+print +"datatable_Madau2014_UV_uncorrect_for_plot.plt" '\# legend-with-symbol 1\n' {}
+print +"datatable_Madau2014_UV_uncorrect_for_plot.plt" '\# legend \"Madau & Dickinson (2014) UV/Opt. (dust uncorrected)\"\n' {}
+print +"datatable_Madau2014_UV_uncorrect_for_plot.plt" '\# \n' {}
+print +"datatable_Madau2014_UV_uncorrect_for_plot.plt" '%12g %12g %12g %12g %12g %12g %12g %20s\n' {lgopz SFR SFR_lo SFR_hi z z_lo z_hi ref}
+echo "Written to datatable_Madau2014_UV_uncorrect_for_plot.plt"
+# 
+set SFR = SFR_c - lg(1.64) # convert SalpeterIMF to ChabrierIMF, by a factor of 1.64 (Figure 4) -- Madau & Dickinson 2014
+set SFR_lo = SFR - SFR_c_err_lo
+set SFR_hi = SFR + SFR_c_err_hi
+print "datatable_Madau2014_UV_corrected_for_plot.plt" '\# \n' {}
+print +"datatable_Madau2014_UV_corrected_for_plot.plt" '\# x 1\n' {}
+print +"datatable_Madau2014_UV_corrected_for_plot.plt" '\# y 2\n' {}
+print +"datatable_Madau2014_UV_corrected_for_plot.plt" '\# yerr 3 4\n' {}
+print +"datatable_Madau2014_UV_corrected_for_plot.plt" '\# ctype dodgerblue\n' {}
+print +"datatable_Madau2014_UV_corrected_for_plot.plt" '\# ptype 15 3\n' {}
+print +"datatable_Madau2014_UV_corrected_for_plot.plt" '\# legend-size 0.75\n' {}
+print +"datatable_Madau2014_UV_corrected_for_plot.plt" '\# legend-with-symbol 1\n' {}
+print +"datatable_Madau2014_UV_corrected_for_plot.plt" '\# legend \"Madau & Dickinson (2014) UV/Opt. (dust corrected)\"\n' {}
+print +"datatable_Madau2014_UV_corrected_for_plot.plt" '\# \n' {}
+print +"datatable_Madau2014_UV_corrected_for_plot.plt" '%12g %12g %12g %12g %12g %12g %12g %20s\n' {lgopz SFR SFR_lo SFR_hi z z_lo z_hi ref}
+echo "Written to datatable_Madau2014_UV_corrected_for_plot.plt"

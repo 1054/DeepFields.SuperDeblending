@@ -1,0 +1,67 @@
+go_plot
+    # 
+    #  echo "macro read a_dzliu_code_plot_figure_4_SFR_UV_to_IR_ratio_versus_Mstar.sm go_plot" | sm
+    # 
+    load rfile.sm
+    rfile "datatable_CrossMatched_selected_columns_converted_to_SFRs.txt"
+    
+    set plot_x = z_IR              if(SNR_IR>=5 && goodArea==1)
+    set plot_y = lg(SFR_UV/SFR_IR) if(SNR_IR>=5 && goodArea==1)
+    set plot_c = SFR_UV_method     if(SNR_IR>=5 && goodArea==1)
+    
+    load crabPlot.sm
+    crabPlotOpenPS "Plot_correlation_Ratio_SFR_UV_IR_versus_z_goodArea.eps"
+    crabPlotDefaultPenForBox
+    limits 0 7.2 -4.0 3.5
+    ticksize 1 1 -1 10
+    notation 0 0 -1 1
+    box
+    crabPlotDefaultPenForTitle
+    xlabel "z"
+    ylabel "SFR_{UV}/SFR_{IR}"
+    crabPlotDefaultPenForPoints
+    # 
+    set coo = (plot_c==1)
+    set plot_xx = plot_x if(coo)
+    set plot_yy = plot_y if(coo)
+    ctype seagreen ptype 4 1 points plot_xx plot_yy
+    # 
+    set coo = (plot_c==2)
+    set plot_xx = plot_x if(coo)
+    set plot_yy = plot_y if(coo)
+    ctype blue ptype 3 3 expand 2.00 points plot_xx plot_yy
+    # 
+    set coo = (plot_c==2.5)
+    set plot_xx = plot_x if(coo)
+    set plot_yy = plot_y if(coo)
+    ctype green ptype 4 3 expand 2.00 points plot_xx plot_yy
+    # 
+    set coo = (plot_c==3)
+    set plot_xx = plot_x if(coo)
+    set plot_yy = plot_y if(coo)
+    ctype red ptype 15 0 expand 1.05 points plot_xx plot_yy
+    # 
+    set coo = (plot_c==4)
+    set plot_xx = plot_x if(coo)
+    set plot_yy = plot_y if(coo)
+    ctype magenta ptype 15 3 expand 1.05 points plot_xx plot_yy
+    # 
+    crabPlotDefaultPenForLegend
+    crabPlotLegendSpacing 0.05
+    crabPlotLegend 0.06 0.92 "``goodArea'' FIR+mm sources : "
+    ctype seagreen  ptype 4 1   crabPlotLegendWithSymbol "SFR_{UV} from UV 1400\AA"
+                                crabPlotLegendWithSymbolSize 2.00
+    ctype blue      ptype 3 3   crabPlotLegendWithSymbol "SFR_{UV} from M_{*} (without UV)"
+                                crabPlotLegendWithSymbolSize 2.00
+    ctype green     ptype 4 3   crabPlotLegendWithSymbol "SFR_{UV} from M_{*} (without UV, low-mass)"
+                                crabPlotLegendWithSymbolSize 1.05
+    ctype red       ptype 15 0  crabPlotLegendWithSymbol "SFR_{UV} for sources without UV nor M_{*}"
+                                crabPlotLegendWithSymbolSize 1.05
+    ctype magenta   ptype 15 3  crabPlotLegendWithSymbol "SFR_{UV} for potential AGNs"
+    crabPlotClosePS
+    !open "Plot_correlation_Ratio_SFR_UV_IR_versus_z_goodArea.pdf"
+    !rm "Plot_correlation_Ratio_SFR_UV_IR_versus_z_goodArea.{eps,pdfmarks,pdfconverts}" 2>/dev/null
+
+
+
+

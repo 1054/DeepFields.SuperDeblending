@@ -19,6 +19,7 @@ go
     rfile "RadioOwenMIPS24_priors_dzliu_20170905_SignalNoiseRatio.txt"
     rfile "RadioOwenMIPS24_priors_dzliu_20170905.txt"
     rfile "RadioOwenMIPS24_priors_dzliu_20170905_ChabrierIMF_PACSCorrected_FmJy.txt"
+    data "RadioOwenMIPS24_priors_dzliu_20170905_SFR_total.txt" read {SFR_total 2.f}
     chdir ".."
     verbose 1
     # 
@@ -115,11 +116,15 @@ go
     set SFR          = xfSFR
     set eSFR         = xeSFR
     set SFR_err      = xeSFR
-    echo "Read these vectors: SFR,   SFR_err,   lgSFR,   lgSFR_err,   eSFR"
+    set SFR_IR       = xfSFR
+    set eSFR_IR      = xeSFR
+    set SFR_IR_err   = xeSFR
+    echo "Read these vectors: SFR,   SFR_err,   lgSFR,   lgSFR_err,   eSFR,   SFR_IR,   SFR_IR_err"
     echo "Read these vectors: LIR,   LIR_err,   lgLIR,   lgLIR_err,   eLIR"
     echo "Read these vectors: Umean, Umean_err, lgUmean, lgUmean_err, eUmean"
     echo "Read these vectors: Mdust, Mdust_err, lgMdust, lgMdust_err, eMdust"
     echo "Read these vectors: SSFR,  SSFR_err,  lgSSFR,  lgSSFR_err,  eSSFR"
+    echo "Read these vectors: SFR_total" #<20171027># 
     
     ## 
     ## calc molecular gas mass from 1160um SED best-fit flux
