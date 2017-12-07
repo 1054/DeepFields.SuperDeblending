@@ -1,23 +1,37 @@
-#!/bin/tcsh
+#!/usr/bin/env tcsh
 # 
-# 
-# 
-# readlink
-set called=($_) ### https://stackoverflow.com/questions/2563300/how-can-i-find-the-location-of-the-tcsh-shell-script-im-executing
-if ( "$called" != "" ) then  ### called by source 
-   set DeepFieldsSuperDeblendingSoftwaresPath=`dirname "$called[2]"`
-else                         ### called by direct excution of the script
-   set DeepFieldsSuperDeblendingSoftwaresPath=`dirname "$0"`
-endif
-set DeepFieldsSuperDeblendingSoftwaresPath=`"$DeepFieldsSuperDeblendingSoftwaresPath"/astrodepth_abs_path "$DeepFieldsSuperDeblendingSoftwaresPath"`
-#echo "$DeepFieldsSuperDeblendingSoftwaresPath"
-#
-# PATH
-if ! ( "$PATH" =~ *"$DeepFieldsSuperDeblendingSoftwaresPath"* ) then
-    setenv PATH "$DeepFieldsSuperDeblendingSoftwaresPath":"$PATH"
-endif
-echo "PATH = $PATH"
 
+# -- https://serverfault.com/questions/139285/tcsh-path-of-sourced-file -- While this is possible in other shells, I don't see a way to do it in tcsh. 
+echo \$_ = $_
+echo \$0 = $0
+if ( "$0" == "tcsh" ) then
+    set TCSH_SCRIPT_PATH=`echo $_ | cut -d ' ' -f 2`
+    set BIN_SETUP_SCRIPT=`dirname $TCSH_SCRIPT_PATH`/bin_setup.bash
+else
+    pwd
+    set BIN_SETUP_SCRIPT="$HOME/Cloud/Github/DeepFields.SuperDeblending/Softwares/bin_setup.bash" # `dirname $0`/bin_setup.bash
+endif
 
+#echo 
+#echo "PATH = $PATH"
+#echo 
+
+setenv PATH `bash -c "source $BIN_SETUP_SCRIPT -print"`
+
+if ( -d "$HOME/Softwares/Supermongo" ) then
+    setenv PATH `bash -c "source $BIN_SETUP_SCRIPT -var PATH -path $HOME/Softwares/Supermongo -print"`
+endif
+
+type gethead
+type getpix
+type sky2xy
+type xy2sky
+type galfit
+type lumdist
+type sm
+
+#echo 
+#echo "PATH = $PATH"
+#echo 
 
 
