@@ -1,65 +1,29 @@
-#!/usr/bin/fish
-#
+#!/usr/bin/env fish
 # 
-# SUPERDEBLENDDIR
-if contains "Linux" (uname)
-    set -x SUPERDEBLENDDIR (dirname (readlink -f (status --current-filename)))
+
+
+set BIN_SETUP_SCRIPT (dirname (status --current-filename))/bin_setup.bash
+
+#echo 
+#echo "PATH = $PATH"
+#echo 
+
+set -x PATH (string split ":" (bash -c "source $BIN_SETUP_SCRIPT -print" | tail -n 1))
+
+if test -d "$HOME/Softwares/Supermongo"
+    set -x PATH (string split ":" (bash -c "source $BIN_SETUP_SCRIPT -var PATH -path $HOME/Softwares/Supermongo -print" | tail -n 1))
 end
-if contains "Darwin" (uname)
-    set -x SUPERDEBLENDDIR (dirname (perl -MCwd -e 'print Cwd::abs_path shift' (status --current-filename)))
-end
-export SUPERDEBLENDDIR
-#<DEBUG># echo "$SUPERDEBLENDDIR"
-# 
-# Check
-if [ x"$SUPERDEBLENDDIR" = x"" ]
-    exit
-end
-#
-# PATH
-if not contains "$SUPERDEBLENDDIR" $PATH
-    set -x PATH "$SUPERDEBLENDDIR" $PATH
-end
-#
-#LIST
-set -x SUPERDEBLENDCMD galfit sm cl sky2xy xy2sky sex CrabPhotAperPhot
-#
-# IRAF
-if [ (type cl 2>/dev/null | wc -l) -eq 0 ]
-    # if on planer or in planer qsub job
-    if true
-        echo "************************************************************************************"
-        echo "Warning! IRAF was not found! cl command not found! This will cause unknown problem!"
-        echo "************************************************************************************"
-        echo 
-    end
-end
-#
-# SEXTRACTOR
-if [ (type sex 2>/dev/null | wc -l) -eq 0 ]; then
-    # if on planer or in planer qsub job
-    if true
-        echo "******************************************************************************************"
-        echo "Warning! SEXTRACTOR was not found! sex command not found! This will cause unknown problem!"
-        echo "******************************************************************************************"
-        echo 
-    end
-end
-#
-# IDL
-if [ (type idl 2>/dev/null | wc -l) -eq 0 ]; then
-    # if on planer or in planer qsub job
-    if true
-        echo "***********************************************************************************"
-        echo "Warning! IDL was not found! idl command not found! This will cause unknown problem!"
-        echo "***********************************************************************************"
-        echo 
-    end
-end
-# 
-# CHECK
-for TEMPNAME in $SUPERDEBLENDCMD
-    type $TEMPNAME | head -n 1
-end
+
+type gethead
+type getpix
+type sky2xy
+type xy2sky
+type galfit
+type lumdist
+type sm
+
+#echo 
+#echo "PATH = $PATH"
+#echo 
 
 
