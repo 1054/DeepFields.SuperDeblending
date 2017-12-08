@@ -262,6 +262,42 @@ calc_peak2total
 
 
 
+
+calc_Condon1997_errors 02
+    # Condon 1997 - Errors of Gaussian Fitting - 1997PASP..109..166C.pdf
+    # see also '/Users/dzliu/Cloud/Github/AlmaCosmos/Softwares/3rd_pybdsf/PyBDSF/bdsf/functions.py' def get_errors()
+    if(is_vector(maj) && is_vector(min)) {
+        set Condon_h_area = pi/(2*ln(2))*(beam_maj/pixscale)*(beam_min/pixscale) # Condon1997 Eq(20)
+        set Condon_s_area = pi/(2*ln(2))*(maj/pixscale)*(min/pixscale) # Condon1997 Eq(20)
+        set Condon_h_maj = (1.0+(beam_maj*beam_min)/(maj**2)) # Condon1997 Eq(20)
+        set Condon_h_min = (1.0+(beam_maj*beam_min)/(min**2)) # Condon1997 Eq(20)
+        set Condon_h_e = sqrt(Condon_h_area * Condon_h_maj**(-0.5) * Condon_h_min**(-0.5)) # Condon1997 Eq(20)
+        set Condon_mu = pixnoise
+        set Condon_A = source_peak
+        set Condon_rho = calc_Condon1997_rho(1.5,1.5) # Condon1997 Eq(21,41)
+        set source_peak_err = Condon_A * sqrt(2.0) / Condon_rho # Condon1997 Eq(21)
+        set source_major_err = maj * sqrt(2.0) / calc_Condon1997_rho(2.5,0.5)
+        set source_total_err = 
+    }
+
+calc_Condon1997_rho 02
+    if($?2) {
+        # $1 is alpha_M
+        # $2 is alpha_m
+        # They are determined by Monte-Carlo simulations in Condon1997
+        set $0 = sqrt((maj*min)/(4*beam_maj*beam_min) * Condon_h_maj**($1) * Condon_h_min**($2)) * Condon_A / Condon_mu # Condon1997 Eq(21,41)
+        return
+    }
+
+
+
+
+
+
+
+
+
+
 mask_prior_sources 01
     # 
     # This subroutine reads the "getpix.txt" and "getpix.result" files
@@ -640,7 +676,7 @@ print_result 02
             if(ResultType[$i]=='psf') {
                 # In this case (10**(ResultMags/(-2.5))) equals the (pix_max / peak2total)
                 set ResultFlux[$i] = (10**(ResultMags[$i]/(-2.5))) * fluxconv #<20170923># / beamarea * (pixscale*pixscale) # * peak2total
-                set ResultFluxErr[$i] = ResultMagsErr[$i]*ResultFlux[$i]/1.08
+                set ResultFluxErr[$i] = (ResultMagsErr[$i]>=0) ? ResultMagsErr[$i]*ResultFlux[$i]/1.08 : ResultFluxErr[$i] #<20171206><BUG><FIXED># nan (-99) ResultMagsErr problem
                 # Get peak flux from source model fits image
                 !getpix '%15.10e' $1.model.fits $(ResultPosX[$i]) $(ResultPosY[$i]) > aaa.getpix.tmp
                 verbose 0 data aaa.getpix.tmp read {fluxpeak 1.f}
@@ -652,7 +688,7 @@ print_result 02
             if(ResultType[$i]=='gaussian' || ResultType[$i]=='sersic') {
                 # In this case (10**(ResultMags/(-2.5))) equals the (pix_sum)
                 set ResultFlux[$i] = (10**(ResultMags[$i]/(-2.5))) * fluxconv #<20170923># / beamarea * (pixscale*pixscale) # * (pi/(4*ln(2))*ResultRads[$i]*ResultRads[$i]*ResultElli[$i]) #<20170303><dzliu># must correct Jy/beam -> Jy/pixel for Gaussian fitting
-                set ResultFluxErr[$i] = ResultMagsErr[$i]*ResultFlux[$i]/1.08
+                set ResultFluxErr[$i] = (ResultMagsErr[$i]>=0) ? ResultMagsErr[$i]*ResultFlux[$i]/1.08 : ResultFluxErr[$i] #<20171206><BUG><FIXED># nan (-99) ResultMagsErr problem
                 # Get peak flux from source model fits image
                 !getpix '%15.10e' $1.model.fits $(ResultPosX[$i]) $(ResultPosY[$i]) > aaa.getpix.tmp
                 verbose 0 data aaa.getpix.tmp read {fluxpeak 1.f}
@@ -738,6 +774,7 @@ print_result 02
         set convol_area_in_arcsec = pi/(4*ln(2)) * convol_maj * convol_min
         set convol_area_in_beam = convol_area_in_arcsec / beam_area
         set source_peak = f / convol_area_in_beam #<BUG><CORRECTED><20171123># dzliu, Yoshinobu, Philipp
+        calc_Condon1997_errors 
         #<20171123># See Gaussian convolved sigma here -- http://www.tina-vision.net/docs/memos/2003-003.pdf -- Page 7 Top
         #set f_peak = f / pix_area # now this is the peak pixel flux with unit of Jy/pixel
         #set f_peak = f_peak / (pixscale**2) * beamarea
@@ -954,7 +991,7 @@ print_result_final 01
                     set wfile_vectors = <ra_$var dec_$var f_$var df_$var fpeak_$var fres_$var rms_$var snr_$var Maj_$var Maj_err_$var Min_$var Min_err_$var PA_$var PA_err_$var source_area>
                     set wfile_vectors = wfile_vectors concat {pix_noise pix_scale beam_area pbcorr pb_corr flux_conv obs_freq obs_lambda}
                     set wfile_vectors = wfile_vectors concat {sersic_n sersic_n_err chisq rchisq n_aperpix n_freepar flag_buffer}
-                    set wfile_vectors = wfile_vectors concat 'cid_$var""_str'
+                    set wfile_vectors = wfile_vectors concat 'cid_$var'
                     set wfile_vectors = wfile_vectors concat 'id_$var""_str'
                     wfile $var.result.all.txt
                     # print message

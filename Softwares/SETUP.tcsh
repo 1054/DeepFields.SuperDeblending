@@ -22,6 +22,10 @@ if ( -d "$HOME/Softwares/Supermongo" ) then
     setenv PATH `bash -c "source $BIN_SETUP_SCRIPT -var PATH -path $HOME/Softwares/Supermongo -print"`
 endif
 
+if ( -d "lib_python_dzliu/crabtable" ) then
+    setenv PYTHONPATH `bash -c "source $BIN_SETUP_SCRIPT -var PYTHONPATH -path lib_python_dzliu/crabtable -print"`
+endif
+
 type gethead
 type getpix
 type sky2xy

@@ -43,8 +43,12 @@ else
 AstroDepth_CurrrentDir=$(pwd -P)
 fi
 
-# Check necessary scripts
-if [[ ! -f "$AstroDepth_ScriptDir/sm" || ! -f "$AstroDepth_ScriptDir/astrodepth_command_line_arguments" ]]; then
+# Check necessary commands
+if [[ $(type sm 2>/dev/null | wc -l) -eq 0 ]]; then
+    echo "Error! Supermongo was not found! Please contact dzliu@mpia-hd.mpg.de for the complete code!"
+    exit 1
+fi
+if [[ ! -f "$AstroDepth_ScriptDir/astrodepth_command_line_arguments" ]]; then
     echo "Error! $AstroDepth_ScriptDir/ does not contain necessary scripts! Please contact dzliu@mpia-hd.mpg.de for the complete code!"
     exit 1
 fi
@@ -443,7 +447,7 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     # and create negative image and rms image if not given -- <20170226><dzliu> -- use CrabFitsImageArithmetic
     if [[ ! -f "image_check.sh" ]] || [[ " ${AstroDepth_INP_OVERWRITE[@]} " =~ " image_check " ]]; then
         echo "#!/bin/bash" > "image_check.sh"
-        echo "source \"$AstroDepth_ScriptDir/SETUP\"" >> "image_check.sh"
+        echo "source \"$AstroDepth_ScriptDir/SETUP.bash\"" >> "image_check.sh"
         echo "CrabFitsImageArithmetic image_sci_input.fits times '+1.0' image_sci.fits      -remove-nan" >> "image_check.sh"
         echo "CrabFitsImageArithmetic image_sci_input.fits times '-1.0' image_negative.fits -remove-nan" >> "image_check.sh"
         # 

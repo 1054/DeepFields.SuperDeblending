@@ -12,6 +12,10 @@ if [[ $# -gt 0 ]]; then
     if grep -i -w -q "nan" "fit.result"; then
         sed -i.bak -e 's/ nan/ -99/g' "fit.result"
     fi
+    #<20171206># fixing "-nan" problem
+    if grep -i -w -q "-nan" "fit.result"; then
+        sed -i.bak -e 's/-nan/ -99/g' "fit.result"
+    fi
 fi
 
 
