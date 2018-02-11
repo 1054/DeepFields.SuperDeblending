@@ -1,0 +1,94 @@
+head -n 2 log_make_cosmic_sfr_plot_v20171030b_DR_v201706.log            > log_make_cosmic_sfr_plot_v20171030z_DR_v201706_with_SFR_UV_uncorrected_for_completeness.log
+cat log_make_cosmic_sfr_plot_v20171030b_DR_v201706.log | grep Davidzon >> log_make_cosmic_sfr_plot_v20171030z_DR_v201706_with_SFR_UV_uncorrected_for_completeness.log
+cat log_make_cosmic_sfr_plot_v20171030b_DR_v201706.log | grep Madau    >> log_make_cosmic_sfr_plot_v20171030z_DR_v201706_with_SFR_UV_uncorrected_for_completeness.log
+
+# ===========================================================================================================================
+# With SFR_UV
+# log_make_cosmic_sfr_plot_v20171030z_DR_v201706_with_SFR_UV_uncorrected_for_completeness.log
+# ===========================================================================================================================
+#         z_low         z_high     lgoneplusz          CSFRD         eCSFRD         cCSFRD          fcorr                 SMF
+# Below are 1/Vmax and boostrapping CSFRD from GOODSN Superdeblending 201612 goodArea SNR>=5 sources
+              0            0.2      0.0413927       -1.85161       0.163946       -1.85161              1            Davidzon
+            0.2            0.4       0.113943       -1.81821       0.113683       -1.77568       0.906707            Davidzon
+            0.4            0.6       0.176091       -1.34867      0.0770781       -1.29321       0.880127            Davidzon
+            0.6            0.8       0.230449       -1.53102      0.0961594       -1.46225       0.853548            Davidzon
+            0.8              1       0.278754       -1.19897      0.0671891       -1.12452       0.842474            Davidzon
+              1            1.5       0.352183       -1.26258       0.062252       -1.18278       0.832139            Davidzon
+            1.5              2       0.439333       -1.38328       0.074784       -1.15013       0.584594            Davidzon
+              2            2.5       0.511883       -1.16952      0.0565354      -0.805525       0.432518            Davidzon
+            2.5              3       0.574031        -1.5339       0.146383       -1.16071       0.423467            Davidzon
+              3              4       0.653213       -1.35256      0.0864811      -0.761944       0.256677            Davidzon
+              4              5       0.740363       -1.61896       0.145308       -1.31255       0.493845     Madau&Dickinson
+              5              6       0.812913       -2.03989       0.163513       -1.60981       0.371466     Madau&Dickinson
+# ===========================================================================================================================
+
+
+
+
+
+
+cp log_make_cosmic_sfr_plot_v20171030z_DR_v201706.log log_make_cosmic_sfr_plot_v20171030z_DR_v201706_without_SFR_UV_uncorrected_for_completeness.log
+
+# ==================================================================================================
+# Without SFR_UV
+# log_make_cosmic_sfr_plot_v20171030z_DR_v201706_without_SFR_UV_uncorrected_for_completeness.log
+# ==================================================================================================
+#         z_low         z_high     lgoneplusz          CSFRD         eCSFRD
+# Below are 1/Vmax and boostrapping CSFRD from GOODSN Superdeblending 201612 goodArea SNR>=5 sources
+              0            0.2      0.0413927       -1.99738       0.217061
+            0.2            0.4       0.113943       -1.93025       0.109635
+            0.4            0.6       0.176091       -1.41858      0.0741768
+            0.6            0.8       0.230449       -1.56062       0.105405
+            0.8              1       0.278754       -1.22455      0.0686905
+              1            1.5       0.352183       -1.29549      0.0636311
+            1.5              2       0.439333       -1.40608      0.0744898
+              2            2.5       0.511883       -1.18902      0.0595408
+            2.5              3       0.574031       -1.54385        0.14868
+              3              4       0.653213       -1.38391      0.0821037
+              4              5       0.740363       -1.63678       0.127845
+              5              6       0.812913       -2.07322       0.145191
+
+
+
+
+
+
+# do plot
+
+sm
+data log_make_cosmic_sfr_plot_v20171030z_DR_v201706_without_SFR_UV_uncorrected_for_completeness.log
+read {z 3 CSFRD_without_SFR_UV 4 e_CSFRD_without_SFR_UV 5}
+data log_make_cosmic_sfr_plot_v20171030z_DR_v201706_with_SFR_UV_uncorrected_for_completeness.log
+read {CSFRD_with_SFR_UV 4 e_CSFRD_with_SFR_UV 5}
+load crabPlot.sm
+crabPlotOpenPS "Plot_comparison_CSFRD_with_and_without_SFR_UV_20180115b.eps"
+crabPlotDefaultPenForBox
+limits z -3 0.5
+ticksize -1 10 -1 10
+notation -1 1 -1 1
+box
+crabPlotDefaultPenForTitle
+xlabel "(1+z)"
+ylabel "Cosmic SFR density"
+crabPlotDefaultPenForPoints
+expand 2.5
+ctype red points z CSFRD_with_SFR_UV
+errorbar z CSFRD_with_SFR_UV e_CSFRD_with_SFR_UV 4
+errorbar z CSFRD_with_SFR_UV e_CSFRD_with_SFR_UV 2
+crabPlotLegend 0.05 0.92 "SFR_{UV+IR}, directly-measured"
+ctype blue points z CSFRD_without_SFR_UV
+errorbar z CSFRD_without_SFR_UV e_CSFRD_without_SFR_UV 4
+errorbar z CSFRD_without_SFR_UV e_CSFRD_without_SFR_UV 2
+crabPlotLegend 0.05 0.85 "pure SFR_{IR}, directly-measured"
+crabPlotClosePS
+set ratio = 10**(CSFRD_without_SFR_UV-CSFRD_with_SFR_UV)
+set z = 10**z-1
+print {z ratio}
+quit
+
+
+
+
+
+
+

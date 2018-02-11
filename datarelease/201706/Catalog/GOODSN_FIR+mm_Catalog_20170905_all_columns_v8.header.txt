@@ -1,0 +1,98 @@
+java -Xdock:icon="/Users/dzliu/Applications/TOPCAT.app/Contents/Resources/Topcat.icns" -Dcom.apple.mrj.application.apple.menu.about.name=TOPCAT -Duk.ac.starlink.topcat.cmdname=topcat -classpath "/Users/dzliu/Applications/TOPCAT.app/Contents/Resources/Java/topcat-full.jar" uk.ac.starlink.topcat.Driver -stilts tpipe in='GOODSN_FIR+mm_Catalog_20170905_all_columns_v8.fits' omode='meta'
+
+Name:    Joined
+Columns: 90
+Rows:    3306
+
+Columns
+-------
+     1: ID(Short) - GOODS-Spitzer IRAC catalog RA Dec.
+     2: RA(Double)/degree - GOODS-Spitzer IRAC catalog RA Dec.
+     3: Dec(Double)/degree - GOODS-Spitzer IRAC catalog RA Dec.
+     4: z_phot(Float) - Optical/near-infrared photometric redshift from literature works.
+     5: ref_z_phot(Short)
+     6: z_spec(Float) - Spectroscopic redshift from literature works.
+     7: ref_z_spec(Short) - Spectroscopic redshift from literature works.
+     8: z_FIRmm(Float) - FIR+mm SED fitted (or spectroscopic) redshift.
+     9: e_z_FIRmm(Double) - Error in FIR+mm SED fitted redshift (or 0 if spectroscopic redshift).
+    10: fK(Double)
+    11: dfK(Double)
+    12: fch1(Double)
+    13: dfch1(Double)
+    14: fch2(Double)
+    15: dfch2(Double)
+    16: fch3(Double)
+    17: dfch3(Double)
+    18: fch4(Double)
+    19: dfch4(Double)
+    20: f24(Double)
+    21: df24(Double)
+    22: f16(Double)
+    23: df16(Double)
+    24: f100(Double)
+    25: df100(Float)
+    26: f160(Double)
+    27: df160(Float)
+    28: f250(Double)
+    29: df250(Float)
+    30: f350(Float)
+    31: df350(Float)
+    32: f500(Float)
+    33: df500(Float)
+    34: f850(Double)
+    35: df850(Float)
+    36: f1160(Double)
+    37: df1160(Float)
+    38: f20cm(Double)
+    39: df20cm(Double)
+    40: Origin_20cm(Short)
+    41: SNR_FIRmm(Float) - Spectroscopic redshift from literature works.
+    42: Mstar(Float)/solMass - Stellar mass from literature works.
+    43: SFR_FIRmm(Double) - FIR+mm dust SFR.
+    44: e_SFR_FIRmm(Double) - Error in FIR+mm dust SFR.
+    45: sSFR(Double) - SFR_FIRmm / Mstar.
+    46: goodArea(Short)
+    47: Type_AGN(Short)
+    48: Type_SED(Short)
+    49: Type_FIR(Short)
+    50: xfAGN(Double)
+    51: xeAGN(Double)
+    52: xfTOT(Double)
+    53: xeTOT(Double)
+    54: xf70(Double)
+    55: xe70(Double)
+    56: xf100(Double)
+    57: xe100(Double)
+    58: xf160(Double)
+    59: xe160(Double)
+    60: xf250(Double)
+    61: xe250(Double)
+    62: xf350(Double)
+    63: xe350(Double)
+    64: xf500(Double)
+    65: xe500(Double)
+    66: xf850(Double)
+    67: xe850(Double)
+    68: xf1160(Double)
+    69: xe1160(Double)
+    70: xf1200(Double)
+    71: xe1200(Double)
+    72: xf1250(Double)
+    73: xe1250(Double)
+    74: xf2000(Double)
+    75: xe2000(Double)
+    76: xf2050(Double)
+    77: xe2050(Double)
+    78: xf10cm(Double)
+    79: xe10cm(Double)
+    80: xf20cm(Double)
+    81: xe20cm(Double)
+    82: chisq_tot(Double)
+    83: nfit_tot(Short)
+    84: chisq_star(Double)
+    85: nfit_star(Short)
+    86: chisq_dust(Double)
+    87: nfit_dust(Short)
+    88: U_FIRmm(Float) - Intestellar radiation field strength defined by the Draine & Li (2007) dust model.
+    89: SFR_total(Double)
+    90: SFR_dust_over_SFR_total(Double)

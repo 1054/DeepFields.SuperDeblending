@@ -266,7 +266,8 @@ calc_peak2total
 calc_Condon1997_errors 02
     # Condon 1997 - Errors of Gaussian Fitting - 1997PASP..109..166C.pdf
     # see also '/Users/dzliu/Cloud/Github/AlmaCosmos/Softwares/3rd_pybdsf/PyBDSF/bdsf/functions.py' def get_errors()
-    if(is_vector(convol_maj) && is_vector(convol_min) && is_vector(beam_maj) && is_vector(beam_min) && is_vector(pixscale) && is_vector(pixnoise) && is_vector(f)) {
+    if(is_vector(maj) && is_vector(min) && is_vector(convol_maj) && is_vector(convol_min) && \
+        is_vector(beam_maj) && is_vector(beam_min) && is_vector(pixscale) && is_vector(pixnoise) && is_vector(f)) {
         set source_total_err = f*0.0 + pixnoise
         set source_peak_err = f*0.0 + pixnoise
         set source_major_err = f*0.0
@@ -274,23 +275,30 @@ calc_Condon1997_errors 02
         set source_gaussian_snr = f*0.0
         # 
         set Condon_i = 0,dimen(f)-1
-        set Condon_i = Condon_i if(convol_maj>0 && convol_min>0)
-        set Condon_h_area = pi/(2*ln(2))*(beam_maj/pixscale)*(beam_min/pixscale) # Condon1997 Eq(41,42)
-        set Condon_s_area = pi/(2*ln(2))*(convol_maj[Condon_i]/pixscale)*(convol_min[Condon_i]/pixscale) # Condon1997 Eq(41,42)
-        set Condon_h_maj = (1.0+(beam_maj*beam_min)/(convol_maj[Condon_i]**2)) # Condon1997 Eq(40,41)
-        set Condon_h_min = (1.0+(beam_maj*beam_min)/(convol_min[Condon_i]**2)) # Condon1997 Eq(40,41)
-        set Condon_h_e = sqrt(Condon_h_area * Condon_h_maj**(-0.5) * Condon_h_min**(-0.5)) # Condon1997 Eq(40), the effective noise correlation area
-        set Condon_mu = pixnoise
-        set Condon_A = source_peak[Condon_i]
-        set Condon_rho = calc_Condon1997_rho(1.5,1.5) # Condon1997 Eq(41)
-        set source_peak_err[Condon_i] = Condon_A * sqrt(2.0) / Condon_rho # Condon1997 Eq(21)
-        set source_major_err[Condon_i] = convol_maj[Condon_i] * sqrt(2.0) / calc_Condon1997_rho(2.5,0.5) # Condon1997 Eq(21)
-        set source_minor_err[Condon_i] = convol_min[Condon_i] * sqrt(2.0) / calc_Condon1997_rho(2.5,0.5) # Condon1997 Eq(21)
-        set source_total_err_item_1 = (source_peak_err[Condon_i]/source_peak[Condon_i])**2
-        set source_total_err_item_2 = (Condon_h_area/Condon_s_area)*((source_major_err[Condon_i]/convol_maj[Condon_i])**2)
-        set source_total_err_item_3 = (Condon_h_area/Condon_s_area)*((source_minor_err[Condon_i]/convol_min[Condon_i])**2)
-        set source_total_err[Condon_i] = f[Condon_i] * sqrt( source_total_err_item_1 + source_total_err_item_2 + source_total_err_item_3 ) # Condon1997 Eq(42)
-        set source_gaussian_snr[Condon_i] = Condon_rho
+        set Condon_i = Condon_i if(maj>0 && min>0)
+        if(dimen(Condon_i)>0) {
+            set Condon_h_area = pi/(2*ln(2))*(beam_maj/pixscale)*(beam_min/pixscale) # Condon1997 Eq(41,42)
+            set Condon_s_area = pi/(2*ln(2))*(convol_maj[Condon_i]/pixscale)*(convol_min[Condon_i]/pixscale) # Condon1997 Eq(41,42)
+            #set Condon_h_maj = (1.0+(beam_maj*beam_min)/(convol_maj[Condon_i]**2)) # Condon1997 Eq(40,41)
+            #set Condon_h_min = (1.0+(beam_maj*beam_min)/(convol_min[Condon_i]**2)) # Condon1997 Eq(40,41)
+            set Condon_h_maj = (1.0+(beam_maj*beam_maj)/(convol_maj[Condon_i]**2)) # Condon1997 Eq(40,41)
+            set Condon_h_min = (1.0+(beam_min*beam_min)/(convol_min[Condon_i]**2)) # Condon1997 Eq(40,41)
+            set Condon_h_e = sqrt(Condon_h_area * Condon_h_maj**(-0.5) * Condon_h_min**(-0.5)) # Condon1997 Eq(40), the effective noise correlation area
+            set Condon_mu = pixnoise
+            set Condon_A = source_peak[Condon_i]
+            set Condon_rho = calc_Condon1997_rho(1.5,1.5) # Condon1997 Eq(41)
+            set source_peak_err[Condon_i] = Condon_A * sqrt(2.0) / Condon_rho # Condon1997 Eq(21)
+            set source_major_err[Condon_i] = maj[Condon_i] * sqrt(2.0) / calc_Condon1997_rho(2.5,0.5) # Condon1997 Eq(21)
+            set source_minor_err[Condon_i] = min[Condon_i] * sqrt(2.0) / calc_Condon1997_rho(0.5,2.5) # Condon1997 Eq(21)
+            set source_total_err_item_1 = (source_peak_err[Condon_i]/source_peak[Condon_i])**2
+            set source_total_err_item_2 = (Condon_h_area/Condon_s_area)*((source_major_err[Condon_i]/maj[Condon_i])**2)
+            set source_total_err_item_3 = (Condon_h_area/Condon_s_area)*((source_minor_err[Condon_i]/min[Condon_i])**2)
+            set source_total_err[Condon_i] = f[Condon_i] * sqrt( source_total_err_item_1 + source_total_err_item_2 + source_total_err_item_3 ) # Condon1997 Eq(42)
+            set source_gaussian_snr[Condon_i] = Condon_rho
+            #set Condon_peak_err = source_peak_err[Condon_i]/source_peak[Condon_i]
+            #set Condon_total_err = source_total_err[Condon_i]/f[Condon_i]
+            #print {Condon_total_err Condon_peak_err Condon_A Condon_h_area Condon_s_area source_total_err_item_1 source_total_err_item_2 source_total_err_item_3}
+        }
     }
 
 calc_Condon1997_rho 02
@@ -301,6 +309,72 @@ calc_Condon1997_rho 02
         set $0 = sqrt((Condon_s_area)/(4*Condon_h_area) * Condon_h_maj**($1) * Condon_h_min**($2)) * Condon_A / Condon_mu # Condon1997 Eq(21,41)
         return
     }
+
+calc_deconvolved_sizes 06
+    # inputs: maj_convol, min_convol, PA_convol, maj_beam, min_beam, PA_beam
+    # based on the ForTran code from eva, see email on 2018-01-09, subject "deconvolution".
+    # <20180118>
+    if($?6) {
+        set calcds_Maj_convol = ($1)
+        set calcds_Min_convol = ($2)
+        set calcds_PA_convol = ($3)
+        set calcds_Maj_beam = ($4)
+        set calcds_Min_beam = ($5)
+        set calcds_PA_beam = ($6)
+        # c deconvolve the source size following AIPS
+        set calcds_PA_convol_xl = ((calcds_PA_convol + 900.0) % 180.0)
+        set calcds_PA_beam_xl = ((calcds_PA_beam + 900.0) % 180.0)
+        set calcds_Maj_beam_square = calcds_Maj_beam**2
+        set calcds_Min_beam_square = calcds_Min_beam**2
+        set calcds_Maj_convol_square = calcds_Maj_convol**2
+        set calcds_Min_convol_square = calcds_Min_convol**2
+        set calcds_PA_diff = (calcds_PA_convol_xl - calcds_PA_beam_xl) / 90.0 * pi
+        set calcds_cosc = cos(calcds_PA_diff)
+        set calcds_sinc = sin(calcds_PA_diff)
+        set calcds_rhoc = (calcds_Maj_convol_square-calcds_Min_convol_square) * calcds_cosc - (calcds_Maj_beam_square-calcds_Min_beam_square)
+        if (calcds_rhoc == 0.0) {
+           set calcds_sigic2 = 0.0
+           set calcds_rhoa = 0.0
+        } else {
+           set calcds_sigic2 = atan((calcds_Maj_convol_square-calcds_Min_convol_square)*calcds_sinc/calcds_rhoc)
+           #[dzliu]# calcds_sigic2 = atan( calcds_sinc / ( calcds_cosc - (calcds_Maj_beam_square-calcds_Min_beam_square)/(calcds_Maj_convol_square-calcds_Min_convol_square) ) )
+           set calcds_rhoa = ((calcds_Maj_beam_square-calcds_Min_beam_square) - (calcds_Maj_convol_square-calcds_Min_convol_square) * calcds_cosc) / (2.0*cos(calcds_sigic2))
+        }
+        set calcds_PA_deconv = calcds_sigic2 * 90.0 / pi + calcds_PA_beam_xl
+        set calcds_det = ((calcds_Maj_convol_square+calcds_Min_convol_square) - (calcds_Maj_beam_square+calcds_Min_beam_square)) / 2.0
+        set calcds_Maj_deconv = calcds_det - calcds_rhoa
+        set calcds_Min_deconv = calcds_det + calcds_rhoa
+        set calcds_Maj_deconv = calcds_Maj_deconv > 0.0 ? calcds_Maj_deconv : 0.0
+        set calcds_Min_deconv = calcds_Min_deconv > 0.0 ? calcds_Min_deconv : 0.0
+        set calcds_Maj_deconv = sqrt(abs(calcds_Maj_deconv))
+        set calcds_Min_deconv = sqrt(abs(calcds_Min_deconv))
+        if (calcds_Maj_deconv < calcds_Min_deconv) {
+           set calcds_Var_swap = calcds_Maj_deconv
+           set calcds_Maj_deconv = calcds_Min_deconv
+           set calcds_Min_deconv = calcds_Var_swap
+           unset calcds_Var_swap
+           set calcds_PA_deconv = calcds_PA_deconv + 90.0
+        }
+        set calcds_PA_deconv = ((calcds_PA_deconv+900.0) % 180.0)
+        if (calcds_Maj_deconv == 0.0) {
+           set calcds_PA_deconv = 0.0
+        } else {
+            if (calcds_Min_deconv == 0.0) {
+                if ((abs(calcds_PA_deconv-calcds_PA_convol_xl) > 45.0) && (abs(calcds_PA_deconv-calcds_PA_convol_xl) < 135.0)) {
+                    set calcds_PA_deconv = ((calcds_PA_deconv+450.0) % 180.0)
+                }
+           }
+        }
+        !printf \\"Maj convol, Maj beam == Maj deconv : \\033[0;31m\\t$(calcds_Maj_convol)\\033[0;0m, \\033[0;33m$(calcds_Maj_beam)\\033[0;0m == \\033[0;34m$(calcds_Maj_deconv)\\033[0;0m\\n\\"
+        !printf \\"Min convol, Min beam == Min deconv : \\033[0;31m\\t$(calcds_Min_convol)\\033[0;0m, \\033[0;33m$(calcds_Min_beam)\\033[0;0m == \\033[0;34m$(calcds_Min_deconv)\\033[0;0m\\n\\"
+        !printf \\"PA. convol, PA. beam == PA. deconv : \\033[0;31m\\t$(calcds_PA_convol)\\033[0;0m, \\033[0;33m$(calcds_PA_beam)\\033[0;0m == \\033[0;34m$(calcds_PA_deconv)\\033[0;0m\\n\\"
+    }
+
+calc_convolved_sizes 06
+    # inputs: maj_deconv, min_deconv, PA_deconv, maj_beam, min_beam, PA_beam
+    # based on the ForTran code from eva, see email on 2018-01-09, subject "deconvolution".
+    # <20180118>
+    echo "TODO"
 
 
 
@@ -365,6 +439,7 @@ mask_prior_sources 01
         set mask = int(mask)
         set id = float(id)
         print $input_file.mask '%15d %15.0f %15.0f %20s\n' {mask id cat_index cat_id} # TODO Check: id == cat_index = cat_id-1
+        echo "Writing "$(dimen(cat_id))" lines to "$input_file.mask
         # 
         if(sum(mask)>0) {
             set px = px if(mask)
@@ -395,6 +470,7 @@ mask_prior_sources 01
             declare pb_corr 0.f
             declare pb_corr_from_pb_image 0.f
             print $output_file 'No catalog source with enough getpix SNR.\n' {}
+            echo "Warning! No catalog source with enough getpix SNR."
             return # exit
         }
     } else {
@@ -459,13 +535,33 @@ go_galfit 01
     read_pixscale
     read_pixnoise
     calc_fluxconv
-    mask_prior_sources
+    # 
+    # mask prior sources (20171221: fixed bug: mask_prior_sources_on_negative_image)
+    if(index('$1','n')==0) {
+        mask_prior_sources_on_negative_image
+    } else {
+        mask_prior_sources
+    }
     # --> px, py, id, cat_index, cat_id, pb_corr, pb_corr_from_pb_image
     # 
-    print fit_$1.cat_index.txt '%15.0f %20s\n' {cat_index cat_id}
-    print fit_$1.pbcorr.txt '%15g %15.0f %20s\n' {pb_corr cat_index cat_id}
-    print fit_$1.pbcorr.from.pb.image.txt '%22g %15.0f %20s\n' {pb_corr_from_pb_image cat_index cat_id}
-    print fit_$1.result.pbc.txt '%25g %15g %15.0f %20s\n' {pb_corr_from_pb_image pb_corr cat_index cat_id}
+    #<20171221># print fit_$1.cat_index.txt '%15.0f %20s\n' {cat_index cat_id}
+    #<20171221># print fit_$1.pbcorr.txt '%15g %15.0f %20s\n' {pb_corr cat_index cat_id}
+    #<20171221># print fit_$1.pbcorr.from.pb.image.txt '%22g %15.0f %20s\n' {pb_corr_from_pb_image cat_index cat_id}
+    #<20171221># print fit_$1.result.pbc.txt '%25g %15g %15.0f %20s\n' {pb_corr_from_pb_image pb_corr cat_index cat_id}
+    #<20171221># echo "Writing "$(dimen(cat_id))" lines to "fit_$1.cat_index.txt
+    #<20171221># echo "Writing "$(dimen(cat_id))" lines to "fit_$1.pbcorr.txt
+    #<20171221># echo "Writing "$(dimen(cat_id))" lines to "fit_$1.pbcorr.from.pb.image.txt
+    #<20171221># echo "Writing "$(dimen(cat_id))" lines to "fit_$1.result.pbc.txt
+    #<20171221># -- we can not name it "fit_$1.result.pbc.txt" otherwise it will get deleted at the begining of "print_result" by the code "!rm $1.result*"!!!
+    !rm fit_$1.pbcorr* 2>/dev/null
+    print fit_$1.cat_index.txt              '%15.0f %20s\n'             {cat_index cat_id}
+    print fit_$1.pb_corr_from_calc.txt      '%15g %15.0f %20s\n'        {pb_corr cat_index cat_id}
+    print fit_$1.pb_corr_from_pb_image.txt  '%22g %15.0f %20s\n'        {pb_corr_from_pb_image cat_index cat_id}
+    print fit_$1.pb_corr.txt                '%25g %15g %15.0f %20s\n'   {pb_corr_from_pb_image pb_corr cat_index cat_id}
+    echo "Writing "$(dimen(cat_id))" lines to "fit_$1.cat_index.txt
+    echo "Writing "$(dimen(cat_id))" lines to "fit_$1.pb_corr_from_calc.txt
+    echo "Writing "$(dimen(cat_id))" lines to "fit_$1.pb_corr_from_pb_image.txt
+    echo "Writing "$(dimen(cat_id))" lines to "fit_$1.pb_corr.txt
     # 
     if(dimen(px)>0 && dimen(py)==dimen(px)) {
         if('$1'=='0' || '$1'=='n0') {
@@ -578,7 +674,12 @@ go_galfit 01
         if(is_file(fit.log)) {!rm fit.log}
         writeGalfitParam fit_$1.param
         writeGalfitLimit fit_$1.limit
+        #<BUG><20180109><DZLIU># WRONGLY USED image_sci.fits IN NEGATIVE FITTING MODE
+        if(index('$1','n')==0) {
+            writeGalfitInput fit_$1.input image_negative.fits fit_$1.fits image_rms.fits image_psf.fits fit_$1.limit
+        } else {
         writeGalfitInput fit_$1.input image_sci.fits fit_$1.fits image_rms.fits image_psf.fits fit_$1.limit
+        }
         exec_galfit $1
         if(is_file(fit_$1.fits)) {
             readGalfitResult fit_$1.fits
@@ -602,17 +703,17 @@ exec_galfit 01
         # 
         # check previous files
         if(is_file("fit_"$1".failed")) {
-            !rm "fit_"$1".failed"
+            !mv "fit_"$1".failed" "fit_"$1".failed.backup"
         }
         if(is_file("fit_"$1".log")) {
-            !rm "fit_"$1".log"
+            !mv "fit_"$1".log" "fit_"$1".log.backup"
         }
         # 
         # exec galfit
-        if(is_file("fit_with_galfit255")) {
+        if(is_file("fit_"$1"_with_galfit255") || is_file("fit_with_galfit255")) {
             !galfit255 fit_$1.input > fit_$1.out 2>&1
         } else {
-            if(is_file("fit_with_galfit30")) {
+            if(is_file("fit_"$1"_with_galfit30") || is_file("fit_with_galfit30")) {
                 !galfit30 fit_$1.input > fit_$1.out 2>&1
             } else {
                 !galfit fit_$1.input > fit_$1.out 2>&1
@@ -623,25 +724,26 @@ exec_galfit 01
         if(is_file(fit.log)) {
             !mv fit.log "fit_"$1".log"
         } else {
-            !date "+%Y-%m-%d %H:%M:%S %Z" > "fit_"$1".failed"
+            !date +\\"%Y-%m-%d %H:%M:%S %Z\\" > "fit_"$1".failed"
             !echo "Failed to fit with galfit! fit.log was not found!" >> "fit_"$1".failed"
             return
         }
         # 
         # check if fit.log contains nan or not
-        !cat "fit_"$1".log" | grep -q -r "\\\bnan\\\b"
+        #<BUGGY><20171209># !cat "fit_"$1".log" | grep -q -r "\\\bnan\\\b"
+        !grep -q -r "\\\bnan\\\b" "fit_"$1".log"
         if($exit_status==0) {
             # found nan!
             # re-do galfit
-            if(!is_file("fit_with_galfit30") && !is_file("fit_with_galfit255")) {
-                !touch "fit_with_galfit30"
+            if(!is_file("fit_"$1"_with_galfit30") && !is_file("fit_with_galfit30") && !is_file("fit_"$1"_with_galfit255") && !is_file("fit_with_galfit255")) {
+                !touch "fit_"$1"_with_galfit30"
                 exec_galfit $1
             } else {
-                if(!is_file("fit_with_galfit255")) {
-                    !touch "fit_with_galfit255"
+                if(!is_file("fit_"$1"_with_galfit255") && !is_file("fit_with_galfit255")) {
+                    !touch "fit_"$1"_with_galfit255"
                     exec_galfit $1
                 } else {
-                    !date "+%Y-%m-%d %H:%M:%S %Z" > "fit_"$1".failed"
+                    !date +\\"%Y-%m-%d %H:%M:%S %Z\\" > "fit_"$1".failed"
                     !echo "Failed to fit with galfit! fit.log contains nan!" >> "fit_"$1".failed"
                 }
             }
@@ -685,6 +787,7 @@ print_result 02
         set ResultFlux = ResultMags*0.0 + 1e-30
         set ResultFluxErr = ResultMags*0.0 + 1e+30
         set ResultFluxPeak = ResultMags*0.0 + 1e-30 # <20170613> getpix f_peak
+        set ResultFluxOrigin = ResultMags*0.0 + 1e-30 # <20170613> getpix f_origin, flux in the original image_sci_input.fits
         do i=0,dimen(ResultMags)-1 {
             if(ResultType[$i]=='psf') {
                 # In this case (10**(ResultMags/(-2.5))) equals the (pix_max / peak2total)
@@ -695,8 +798,11 @@ print_result 02
                 verbose 0 data aaa.getpix.tmp read {fluxpeak 1.f}
                 verbose 1 !rm aaa.getpix.tmp
                 set ResultFluxPeak[$i] = fluxpeak # Jy/beam <20170613>
-                ## Set peak flux
-                #set ResultFluxPeak[$i] = ResultFlux[$i]
+                # Get original image pixel value (prevent from at NaN pixel position)
+                !getpix '%15.10e' image_sci_input.fits $(ResultPosX[$i]) $(ResultPosY[$i]) > aaa.getpix.tmp
+                verbose 0 data aaa.getpix.tmp read {fluxorigin 1.f}
+                verbose 1 !rm aaa.getpix.tmp
+                set ResultFluxOrigin[$i] = fluxorigin # Jy/beam <20180109>
             }
             if(ResultType[$i]=='gaussian' || ResultType[$i]=='sersic') {
                 # In this case (10**(ResultMags/(-2.5))) equals the (pix_sum)
@@ -707,6 +813,11 @@ print_result 02
                 verbose 0 data aaa.getpix.tmp read {fluxpeak 1.f}
                 verbose 1 !rm aaa.getpix.tmp
                 set ResultFluxPeak[$i] = fluxpeak # Jy/beam <20170613>
+                # Get original image pixel value (prevent the source from being at a position where the pixel value is NaN, e.g., at the edge of the circular area cut by ALMA pipeline for the primary beam attenation.)
+                !getpix '%15.10e' image_sci_input.fits $(ResultPosX[$i]) $(ResultPosY[$i]) > aaa.getpix.tmp
+                verbose 0 data aaa.getpix.tmp read {fluxorigin 1.f}
+                verbose 1 !rm aaa.getpix.tmp
+                set ResultFluxOrigin[$i] = fluxorigin # Jy/beam <20180109>
             }
             if(ResultMags[$i]>=30) {
                 set ResultFlux[$i] = 1e-30 #<20170303><dzliu># 
@@ -748,6 +859,11 @@ print_result 02
         # read cat_index and cat_id (str)
         data $1.cat_index.txt read {cat_index 1.f cat_id 2.s}
         # 
+        # read pb_corr from fit_$1.result.pbc.txt, which is produced by go_galfit
+        #data $1.pbcorr.txt read {pb_corr 2.f} -- <20171221><BUG><FIXED> Buggy!!! It was actually read from $1.pbcorr.txt!!! Should read from $1.result.pbc.txt!!!
+        data $1.pb_corr.txt read {pb_corr 2.f}
+        # 
+        # 
         set x = ResultPosX
         set y = ResultPosY
         set f = ResultFlux
@@ -782,8 +898,8 @@ print_result 02
         set source_area_in_beam = source_area_in_arcsec / beam_area # in unit of beamarea
         set convol_area_in_pix = sqrt((beam_area/(pix_scale*pix_scale))**2 + source_area_in_pix**2)
         #set convol_area_in_arcsec = sqrt(beam_area**2 + source_area_in_arcsec**2) #<BUGGY><20171223># convol_area is not the direct square root of the sum of squared two area. 
-        set convol_maj = sqrt(beam_maj**2 + maj**2) # arcsec
-        set convol_min = sqrt(beam_min**2 + min**2) # arcsec
+        set convol_maj = sqrt(beam_maj**2 + maj**2) # arcsec #<TODO># two 2D Gaussian convolution
+        set convol_min = sqrt(beam_min**2 + min**2) # arcsec #<TODO># two 2D Gaussian convolution
         set convol_area_in_arcsec = pi/(4*ln(2)) * convol_maj * convol_min
         set convol_area_in_beam = convol_area_in_arcsec / beam_area
         set source_peak = f / convol_area_in_beam #<BUG><CORRECTED><20171123># dzliu, Yoshinobu, Philipp
@@ -799,6 +915,7 @@ print_result 02
         set f_redchisq = ResultFluxRedChisq
         set n_aperpix = ResultFluxNumPixel
         set n_freepar = ResultNumbFreeParam
+        set f_origin = ResultFluxOrigin
         # 
         #<above><added><20170606><dzliu>#
         # 
@@ -829,6 +946,12 @@ print_result 02
         #<below><added><20170923><dzliu>#
         print $1.result.source_err.txt '%25g %25g %25g %25g %25g %25g %25g %25g %25g %15.0f %15s\n' \
             {f source_total_err source_peak source_peak_err maj source_major_err min source_minor_err source_gaussian_snr cat_index cat_id}
+        #<above><added><20170923><dzliu>#
+        # 
+        # 
+        #<below><added><20170923><dzliu>#
+        print $1.result.flux_origin.txt '%25g %15.0f %15s\n' \
+            {f_origin cat_index cat_id}
         #<above><added><20170923><dzliu>#
         # 
         # 
@@ -872,11 +995,11 @@ print_result_final 01
     if(!$?1) {
         set final_basename = 'final'
         set getpix_basename = 'getpix'
-        set galfit_basenames = { fit_0 fit_1 fit_2 fit_3 fit_4}
+        set galfit_basenames = { fit_0 fit_1 fit_2 fit_3}
     } else { 
         set final_basename = 'final_on_negative_image'
         set getpix_basename = 'getpix_on_negative_image'
-        set galfit_basenames = { fit_n0 fit_n1 fit_n2 fit_n3 fit_n4}
+        set galfit_basenames = { fit_n0 fit_n1 fit_n2 fit_n3}
     }
     if(!is_file("No_catalog_source_within_image")) {
         if(is_file($(final_basename).result)) { !mv $(final_basename).result $(final_basename).result.backup }
@@ -944,15 +1067,15 @@ print_result_final 01
                 }
                 # read $var.result and other data, print into big datatables
                 define has_$var 1
+                if(!is_file($var.pb_corr.txt))            { print 'Error! Could not find \"$var.pb_corr.txt\"\n' {}             define has_$var 0 }
                 if(!is_file($var.result))                 { print 'Error! Could not find \"$var.result\"\n' {}                  define has_$var 0 }
                 if(!is_file($var.result.sersic_n.txt))    { print 'Error! Could not find \"$var.result.sersic_n.txt\"\n' {}     define has_$var 0 }
-                if(!is_file($var.result.pbc.txt))         { print 'Error! Could not find \"$var.result.pbc.txt\"\n' {}          define has_$var 0 }
                 if(!is_file($var.result.chisq.txt))       { print 'Error! Could not find \"$var.result.chisq.txt\"\n' {}        define has_$var 0 }
                 if(!is_file($var.result.source_area.txt)) { print 'Error! Could not find \"$var.result.source_area.txt\"\n' {}  define has_$var 0 }
                 if(!is_file($var.result.mask_buffer.txt)) { print 'Error! Could not find \"$var.result.mask_buffer.txt\"\n' {}  define has_$var 0 }
                 if($has_$var) {
+                    data $var.pb_corr.txt             read {pbcorr 1.f pb_corr 2.f} # pbcorr is from pb image, pb_corr is from mathematics
                     data $var.result.sersic_n.txt     read {sersic_n 1.f sersic_n_err 2.f}
-                    data $var.result.pbc.txt          read {pbcorr 1.f pb_corr 2.f} # pbcorr is from pb image, pb_corr is from mathematics
                     data $var.result.chisq.txt        read {chisq 1.f rchisq 2.f n_aperpix 3.f n_freepar 4.f}
                     data $var.result.source_area.txt  read {convol_area_in_pix 4.f convol_area_in_arcsec 5.f convol_area_in_beam 6.f}
                     data $var.result.mask_buffer.txt  read {flag_buffer 1.f}
@@ -1042,6 +1165,66 @@ print_result_final 01
 
 print_result_final_on_negative_image 00
     print_result_final _on_negative_image
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+go_fix_bug_20171221
+    # bug: "mask_prior_sources_on_negative_image"
+    #      The negative image fitting used original "getpix.mask"! It should used "getpix_on_negative_image.mask"!
+    # fix: first re-run "mask_prior_sources"
+    #      then re-run "print_result_final"
+    #      then re-run negative image fitting
+    !cp fit_0.pbcorr.txt                fit_0.pb_corr_from_calc.txt
+    !cp fit_0.pbcorr.from.pb.image.txt  fit_0.pb_corr_from_pb_image.txt
+    !cp fit_0.result.pbc.txt            fit_0.pb_corr.txt
+    !cp fit_1.pbcorr.txt                fit_1.pb_corr_from_calc.txt
+    !cp fit_1.pbcorr.from.pb.image.txt  fit_1.pb_corr_from_pb_image.txt
+    !cp fit_1.result.pbc.txt            fit_1.pb_corr.txt
+    !cp fit_2.pbcorr.txt                fit_2.pb_corr_from_calc.txt
+    !cp fit_2.pbcorr.from.pb.image.txt  fit_2.pb_corr_from_pb_image.txt
+    !cp fit_2.result.pbc.txt            fit_2.pb_corr.txt
+    !cp fit_3.pbcorr.txt                fit_3.pb_corr_from_calc.txt
+    !cp fit_3.pbcorr.from.pb.image.txt  fit_3.pb_corr_from_pb_image.txt
+    !cp fit_3.result.pbc.txt            fit_3.pb_corr.txt
+    #--> now renamed pb_corr files
+    # 
+    read_data
+    read_pixscale
+    read_pixnoise
+    calc_fluxconv
+    mask_prior_sources
+    print_result_final
+    #--> this will rewrite "$input_file.mask"
+    # 
+    read_data
+    read_pixscale
+    read_pixnoise
+    calc_fluxconv
+    mask_prior_sources_on_negative_image
+    go_galfit_n0
+    go_galfit_n1
+    go_galfit_n2
+    go_galfit_n3
+    print_result_final_on_negative_image
+    #--> this will rewrite "getpix_on_negative_image.mask"
+
+
+
+
+
+
 
 
 

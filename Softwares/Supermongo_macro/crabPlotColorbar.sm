@@ -217,6 +217,7 @@ plotColorBar_value2color 01
         if(is_vector(pcbg_indexes) && is_vector(pcbg_values) && is_vector(pcbg_colors)) {
             set pcbg_value_input = float($1)
             spline pcbg_values pcbg_indexes pcbg_value_input pcbg_index_output
+            set pcbg_index_output = (pcbg_index_output<0) ? 0 : pcbg_index_output #<BUG><FIXED><20171212><DZLIU># 
             set pcbg_color_output = 'pcbg_'+sprintf('%.0f',pcbg_index_output)
             ctype $(pcbg_color_output)
             set $0 = pcbg_color_output

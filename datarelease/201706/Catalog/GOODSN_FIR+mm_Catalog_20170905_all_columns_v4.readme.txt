@@ -1,0 +1,60 @@
+Change columns:
+
+z(spec)
+(Expression: $6==0 ? -99 : $6)
+
+e_z(IR)
+
+
+
+
+
+Then save as "LaTeX" format
+
+Also save as "CSV" format
+
+then use LibreOffice Calc to format each column, e.g., format flux columns as scientific notation, etc., and more importantly, set all column widths to be 1.20", and adjust a few begining columns. 
+
+then use LibreOffice Calc to save a copy as "GOODSN_FIR+mm_Catalog_20170905_all_columns_v4.formatted.fixed_width.csv", with the option "Fixed Width". 
+
+then, count each column width in bytes and store into "GOODSN_FIR+mm_Catalog_20170905_all_columns_v4.formatted.fixed_width_header.csv". 
+
+
+
+
+
+
+
+
+Then
+
+cp GOODSN_FIR+mm_Catalog_20170905_all_columns_v4.formatted.csv \
+      ../CatalogMachineReadableFormat/GOODSN_FIR+mm_Catalog_20170905_all_columns_v4.only_data.csv
+touch ../CatalogMachineReadableFormat/GOODSN_FIR+mm_Catalog_20170905_all_columns_v4.only_column_names.txt
+touch ../CatalogMachineReadableFormat/GOODSN_FIR+mm_Catalog_20170905_all_columns_v4.only_column_units.txt
+touch ../CatalogMachineReadableFormat/GOODSN_FIR+mm_Catalog_20170905_all_columns_v4.only_column_descriptions.txt
+
+
+Note to change
+    column_names
+    ref_ --> r_
+
+
+
+
+
+
+
+Then, 
+
+we can open https://authortools.aas.org/MRT/upload.html
+
+click "Choose file" button, select "GOODSN_FIR+mm_Catalog_20170905_all_columns_v4.formatted.fixed_width.csv"
+
+note that the input box for format code is not long enough, we need to use Chrome browser, right click to pop up the context menu -- Inspect -- select the input box -- change the maxlength to 1500. 
+then we can copy the content of "GOODSN_FIR+mm_Catalog_20170905_all_columns_v4.formatted.fixed_width_header.csv" into that input box. 
+
+
+
+
+

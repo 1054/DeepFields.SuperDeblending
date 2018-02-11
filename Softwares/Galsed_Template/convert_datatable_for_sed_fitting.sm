@@ -14,11 +14,21 @@ convert_datatable_for_sed_fitting
     if(is_vector(id)) {unset id}
     if(is_vector(zphot)) {unset zphot}
     if(is_vector(zspec)) {unset zspec}
-    if(is_file("datatable_photometry.txt"))      {data "datatable_photometry.txt"      read {w 1.f f 2.f df 3.f sJy 4.s band 5.s}}
+    if(is_file("datatable_photometry.txt"))      {data "datatable_photometry.txt"      read {w 1.f f 2.f df 3.f}}
+    if(is_file("datatable_photometry.txt"))      {data "datatable_photometry.txt"      read {sJy 4.s}}
+    if(is_file("datatable_photometry.txt"))      {data "datatable_photometry.txt"      read {band 5.s}}
     if(is_file("datatable_id_ra_dec_zphot.txt")) {data "datatable_id_ra_dec_zphot.txt" read {id 1 ra 2 dec 3 zphot 4}}
     if(is_file("datatable_id_ra_dec_zspec.txt")) {data "datatable_id_ra_dec_zspec.txt" read {id 1 ra 2 dec 3 zspec 4}}
     if(is_vector(zphot) && !is_vector(zspec)) {set zspec = zphot*0.0-99}
     if(is_vector(zspec) && !is_vector(zphot)) {set zphot = zspec}
+    
+    if(!is_vector(sJy)) {
+        set sJy = (w>0) ? 'mJy' : 'mJy'
+    }
+    
+    if(!is_vector(band)) {
+        set band = string(w)
+    }
     
     sort {w band f df sJy}
     set fJy = (sJy=='uJy') ? 1e-3 : 1.0

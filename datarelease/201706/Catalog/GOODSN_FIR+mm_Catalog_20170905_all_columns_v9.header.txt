@@ -1,0 +1,98 @@
+java -Xdock:icon="/Users/dzliu/Applications/TOPCAT.app/Contents/Resources/Topcat.icns" -Dcom.apple.mrj.application.apple.menu.about.name=TOPCAT -Duk.ac.starlink.topcat.cmdname=topcat -classpath "/Users/dzliu/Applications/TOPCAT.app/Contents/Resources/Java/topcat-full.jar" uk.ac.starlink.topcat.Driver -stilts tpipe in='GOODSN_FIR+mm_Catalog_20170905_all_columns_v9.fits' omode='meta'
+
+Name:    Joined
+Columns: 90
+Rows:    3306
+
+Columns
+-------
+     1: ID(Short)/--- - GOODS-Spitzer/IRAC identifier
+     2: RA(Double)/deg - GOODS-Spitzer/IRAC Right Ascension in decimal degrees (J2000)
+     3: DEC(Double)/deg - GOODS-Spitzer/IRAC Declination in decimal degrees (J2000)
+     4: z_phot(Float)/--- - Literature optical/near-infrared photometric redshift
+     5: r_z_phot(Short)/--- - Reference for zphot (1)
+     6: z_spec(Float)/--- - Literature spectroscopic redshift
+     7: r_z_spec(Short)/--- - Reference for zspec (2)
+     8: z_FIRmm(Float)/--- - Super-deblended IR-to-radio SED fitting redshift (3)
+     9: e_z_FIRmm(Double)/--- - Error in z_FIRmm (4)
+    10: FLUX_K(Double)/mJy - Literature K-band flux density (5)
+    11: e_FLUX_K(Double)/mJy - Error in FLUX_K
+    12: FLUX_IRAC1(Double)/mJy - Spitzer/IRAC 3.4um flux density (6)
+    13: e_FLUX_IRAC1(Double)/mJy - Error in FLUX_IRAC1
+    14: FLUX_IRAC2(Double)/mJy - Spitzer/IRAC 4.5um flux density (6)
+    15: e_FLUX_IRAC2(Double)/mJy - Error in FLUX_IRAC2
+    16: FLUX_IRAC3(Double)/mJy - Spitzer/IRAC 5.8um flux density (6)
+    17: e_FLUX_IRAC3(Double)/mJy - Error in FLUX_IRAC3
+    18: FLUX_IRAC4(Double)/mJy - Spitzer/IRAC 8.0um flux density (6)
+    19: e_FLUX_IRAC4(Double)/mJy - Error in FLUX_IRAC4
+    20: FLUX_24(Double)/mJy - Super-deblended Spitzer/MIPS 24um flux density
+    21: e_FLUX_24(Double)/mJy - Error in FLUX_24
+    22: FLUX_16(Double)/mJy - Super-deblended Spitzer/IRS PUI  flux density
+    23: e_FLUX_16(Double)/mJy - Error in FLUX_16
+    24: FLUX_100(Double)/mJy - Super-deblended Herschel/PACS 100um flux density
+    25: e_FLUX_100(Float)/mJy - Error in FLUX_100
+    26: FLUX_160(Double)/mJy - Super-deblended Herschel/PACS 160um flux density
+    27: e_FLUX_160(Float)/mJy - Error in FLUX_160
+    28: FLUX_250(Double)/mJy - Super-deblended Herschel/SPIRE 250um flux density
+    29: e_FLUX_250(Float)/mJy - Error in FLUX_250
+    30: FLUX_350(Float)/mJy - Super-deblended Herschel/SPIRE 350um flux density
+    31: e_FLUX_350(Float)/mJy - Error in FLUX_350
+    32: FLUX_500(Float)/mJy - Super-deblended Herschel/SPIRE 500um flux density
+    33: e_FLUX_500(Float)/mJy - Error in FLUX_500
+    34: FLUX_850(Double)/mJy - Super-deblended JCMT/SCUBA2 850um flux density
+    35: e_FLUX_850(Float)/mJy - Error in FLUX_850
+    36: FLUX_1160(Double)/mJy - Super-deblended JCMT/AzTEC + IRAM 30m MAMBO 1.16mm flux density
+    37: e_FLUX_1160(Float)/mJy - Error in FLUX_1160
+    38: FLUX_20cm(Double)/mJy - Super-deblended VLA ~20cm  flux density
+    39: e_FLUX_20cm(Double)/mJy - Error in FLUX_20cm
+    40: r_FLUX_20cm(Short)/--- - Origin of FLUX_20cm (7)
+    41: SNR_FIRmm(Float)/--- - Super-deblended 100um-to-1mm S/N; combined in quadrature
+    42: Mstar(Float)/solMass - Literature stellar mass (8)
+    43: SFR_FIRmm(Double)/solMass/yr - Super-deblended SED best-fit dust-obscured SFR
+    44: e_SFR_FIRmm(Double)/solMass/yr - Error in SFR-IR
+    45: sSFR_FIRmm(Double)/Gyr-1 - Super-deblended SED best-fit specific-SFR;=SFR/Mstar
+    46: goodArea(Short)/--- - Super-deblended goodArea flag (9)
+    47: Type_AGN(Short)/--- - Super-deblended SED fitting Type_AGN flag
+    48: Type_SED(Short)/--- - Super-deblended SED fitting Type_SED flag
+    49: Type_FIR(Short)/--- - Super-deblended SED fitting Type_FIR flag
+    50: SED_AGN(Double)/10+10.solLum - Super-deblended SED best-fit AGN luminosity
+    51: e_SED_AGN(Double)/10+10.solLum - Error in SED_AGN
+    52: SED_TOT(Double)/10+10.solLum - Super-deblended SED best-fit total luminosity
+    53: e_SED_TOT(Double)/10+10.solLum - Error in SED_TOT
+    54: SED_70(Double)/mJy - Super-deblended SED predicted 70um flux density
+    55: e_SED_70(Double)/mJy - Error in SED_70
+    56: SED_100(Double)/mJy - Super-deblended SED predicted 100um flux density
+    57: e_SED_100(Double)/mJy - Error in SED_100
+    58: SED_160(Double)/mJy - Super-deblended SED predicted 160um flux density
+    59: e_SED_160(Double)/mJy - Error in SED_160
+    60: SED_250(Double)/mJy - Super-deblended SED predicted 250um flux density
+    61: e_SED_250(Double)/mJy - Error in SED_250
+    62: SED_350(Double)/mJy - Super-deblended SED predicted 350um flux density
+    63: e_SED_350(Double)/mJy - Error in SED_350
+    64: SED_500(Double)/mJy - Super-deblended SED predicted 500um flux density
+    65: e_SED_500(Double)/mJy - Error in SED_500
+    66: SED_850(Double)/mJy - Super-deblended SED predicted 850um flux density
+    67: e_SED_850(Double)/mJy - Error in SED_850
+    68: SED_1160(Double)/mJy - Super-deblended SED predicted 1160um flux density
+    69: e_SED_1160(Double)/mJy - Error in SED_1160
+    70: SED_1200(Double)/mJy - Super-deblended SED predicted 1200um flux density
+    71: e_SED_1200(Double)/mJy - Error in SED_1200
+    72: SED_1250(Double)/mJy - Super-deblended SED predicted 1250um flux density
+    73: e_SED_1250(Double)/mJy - Error in SED_1250
+    74: SED_2000(Double)/mJy - Super-deblended SED predicted 2000um flux density
+    75: e_SED_2000(Double)/mJy - Error in SED_2000
+    76: SED_2050(Double)/mJy - Super-deblended SED predicted 2050um flux density
+    77: e_SED_2050(Double)/mJy - Error in SED_2050
+    78: SED_10cm(Double)/mJy - Super-deblended SED predicted 10cm flux density
+    79: e_SED_10cm(Double)/mJy - Error in SED_10cm
+    80: SED_20cm(Double)/mJy - Super-deblended SED predicted 20cm flux density
+    81: e_SED_20cm(Double)/mJy - Error in SED_20cm
+    82: chisq_total(Double)/--- - Super-deblended SED chi-squ. of fitted data points for whole SED
+    83: nfit_total(Short)/--- - Number of fitted data points in chisqTot
+    84: chisq_stellar(Double)/--- - Super-deblended SED chi-sq. of fitted data points for stellar component of SED
+    85: nfit_stellar(Short)/--- - Number of fitted data points in chisq*
+    86: chisq_dust(Double)/--- - Super-deblended SED chi-sq. of fitted data points for dust component of the SED
+    87: nfit_dust(Short)/--- - Number of fitted data points for chisqD
+    88: U_FIRmm(Float)/--- - Super-deblended SED best-fit dust template mean interstellar radiation field strength (10)
+    89: SFR_total(Double)/solMass/yr - Sum of UV-unattenuated SFR and super-deblended SED best-fit dust-obscured SFR
+    90: SFR_dust_over_SFR_total(Double)/--- - Ratio of UV-unattenuated and super-deblended SED best-fit dust-obscured SFRs

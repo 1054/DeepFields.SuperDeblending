@@ -29,12 +29,13 @@ topcat -stilts tpipe \
                 cmd="addcol id_input -before 1 \"id\"" \
                 cmd="delcols \"id\"" \
                 cmd="addcol \"ID\"                                        -before id_input \"id_input\"" \
-                cmd="addcol \"R.A.\"                                      -before id_input \"ra\"" \
-                cmd="addcol \"Dec.\"                                      -before id_input \"dec\"" \
-                cmd="addcol \"\$z_{\mathrm{IR}}\$\"                       -before id_input \"z_IR\"" \
-                cmd="addcol \"\$S_{500}\$\"                               -before id_input \"FLUX_500\"" \
-                cmd="addcol \"\$\sigma_{500}\$\"                          -before id_input \"FLUXERR_500\"" \
-                cmd="addcol \"S/N\"                                       -before id_input \"SNR_IR\"" \
+                cmd="addcol \"R.A.\"                                      -before id_input \"formatDecimal(ra,\\\"#.0000000\\\")\"" \
+                cmd="addcol \"Dec.\"                                      -before id_input \"formatDecimal(dec,\\\"#.0000000\\\")\"" \
+                cmd="addcol \"\$z_{\mathrm{IR}}\$\"                       -before id_input \"formatDecimal(z_IR,\\\"#.00\\\")\"" \
+                cmd="addcol \"\$z_{\mathrm{spec}}\$\"                     -before id_input \"formatDecimal(z_spec,\\\"#.000\\\")\"" \
+                cmd="addcol \"\$S_{500}\$\"                               -before id_input \"formatDecimal(FLUX_500,\\\"#.0\\\")\"" \
+                cmd="addcol \"\$\sigma_{500}\$\"                          -before id_input \"formatDecimal(FLUXERR_500,\\\"#.0\\\")\"" \
+                cmd="addcol \"S/N\"                                       -before id_input \"formatDecimal(SNR_IR,\\\"#.0\\\")\"" \
                 cmd="addcol \"\$\log M_{*}\$\"                            -before id_input \"formatDecimal(log10(Mstar),\\\"#.00\\\")\"" \
                 cmd="addcol \"\$\mathrm{SFR}_{\mathrm{total}}\$\"         -before id_input \"formatDecimal(SFR_total,\\\"#.0\\\")\"" \
                 cmd="addcol \"\$\mathrm{SFR}_{\mathrm{IR}}\$\"            -before id_input \"formatDecimal(SFR_IR,\\\"#.0\\\")\"" \
@@ -42,7 +43,7 @@ topcat -stilts tpipe \
                 cmd="addcol \"\textit{goodArea}\"                         -before id_input \"goodArea\"" \
                 cmd="addcol \"T\$_{20\mathrm{cm}}\$\"                     -before id_input \"Type_AGN\"" \
                 cmd="addcol \"T\$_{\mathrm{SED}}\$\"                      -before id_input \"Type_SED\"" \
-                cmd="keepcols \"1 2 3 4 5 6 7 8 9 10 11 12 13 14\"" \
+                cmd="keepcols \"1 2 3 4 5 6 7 8 9 10 11 12 13 14 15\"" \
                 ofmt=latex \
                 out="Table_2_latex.tex"
                 # http://www.star.bristol.ac.uk/~mbt/stilts/sun256/tpipe.html

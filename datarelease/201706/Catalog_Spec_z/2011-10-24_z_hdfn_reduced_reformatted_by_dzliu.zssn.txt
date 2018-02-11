@@ -1,0 +1,171 @@
+# Master list of GOODS-N redshifts, compiling data from all references.
+# This is a merged list, where multiple redshift measurements from different observations that match
+# a single object position have been compared and resolved in an automated fashion, in an attempt
+# to select the single "best" redshift measurement for each object.
+# Redshift catalog positions have been matched to the nearest sources from the ACS r2.0z catalogs 
+# and the WIRCAM K-band v3.0 catalogs (maximum matching tolerance = 1.0 arcsec).   ACS-matched objects 
+# appear first (in order of ACS ID_MOSAIC number) followed by objects with WIRCAM matches only.  
+# Note that the WIRCAM catalog covers a larger field than ACS, and therefore objects outside the ACS area 
+# will only be matched to WIRCAM sources.  Multiple matches have been reconciled automatically according 
+# to quality flags and a priority order for the various input catalogs.  This process is certainly imperfect! 
+# so beware.  
+#
+# MED 2011-10-24
+#
+# Columns:
+# ra, dec		= "best" coordinates: closest ACS or WIRCAM match to redshift position
+# idacs     		= ID_MOSAIC from ACS r2.0z catalog for nearest matching source (-1 if none)
+# mZk    		= z850 MAG_AUTO for nearest matching source from ACS r2.0z catalog (-1 if none)
+# idK     		= ID_MOSAIC from WIRCAM v3.0 catalog for nearest matching source (-1 if none)
+# mKk       		= Ks MAG_AUTO for nearest matching source from WIRCAM v3.0 catalog (-1 if none)
+# z			= redshift (-1 if none)
+# zq			= redshift quality (1=good, 2=ok, 3=poor, -1=not available)
+# zssn			= redshift survey serial number (see below)
+# nz    		= number of redshift measurements for this object
+# nzd  			= number of discrepant (|dz|>0.02) redshift measurements (including zq=3 redshifts)
+# nzdAB     		= number of discrepant (|dz|>0.02) redshift measurements, for zq=1,2 (and -1) only
+# comment		= comments from redshift data files
+# 
+#  Redshift Survey Serial Numbers:
+#	03   Lowenthal et al. 1997, ApJ, 481, L673
+#	04   Phillips et al. 1997, ApJ, 489, 543
+#	10   Cohen et al. 1996, ApJ, 471, L5; Cohen et al. 2000, ApJ, 538, 29; Cohen 2001, AJ, 121 2895
+#	12   Dawson et al. 2001, AJ, 122, 598
+#	21   Wirth et al. 2004, AJ 127, 3121 (TKRS)
+#	23   Cooper et al., 2011, ApJS, 193, 14
+#	25   Treu et al. 2005, ApJ, 633, 174
+#	31   Steidel et al. 1996, AJ, 112, 352
+#	32   Steidel et al. 1999, ApJ, 519, 1
+#	33   Steidel et al. 2003,  ApJ, 592, 728
+#	34   Reddy et al. 2006, ApJ, 653, 1004
+#	41   Chapman et al. 2004, ApJ, 614, 671
+#	42   Chapman et al. 2005,  ApJ, 622, 772; Swinbank et al. 2005, ApJ, 617, 64
+#	45   Pope et al. 2008, ApJ 675, 1171; Murphy et al. 2009, ApJ, 698, 1380 (Spitzer IRS spectroscopy)
+#	46   Daddi et al. 2009a, ApJ, 694, 1517;  Daddi et al. 2009b, ApJ, 695, 176  (SMGs)
+#	47   Daddi et al. 2008, ApJ, 673, 21;  Daddi et al. 2010, ApJ, 713, 686 (BzK CO)
+#	72   Stern et al. (in prep.) - GOODS Keck redshifts
+#	73   Strolger et al., 2005, 635, 1370
+#	81   Barger et al. 2008, ApJ, 689, 687 
+#		supersedes earlier Barger & Cowie papers, including:
+#		  Barger et al. 2001, AJ, 122, 2177
+#		  Barger et al. 2002, AJ, 124, 1839
+#		  Barger et al. 2003, AJ, 126, 632
+#		  Cowie et al. 2004, AJ, 127, 3137
+#	82   Kakazu et al. 2007
+#	83   Hu et al. 2010  (almost certainly overlaps Kakazu et al. 2007)
+#	85   Yoshikawa et al. 2010, ApJ, 718, 112 (Subaru/MOIRCS)
+#	87   Stark et al. 2011
+#
+# Other historic references containing small numbers of interesting objects; 
+# most but perhaps not all have been incorporated into other references above:
+#	Spinrad et al. 1998, AJ, 116, 2617
+#	Weymann et al., 1998, ApJ, 505, L95
+#	Dickinson, 1998, in "The Hubble Deep Field," eds. Livio, Fall & Madau, 219
+#	Lowenthal & Koo 1998, in "The Young Universe," eds. D'Odorico, Fontana & Giallongo, 110
+#	Waddington et al. 1999, ApJ, 526, L77
+#	Stern & Spinrad 1999, PASP, 111, 1475
+#	Riess et al. 2001, ApJ, 560, 49
+#
+# Guide to redshift survey serial numbers and original quality flags.
+# Tentative mapping from published quality flags to uniform 1,2,3 system indicated in parentheses
+#
+#	03   Lowenthal et al. 1997
+#		4: redshift definite, with multiple spectral features identified			(1)
+#		3: redshift probable, with two or more spectral features measured			(2)
+#		2: real features detected but redshift uncertain					(3)
+#		2x: real features detected but redshift uncertain (z derived from cross-correlation)	(3)
+#		1x: SNR too low to discern features (z derived from cross-correlation)			(3)
+#	04   Phillips et al. 1997
+#		INDEF: NO QF provided			(spectra used for velocity dispersions, we assume zq=1)
+#	10   Cohen et al. 2000; Cohen 2001
+#		1: Multiple features, {sigma}(z)<=0.002/feature						(1)
+#		2: Multiple features, {sigma}(z)<=0.004/feature						(1)
+#		3: Multiple features, faint, id uncertain, {sigma}(z) small 75% of			(3)
+#		   time, and wildly off 25% of time
+#		4: One emission line only, solid, assume 3727{AA}					(2)
+#		5: One emission line only, reality uncertain, assume 3727{AA}				(3)
+#		6: Multiple features, at least one broad emission line					(1)
+#		7: Only one broad emission line, assumed to be 2800{AA} (not used)			(2)
+#		8: Single break, assumed to be 4000{AA} break						(2)
+#		9: Single strong absorption feature, assumed to be 2800{AA}				(2)
+#		   because of shape of continuum
+#		11: Etremely faint objects (R>24.3) observed by the Caltech group			(2)
+#		    which turned up serendipitously in slitlets intended for some
+#		    brighter nearby galaxy and which show only a single emission line
+#		    with no sign of a continuum. In our previous work, for spectra
+#		    showing only a single emission line, the assumption was always
+#		    made that this line is the [O II] line at 3727{AA}. However, in
+#		    these particular cases, the objects are so faint that we have
+#		    instead assumed that the emission line is Ly{alpha}.
+#		?: No information (mostly for literature sources)					(-1)
+#	12   Dawson et al. 2001
+#		New quality flags set on standard system by MED
+#		1: good (all redshifts unless comments note "z tentative")				(1)
+#		2: ok   (objects with "z tentative" in comments)					(2)
+#		Original quality flags from Dawson: 	
+#		  1: Multiple features ("secure")
+#		  2: Solo line with continuum; assume [OII] 3727 ("secure")
+#		  3: Solo line with continuum break; assume Lya ("secure" unless otherwise noted)
+#		  4: Solo line with no continuum; assess imaging, if available ("secure" unless otherwise noted)
+#		  5: Continuum break; assess continuum strength blueward of break ("secure" unless otherwise noted)
+#	21   Wirth et al. 2004, AJ 127, 3121 (TKRS)
+#		  4: Very secure redshift (P > 99%);  2 or more spectral features			(1)
+#		  3: Secure redshift (P > 95%);  one strong line & another weak feature, or single wide line,
+#			typically [OII] 3727 blend							(2)
+#		  2: Uncertain redshift; signal is present but no unambiguous spectral line identified	(-1)
+#		  1: No redshift; S/N ratio too poor							(-1)
+#		 -1: Star; converted to zq = 0 for reformatted file z.wirth2004.dat			(1)
+#		 -2: No redshift measured because of instrumental artifacts in spectrum			(-1)
+#		All objects with original quality flag -1 (indicating a star) were converted to zq=0 and z=0.00000 
+#		  for the reformatted file z.wirth2004.dat
+#		All objects with zq = -2, zq = 1, and zq = 2 have z = -1 in the reformatted file.
+#	23   Cooper et al., 2011, ApJS, 193, 14
+#		-1   = star; converted to zq = 0 for reformatted file z.cooper2011.dat			(1)
+#		 1,2 = unknown										(-1)
+#		 3   = 90% confidence									(2)
+#		 4   = 99% confidence									(1)
+#	25   Treu et al. 2005
+#		INDEF: NO QF provided			(spectra used for velocity dispersions, we assume zq=1)
+#	31   Steidel et al. 1996
+#		Quality flags inserted by MED:
+#		A:	good										(1)
+#		C:	uncertain									(3)
+#	32   Steidel et al. 1999
+#		INDEF: NO QF provided                      					(assumed zq=1)
+#	33   Steidel et al. 2003
+#		Quality flags translated by MED:
+#		A:	good										(1)
+#		C:	uncertain (indicated by ":" in data tables from paper)				(3)
+#	34   Reddy et al. 2006, ApJ, 653, 1004
+#		Quality flags translated by MED:
+#		A:	good										(1)
+#		C:	uncertain (indicated by ":" in data tables from paper)				(3)
+#	41   Chapman et al. 2004
+#		INDEF: NO QF provided									(-1)
+#	42   Chapman et al. 2005, Swinbank et al. 2005
+#		INDEF: NO QF provided									(-1)
+#	45   Pope et al. 2008, Murphy et al. 2009 (Spitzer IRS spectroscopy)
+#		INDEF: NO QF provided									(-1)
+#	46   Daddi et al. 2009, 2010 (SMGs)
+#		INDEF: NO QF provided                      					(assumed zq=1)
+#	72   Stern et al. (in prep.) - GOODS Keck redshifts
+#		A: Solid redshift determination            						(1)
+#		B: likely redshift determination           						(2)
+#		C: tenative redshift determination         						(3)
+#		F: no redshift                             						(-1)
+#		-: No quality flag given (mostly LRIS data)						(-1)
+#	81   Barger et al. 2008
+#		Two redshifts are marked as uncertain (here, zq=3)					(3)
+#		All others have no QF provided (here, zq=-1)						(-1)
+#	82   Kakazu et al. 2007
+#		No QF provided
+#	83   Hu et al. 2010 - almost certainly overlaps Kakazu et al. 2007
+#		No QF provided for tables 2 and 3;  QF info for tables 5 and 6 not yet included
+#	85   Yoshikawa et al. 2010 (Subaru/MOIRCS)
+#		NO QF provided.   
+#		MED assigned zq=1 for objects with >= 2 detected (S/N>3) emission lines,		(1)
+#		 and zq=2 for objects with only 1 detected line (assumed to be H-alpha)			(2)
+#	87   Stark et al. 2011
+#		No QF provided
+#
+# ------------------------------------------------------------------------------------------

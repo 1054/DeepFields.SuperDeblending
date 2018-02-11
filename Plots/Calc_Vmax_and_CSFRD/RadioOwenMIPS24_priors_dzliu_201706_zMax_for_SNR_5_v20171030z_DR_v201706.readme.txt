@@ -1,0 +1,6 @@
+set_data_version = 201706
+set_output_date = 20171030z_DR_v201706
+set_SNR_limit = 5
+set_SFR_UV = 0
+macro read calc_Vmax.sm calc_Vmax
+macro read calc_CSFRD_bootstrap_without_withdrawal.sm calc_CSFRD_bootstrap

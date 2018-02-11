@@ -1519,7 +1519,7 @@ calc_ltir 06
     set _clir_rsf = _clir_vfv / 2.99792458e5 * _clir_rsw # mJy -- restframe flux density
     if($?4){set _clir_ww1 = $4} else {set _clir_ww1 = 8.0} # where to begin integration
     if($?5){set _clir_ww2 = $5} else {set _clir_ww2 = 1000.0} # where to begin integration
-    if($?6){set _clir_itu = $6} else {set _clir_itu = 0.01} # -_clir_itu GHz interval [GHz]
+    if($?6){set _clir_itu = $6} else {set _clir_itu = 0.005} # -_clir_itu GHz interval [GHz]
     set _clir_itv = lg(2.99792458e5/_clir_ww1),lg(2.99792458e5/_clir_ww2),-(_clir_itu) # -_clir_itu GHz interval
     set _clir_itv = 10**_clir_itv # GHz
     set _clir_itw = 2.99792458e5/_clir_itv # um

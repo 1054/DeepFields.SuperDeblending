@@ -1,0 +1,78 @@
+fixed column 'e_SFR(IR)':
+
+# $43==1E+10 ? 1/$40*$42 : $43
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? 1.0*$42 : $43
+
+This is because there are 4 sources, IDs 9319, 13538, 13974 and 14002, which have SED fitted SFR error of 1E+10, 
+and that is because the SED fitting could not find enough solution around the 1/chi^2 peak, so the 1/chi^2 distribution has a single sharp peak and no error could be determined. 
+In this case, we need to set 1/SNR(IR) as the lower limit for the relative SFR error, i.e., e_SFR should always >= SFR * (1/SNR_IR)
+
+$43 is e_SFR
+$42 is SFR
+$40 is SNR_IR
+
+
+
+
+# 
+
+also fix 'e_SED.*' columns:
+
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$51) : $52
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$53) : $54
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$55) : $56
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$57) : $58
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$59) : $60
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$61) : $62
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$63) : $64
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$65) : $66
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$67) : $68
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$69) : $70
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$71) : $72
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$73) : $74
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$75) : $76
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$77) : $78
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$79) : $80
+
+
+
+
+
+
+
+
+
+
+
+
+# 
+
+Then, in topcat, also save as "CSV". 
+Then, open the CSV with LibreOffice Calc,
+set all column widths to 1.20 ", 
+set all column right-aligned, 
+format column 'RA' 'DEC' as '0.0000000', 
+format column 'zphot' as '0.00', 
+format column 'zspec' as '0.0000', 
+format column 'zIR' and 'e_z_IR' as '0.000', 
+format column J to AL as '0.000E+00', 
+format column AN 'SNR(IR)' as '0.000',
+format column AO 'Mstar' as '0.000E+00',  
+format column AP to AR as '0.000', 
+format column AW to AZ as '0.000', 
+format column BA to CB as '0.000E+00', 
+format column CC, CE, CG as '0.000', 
+format column CJ, CK as '0.000', 
+and adjust column widths. 
+Then save as "CSV" with the "Fixed column width" option. 
+
+Then
+cat GOODSN_FIR+mm_Catalog_20170905_all_columns_v6.fits.csv.ods.csv | tail -n +2 | perl -p -e 's/[ ](18|25|30|35|40|45|50|101)[.]0[ ]/ \1. /g' > GOODSN_FIR+mm_Catalog_20170905_all_columns_v6.fits.csv.ods.csv.txt
+
+
+
+
+
+
+
+

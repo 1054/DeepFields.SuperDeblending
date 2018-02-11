@@ -1,0 +1,5 @@
+#!/bin/bash
+gs -q -dSAFER -dNOPAUSE -dBATCH -sDEVICE=pdfwrite \
+   -sOutputFile=Plot_comparison_CSFRD_with_and_without_SFR_UV_20180115b.pdf \
+                Plot_comparison_CSFRD_with_and_without_SFR_UV_20180115b.eps \
+   -dDOPDFMARKS Plot_comparison_CSFRD_with_and_without_SFR_UV_20180115b.pdfmarks

@@ -1,0 +1,6 @@
+data "log_make_cosmic_sfr_plot_v20171030z_DR_v201706_without_SFR_UV_uncorrected_for_completeness.log"
+read CSFRD 4
+print {CSFRD}
+print '%15.2f\n' {CSFRD}
+print '%0.2f\n' {CSFRD}
+quit

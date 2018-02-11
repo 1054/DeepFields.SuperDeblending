@@ -1,0 +1,314 @@
+SIMPLE  =                    T / Standard FITS format                           BITPIX  =                    8 / Character data                                 NAXIS   =                    1 / Text string                                    NAXIS1  =                16597 / Number of characters                           VOTMETA =                    T / Table metadata in VOTable format               EXTEND  =                    T / There are standard extensions                  COMMENT                                                                         COMMENT The data in this primary HDU consists of bytes which                    COMMENT comprise a VOTABLE document.                                            COMMENT The VOTable describes the metadata of the table contained               COMMENT in the following BINTABLE extension.                                    COMMENT Such a BINTABLE extension can be used on its own as a perfectly         COMMENT good table, but the information from this HDU may provide some          COMMENT useful additional metadata.                                             COMMENT There is one following BINTABLE.                                        NTABLE  =                    1 / Number of following BINTABLE HDUs              END                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             <?xml version='1.0'?>
+<VOTABLE version="1.3"
+ xmlns="http://www.ivoa.net/xml/VOTable/v1.3">
+<!--
+ !  VOTable written by STIL version 3.2-2 (uk.ac.starlink.votable.VOTableWriter)
+ !  at 2018-01-08T14:01:46
+ !-->
+<RESOURCE>
+<!-- Describes BINTABLE extensions in the following HDU.-->
+<TABLE name="Joined" nrows="2">
+<PARAM arraysize="43" datatype="char" name="Match type" value="Pair match; Best match for each Table 1 row">
+<DESCRIPTION>Type of match which created this table</DESCRIPTION>
+</PARAM>
+<PARAM arraysize="11" datatype="char" name="Match algorithm" value="Exact Value">
+<DESCRIPTION>Matching algorithm which created this table</DESCRIPTION>
+</PARAM>
+<PARAM arraysize="89" datatype="char" name="Join Type" value="All from 1 (An output row for each matched or unmatched row in table 1 (LEFT OUTER JOIN))">
+<DESCRIPTION>Determines which rows appear in output table</DESCRIPTION>
+</PARAM>
+<PARAM arraysize="54" datatype="char" name="First input table" value="1: GOODSN_FIR+mm_Catalog_20170905_all_columns_v1.fi..."/>
+<PARAM arraysize="54" datatype="char" name="Second input table" value="7: RadioOwenMIPS24_priors_dzliu_20170905_COLUMNS_TO..."/>
+<FIELD datatype="short" name="ID" unit="---">
+<DESCRIPTION>GOODS-Spitzer IRAC ID.</DESCRIPTION>
+<VALUES null='-32768'/>
+</FIELD>
+<FIELD datatype="double" name="RA" unit="degree">
+<DESCRIPTION>GOODS-Spitzer IRAC RA.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="DEC" unit="degree">
+<DESCRIPTION>GOODS-Spitzer IRAC DEC.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="z_phot" unit="---">
+<DESCRIPTION>Photometric redshift from literature optical/near-infrared catalogs (Skelton et al. 2014; Pannella et al. 2015).</DESCRIPTION>
+</FIELD>
+<FIELD datatype="short" name="ref_z_phot" unit="---">
+<DESCRIPTION>Optical/near-infrared photometry redshift, stellar mass and K-band flux reference code: 1 for Skelton et al. (2014) and 2 for Pannella et al. (2015). (Expression: _zp_3D&gt;0 ? 1 : (_zp_P&gt;0 ? 2 : -99))</DESCRIPTION>
+<VALUES null='-32768'/>
+</FIELD>
+<FIELD datatype="float" name="z_spec" unit="---">
+<DESCRIPTION>Spectroscopic redshift from various literature works (see next column "Spectroscopic redshift reference code" for the reference; -99 means no reliable spectroscopic redshift). (Expression: $6==-1 ? -99 : $6) (Expression: $6==0 ? -99 : $6)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="short" name="ref_z_spec" unit="---">
+<DESCRIPTION>Spectroscopic redshift reference code, see Note (1) for the reference list.</DESCRIPTION>
+<VALUES null='-32768'/>
+</FIELD>
+<FIELD datatype="float" name="z_IR" unit="---">
+<DESCRIPTION>Super-deblended IR-to-radio SED fitting redshift: if a reliable spectroscopic redshift exists, then fixed to it, otherwise SED fitted photometric redshift, see the last paragraph of Section 3.1 in the paper.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_z_IR" unit="---">
+<DESCRIPTION>Super-deblended IR-to-radio SED fitting redshift error (0 means a reliable spectroscopic redshift exists).  (Expression: $9&gt;=0 ? (($9&lt;(1+$8)*0.05) ? (1+$8)*0.05 : $9) : 0)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="FLUX.K" unit="mJy">
+<DESCRIPTION>K-band flux density from literature optical/near-infrared catalogs (Skelton et al. 2014; Pannella et al. 2015).</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="FLUX.IRAC1" unit="mJy">
+<DESCRIPTION>Spitzer IRAC flux density from GOODS-Spitzer.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_FLUX.IRAC1" unit="mJy">
+<DESCRIPTION>Spitzer IRAC flux density error from GOODS-Spitzer.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="FLUX.IRAC2" unit="mJy">
+<DESCRIPTION>Spitzer IRAC flux density from GOODS-Spitzer.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_FLUX.IRAC2" unit="mJy">
+<DESCRIPTION>Spitzer IRAC flux density error from GOODS-Spitzer.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="FLUX.IRAC3" unit="mJy">
+<DESCRIPTION>Spitzer IRAC flux density from GOODS-Spitzer.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_FLUX.IRAC3" unit="mJy">
+<DESCRIPTION>Spitzer IRAC flux density error from GOODS-Spitzer.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="FLUX.IRAC4" unit="mJy">
+<DESCRIPTION>Spitzer IRAC flux density from GOODS-Spitzer.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_FLUX.IRAC4" unit="mJy">
+<DESCRIPTION>Spitzer IRAC flux density error from GOODS-Spitzer.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="FLUX.16" unit="mJy">
+<DESCRIPTION>Super-deblended Spitzer IRS PUI flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_FLUX.16" unit="mJy">
+<DESCRIPTION>Super-deblended Spitzer IRS PUI flux density error.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="FLUX.24" unit="mJy">
+<DESCRIPTION>Super-deblended Spitzer MIPS 24um flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_FLUX.24" unit="mJy">
+<DESCRIPTION>Super-deblended Spitzer MIPS 24um flux density error.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="FLUX.100" unit="mJy">
+<DESCRIPTION>Super-deblended Herschel PACS flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="e_FLUX.100" unit="mJy">
+<DESCRIPTION>Super-deblended Herschel PACS flux density error.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="FLUX.160" unit="mJy">
+<DESCRIPTION>Super-deblended Herschel PACS flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="e_FLUX.160" unit="mJy">
+<DESCRIPTION>Super-deblended Herschel PACS flux density error.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="FLUX.250" unit="mJy">
+<DESCRIPTION>Super-deblended Herschel SPIRE flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="e_FLUX.250" unit="mJy">
+<DESCRIPTION>Super-deblended Herschel SPIRE flux density error.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="FLUX.350" unit="mJy">
+<DESCRIPTION>Super-deblended Herschel SPIRE flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="e_FLUX.350" unit="mJy">
+<DESCRIPTION>Super-deblended Herschel SPIRE flux density error.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="FLUX.500" unit="mJy">
+<DESCRIPTION>Super-deblended Herschel SPIRE flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="e_FLUX.500" unit="mJy">
+<DESCRIPTION>Super-deblended Herschel SPIRE flux density error.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="FLUX.850" unit="mJy">
+<DESCRIPTION>Super-deblended JCMT SCUBA2 flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="e_FLUX.850" unit="mJy">
+<DESCRIPTION>Super-deblended JCMT SCUBA2 flux density error.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="FLUX.1160" unit="mJy">
+<DESCRIPTION>Super-deblended JCMT AzTEC + IRAM 30m MAMBO 1.16mm flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="e_FLUX.1160" unit="mJy">
+<DESCRIPTION>Super-deblended JCMT AzTEC + IRAM 30m MAMBO 1.16mm flux density error.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="FLUX.20cm" unit="mJy">
+<DESCRIPTION>Super-deblended VLA ~20cm flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_FLUX.20cm" unit="mJy">
+<DESCRIPTION>Super-deblended VLA ~20cm flux density error.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="short" name="Origin.20cm" unit="---">
+<DESCRIPTION>Origin of the 20cm photometry: 1-galfit on Owen(2017) and Morrison(2010) images; 2-Owen(2017) catalog; 3-Morrison(2010) catalog.</DESCRIPTION>
+<VALUES null='-32768'/>
+</FIELD>
+<FIELD datatype="float" name="SNR(IR)" unit="---">
+<DESCRIPTION>Super-deblended 100um-to-1mm S/N (combined in quadrature).</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="Mstar" unit="solMass">
+<DESCRIPTION>Stellar mass from literature optical/near-infrared catalogs (Skelton et al. 2014; Pannella et al. 2015), converted to Chabrier (2003) IMF when necessary.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SFR_IR" unit="solMass/yr">
+<DESCRIPTION>Super-deblended SED best-fit dust-obscured SFR.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SFR_IR" unit="solMass/yr">
+<DESCRIPTION>Super-deblended SED best-fit dust-obscured SFR uncertainty. (Expression: $43==1E+10 ? 1/$40*$42 : $43) (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$42) : $43)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="sSFR_IR" unit="Gyr^{-1}">
+<DESCRIPTION>Super-deblended SED best-fit specific-SFR (=SFR/Mstar).</DESCRIPTION>
+</FIELD>
+<FIELD datatype="short" name="goodArea" unit="---">
+<DESCRIPTION>Super-deblended "goodArea" flag, equals 1 if the Spitzer MIPS 24um RMS image has a pixel value &lt; 0.006 DN/sec at the source position.</DESCRIPTION>
+<VALUES null='-32768'/>
+</FIELD>
+<FIELD datatype="short" name="Type.AGN" unit="---">
+<DESCRIPTION>Super-deblended SED fitting's Type_AGN flag.</DESCRIPTION>
+<VALUES null='-32768'/>
+</FIELD>
+<FIELD datatype="short" name="Type.SED" unit="---">
+<DESCRIPTION>Super-deblended SED fitting's Type_SED flag.</DESCRIPTION>
+<VALUES null='-32768'/>
+</FIELD>
+<FIELD datatype="short" name="Type.FIR" unit="---">
+<DESCRIPTION>Super-deblended SED fitting's Type_FIR flag.</DESCRIPTION>
+<VALUES null='-32768'/>
+</FIELD>
+<FIELD datatype="double" name="SED.AGN" unit="10^{10} solLum">
+<DESCRIPTION>Super-deblended SED best-fit AGN luminosity.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.AGN" unit="10^{10} solLum">
+<DESCRIPTION>Super-deblended SED best-fit AGN luminosity error.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED.TOT" unit="10^{10} solLum">
+<DESCRIPTION>Super-deblended SED best-fit total luminosity.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.TOT" unit="10^{10} solLum">
+<DESCRIPTION>Super-deblended SED best-fit total luminosity error. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$51) : $52)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED.70" unit="mJy">
+<DESCRIPTION>Super-deblended SED predicted flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.70" unit="mJy">
+<DESCRIPTION>Super-deblended SED prediction uncertainty. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$53) : $54)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED.100" unit="mJy">
+<DESCRIPTION>Super-deblended SED predicted flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.100" unit="mJy">
+<DESCRIPTION>Super-deblended SED prediction uncertainty. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$55) : $56)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED.160" unit="mJy">
+<DESCRIPTION>Super-deblended SED predicted flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.160" unit="mJy">
+<DESCRIPTION>Super-deblended SED prediction uncertainty. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$57) : $58)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED.250" unit="mJy">
+<DESCRIPTION>Super-deblended SED predicted flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.250" unit="mJy">
+<DESCRIPTION>Super-deblended SED prediction uncertainty. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$59) : $60)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED.350" unit="mJy">
+<DESCRIPTION>Super-deblended SED predicted flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.350" unit="mJy">
+<DESCRIPTION>Super-deblended SED prediction uncertainty. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$61) : $62)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED.500" unit="mJy">
+<DESCRIPTION>Super-deblended SED predicted flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.500" unit="mJy">
+<DESCRIPTION>Super-deblended SED prediction uncertainty. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$63) : $64)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED.850" unit="mJy">
+<DESCRIPTION>Super-deblended SED predicted flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.850" unit="mJy">
+<DESCRIPTION>Super-deblended SED prediction uncertainty. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$65) : $66)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED.1160" unit="mJy">
+<DESCRIPTION>Super-deblended SED predicted flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.1160" unit="mJy">
+<DESCRIPTION>Super-deblended SED prediction uncertainty. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$67) : $68)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED.1200" unit="mJy">
+<DESCRIPTION>Super-deblended SED predicted flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.1200" unit="mJy">
+<DESCRIPTION>Super-deblended SED prediction uncertainty. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$69) : $70)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED.1250" unit="mJy">
+<DESCRIPTION>Super-deblended SED predicted flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.1250" unit="mJy">
+<DESCRIPTION>Super-deblended SED prediction uncertainty. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$71) : $72)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED_2000" unit="mJy">
+<DESCRIPTION>Super-deblended SED predicted flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED_2000" unit="mJy">
+<DESCRIPTION>Super-deblended SED prediction uncertainty. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$73) : $74)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED.2050" unit="mJy">
+<DESCRIPTION>Super-deblended SED predicted flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.2050" unit="mJy">
+<DESCRIPTION>Super-deblended SED prediction uncertainty. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$75) : $76)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED.10cm" unit="mJy">
+<DESCRIPTION>Super-deblended SED predicted flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.10cm" unit="mJy">
+<DESCRIPTION>Super-deblended SED prediction uncertainty. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$77) : $78)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SED.20cm" unit="mJy">
+<DESCRIPTION>Super-deblended SED predicted flux density.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="e_SED.20cm" unit="mJy">
+<DESCRIPTION>Super-deblended SED prediction uncertainty. (Expression: (ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$79) : $80)</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="chisq_total" unit="---">
+<DESCRIPTION>Super-deblended SED chi-sq. of fitted data points for the whole SED.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="short" name="nfit_total" unit="---">
+<DESCRIPTION>Super-deblended SED number of fitted data points for the whole SED.</DESCRIPTION>
+<VALUES null='-32768'/>
+</FIELD>
+<FIELD datatype="double" name="chisq_star" unit="---">
+<DESCRIPTION>Super-deblended SED chi-sq. of fitted data points for the stellar component of the SED.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="short" name="nfit_star" unit="---">
+<DESCRIPTION>Super-deblended SED number of fitted data points for the stellar component of the SED.</DESCRIPTION>
+<VALUES null='-32768'/>
+</FIELD>
+<FIELD datatype="double" name="chisq_dust" unit="---">
+<DESCRIPTION>Super-deblended SED chi-sq. of fitted data points for the dust component of the SED.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="short" name="nfit_dust" unit="---">
+<DESCRIPTION>Super-deblended SED number of fitted data points for the dust component of the SED.</DESCRIPTION>
+<VALUES null='-32768'/>
+</FIELD>
+<FIELD datatype="float" name="U" unit="---">
+<DESCRIPTION>Super-deblended SED best-fit dust template's mean interstellar radiation field strength (U).</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SFR_total" unit="solMass/yr">
+<DESCRIPTION>Sum of the UV-unattenuated SFR (mainly based on the rest-frame UV 1400 Angstrom flux density from the 3D-HST catalog, apart from few exceptions, see Section 8.2 in the paper) and the super-deblended SED best-fit dust-obscured SFR.</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="SFR_IR/SFR_total" unit="---">
+<DESCRIPTION>The ratio between the UV-unattenuated SFR and the super-deblended SED best-fit dust-obscured SFR.</DESCRIPTION>
+</FIELD>
+<!-- Dummy VOTable - no DATA element -->
+</TABLE>
+</RESOURCE>
+</VOTABLE>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           XTENSION= 'BINTABLE'           / binary table extension                         BITPIX  =                    8 / 8-bit bytes                                    NAXIS   =                    2 / 2-dimensional table                            NAXIS1  =                  586 / width of table in bytes                        NAXIS2  =                    2 / number of rows in table                        PCOUNT  =                    0 / size of special data area                      GCOUNT  =                    1 / one data group                                 TFIELDS =                   89 / number of columns                              EXTNAME = 'Joined  '           / table name                                     TTYPE1  = 'ID      '           / label for column 1                             TFORM1  = 'I       '           / format for column 1                            TUNIT1  = '---     '           / units for column 1                             TNULL1  =               -32768 / blank value for column 1                       TCOMM1  = 'GOODS-Spitzer IRAC ID.'                                              TTYPE2  = 'RA      '           / label for column 2                             TFORM2  = 'D       '           / format for column 2                            TUNIT2  = 'degree  '           / units for column 2                             TCOMM2  = 'GOODS-Spitzer IRAC RA.'                                              TTYPE3  = 'DEC     '           / label for column 3                             TFORM3  = 'D       '           / format for column 3                            TUNIT3  = 'degree  '           / units for column 3                             TCOMM3  = 'GOODS-Spitzer IRAC DEC.'                                             TTYPE4  = 'z_phot  '           / label for column 4                             TFORM4  = 'E       '           / format for column 4                            TUNIT4  = '---     '           / units for column 4                             TTYPE5  = 'ref_z_phot'         / label for column 5                             TFORM5  = 'I       '           / format for column 5                            TUNIT5  = '---     '           / units for column 5                             TNULL5  =               -32768 / blank value for column 5                       TTYPE6  = 'z_spec  '           / label for column 6                             TFORM6  = 'E       '           / format for column 6                            TUNIT6  = '---     '           / units for column 6                             TTYPE7  = 'ref_z_spec'         / label for column 7                             TFORM7  = 'I       '           / format for column 7                            TUNIT7  = '---     '           / units for column 7                             TNULL7  =               -32768 / blank value for column 7                       TTYPE8  = 'z_IR    '           / label for column 8                             TFORM8  = 'E       '           / format for column 8                            TUNIT8  = '---     '           / units for column 8                             TTYPE9  = 'e_z_IR  '           / label for column 9                             TFORM9  = 'D       '           / format for column 9                            TUNIT9  = '---     '           / units for column 9                             TTYPE10 = 'FLUX.K  '           / label for column 10                            TFORM10 = 'D       '           / format for column 10                           TUNIT10 = 'mJy     '           / units for column 10                            TTYPE11 = 'FLUX.IRAC1'         / label for column 11                            TFORM11 = 'D       '           / format for column 11                           TUNIT11 = 'mJy     '           / units for column 11                            TCOMM11 = 'Spitzer IRAC flux density from GOODS-Spitzer.'                       TTYPE12 = 'e_FLUX.IRAC1'       / label for column 12                            TFORM12 = 'D       '           / format for column 12                           TUNIT12 = 'mJy     '           / units for column 12                            TCOMM12 = 'Spitzer IRAC flux density error from GOODS-Spitzer.'                 TTYPE13 = 'FLUX.IRAC2'         / label for column 13                            TFORM13 = 'D       '           / format for column 13                           TUNIT13 = 'mJy     '           / units for column 13                            TCOMM13 = 'Spitzer IRAC flux density from GOODS-Spitzer.'                       TTYPE14 = 'e_FLUX.IRAC2'       / label for column 14                            TFORM14 = 'D       '           / format for column 14                           TUNIT14 = 'mJy     '           / units for column 14                            TCOMM14 = 'Spitzer IRAC flux density error from GOODS-Spitzer.'                 TTYPE15 = 'FLUX.IRAC3'         / label for column 15                            TFORM15 = 'D       '           / format for column 15                           TUNIT15 = 'mJy     '           / units for column 15                            TCOMM15 = 'Spitzer IRAC flux density from GOODS-Spitzer.'                       TTYPE16 = 'e_FLUX.IRAC3'       / label for column 16                            TFORM16 = 'D       '           / format for column 16                           TUNIT16 = 'mJy     '           / units for column 16                            TCOMM16 = 'Spitzer IRAC flux density error from GOODS-Spitzer.'                 TTYPE17 = 'FLUX.IRAC4'         / label for column 17                            TFORM17 = 'D       '           / format for column 17                           TUNIT17 = 'mJy     '           / units for column 17                            TCOMM17 = 'Spitzer IRAC flux density from GOODS-Spitzer.'                       TTYPE18 = 'e_FLUX.IRAC4'       / label for column 18                            TFORM18 = 'D       '           / format for column 18                           TUNIT18 = 'mJy     '           / units for column 18                            TCOMM18 = 'Spitzer IRAC flux density error from GOODS-Spitzer.'                 TTYPE19 = 'FLUX.16 '           / label for column 19                            TFORM19 = 'D       '           / format for column 19                           TUNIT19 = 'mJy     '           / units for column 19                            TCOMM19 = 'Super-deblended Spitzer IRS PUI flux density.'                       TTYPE20 = 'e_FLUX.16'          / label for column 20                            TFORM20 = 'D       '           / format for column 20                           TUNIT20 = 'mJy     '           / units for column 20                            TCOMM20 = 'Super-deblended Spitzer IRS PUI flux density error.'                 TTYPE21 = 'FLUX.24 '           / label for column 21                            TFORM21 = 'D       '           / format for column 21                           TUNIT21 = 'mJy     '           / units for column 21                            TCOMM21 = 'Super-deblended Spitzer MIPS 24um flux density.'                     TTYPE22 = 'e_FLUX.24'          / label for column 22                            TFORM22 = 'D       '           / format for column 22                           TUNIT22 = 'mJy     '           / units for column 22                            TCOMM22 = 'Super-deblended Spitzer MIPS 24um flux density error.'               TTYPE23 = 'FLUX.100'           / label for column 23                            TFORM23 = 'D       '           / format for column 23                           TUNIT23 = 'mJy     '           / units for column 23                            TCOMM23 = 'Super-deblended Herschel PACS flux density.'                         TTYPE24 = 'e_FLUX.100'         / label for column 24                            TFORM24 = 'E       '           / format for column 24                           TUNIT24 = 'mJy     '           / units for column 24                            TCOMM24 = 'Super-deblended Herschel PACS flux density error.'                   TTYPE25 = 'FLUX.160'           / label for column 25                            TFORM25 = 'D       '           / format for column 25                           TUNIT25 = 'mJy     '           / units for column 25                            TCOMM25 = 'Super-deblended Herschel PACS flux density.'                         TTYPE26 = 'e_FLUX.160'         / label for column 26                            TFORM26 = 'E       '           / format for column 26                           TUNIT26 = 'mJy     '           / units for column 26                            TCOMM26 = 'Super-deblended Herschel PACS flux density error.'                   TTYPE27 = 'FLUX.250'           / label for column 27                            TFORM27 = 'D       '           / format for column 27                           TUNIT27 = 'mJy     '           / units for column 27                            TCOMM27 = 'Super-deblended Herschel SPIRE flux density.'                        TTYPE28 = 'e_FLUX.250'         / label for column 28                            TFORM28 = 'E       '           / format for column 28                           TUNIT28 = 'mJy     '           / units for column 28                            TCOMM28 = 'Super-deblended Herschel SPIRE flux density error.'                  TTYPE29 = 'FLUX.350'           / label for column 29                            TFORM29 = 'E       '           / format for column 29                           TUNIT29 = 'mJy     '           / units for column 29                            TCOMM29 = 'Super-deblended Herschel SPIRE flux density.'                        TTYPE30 = 'e_FLUX.350'         / label for column 30                            TFORM30 = 'E       '           / format for column 30                           TUNIT30 = 'mJy     '           / units for column 30                            TCOMM30 = 'Super-deblended Herschel SPIRE flux density error.'                  TTYPE31 = 'FLUX.500'           / label for column 31                            TFORM31 = 'E       '           / format for column 31                           TUNIT31 = 'mJy     '           / units for column 31                            TCOMM31 = 'Super-deblended Herschel SPIRE flux density.'                        TTYPE32 = 'e_FLUX.500'         / label for column 32                            TFORM32 = 'E       '           / format for column 32                           TUNIT32 = 'mJy     '           / units for column 32                            TCOMM32 = 'Super-deblended Herschel SPIRE flux density error.'                  TTYPE33 = 'FLUX.850'           / label for column 33                            TFORM33 = 'D       '           / format for column 33                           TUNIT33 = 'mJy     '           / units for column 33                            TCOMM33 = 'Super-deblended JCMT SCUBA2 flux density.'                           TTYPE34 = 'e_FLUX.850'         / label for column 34                            TFORM34 = 'E       '           / format for column 34                           TUNIT34 = 'mJy     '           / units for column 34                            TCOMM34 = 'Super-deblended JCMT SCUBA2 flux density error.'                     TTYPE35 = 'FLUX.1160'          / label for column 35                            TFORM35 = 'D       '           / format for column 35                           TUNIT35 = 'mJy     '           / units for column 35                            TCOMM35 = 'Super-deblended JCMT AzTEC + IRAM 30m MAMBO 1.16mm flux density.'    TTYPE36 = 'e_FLUX.1160'        / label for column 36                            TFORM36 = 'E       '           / format for column 36                           TUNIT36 = 'mJy     '           / units for column 36                            TTYPE37 = 'FLUX.20cm'          / label for column 37                            TFORM37 = 'D       '           / format for column 37                           TUNIT37 = 'mJy     '           / units for column 37                            TCOMM37 = 'Super-deblended VLA ~20cm flux density.'                             TTYPE38 = 'e_FLUX.20cm'        / label for column 38                            TFORM38 = 'D       '           / format for column 38                           TUNIT38 = 'mJy     '           / units for column 38                            TCOMM38 = 'Super-deblended VLA ~20cm flux density error.'                       TTYPE39 = 'Origin.20cm'        / label for column 39                            TFORM39 = 'I       '           / format for column 39                           TUNIT39 = '---     '           / units for column 39                            TNULL39 =               -32768 / blank value for column 39                      TTYPE40 = 'SNR(IR) '           / label for column 40                            TFORM40 = 'E       '           / format for column 40                           TUNIT40 = '---     '           / units for column 40                            TCOMM40 = 'Super-deblended 100um-to-1mm S/N (combined in quadrature).'          TTYPE41 = 'Mstar   '           / label for column 41                            TFORM41 = 'E       '           / format for column 41                           TUNIT41 = 'solMass '           / units for column 41                            TTYPE42 = 'SFR_IR  '           / label for column 42                            TFORM42 = 'D       '           / format for column 42                           TUNIT42 = 'solMass/yr'         / units for column 42                            TCOMM42 = 'Super-deblended SED best-fit dust-obscured SFR.'                     TTYPE43 = 'e_SFR_IR'           / label for column 43                            TFORM43 = 'D       '           / format for column 43                           TUNIT43 = 'solMass/yr'         / units for column 43                            TTYPE44 = 'sSFR_IR '           / label for column 44                            TFORM44 = 'D       '           / format for column 44                           TUNIT44 = 'Gyr^{-1}'           / units for column 44                            TCOMM44 = 'Super-deblended SED best-fit specific-SFR (=SFR/Mstar).'             TTYPE45 = 'goodArea'           / label for column 45                            TFORM45 = 'I       '           / format for column 45                           TUNIT45 = '---     '           / units for column 45                            TNULL45 =               -32768 / blank value for column 45                      TTYPE46 = 'Type.AGN'           / label for column 46                            TFORM46 = 'I       '           / format for column 46                           TUNIT46 = '---     '           / units for column 46                            TNULL46 =               -32768 / blank value for column 46                      TCOMM46 = 'Super-deblended SED fitting''s Type_AGN flag.'                       TTYPE47 = 'Type.SED'           / label for column 47                            TFORM47 = 'I       '           / format for column 47                           TUNIT47 = '---     '           / units for column 47                            TNULL47 =               -32768 / blank value for column 47                      TCOMM47 = 'Super-deblended SED fitting''s Type_SED flag.'                       TTYPE48 = 'Type.FIR'           / label for column 48                            TFORM48 = 'I       '           / format for column 48                           TUNIT48 = '---     '           / units for column 48                            TNULL48 =               -32768 / blank value for column 48                      TCOMM48 = 'Super-deblended SED fitting''s Type_FIR flag.'                       TTYPE49 = 'SED.AGN '           / label for column 49                            TFORM49 = 'D       '           / format for column 49                           TUNIT49 = '10^{10} solLum'     / units for column 49                            TCOMM49 = 'Super-deblended SED best-fit AGN luminosity.'                        TTYPE50 = 'e_SED.AGN'          / label for column 50                            TFORM50 = 'D       '           / format for column 50                           TUNIT50 = '10^{10} solLum'     / units for column 50                            TCOMM50 = 'Super-deblended SED best-fit AGN luminosity error.'                  TTYPE51 = 'SED.TOT '           / label for column 51                            TFORM51 = 'D       '           / format for column 51                           TUNIT51 = '10^{10} solLum'     / units for column 51                            TCOMM51 = 'Super-deblended SED best-fit total luminosity.'                      TTYPE52 = 'e_SED.TOT'          / label for column 52                            TFORM52 = 'D       '           / format for column 52                           TUNIT52 = '10^{10} solLum'     / units for column 52                            TTYPE53 = 'SED.70  '           / label for column 53                            TFORM53 = 'D       '           / format for column 53                           TUNIT53 = 'mJy     '           / units for column 53                            TCOMM53 = 'Super-deblended SED predicted flux density.'                         TTYPE54 = 'e_SED.70'           / label for column 54                            TFORM54 = 'D       '           / format for column 54                           TUNIT54 = 'mJy     '           / units for column 54                            TTYPE55 = 'SED.100 '           / label for column 55                            TFORM55 = 'D       '           / format for column 55                           TUNIT55 = 'mJy     '           / units for column 55                            TCOMM55 = 'Super-deblended SED predicted flux density.'                         TTYPE56 = 'e_SED.100'          / label for column 56                            TFORM56 = 'D       '           / format for column 56                           TUNIT56 = 'mJy     '           / units for column 56                            TTYPE57 = 'SED.160 '           / label for column 57                            TFORM57 = 'D       '           / format for column 57                           TUNIT57 = 'mJy     '           / units for column 57                            TCOMM57 = 'Super-deblended SED predicted flux density.'                         TTYPE58 = 'e_SED.160'          / label for column 58                            TFORM58 = 'D       '           / format for column 58                           TUNIT58 = 'mJy     '           / units for column 58                            TTYPE59 = 'SED.250 '           / label for column 59                            TFORM59 = 'D       '           / format for column 59                           TUNIT59 = 'mJy     '           / units for column 59                            TCOMM59 = 'Super-deblended SED predicted flux density.'                         TTYPE60 = 'e_SED.250'          / label for column 60                            TFORM60 = 'D       '           / format for column 60                           TUNIT60 = 'mJy     '           / units for column 60                            TTYPE61 = 'SED.350 '           / label for column 61                            TFORM61 = 'D       '           / format for column 61                           TUNIT61 = 'mJy     '           / units for column 61                            TCOMM61 = 'Super-deblended SED predicted flux density.'                         TTYPE62 = 'e_SED.350'          / label for column 62                            TFORM62 = 'D       '           / format for column 62                           TUNIT62 = 'mJy     '           / units for column 62                            TTYPE63 = 'SED.500 '           / label for column 63                            TFORM63 = 'D       '           / format for column 63                           TUNIT63 = 'mJy     '           / units for column 63                            TCOMM63 = 'Super-deblended SED predicted flux density.'                         TTYPE64 = 'e_SED.500'          / label for column 64                            TFORM64 = 'D       '           / format for column 64                           TUNIT64 = 'mJy     '           / units for column 64                            TTYPE65 = 'SED.850 '           / label for column 65                            TFORM65 = 'D       '           / format for column 65                           TUNIT65 = 'mJy     '           / units for column 65                            TCOMM65 = 'Super-deblended SED predicted flux density.'                         TTYPE66 = 'e_SED.850'          / label for column 66                            TFORM66 = 'D       '           / format for column 66                           TUNIT66 = 'mJy     '           / units for column 66                            TTYPE67 = 'SED.1160'           / label for column 67                            TFORM67 = 'D       '           / format for column 67                           TUNIT67 = 'mJy     '           / units for column 67                            TCOMM67 = 'Super-deblended SED predicted flux density.'                         TTYPE68 = 'e_SED.1160'         / label for column 68                            TFORM68 = 'D       '           / format for column 68                           TUNIT68 = 'mJy     '           / units for column 68                            TTYPE69 = 'SED.1200'           / label for column 69                            TFORM69 = 'D       '           / format for column 69                           TUNIT69 = 'mJy     '           / units for column 69                            TCOMM69 = 'Super-deblended SED predicted flux density.'                         TTYPE70 = 'e_SED.1200'         / label for column 70                            TFORM70 = 'D       '           / format for column 70                           TUNIT70 = 'mJy     '           / units for column 70                            TTYPE71 = 'SED.1250'           / label for column 71                            TFORM71 = 'D       '           / format for column 71                           TUNIT71 = 'mJy     '           / units for column 71                            TCOMM71 = 'Super-deblended SED predicted flux density.'                         TTYPE72 = 'e_SED.1250'         / label for column 72                            TFORM72 = 'D       '           / format for column 72                           TUNIT72 = 'mJy     '           / units for column 72                            TTYPE73 = 'SED_2000'           / label for column 73                            TFORM73 = 'D       '           / format for column 73                           TUNIT73 = 'mJy     '           / units for column 73                            TCOMM73 = 'Super-deblended SED predicted flux density.'                         TTYPE74 = 'e_SED_2000'         / label for column 74                            TFORM74 = 'D       '           / format for column 74                           TUNIT74 = 'mJy     '           / units for column 74                            TTYPE75 = 'SED.2050'           / label for column 75                            TFORM75 = 'D       '           / format for column 75                           TUNIT75 = 'mJy     '           / units for column 75                            TCOMM75 = 'Super-deblended SED predicted flux density.'                         TTYPE76 = 'e_SED.2050'         / label for column 76                            TFORM76 = 'D       '           / format for column 76                           TUNIT76 = 'mJy     '           / units for column 76                            TTYPE77 = 'SED.10cm'           / label for column 77                            TFORM77 = 'D       '           / format for column 77                           TUNIT77 = 'mJy     '           / units for column 77                            TCOMM77 = 'Super-deblended SED predicted flux density.'                         TTYPE78 = 'e_SED.10cm'         / label for column 78                            TFORM78 = 'D       '           / format for column 78                           TUNIT78 = 'mJy     '           / units for column 78                            TTYPE79 = 'SED.20cm'           / label for column 79                            TFORM79 = 'D       '           / format for column 79                           TUNIT79 = 'mJy     '           / units for column 79                            TCOMM79 = 'Super-deblended SED predicted flux density.'                         TTYPE80 = 'e_SED.20cm'         / label for column 80                            TFORM80 = 'D       '           / format for column 80                           TUNIT80 = 'mJy     '           / units for column 80                            TTYPE81 = 'chisq_total'        / label for column 81                            TFORM81 = 'D       '           / format for column 81                           TUNIT81 = '---     '           / units for column 81                            TCOMM81 = 'Super-deblended SED chi-sq. of fitted data points for the whole SED.'TTYPE82 = 'nfit_total'         / label for column 82                            TFORM82 = 'I       '           / format for column 82                           TUNIT82 = '---     '           / units for column 82                            TNULL82 =               -32768 / blank value for column 82                      TCOMM82 = 'Super-deblended SED number of fitted data points for the whole SED.' TTYPE83 = 'chisq_star'         / label for column 83                            TFORM83 = 'D       '           / format for column 83                           TUNIT83 = '---     '           / units for column 83                            TTYPE84 = 'nfit_star'          / label for column 84                            TFORM84 = 'I       '           / format for column 84                           TUNIT84 = '---     '           / units for column 84                            TNULL84 =               -32768 / blank value for column 84                      TTYPE85 = 'chisq_dust'         / label for column 85                            TFORM85 = 'D       '           / format for column 85                           TUNIT85 = '---     '           / units for column 85                            TTYPE86 = 'nfit_dust'          / label for column 86                            TFORM86 = 'I       '           / format for column 86                           TUNIT86 = '---     '           / units for column 86                            TNULL86 =               -32768 / blank value for column 86                      TTYPE87 = 'U       '           / label for column 87                            TFORM87 = 'E       '           / format for column 87                           TUNIT87 = '---     '           / units for column 87                            TTYPE88 = 'SFR_total'          / label for column 88                            TFORM88 = 'D       '           / format for column 88                           TUNIT88 = 'solMass/yr'         / units for column 88                            TTYPE89 = 'SFR_IR/SFR_total'   / label for column 89                            TFORM89 = 'D       '           / format for column 89                           TUNIT89 = '---     '           / units for column 89                            DATE-HDU= '2018-01-08T14:01:46' / Date of HDU creation (UTC)                    STILVERS= '3.2-2   '           / Version of STIL software                       STILCLAS= 'uk.ac.starlink.votable.FitsPlusTableWriter' / Author class in STIL soEND                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             $g@g≤õ¿6„@O∑øıMı?}p§ ?Éo f?Éo        ?£ÍÚQ¡î¿X¿     B†_    ¿X¿     B†_    ¿X¿     B†_    ¿X¿     B†_    ¿X¿     B†_    ¿X¿     B†_    @ºj~˘€#I& @8åÃÃÃÃÕA±ÎÖ@I£◊
+=p§@ÏbNBJ\)AëhB{@|z·7\ı‡FeµP˘?Ô€Ùá¸π$?è†?∂
+¶L/É{?êbM“Ò©¸ AXz·QRq@pò     @pò     @ÃÃÃÃÃÕ       >b!P>’%}>b!P>’%}@pò     @pò     @%      @%      @8Ωp£◊
+=@8Ωp£◊
+=@M–£◊
+=q@M–£◊
+=q@Q«Æz·H@Q«Æz·H@I`     @I`     @8ı¬è\(ˆ@8ı¬è\(ˆ@bM“Ò©¸@bM“Ò©¸@á+J@á+J?˛∏QÎÖ∏?˛∏QÎÖ∏?˚$›/†?˚$›/†?ÿFsÅ◊€ı?ÿFsÅ◊€ı?÷kP∞Ú{≥?÷kP∞Ú{≥?π
+8≈C?π
+8≈C?≈ÃcÒA \?≈ÃcÒA \@7ÊYJÙÿ ;¡ÏÜ£ @7ÊYJÙÿ @√33@|MŒŸá+?Ôq√mÕÿú6ñ@g§áÒQÁ@O]@L˜*@Ø\) @≥\) H@≥\)        >»•Nî…∑U?'¸vƒ†?Yû◊∆˚“?⁄ËÇ≠≈?ÓÿêOm¸ø(?ëÊFÒV?9¡r%∑IÆø.h†”Iæê??Ö◊Dı”V=Í'ñßB˛?|ﬁ]	A?j(4“o£˝?Ç˛;¿X¿     P˘¿X¿     P˘¿X¿     P˘¬∆  P˘¬∆  P˘@ 7K∆ßÔû?•∏?ÿ∆?º?AŒ?yî[l7`ø?cﬂ∞’Å¶ ?”∂FNFJ@sì33333@sì33333@wâôôôôö      >¶
+∫`gú>¶
+∫`gú@sì33333@sì33333?°5Tu£L?°5Tu£L?±Áñ|ÆßH?±Áñ|ÆßH?œiDg8~?œiDg8~?ıÛ∂E° ¡?ıÛ∂E° ¡@|Ìëhr∞@|Ìëhr∞@“Ò©˚Ám@“Ò©˚Ám@7K∆ßÔû@7K∆ßÔû?˙˘€"–Â`?˙˘€"–Â`?˘I∫^5?˘I∫^5?ˆÃÃÃÃÃÕ?ˆÃÃÃÃÃÕ?Ÿx‘˝Û∂F?Ÿx‘˝Û∂F?◊ó$tSéÛ?◊ó$tSéÛ?t∏æ¯Œ≥W?t∏æ¯Œ≥W?Ç·PêK?Ç·PêK@5,cÒA \ @0ô‘ï*ô @J2ÙIô B   @yx¨1'?Ì·ıÿÃf                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            

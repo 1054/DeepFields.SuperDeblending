@@ -1,0 +1,5 @@
+#!/bin/bash
+gs -q -dSAFER -dNOPAUSE -dBATCH -sDEVICE=pdfwrite \
+   -sOutputFile=Plot_Vmax_histogram_in_z_bin_2.5_6.5.pdf \
+                Plot_Vmax_histogram_in_z_bin_2.5_6.5.eps \
+   -dDOPDFMARKS Plot_Vmax_histogram_in_z_bin_2.5_6.5.pdfmarks

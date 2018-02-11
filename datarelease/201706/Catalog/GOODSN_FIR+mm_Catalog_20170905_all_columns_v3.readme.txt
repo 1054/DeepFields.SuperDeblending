@@ -1,0 +1,38 @@
+cross match with 
+
+RadioOwenMIPS24_priors_dzliu_20170828_Origin_20cm.txt
+RadioOwenMIPS24_priors_dzliu_20170828_ref_z_phot.txt
+RadioOwenMIPS24_priors_dzliu_20170828_ref_z_spec.txt
+RadioOwenMIPS24_priors_dzliu_20170905_chisq_and_n_chisq.txt
+
+
+
+Command: 
+
+paste -d ' ' \
+RadioOwenMIPS24_priors_dzliu_20170828_Origin_20cm.txt \
+RadioOwenMIPS24_priors_dzliu_20170828_ref_z_phot.txt \
+RadioOwenMIPS24_priors_dzliu_20170828_ref_z_spec.txt \
+RadioOwenMIPS24_priors_dzliu_20170905_chisq_and_n_chisq.txt \
+> RadioOwenMIPS24_priors_dzliu_20170905_COLUMNS_TO_ADD.TXT
+
+
+
+
+Then topcat cross-match exact index
+
+then edit column names and descriptions.
+
+
+
+Then save as "LaTeX" format
+
+
+
+Then
+
+cp GOODSN_FIR+mm_Catalog_20170905_all_columns_v3.tex ../CatalogMachineReadableFormat/GOODSN_FIR+mm_Catalog_20170905_all_columns_v3.only_data.tex
+touch ../CatalogMachineReadableFormat/GOODSN_FIR+mm_Catalog_20170905_all_columns_v3.only_column_names.txt
+touch ../CatalogMachineReadableFormat/GOODSN_FIR+mm_Catalog_20170905_all_columns_v3.only_column_units.txt
+touch ../CatalogMachineReadableFormat/GOODSN_FIR+mm_Catalog_20170905_all_columns_v3.only_column_descriptions.txt
+

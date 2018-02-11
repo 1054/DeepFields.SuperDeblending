@@ -1,0 +1,89 @@
+  ID                  I15
+  RA                  F15.7
+  DEC                 F15.7
+  z(phot)             F15.2
+r_z(phot)             I15
+  z(spec)             F15.4
+r_z(spec)             I15
+  z(IR)               F15.3
+e_z(IR)               F15.3
+  FLUX.K              E15.3
+  FLUX.IRAC1          E15.3
+e_FLUX.IRAC1          E15.3
+  FLUX.IRAC2          E15.3
+e_FLUX.IRAC2          E15.3
+  FLUX.IRAC3          E15.3
+e_FLUX.IRAC3          E15.3
+  FLUX.IRAC4          E15.3
+e_FLUX.IRAC4          E15.3
+  FLUX.16             E15.3
+e_FLUX.16             E15.3
+  FLUX.24             E15.3
+e_FLUX.24             E15.3
+  FLUX.100            E15.3
+e_FLUX.100            E15.3
+  FLUX.160            E15.3
+e_FLUX.160            E15.3
+  FLUX.250            E15.3
+e_FLUX.250            E15.3
+  FLUX.350            E15.3
+e_FLUX.350            E15.3
+  FLUX.500            E15.3
+e_FLUX.500            E15.3
+  FLUX.850            E15.3
+e_FLUX.850            E15.3
+  FLUX.1160           E15.3
+e_FLUX.1160           E15.3
+  FLUX.20cm           E15.3
+e_FLUX.20cm           E15.3
+  Origin.20cm         I15
+  SNR(IR)             F15.3
+  Mstar               E15.3
+  SFR(IR)             F15.3
+e_SFR(IR)             F15.3
+  sSFR(IR)            F15.3
+  goodArea            I15
+  Type.AGN            I15
+  Type.SED            I15
+  Type.FIR            I15
+  SED.AGN             F15.3
+e_SED.AGN             F15.3
+  SED.TOT             F15.3
+e_SED.TOT             F15.3
+  SED.70              E15.3
+e_SED.70              E15.3
+  SED.100             E15.3
+e_SED.100             E15.3
+  SED.160             E15.3
+e_SED.160             E15.3
+  SED.250             E15.3
+e_SED.250             E15.3
+  SED.350             E15.3
+e_SED.350             E15.3
+  SED.500             E15.3
+e_SED.500             E15.3
+  SED.850             E15.3
+e_SED.850             E15.3
+  SED.1160            E15.3
+e_SED.1160            E15.3
+  SED.1200            E15.3
+e_SED.1200            E15.3
+  SED.1250            E15.3
+e_SED.1250            E15.3
+  SED.2000            E15.3
+e_SED.2000            E15.3
+  SED.2050            E15.3
+e_SED.2050            E15.3
+  SED.10cm            E15.3
+e_SED.10cm            E15.3
+  SED.20cm            E15.3
+e_SED.20cm            E15.3
+  chi-sq.(total)      F15.3
+  nfit(total)         I15
+  chi-sq.(star)       F15.3
+  nfit(star)          I15
+  chi-sq.(dust)       F15.3
+  nfit(dust)          I15
+  U                   A15
+  SFR(total)          F15.3
+  SFR(IR)/SFR(total)  F15.3

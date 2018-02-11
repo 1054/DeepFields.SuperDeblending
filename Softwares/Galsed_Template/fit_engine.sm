@@ -407,6 +407,8 @@ goxfitAGN 01
 								
 							}
 							
+							set Xwavelength = 10**xxWS * (1+$(zrange[$xxZ])) # convert rest-frame xxWS to obs-frame
+							
 							set Xtemplate = fSED_star + fSED_dust + fSED_AGN # fSED_* have a common wavelength grid of 'xxWS'
 							
 							set XwaveFIT = out_Waves
@@ -425,8 +427,14 @@ goxfitAGN 01
 							define Rchi2 $(chi2_dust)
 							
 							#define chi2 $($chi2+$Schi2) ### <20141222><EDADDI>
-							define chi2 $(sqrt(chi2_AGN**2 + chi2_star**2 + chi2_dust**2))
-							#<20171027><DEBUG># echo chi2_AGN=$(chi2_AGN) chi2_star=$(chi2_star) chi2_dust=$(chi2_dust)
+							#define chi2 $(sqrt(chi2_AGN**2 + chi2_star**2 + chi2_dust**2)) ### <20171229><BUGGY><DZLIU>
+							#define chi2 $(chi2_AGN + chi2_star + chi2_dust)
+							#define chi2 $(chi2_star + chi2_dust)
+							set chi2 = calc_chi2(wW,fF,dfF,Xwavelength,Xtemplate)
+							define chi2 $(chi2)
+							#DEBUG#
+							#DEBUG# echo chi2=$chi2 chi2_AGN=$(chi2_AGN) chi2_star=$(chi2_star) chi2_dust=$(chi2_dust) \$chi2=$chi2 \$Schi2=$Schi2
+							#DEBUG#
 							
 							### <Added><20141028><DZLIU> ###
 							#<20170911># if($?chi2_min_U==0) { 
@@ -669,25 +677,27 @@ goxfitAGN 01
 			}
 			if(is_vector(dzliu_overplot_sS) && is_vector(dzliu_overplot_wW) && \
 			   is_vector(dzliu_overplot_fF) && is_vector(dzliu_overplot_dfF)) {
-			    set dzliu_sS_ = (dzliu_overplot_sS) if(dzliu_overplot_fF>0 && dzliu_overplot_dfF>0)
-			    set dzliu_wW_ = (dzliu_overplot_wW) if(dzliu_overplot_fF>0 && dzliu_overplot_dfF>0)
-			    set dzliu_fF_ = (dzliu_overplot_fF) if(dzliu_overplot_fF>0 && dzliu_overplot_dfF>0)
-			    set dzliu_fF_err = (dzliu_overplot_dfF) if(dzliu_overplot_fF>0 && dzliu_overplot_dfF>0)
-			    logerr dzliu_fF_ dzliu_fF_err
-			    ctype magenta
-			    expand 1.25
-			    lweight 3.0
-			    ptype 25 0
-			    points (lg(dzliu_wW_)) (lg(dzliu_fF_))
-			    error_y (lg(dzliu_wW_)) (lg(dzliu_fF_)) logerr
-			    do dzliu_iI_=0,dimen(dzliu_sS_)-1 {
-			    	if(strlen(dzliu_sS_[$dzliu_iI_])>0) {
-			    		relocate $(lg(dzliu_wW_[$dzliu_iI_])) $(lg(dzliu_fF_[$dzliu_iI_])) 
-			        	expand 0.25 lweight 3.5 putlabel 6 " "$(dzliu_sS_[$dzliu_iI_])" "
-			        	expand 1.50 lweight 3.0
+			   	if(dimen(dzliu_overplot_sS)>0 && dimen(dzliu_overplot_wW)==dimen(dzliu_overplot_sS)) {
+			    	set dzliu_sS_ = (dzliu_overplot_sS) if(dzliu_overplot_fF>0 && dzliu_overplot_dfF>0)
+			    	set dzliu_wW_ = (dzliu_overplot_wW) if(dzliu_overplot_fF>0 && dzliu_overplot_dfF>0)
+			    	set dzliu_fF_ = (dzliu_overplot_fF) if(dzliu_overplot_fF>0 && dzliu_overplot_dfF>0)
+			    	set dzliu_fF_err = (dzliu_overplot_dfF) if(dzliu_overplot_fF>0 && dzliu_overplot_dfF>0)
+			    	logerr dzliu_fF_ dzliu_fF_err
+			    	ctype magenta
+			    	expand 1.25
+			    	lweight 3.0
+			    	ptype 25 0
+			    	points (lg(dzliu_wW_)) (lg(dzliu_fF_))
+			    	error_y (lg(dzliu_wW_)) (lg(dzliu_fF_)) logerr
+			    	do dzliu_iI_=0,dimen(dzliu_sS_)-1 {
+			    		if(strlen(dzliu_sS_[$dzliu_iI_])>0) {
+			    			relocate $(lg(dzliu_wW_[$dzliu_iI_])) $(lg(dzliu_fF_[$dzliu_iI_])) 
+			    	    	expand 0.25 lweight 3.5 putlabel 6 " "$(dzliu_sS_[$dzliu_iI_])" "
+			    	    	expand 1.50 lweight 3.0
+			    		}
 			    	}
+			    	ctype default
 			    }
-			    ctype default
 			}
 			###<TODO><Added><20150718><DZLIU>### output best fit data
 			
@@ -748,7 +758,7 @@ goxfitAGN 01
 			#puts qz=$(qz[$xAGN])
 			puts zphot=$(zphot[$xAGN])
 			#<Added><20141028><DzLIU># ----------------
-			if(zspec[$xAGN]>0){puts zspec=$(sprintf('%0.3f',zspec[$xAGN]))
+			if(zspec[$xAGN]>0){puts zspec=$(sprintf('%0.4f',zspec[$xAGN]))
 			            }else{puts zspec=$(sprintf('%0.0f',zspec[$xAGN]))}
 			#<Added><20150723><DZLIU># *******
 			#<Moded><20170308><DZLIU># *******
@@ -1212,6 +1222,35 @@ setAGN_norm_range  00
 
 
 
+calc_chi2 05
+		# inputs:
+		#    obs_w obs_f obs_ferr sed_w sed_f
+		if($?5) {
+			set cc_obs_w = $1
+			set cc_obs_f = $2
+			set cc_obs_ferr = $3
+			set cc_sed_w = $4
+			set cc_sed_f = $5
+			set cc_sed_w_log = lg(cc_sed_w)
+			set cc_sed_f_log = lg(cc_sed_f)
+			set cc_sed_w_match = lg(cc_obs_w) # spline in log
+			spline cc_sed_w_log cc_sed_f_log cc_sed_w_match cc_sed_f_match
+			set cc_sed_w_match = 10**cc_sed_w_match
+			set cc_sed_f_match = 10**cc_sed_f_match
+			set cc_sed_f_match = cc_sed_f_match>0 ? cc_sed_f_match : 0
+			set cc_chi2 = sum((cc_obs_f-cc_sed_f_match)**2/cc_obs_ferr**2)
+			set cc_diff = ((cc_obs_f-cc_sed_f_match)**2/cc_obs_ferr**2)
+			#print {cc_obs_w cc_obs_f cc_sed_w_match cc_sed_f_match cc_chi2}
+			set $0 = cc_chi2
+			return
+		} else {
+			set $0 = -99
+			return
+		}
+
+
+
+
 rMatrix 01	
 		#define bbb ?
 		#device postfile iSED$Vdar"".eps
@@ -1315,7 +1354,7 @@ rMatrix 01
 		if(dimen(_norm$mrx_var)>0) {vecminmax _norm$mrx_var mii$mrx_var maa$mrx_var} else {define mii$mrx_var +99 define maa$mrx_var -99}
 		}
 		
-		echo DEBUG 20170926
+		#echo DEBUG 20170926
 		
 		define fAGN $((($maaAGN)+($miiAGN))/2.0)
 		define eAGN $((($maaAGN)-($miiAGN))/2.0)

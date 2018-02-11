@@ -1,0 +1,35 @@
+Now use script to produce the FITS catalog: 
+ 
+./a_dzliu_code_for_combining_datatables.sh
+
+
+
+
+In the script, we corrected for 'e_z_FIRmm', 'z_spec -99', 'z_phot -99', 
+
+but *NOT* 'e_SFR(IR) 1E+10' issue: 
+
+There are 4 sources, IDs 9319, 13538, 13974 and 14002, which have SED fitted SFR error of 1E+10, 
+and that is because the SED fitting could not find enough solution around the 1/chi^2 peak, so the 1/chi^2 distribution has a single sharp peak and no error could be determined. 
+In this case, we need to set 1/SNR(IR) as the lower limit for the relative SFR error, i.e., e_SFR should always >= SFR * (1/SNR_IR)
+
+
+also *NOT* fixed 'e_SED.*' columns:
+
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$51) : $52
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$53) : $54
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$55) : $56
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$57) : $58
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$59) : $60
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$61) : $62
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$63) : $64
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$65) : $66
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$67) : $68
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$69) : $70
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$71) : $72
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$73) : $74
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$75) : $76
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$77) : $78
+(ID==9319 || ID==13538 || ID==13974 || ID==14002) ? abs(1.0*$79) : $80
+
+

@@ -46,7 +46,15 @@ read_Data 00
     VisitDirPathVector CurDir
     # 
     #<20171027># add SFR_UV and use SFR_total
-    set SFR = SFR_total
+    #<20180115># allow user to prepare a file "set_SFR_UV" to indicate whether to use SFR_UV or not.
+    if(!is_file("set_SFR_UV")) {
+        set SFR = SFR_total
+    } else {
+        data "set_SFR_UV" read do_SFR_UV 1
+        if(do_SFR_UV>0) {
+            set SFR = SFR_total
+        }
+    }
 
 
 set_SNR_limit

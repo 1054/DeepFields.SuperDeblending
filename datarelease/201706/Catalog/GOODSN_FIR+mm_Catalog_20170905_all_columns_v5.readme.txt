@@ -1,0 +1,44 @@
+fixed column 'e_SFR(IR)':
+
+$43==1E+10 ? 1/$40*$42 : $43
+
+This is because there are 4 sources, IDs 9319, 13538, 13974 and 14002, which have SED fitted SFR error of 1E+10, 
+and that is because the SED fitting could not find enough solution around the 1/chi^2 peak, so the 1/chi^2 distribution has a single sharp peak and no error could be determined. 
+In this case, we need to set 1/SNR(IR) as the lower limit for the relative SFR error, i.e., e_SFR should always >= SFR * (1/SNR_IR)
+
+$43 is e_SFR
+$42 is SFR
+$40 is SNR_IR
+
+
+
+
+
+
+
+# 
+
+Then, in topcat, also save as "CSV". 
+Then, open the CSV with LibreOffice Calc,
+set all column widths to 1.20 ", 
+set all column right-aligned, 
+format column 'RA' 'DEC' as '0.0000000', 
+format column 'zphot' as '0.00', 
+format column 'zspec' as '0.0000', 
+format column 'zIR' as '0.0000', 
+format column J to AL as '0.000E+00', 
+format column AN 'SNR(IR)' as '0.000', 
+format column AP to AR as '0.000', 
+format column AW to AZ as '0.000', 
+format column BA to CB as '0.000E+00', 
+format column CC, CE, CG as '0.000', 
+format column CJ, CK as '0.000', 
+and adjust column widths. 
+Then save as "CSV" with the "Fixed column width" option. 
+
+
+
+
+
+
+

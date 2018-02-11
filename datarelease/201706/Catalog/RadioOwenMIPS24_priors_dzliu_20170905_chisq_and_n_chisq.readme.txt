@@ -1,0 +1,9 @@
+see 
+/Users/dzliu/Work/DeepFields/Works/GOODSN_Photometry/Galsed_Final_v20170923_done_fitting/check_chisq_and_n_chisq/datatable_chisq_and_n_chisq.txt 
+
+made by the code
+/Users/dzliu/Work/DeepFields/Works/GOODSN_Photometry/Galsed_Final_v20170923_done_fitting/a_dzliu_code_check_chisq_and_n_chisq.bash 
+/Users/dzliu/Work/DeepFields/Works/GOODSN_Photometry/Galsed_Final_v20170923_done_fitting/a_dzliu_code_check_chisq_and_n_chisq.sm 
+
+
+
