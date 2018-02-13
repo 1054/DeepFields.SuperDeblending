@@ -855,6 +855,15 @@ if [[ "$Superdeblending_Band" == "100" || \
       "$Superdeblending_Band" == "24" || \
       "$Superdeblending_Band" == "20cm" ]]; then
     GALFIT_VARYING_POS="_vary"
+    echo GALFIT_VARYING_POS="_vary"
+    echo GALFIT_VARYING_POS="_vary"
+    echo GALFIT_VARYING_POS="_vary"
+    echo GALFIT_VARYING_POS="_vary"
+    echo GALFIT_VARYING_POS="_vary"
+    echo GALFIT_VARYING_POS="_vary"
+    echo GALFIT_VARYING_POS="_vary"
+    echo GALFIT_VARYING_POS="_vary"
+    echo GALFIT_VARYING_POS="_vary"
     if [[ $(echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}') == "GALFIT"* ]]; then
                                                          echo_and_print_to_file "$RunScript.sh" "############################################################"
                                                          echo_and_print_to_file "$RunScript.sh" "# Run galfit again allowing bright source position to vary #"
@@ -890,7 +899,6 @@ if [[ "$Superdeblending_Band" == "100" || \
                                                          echo_and_print_to_file "$RunScript.sh" ""
         
     elif [[ $(echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}') == "GALSIM"* ]]; then
-        
                                                          echo_and_print_to_file "$RunScript.sh" "############################################################"
                                                          echo_and_print_to_file "$RunScript.sh" "# Run galsim again allowing bright source position to vary #"
                                                          echo_and_print_to_file "$RunScript.sh" "############################################################"
