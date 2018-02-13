@@ -63,6 +63,7 @@ SUPERDEBLENDCMD=(galfit sm cl sky2xy xy2sky sex CrabPhotAperPhot)
 #
 # SUPERMONGO
 if [[ -f "$HOME/Softwares/Supermongo/sm" ]] && [[ -f "$HOME/Softwares/Supermongo/bin_setup.bash" ]]; then
+    # if has supermongo at default path
     chmod +x "$HOME/Softwares/Supermongo/bin_setup.bash"
     chmod +x "$HOME/Softwares/Supermongo/sm"
     source "$HOME/Softwares/Supermongo/bin_setup.bash"
@@ -70,10 +71,10 @@ else
     # if on planer or in planer qsub job
     if [[ ($(hostname) == planer* || $(hostname) == sapherschel* || $(hostname) == irfucoast*)  && -f $(dirname "${BASH_SOURCE[0]}")"/Supermo_bck.zip" ]]; then
         bash -c "cd $(dirname ${BASH_SOURCE[0]}); unzip Supermo_bck.zip; chmod a+x ./sm"
-    else
-        echo "**************************************************************************************"
-        echo "Error! SUPERMONGO was not found! sm command not found! This will cause severe problem!"
-        echo "**************************************************************************************"
+    elif [[ $(type sm 2>/dev/null | wc -l) -eq 0 ]] || [[ $(echo "load astroSfig.sm" | sm 2>&1 | wc -l) -ne 0 ]]; then
+        echo "**************************************************************************************************************************************************"
+        echo "Error! SUPERMONGO with SuperDeblending macros was not found! sm command not found or \"load astroPhot.sm\" failed! This will cause severe problem!"
+        echo "**************************************************************************************************************************************************"
         echo 
     fi
 fi
