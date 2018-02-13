@@ -1,4 +1,0 @@
-2017-10-28 15:19:38 CEST
-param_a_median = 1.5
-param_b_median = 0.66
-norm_median = -0.2425

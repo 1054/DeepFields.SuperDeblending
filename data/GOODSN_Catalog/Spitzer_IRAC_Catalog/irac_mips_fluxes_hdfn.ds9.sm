@@ -1,2 +1,0 @@
-data irac_mips_fluxes_hdfn.dat read {ra 1 de 2 id 3}
-print ds9.iracmipsfluxhdfn.fk5.reg 'circle(%0.7f,%0.7f,2.0\") \# text={ID%.0f} color=yellow\n' {ra de id}

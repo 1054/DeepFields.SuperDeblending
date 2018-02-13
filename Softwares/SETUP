@@ -63,6 +63,8 @@ SUPERDEBLENDCMD=(galfit sm cl sky2xy xy2sky sex CrabPhotAperPhot)
 #
 # SUPERMONGO
 if [[ -f "$HOME/Softwares/Supermongo/sm" ]] && [[ -f "$HOME/Softwares/Supermongo/bin_setup.bash" ]]; then
+    chmod +x "$HOME/Softwares/Supermongo/bin_setup.bash"
+    chmod +x "$HOME/Softwares/Supermongo/sm"
     source "$HOME/Softwares/Supermongo/bin_setup.bash"
 else
     # if on planer or in planer qsub job

@@ -806,8 +806,12 @@ calc_DeLooze2011_CII 03
     if($verbose) { 
         define print_noheader 1 set _DeLooze2011_Jupper = int(_DeLooze2011_Jupper)
         print '\ncalc_DeLooze2011_CII:\n' {}
-        print '\nL_TIR  = %15.7e  L_sun\nL_FIR  = %15.7e  L_sun\nJ_CII  = %15d\nv_CII  = %15.3f  GHz\nL_CII  = %15.7e  K km s-1 pc2\nF_CII  = %15f  Jy km s-1\nS_CII  = %15f  mJy\n\n' \
-               {_DeLooze2011_LumTIR _DeLooze2011_LumFIR _DeLooze2011_Jupper _DeLooze2011_ObsFreq _DeLooze2011_LPrmCII _DeLooze2011_FluxCII _DeLooze2011_PeakCII}
+        print '\nL_TIR  = %15.7e  L_sun\nL_FIR  = %15.7e  L_sun\nJ_CII  = %15d\nv_CII  = %15.3f  GHz' \
+               {_DeLooze2011_LumTIR _DeLooze2011_LumFIR _DeLooze2011_Jupper _DeLooze2011_ObsFreq}
+        print 'L_CII  = %15.7e  L_sun\nL_CII  = %15.7e  K km s-1 pc2' \
+               {_DeLooze2011_LumiCII _DeLooze2011_LPrmCII}
+        print 'F_CII  = %15f  Jy km s-1\nS_CII  = %15f  mJy\n\n' \
+               {_DeLooze2011_FluxCII _DeLooze2011_PeakCII}
         define print_noheader 0
     }
     set $0 = _DeLooze2011_LPrmCII
@@ -1021,6 +1025,23 @@ calc_FIR_line_fluxes 08
             set _dzliu_CI_x = 6.0,11.5,0.05
             set _dzliu_CI_y = 0.0653741952625 * _dzliu_CI_x**3 - 1.92089044289 * _dzliu_CI_x**2 + 19.8655338987 * _dzliu_CI_x - 59.3221991296
             set _dzliu_CI_LFIR = lg(_IR_luminosity[gid]/1.3)
+            interp2 _dzliu_CI_y _dzliu_CI_x _dzliu_CI_LFIR _dzliu_CI_LPrm
+            set _line_lprm[gid] = 10**_dzliu_CI_LPrm
+            set _line_lprm[gid] = _line_lprm[gid] * _line_excitation[gid] # calc excitation if user-given
+            set _line_method_lprm_to_flux = 1
+        }
+    }
+    if(_line_name=='CII') {
+        if(index(_line_method,'dzliu')>=0 && index(_line_method,'2017')>=0) {
+            # dzliu own fitting
+            #   y: log_L_FIR_50_500um
+            #   x: log_LPrime_3P1_3P0
+            #   calculate the CII 158um line luminosities for a given total IR luminosity 
+            #   when L_TIR < 1e11, we use calc_DeLooze2011_CII(), 
+            #   otherwise we consider a redshift/luminosity-dependent decaying, which can fit WangRan2013 data
+            set _dzliu_CII_x = 6.0,11.5,0.05
+            set _dzliu_CII_y = 0.983 * _dzliu_CI_x + lg(194.55575172665547)
+            set _dzliu_CII_LFIR = lg(_IR_luminosity[gid]/1.3)
             interp2 _dzliu_CI_y _dzliu_CI_x _dzliu_CI_LFIR _dzliu_CI_LPrm
             set _line_lprm[gid] = 10**_dzliu_CI_LPrm
             set _line_lprm[gid] = _line_lprm[gid] * _line_excitation[gid] # calc excitation if user-given
