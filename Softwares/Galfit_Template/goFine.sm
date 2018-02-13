@@ -70,12 +70,12 @@ xSet_24
 		define imax_name_rms "n_mips_1_s1_v0_37_rms_ED"
 		define imax_name_psf "hdfn_dao_mipspsf"
 		define psf_resampl   1
-		define xdate "201500" # "201411" # "01May"
+		define xdate "unknown" # "201500" # "201411" # "01May"
 
 		define mag_toofaint 20
 		define max_noise 0.03   
 		define mag_start -5
-		define Xback -0.080  # -0.075
+		define Xback 0.0 # -0.080  # -0.075
 
 		define ystep 25
 		define xstep 25
@@ -90,7 +90,9 @@ xSet_24
 		if($make_residuals) {define Xback 0}
 		
 		###<DZLIU><Modified>### 
-		data "irac_mips_fluxes_hdfn.dat" read {raF 1 deF 2 idF 3 xf24 17}
+		if(is_file("irac_mips_fluxes_hdfn.dat")) {
+			data "irac_mips_fluxes_hdfn.dat" read {raF 1 deF 2 idF 3 xf24 17}
+		}
 		###<DZLIU><Modified>### 
 
 
