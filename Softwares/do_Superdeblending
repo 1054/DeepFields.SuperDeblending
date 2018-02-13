@@ -856,73 +856,73 @@ if [[ "$Superdeblending_Band" == "100" || \
       "$Superdeblending_Band" == "20cm" ]]; then
     GALFIT_VARYING_POS="_vary"
     if [[ $(echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}') == "GALFIT"* ]]; then
-        echo "############################################################"
-        echo "# Run galfit again allowing bright source position to vary #"
-        echo "############################################################"
-        echo "#source ../../../../Softwares/SETUP"
-        echo "do_Galfit $Superdeblending_Band $Superdeblending_Date \\"
-        if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then echo "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
-        if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then echo "          -sedpredict $(basename $GALSED_PREDICT_SED) \\"; fi
-        if [[ "$GALFIT_IMPHOTO_SUB"x != ""x ]]; then echo "          -fitsname-sci $(basename $GALFIT_IMPHOTO_SUB) \\"; else
-        if [[ "$GALFIT_FITTING_SCI"x != ""x ]]; then echo "          -fitsname-sci $(basename $GALFIT_FITTING_SCI) \\"; fi; fi
-        if [[ "$GALFIT_FITTING_RMS"x != ""x ]]; then echo "          -fitsname-rms $(basename $GALFIT_FITTING_RMS) \\"; fi
-        if [[ "$GALFIT_FITTING_PSF"x != ""x ]]; then echo "          -fitsname-psf $(basename $GALFIT_FITTING_PSF) \\"; fi
-        if [[ "$GALFIT_FITTING_MSK"x != ""x ]]; then echo "          -fitsname-goodarea $(basename $GALFIT_FITTING_MSK) \\"; fi
-        if [[ "$GALFIT_THRESHO_MSK"x != ""x ]]; then echo "          -threshold-goodarea $(basename $GALFIT_THRESHO_MSK) \\"; fi
-        if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then echo "          -catalog-add $(basename $GALFIT_CATALOG_ADD) \\"; fi
-                                                     echo "          -vary -parallel"
-        echo ""
-        echo "cd boxgalfit_vary;"
-        if [[ "$Superdeblending_Band" == "1160" ]]; then echo "do_GalfitRunqsub255;"; else echo "do_GalfitRunqsub;"; fi
-        echo "cd .."
-        echo ""
-        echo "do_Galfit $Superdeblending_Band $Superdeblending_Date \\"
-        if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then echo "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
-        if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then echo "          -sedpredict $(basename $GALSED_PREDICT_SED) \\"; fi
-        if [[ "$GALFIT_IMPHOTO_SUB"x != ""x ]]; then echo "          -fitsname-sci $(basename $GALFIT_IMPHOTO_SUB) \\"; else
-        if [[ "$GALFIT_FITTING_SCI"x != ""x ]]; then echo "          -fitsname-sci $(basename $GALFIT_FITTING_SCI) \\"; fi; fi
-        if [[ "$GALFIT_FITTING_RMS"x != ""x ]]; then echo "          -fitsname-rms $(basename $GALFIT_FITTING_RMS) \\"; fi
-        if [[ "$GALFIT_FITTING_PSF"x != ""x ]]; then echo "          -fitsname-psf $(basename $GALFIT_FITTING_PSF) \\"; fi
-        if [[ "$GALFIT_FITTING_MSK"x != ""x ]]; then echo "          -fitsname-goodarea $(basename $GALFIT_FITTING_MSK) \\"; fi
-        if [[ "$GALFIT_THRESHO_MSK"x != ""x ]]; then echo "          -threshold-goodarea $(basename $GALFIT_THRESHO_MSK) \\"; fi
-        if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then echo "          -catalog-add $(basename $GALFIT_CATALOG_ADD) \\"; fi
-                                                     echo "          -vary -postparallel"
-        echo ""
+                                                         echo_and_print_to_file "$RunScript.sh" "############################################################"
+                                                         echo_and_print_to_file "$RunScript.sh" "# Run galfit again allowing bright source position to vary #"
+                                                         echo_and_print_to_file "$RunScript.sh" "############################################################"
+                                                         echo_and_print_to_file "$RunScript.sh" "#source ../../../../Softwares/SETUP"
+                                                         echo_and_print_to_file "$RunScript.sh" "do_Galfit $Superdeblending_Band $Superdeblending_Date \\"
+        if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
+        if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -sedpredict $(basename $GALSED_PREDICT_SED) \\"; fi
+        if [[ "$GALFIT_IMPHOTO_SUB"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-sci $(basename $GALFIT_IMPHOTO_SUB) \\"; else
+        if [[ "$GALFIT_FITTING_SCI"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-sci $(basename $GALFIT_FITTING_SCI) \\"; fi; fi
+        if [[ "$GALFIT_FITTING_RMS"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-rms $(basename $GALFIT_FITTING_RMS) \\"; fi
+        if [[ "$GALFIT_FITTING_PSF"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-psf $(basename $GALFIT_FITTING_PSF) \\"; fi
+        if [[ "$GALFIT_FITTING_MSK"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-goodarea $(basename $GALFIT_FITTING_MSK) \\"; fi
+        if [[ "$GALFIT_THRESHO_MSK"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -threshold-goodarea $(basename $GALFIT_THRESHO_MSK) \\"; fi
+        if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -catalog-add $(basename $GALFIT_CATALOG_ADD) \\"; fi
+                                                         echo_and_print_to_file "$RunScript.sh" "          -vary -parallel"
+                                                         echo_and_print_to_file "$RunScript.sh" ""
+                                                         echo_and_print_to_file "$RunScript.sh" "cd boxgalfit_vary;"
+        if [[ "$Superdeblending_Band" == "1160" ]]; then echo_and_print_to_file "$RunScript.sh" "do_GalfitRunqsub255;"; else echo_and_print_to_file "$RunScript.sh" "do_GalfitRunqsub;"; fi
+                                                         echo_and_print_to_file "$RunScript.sh" "cd .."
+                                                         echo_and_print_to_file "$RunScript.sh" ""
+                                                         echo_and_print_to_file "$RunScript.sh" "do_Galfit $Superdeblending_Band $Superdeblending_Date \\"
+        if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
+        if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -sedpredict $(basename $GALSED_PREDICT_SED) \\"; fi
+        if [[ "$GALFIT_IMPHOTO_SUB"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-sci $(basename $GALFIT_IMPHOTO_SUB) \\"; else
+        if [[ "$GALFIT_FITTING_SCI"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-sci $(basename $GALFIT_FITTING_SCI) \\"; fi; fi
+        if [[ "$GALFIT_FITTING_RMS"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-rms $(basename $GALFIT_FITTING_RMS) \\"; fi
+        if [[ "$GALFIT_FITTING_PSF"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-psf $(basename $GALFIT_FITTING_PSF) \\"; fi
+        if [[ "$GALFIT_FITTING_MSK"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-goodarea $(basename $GALFIT_FITTING_MSK) \\"; fi
+        if [[ "$GALFIT_THRESHO_MSK"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -threshold-goodarea $(basename $GALFIT_THRESHO_MSK) \\"; fi
+        if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -catalog-add $(basename $GALFIT_CATALOG_ADD) \\"; fi
+                                                         echo_and_print_to_file "$RunScript.sh" "          -vary -postparallel"
+                                                         echo_and_print_to_file "$RunScript.sh" ""
         
     elif [[ $(echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}') == "GALSIM"* ]]; then
         
-        echo "############################################################"
-        echo "# Run galsim again allowing bright source position to vary #"
-        echo "############################################################"
-        echo "#source ../../../../Softwares/SETUP"
-        echo "do_Galsim $Superdeblending_Band $Superdeblending_Date \\"
-        if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then echo "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
-        if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then echo "          -sedpredict $(basename $GALSED_PREDICT_SED) \\"; fi
-        if [[ "$GALFIT_FITTING_SCI"x != ""x ]]; then echo "          -fitsname-sci $(basename $GALFIT_FITTING_SCI) \\"; fi
-        if [[ "$GALFIT_FITTING_RMS"x != ""x ]]; then echo "          -fitsname-rms $(basename $GALFIT_FITTING_RMS) \\"; fi
-        if [[ "$GALFIT_FITTING_PSF"x != ""x ]]; then echo "          -fitsname-psf $(basename $GALFIT_FITTING_PSF) \\"; fi
-        if [[ "$GALFIT_FITTING_MSK"x != ""x ]]; then echo "          -fitsname-goodarea $(basename $GALFIT_FITTING_MSK) \\"; fi
-        if [[ "$GALFIT_THRESHO_MSK"x != ""x ]]; then echo "          -threshold-goodarea $(basename $GALFIT_THRESHO_MSK) \\"; fi
-        if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then echo "          -catalog-add $(basename $GALFIT_CATALOG_ADD) \\"; fi
-                                                     echo "          -mag0 $GALSIM_LOWER_MAG -mag1 $GALSIM_UPPER_MAG \\"
-                                                     echo "          -vary -parallel"
-        echo ""
-        echo "cd boxgalsim_vary;"
-        if [[ "$Superdeblending_Band" == "1160" ]]; then echo "do_GalsimRunqsub255;"; else echo "do_GalsimRunqsub;"; fi
-        echo "cd .."
-        echo ""
-        echo "do_Galsim $Superdeblending_Band $Superdeblending_Date \\"
-        if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then echo "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
-        if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then echo "          -sedpredict $(basename $GALSED_PREDICT_SED) \\"; fi
-        if [[ "$GALFIT_FITTING_SCI"x != ""x ]]; then echo "          -fitsname-sci $(basename $GALFIT_FITTING_SCI) \\"; fi
-        if [[ "$GALFIT_FITTING_RMS"x != ""x ]]; then echo "          -fitsname-rms $(basename $GALFIT_FITTING_RMS) \\"; fi
-        if [[ "$GALFIT_FITTING_PSF"x != ""x ]]; then echo "          -fitsname-psf $(basename $GALFIT_FITTING_PSF) \\"; fi
-        if [[ "$GALFIT_FITTING_MSK"x != ""x ]]; then echo "          -fitsname-goodarea $(basename $GALFIT_FITTING_MSK) \\"; fi
-        if [[ "$GALFIT_THRESHO_MSK"x != ""x ]]; then echo "          -threshold-goodarea $(basename $GALFIT_THRESHO_MSK) \\"; fi
-        if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then echo "          -catalog-add $(basename $GALFIT_CATALOG_ADD) \\"; fi
-                                                     echo "          -mag0 $GALSIM_LOWER_MAG -mag1 $GALSIM_UPPER_MAG \\"
-                                                     echo "          -vary -postparallel"
-        echo ""
+                                                         echo_and_print_to_file "$RunScript.sh" "############################################################"
+                                                         echo_and_print_to_file "$RunScript.sh" "# Run galsim again allowing bright source position to vary #"
+                                                         echo_and_print_to_file "$RunScript.sh" "############################################################"
+                                                         echo_and_print_to_file "$RunScript.sh" "#source ../../../../Softwares/SETUP"
+                                                         echo_and_print_to_file "$RunScript.sh" "do_Galsim $Superdeblending_Band $Superdeblending_Date \\"
+        if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
+        if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -sedpredict $(basename $GALSED_PREDICT_SED) \\"; fi
+        if [[ "$GALFIT_FITTING_SCI"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-sci $(basename $GALFIT_FITTING_SCI) \\"; fi
+        if [[ "$GALFIT_FITTING_RMS"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-rms $(basename $GALFIT_FITTING_RMS) \\"; fi
+        if [[ "$GALFIT_FITTING_PSF"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-psf $(basename $GALFIT_FITTING_PSF) \\"; fi
+        if [[ "$GALFIT_FITTING_MSK"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-goodarea $(basename $GALFIT_FITTING_MSK) \\"; fi
+        if [[ "$GALFIT_THRESHO_MSK"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -threshold-goodarea $(basename $GALFIT_THRESHO_MSK) \\"; fi
+        if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -catalog-add $(basename $GALFIT_CATALOG_ADD) \\"; fi
+                                                         echo_and_print_to_file "$RunScript.sh" "          -mag0 $GALSIM_LOWER_MAG -mag1 $GALSIM_UPPER_MAG \\"
+                                                         echo_and_print_to_file "$RunScript.sh" "          -vary -parallel"
+                                                         echo_and_print_to_file "$RunScript.sh" ""
+                                                         echo_and_print_to_file "$RunScript.sh" "cd boxgalsim_vary;"
+        if [[ "$Superdeblending_Band" == "1160" ]]; then echo_and_print_to_file "$RunScript.sh" "do_GalsimRunqsub255;"; else echo_and_print_to_file "$RunScript.sh" "do_GalsimRunqsub;"; fi
+                                                         echo_and_print_to_file "$RunScript.sh" "cd .."
+                                                         echo_and_print_to_file "$RunScript.sh" ""
+                                                         echo_and_print_to_file "$RunScript.sh" "do_Galsim $Superdeblending_Band $Superdeblending_Date \\"
+        if [[ "$GALFIT_CATALOG_INP"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -catalog $(basename $GALFIT_CATALOG_INP) \\"; fi
+        if [[ "$GALSED_PREDICT_SED"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -sedpredict $(basename $GALSED_PREDICT_SED) \\"; fi
+        if [[ "$GALFIT_FITTING_SCI"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-sci $(basename $GALFIT_FITTING_SCI) \\"; fi
+        if [[ "$GALFIT_FITTING_RMS"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-rms $(basename $GALFIT_FITTING_RMS) \\"; fi
+        if [[ "$GALFIT_FITTING_PSF"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-psf $(basename $GALFIT_FITTING_PSF) \\"; fi
+        if [[ "$GALFIT_FITTING_MSK"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -fitsname-goodarea $(basename $GALFIT_FITTING_MSK) \\"; fi
+        if [[ "$GALFIT_THRESHO_MSK"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -threshold-goodarea $(basename $GALFIT_THRESHO_MSK) \\"; fi
+        if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then     echo_and_print_to_file "$RunScript.sh" "          -catalog-add $(basename $GALFIT_CATALOG_ADD) \\"; fi
+                                                         echo_and_print_to_file "$RunScript.sh" "          -mag0 $GALSIM_LOWER_MAG -mag1 $GALSIM_UPPER_MAG \\"
+                                                         echo_and_print_to_file "$RunScript.sh" "          -vary -postparallel"
+                                                         echo_and_print_to_file "$RunScript.sh" ""
     fi
 else
     GALFIT_VARYING_POS=""
@@ -935,28 +935,28 @@ fi
 # 
 # 
 # 
-echo "##########################################################"
-echo "# OK, the galfit output fits image and ascii tables are: #"
-echo "##########################################################"
-echo "ls FIT_*.fits results_*"
+echo_and_print_to_file "$RunScript.sh" "##########################################################"
+echo_and_print_to_file "$RunScript.sh" "# OK, the galfit output fits image and ascii tables are: #"
+echo_and_print_to_file "$RunScript.sh" "##########################################################"
+echo_and_print_to_file "$RunScript.sh" "ls FIT_*.fits results_*"
 if [[ -d "Galsim_${Superdeblending_Band}" ]]; then
-    echo "cp -r ../Galsim_${Superdeblending_Band}/sim_diagram_output_v11 ." # TODO
+    echo_and_print_to_file "$RunScript.sh" "cp -r ../Galsim_${Superdeblending_Band}/sim_diagram_output_v11 ." # TODO
 else
-    echo "# *******"
-    echo "# Warning! The simulation data dir \"Galsim_${Superdeblending_Band}\" was not found!"
-    echo "# We will copy the simulation-based flux and flux error correction recipes for current band ${Superdeblending_Band}"
-    echo "# from \"$Superdeblending_SrcDir/Galsim_Results_v20160225/Galsim_Band${Superdeblending_Band}_CorrectionRecipes.tar.gz\""
-    echo "# *******"
-    echo "tar -xzf \"$Superdeblending_SrcDir/Galsim_Results_v20160225/Galsim_Band${Superdeblending_Band}_CorrectionRecipes.tar.gz\""
+    echo_and_print_to_file "$RunScript.sh" "# *******"
+    echo_and_print_to_file "$RunScript.sh" "# Warning! The simulation data dir \"Galsim_${Superdeblending_Band}\" was not found!"
+    echo_and_print_to_file "$RunScript.sh" "# We will copy the simulation-based flux and flux error correction recipes for current band ${Superdeblending_Band}"
+    echo_and_print_to_file "$RunScript.sh" "# from \"$Superdeblending_SrcDir/Galsim_Results_v20160225/Galsim_Band${Superdeblending_Band}_CorrectionRecipes.tar.gz\""
+    echo_and_print_to_file "$RunScript.sh" "# *******"
+    echo_and_print_to_file "$RunScript.sh" "tar -xzf \"$Superdeblending_SrcDir/Galsim_Results_v20160225/Galsim_Band${Superdeblending_Band}_CorrectionRecipes.tar.gz\""
 fi
 if [[ x"$GALFIT_VARYING_POS" != x"" ]]; then
     #20180213# echo "sm <<< \"macro read goFine.sm R_MIPS${Superdeblending_Band}\""
-    echo "echo \"macro read goFine.sm R_BAND_X ${Superdeblending_Field} ${Superdeblending_Band} ${Superdeblending_Date} 1\" | sm"
+    echo_and_print_to_file "$RunScript.sh" "echo \"macro read goFine.sm R_BAND_X ${Superdeblending_Field} ${Superdeblending_Band} ${Superdeblending_Date} 1\" | sm"
 else
     #20180213# echo "sm <<< \"macro read goFine.sm R_MIPS${Superdeblending_Band}_E\""
-    echo "echo \"macro read goFine.sm R_BAND_X ${Superdeblending_Field} ${Superdeblending_Band} ${Superdeblending_Date} 0\" | sm"
+    echo_and_print_to_file "$RunScript.sh" "echo \"macro read goFine.sm R_BAND_X ${Superdeblending_Field} ${Superdeblending_Band} ${Superdeblending_Date} 0\" | sm"
 fi
-echo ""
+echo_and_print_to_file "$RunScript.sh" ""
 
 
 # 
@@ -966,53 +966,53 @@ if [[ "$GALFIT_EXTRACT_CUT"x != "0"x ]]; then
   # <added><20160321><dzliu> if input -detect-thresh 0 then supress residual extraction!
   if [[ $(echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}') == "GALFIT"*"WITH"*"ADD"*"TRIAL"* || \
       $(echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}') == "GALFIT"*"WITH"*"ADD"*"PASS1"* ]]; then
-    echo "###################################################################################"
-    echo "# Next, check the galfit fitting results of the additional sources extracted from #"
-    echo "# the residual image and only keep those additional sources with S/N_galfit > 3.0 #"
-    echo "# or any other S/N_galfit threshold limit by giving the argument -detect-thresh.  #"
-    echo "###################################################################################"
-    echo "cp -r $Superdeblending_SrcDir/Galfit_Template_v20160225/run_sextractor_postanalysis ."
-    echo "cp -r $Superdeblending_SrcDir/Galfit_Template_v20160225/run_sextractor_postanalysis.sh ."
-    echo "./run_sextractor_postanalysis.sh -band ${Superdeblending_Band} \\"
+    echo_and_print_to_file "$RunScript.sh" "###################################################################################"
+    echo_and_print_to_file "$RunScript.sh" "# Next, check the galfit fitting results of the additional sources extracted from #"
+    echo_and_print_to_file "$RunScript.sh" "# the residual image and only keep those additional sources with S/N_galfit > 3.0 #"
+    echo_and_print_to_file "$RunScript.sh" "# or any other S/N_galfit threshold limit by giving the argument -detect-thresh.  #"
+    echo_and_print_to_file "$RunScript.sh" "###################################################################################"
+    echo_and_print_to_file "$RunScript.sh" "cp -r $Superdeblending_SrcDir/Galfit_Template_v20160225/run_sextractor_postanalysis ."
+    echo_and_print_to_file "$RunScript.sh" "cp -r $Superdeblending_SrcDir/Galfit_Template_v20160225/run_sextractor_postanalysis.sh ."
+    echo_and_print_to_file "$RunScript.sh" "./run_sextractor_postanalysis.sh -band ${Superdeblending_Band} \\"
     if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then 
-    echo "                                 -catalog-old $(basename $GALFIT_CATALOG_ADD) \\"
+    echo_and_print_to_file "$RunScript.sh" "                                 -catalog-old $(basename $GALFIT_CATALOG_ADD) \\"
     fi
-    echo "                                 -catalog-output Residual_priors_${Superdeblending_Band}_Revised.txt \\"
-    echo "                                 -fitresults-flux results_${Superdeblending_Band}_${Superdeblending_Date}${GALFIT_VARYING_POS}__fluxes.txt \\"
-    echo "                                 -sedpredict $(basename $GALSED_PREDICT_SED) \\"
+    echo_and_print_to_file "$RunScript.sh" "                                 -catalog-output Residual_priors_${Superdeblending_Band}_Revised.txt \\"
+    echo_and_print_to_file "$RunScript.sh" "                                 -fitresults-flux results_${Superdeblending_Band}_${Superdeblending_Date}${GALFIT_VARYING_POS}__fluxes.txt \\"
+    echo_and_print_to_file "$RunScript.sh" "                                 -sedpredict $(basename $GALSED_PREDICT_SED) \\"
     if [[ "$GALFIT_EXTRACT_CUT"x == ""x ]]; then 
     GALFIT_EXTRACT_CUT=3.0
     fi
-    echo "                                 -detect-thresh $GALFIT_EXTRACT_CUT"
-    echo "#<TODO># Define -catalog-output for output catalog name"
-    echo "#<TODO># Tune -detect-thresh for different S/N selection"
-    echo ""
+    echo_and_print_to_file "$RunScript.sh" "                                 -detect-thresh $GALFIT_EXTRACT_CUT"
+    echo_and_print_to_file "$RunScript.sh" "#<TODO># Define -catalog-output for output catalog name"
+    echo_and_print_to_file "$RunScript.sh" "#<TODO># Tune -detect-thresh for different S/N selection"
+    echo_and_print_to_file "$RunScript.sh" ""
   elif [[ $(echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}') == "GALFIT"*"WITH"*"ADD"*"REVISED"* || \
         $(echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}') == "GALFIT"*"WITH"*"ADD"*"PASS2"* ]]; then
     GALFIT_EXTRACT_CUT=1.5
   else
-    echo "#################################################################################"
-    echo "# Next, check the residual image and extract additional sources with sextractor #"
-    echo "# To make sure the residual sources are more possibly real, we recommand to run #"
-    echo "# galfit again with the argument -catalog-add \"Residual_priors_XXX.txt\"       #"
-    echo "#################################################################################"
-    echo "cp -r $Superdeblending_SrcDir/Galfit_Template_v20160225/run_sextractor ."
-    echo "cp -r $Superdeblending_SrcDir/Galfit_Template_v20160225/run_sextractor.sh ."
-    echo "./run_sextractor.sh -band ${Superdeblending_Band} \\"
+    echo_and_print_to_file "$RunScript.sh" "#################################################################################"
+    echo_and_print_to_file "$RunScript.sh" "# Next, check the residual image and extract additional sources with sextractor #"
+    echo_and_print_to_file "$RunScript.sh" "# To make sure the residual sources are more possibly real, we recommand to run #"
+    echo_and_print_to_file "$RunScript.sh" "# galfit again with the argument -catalog-add \"Residual_priors_XXX.txt\"       #"
+    echo_and_print_to_file "$RunScript.sh" "#################################################################################"
+    echo_and_print_to_file "$RunScript.sh" "cp -r $Superdeblending_SrcDir/Galfit_Template_v20160225/run_sextractor ."
+    echo_and_print_to_file "$RunScript.sh" "cp -r $Superdeblending_SrcDir/Galfit_Template_v20160225/run_sextractor.sh ."
+    echo_and_print_to_file "$RunScript.sh" "./run_sextractor.sh -band ${Superdeblending_Band} \\"
     if [[ "$GALFIT_CATALOG_ADD"x != ""x ]]; then 
-    echo "                    -catalog-old $(basename $GALFIT_CATALOG_ADD) \\"
+    echo_and_print_to_file "$RunScript.sh" "                    -catalog-old $(basename $GALFIT_CATALOG_ADD) \\"
     fi
-    echo "                    -catalog-output Residual_priors_${Superdeblending_Band}_Trial.txt \\"
-    echo "                    -fitresults-map FIT_${Superdeblending_Field}_${Superdeblending_Band}_Map_${Superdeblending_Date}${GALFIT_VARYING_POS}.fits \\"
-    echo "                    -rms-map $(basename $GALFIT_IMPHOTO_RMS) \\"
+    echo_and_print_to_file "$RunScript.sh" "                    -catalog-output Residual_priors_${Superdeblending_Band}_Trial.txt \\"
+    echo_and_print_to_file "$RunScript.sh" "                    -fitresults-map FIT_${Superdeblending_Field}_${Superdeblending_Band}_Map_${Superdeblending_Date}${GALFIT_VARYING_POS}.fits \\"
+    echo_and_print_to_file "$RunScript.sh" "                    -rms-map $(basename $GALFIT_IMPHOTO_RMS) \\"
     if [[ "$GALFIT_EXTRACT_CUT"x == ""x ]]; then 
     GALFIT_EXTRACT_CUT=1.5
     fi
-    echo "                    -detect-thresh $GALFIT_EXTRACT_CUT \\"
-    echo "                    -detect-minarea 2"
-    echo "#<TODO># Define -catalog-output for output catalog name"
-    echo "#<TODO># Tune -detect-thresh for better source extraction"
-    echo ""
+    echo_and_print_to_file "$RunScript.sh" "                    -detect-thresh $GALFIT_EXTRACT_CUT \\"
+    echo_and_print_to_file "$RunScript.sh" "                    -detect-minarea 2"
+    echo_and_print_to_file "$RunScript.sh" "#<TODO># Define -catalog-output for output catalog name"
+    echo_and_print_to_file "$RunScript.sh" "#<TODO># Tune -detect-thresh for better source extraction"
+    echo_and_print_to_file "$RunScript.sh" ""
   fi
 fi
 
@@ -1021,23 +1021,23 @@ fi
 # 
 # 
 #if [[ $(echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}') == "GALFIT"* && "$GALFIT_CATALOG_OUT"x != ""x ]]; then
-#    echo "#######################################################"
-#    echo "# Finally, update the catalog with new galfit results #"
-#    echo "#######################################################"
-#    echo "sm << EOF"
-#    echo "define imax ${Superdeblending_Band}"
-#    echo "define xdate ${Superdeblending_Date}"
-#    echo "set old_catalog = {\"$(basename $GALFIT_CATALOG_INP)\"}"
-#    echo "set new_catalog = {\"$(basename $GALFIT_CATALOG_OUT)\"}"
+#    echo_and_print_to_file "$RunScript.sh" "#######################################################"
+#    echo_and_print_to_file "$RunScript.sh" "# Finally, update the catalog with new galfit results #"
+#    echo_and_print_to_file "$RunScript.sh" "#######################################################"
+#    echo_and_print_to_file "$RunScript.sh" "sm << EOF"
+#    echo_and_print_to_file "$RunScript.sh" "define imax ${Superdeblending_Band}"
+#    echo_and_print_to_file "$RunScript.sh" "define xdate ${Superdeblending_Date}"
+#    echo_and_print_to_file "$RunScript.sh" "set old_catalog = {\"$(basename $GALFIT_CATALOG_INP)\"}"
+#    echo_and_print_to_file "$RunScript.sh" "set new_catalog = {\"$(basename $GALFIT_CATALOG_OUT)\"}"
 #    if [[ x"$GALSED_PREDICT_SED" != x ]]; then
-#    echo "set sed_predict = {\"$(basename $GALSED_PREDICT_SED)\"}"
+#    echo_and_print_to_file "$RunScript.sh" "set sed_predict = {\"$(basename $GALSED_PREDICT_SED)\"}"
 #    fi
-#    echo "set result_mags = {\"results_${Superdeblending_Band}_${Superdeblending_Date}${GALFIT_VARYING_POS}\"}"
-#    echo "set result_flux = {\"results_${Superdeblending_Band}_${Superdeblending_Date}${GALFIT_VARYING_POS}__fluxes.txt\"}"
-#    echo "macro read run_update_catalog_v7.sm run_update_catalog_v7 go"
-#    echo "quit"
-#    echo "EOF"
-#    echo ""
+#    echo_and_print_to_file "$RunScript.sh" "set result_mags = {\"results_${Superdeblending_Band}_${Superdeblending_Date}${GALFIT_VARYING_POS}\"}"
+#    echo_and_print_to_file "$RunScript.sh" "set result_flux = {\"results_${Superdeblending_Band}_${Superdeblending_Date}${GALFIT_VARYING_POS}__fluxes.txt\"}"
+#    echo_and_print_to_file "$RunScript.sh" "macro read run_update_catalog_v7.sm run_update_catalog_v7 go"
+#    echo_and_print_to_file "$RunScript.sh" "quit"
+#    echo_and_print_to_file "$RunScript.sh" "EOF"
+#    echo_and_print_to_file "$RunScript.sh" ""
 #fi
 
 
