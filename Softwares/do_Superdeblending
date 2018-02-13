@@ -841,7 +841,7 @@ for (( i=0; i<${#Superdeblending_Step[@]}; i++ )); do
     
     
 done
-exit
+#exit
 
 
 # 
@@ -929,7 +929,7 @@ else
 fi
 
 
-exit
+#exit
 
 
 # 
@@ -949,13 +949,12 @@ else
     echo "# *******"
     echo "tar -xzf \"$Superdeblending_SrcDir/Galsim_Results_v20160225/Galsim_Band${Superdeblending_Band}_CorrectionRecipes.tar.gz\""
 fi
-if [[ "$Superdeblending_Band" == "100" || \
-      "$Superdeblending_Band" == "160" || \
-      "$Superdeblending_Band" == "16" || \
-      "$Superdeblending_Band" == "20cm" ]]; then
-    echo "sm <<< \"macro read goFine.sm R_MIPS${Superdeblending_Band}\""
+if [[ x"$GALFIT_VARYING_POS" != x"" ]]; then
+    #20180213# echo "sm <<< \"macro read goFine.sm R_MIPS${Superdeblending_Band}\""
+    echo "echo \"macro read goFine.sm R_BAND_X ${Superdeblending_Field} ${Superdeblending_Band} ${Superdeblending_Date} 1\" | sm"
 else
-    echo "sm <<< \"macro read goFine.sm R_MIPS${Superdeblending_Band}_E\""
+    #20180213# echo "sm <<< \"macro read goFine.sm R_MIPS${Superdeblending_Band}_E\""
+    echo "echo \"macro read goFine.sm R_BAND_X ${Superdeblending_Field} ${Superdeblending_Band} ${Superdeblending_Date} 0\" | sm"
 fi
 echo ""
 

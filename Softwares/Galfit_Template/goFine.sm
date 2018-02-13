@@ -552,7 +552,9 @@ makeBigMap	00	define print_noheader 1
 			print do.cl  'images \n imutil \n' {}
 			print +do.cl 'imcopy $imax_name FIT_$field""_$imax""_Map.fits\n' {}
 			print +do.cl 'imcopy null FIT_$field""_$imax""_Map.fits[append]\n' {}
-			print +do.cl 'imcopy $imax_name FIT_$field""_$imax""_Map.fits[1,append]\nlogout\n' {}
+			#print +do.cl 'imcopy $imax_name FIT_$field""_$imax""_Map.fits[1,append]\nlogout\n' {} #<20180213># report error about overwrite mode...
+			print +do.cl 'imcopy $imax_name FIT_$field""_$imax""_Map.fits[residual,1,append]\n' {} #<20180213># 
+			print +do.cl 'logout\n' {}
 			!cl < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
 			} else {echo CRASH   galfit did not work in makeBigMap
 			define aaa ?}
@@ -2060,5 +2062,32 @@ R_MIPS1160_E	00
 			######<20140905><DzLIU>###### #<TODO><DZLIU>#set df1160 = e1160<.5 ? f1160/dff : df1160
 			######<20140905><DzLIU>###### #<TODO><DZLIU>#data all_priors_RAD_1160.txt read {ra 1 de 2} 
 			######<20140905><DzLIU>###### #<TODO><DZLIU>#print Handy_1160.txt '%.7f %.7f %f %f\n' {ra de f1160 df1160}
+
+
+
+
+R_BAND_X 04
+			define field $1
+			define imax $2
+			define xdate $3
+			define vary_positions $4
+			define rrrr_name "results_"$imax"_"$xdate ###<Modified><DZLIU>### NO vary FOR 1160
+			data $rrrr_name read <x$imax 1 y$imax 2 m$imax 4 e$imax 5 noi$imax 3 ra$imax 6 de$imax 7 id$imax 8>
+			load astroPhot.sm
+			set_$field""_photometry_constants_$imax
+			set f$imax = 10**(-0.4*m$imax)*$h_$imax/$m_$imax # *1000
+			set df$imax = f$imax*e$imax/1.08   # 
+			
+			go_simulation_based_correction_recipes
+			
+			print "results_"$imax"_"$xdate"__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
+
+
+
+
+
+
+
+
 
 
