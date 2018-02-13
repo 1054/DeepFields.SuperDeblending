@@ -864,6 +864,13 @@ if [[ "$Superdeblending_Band" == "100" || \
     echo GALFIT_VARYING_POS="_vary"
     echo GALFIT_VARYING_POS="_vary"
     echo GALFIT_VARYING_POS="_vary"
+    echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}'
+    echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}'
+    echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}'
+    echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}'
+    echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}'
+    echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}'
+    echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}'
     if [[ $(echo ${Superdeblending_Step[i]} | awk '{print toupper($0)}') == "GALFIT"* ]]; then
                                                          echo_and_print_to_file "$RunScript.sh" "############################################################"
                                                          echo_and_print_to_file "$RunScript.sh" "# Run galfit again allowing bright source position to vary #"
