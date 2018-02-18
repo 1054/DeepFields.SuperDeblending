@@ -1,0 +1,561 @@
+analyze_dfGal_et_dfSim_all_bands
+    # 
+    #    macro read analyze_dfGal_et_dfSim.sm analyze_dfGal_et_dfSim_all_bands
+    # 
+    # foreach imax {100 160 250 350 500 1160} { # 
+    foreach imax {24} {
+        # define doPlotType Flux
+        # analyze_dfGal_et_dfSim
+        # define doPlotType FErr
+        # analyze_dfGal_et_dfSim
+        define doPlotType SFDF
+        analyze_dfGal_et_dfSim
+        define doPlotType CFDF
+        analyze_dfGal_et_dfSim
+    }
+    # !open "analyze_dfGal_et_dfSim/histogram_of_f*.eps"
+    # !open "analyze_dfGal_et_dfSim/histogram_of_df*.eps"
+    !open "analyze_dfGal_et_dfSim/scatter_of_sfdf*.eps"
+    !open "analyze_dfGal_et_dfSim/scatter_of_cfdf*.eps"
+
+
+
+
+
+
+analyze_dfGal_et_dfSim
+    # 
+    #    macro read analyze_dfGal_et_dfSim.sm analyze_dfGal_et_dfSim
+    # 
+    !mkdir "analyze_dfGal_et_dfSim"
+    # 
+    # <TODO> define imax 350
+    define xdate 201408
+    if($imax==24) { define xdate 201411 }
+    # 
+    # <TODO> plot type ???
+    # <TODO> define doPlotType FErr
+    # <TODO> define doPlotType Flux
+    # 
+    chdir "doing"$imax
+    # 
+    macro read goFine.sm
+    define doCorrectEdf -1 # will only set values but not create files
+    if($imax==16||$imax==100||$imax==160) { R_MIPS$imax } else { R_MIPS$imax""_E }
+    # 
+    data "xsimuGH_RAD_SPInewX2_"$imax".dat"
+    read {SimPosX 1 SimPosY 2 SimM00 3 SimMag 4 SimMagErr 5 SimRMS 6 SimResABS 7 SimCloseF 8 SimCrowdF 9 SimObsABS 10}
+    # 
+    data $rrrr_name
+    read {GalPosX 1 GalPosY 2 GalRMS 3 GalMag 4 GalMagErr 5}
+    # 
+    data $rrrr_name"_converted_mag_to_flux.csv"
+    read {GalRA 6 GalDec 7 GalID 8 GalFlux 9 GalFErr 10 GalResABS 11 GalCrowdF 14}
+    # 
+    # SED exclude flag
+    if($imax==16) {
+        unset GalExc
+    }
+    if($imax==24 && 1==0) {
+        unset GalExc
+        set goodArea = (noi24 < 0.006)
+        set GalIGA = goodArea
+        foreach var {GalPosX GalPosY GalRMS GalMag GalMagErr GalRA GalDec GalID GalFlux GalFErr GalResABS GalCrowdF} {
+        set $var = $var if(GalIGA)
+        }
+        echo 
+        echo TODO: We have selected $(sum(GalIGA))/$(dimen(GalIGA)) objects in good area!
+        echo 
+    }
+    if($imax==100||$imax==160) {
+        data "SED_predictions_"$imax"_"$xdate"_vary.csv" read GalExc 4
+        data "RadioOwenMIPS24_priors_April18_2014.txt" read goodArea 25
+    }
+    if($imax==250||$imax==350||$imax==500||$imax==1160) {
+        data "SED_predictions_"$imax"_"$xdate".csv" read GalExc 4
+        data "RadioOwenMIPS24_priors_April18_2014.txt" read goodArea 25
+    }
+    if(is_vector(GalExc)) {
+        set GalIGA = goodArea if(GalExc==0)
+        set GalIGA2 = 0,$(dimen(GalPosX)-dimen(GalIGA)-1) set GalIGA2 = GalIGA2*0
+        set GalIGA = GalIGA concat GalIGA2 unset GalIGA2
+        foreach var {GalPosX GalPosY GalRMS GalMag GalMagErr GalRA GalDec GalID GalFlux GalFErr GalResABS GalCrowdF} {
+        set $var = $var if(GalIGA)
+        }
+        echo 
+        echo TODO: We have selected $(sum(GalIGA))/$(dimen(GalIGA)) objects in good area!
+        echo 
+        unset GalIGA
+        unset GalExc
+        unset goodArea
+    }
+    # 
+    chdir "../"
+    # 
+    if($imax==16||$imax==1160) { define iuJy 1 } else { define iuJy 1000 }
+    if($imax==24) { define iuJy 1e-3 }
+    if($imax==24) { set GalMag = GalMag - .2036 }
+    if($imax==24) { set SimM00 = SimM00 - .2036 }
+    if($imax==24) { set SimMag = SimMag - .2036 }
+    # 
+    ### set GalMagErr = GalMagErr>.05 ? GalMagErr : .05 ###<TODO>###
+    set GalFlux = 10**(-0.4*(GalMag))*$iuJy*$h_$imax/$m_$imax
+    set GalFErr = GalFlux*GalMagErr/1.08
+    set GalResABS = GalResABS ###<TODO><Corrected><20141121><DzLIU>### 
+    set SimResABS = SimResABS ###<TODO><Corrected><20141121><DzLIU>### 
+    if($imax!=350&&$imax!=24) { if(sum(GalCrowdF<=0)>0||sum(SimCrowdF<=0)>0) { define aaa ? }
+    set GalCrowdF = lg(GalCrowdF)   ###<TODO><Corrected><20141121><DzLIU>### 
+    }
+    set SimCrowdF = lg(SimCrowdF)   ###<TODO><Corrected><20141121><DzLIU>### 
+    # 
+    # 
+    define doCorrectEdf 1
+    set f$imax = GalFlux set df$imax = GalFErr set noi$imax = GalRMS set x$imax = GalPosX set y$imax = GalPosY
+    set fRes$imax = GalResABS set closeDis$imax = GalCrowdF
+    echo macro read goCorrectdf.sm correctdf
+         macro read goCorrectdf.sm correctdf
+                                   correctfbias
+                                   set GalFluxIsPositive = (GalFlux>$bias$imax)
+    set GalFErrUncorr = GalFErr   if(GalFluxIsPositive && GalMag<120 && GalPosX>0 && GalPosY>0)
+    set GalFErrCorrec = df$imax   if(GalFluxIsPositive && GalMag<120 && GalPosX>0 && GalPosY>0)
+    set GalFErr = df$imax         if(GalFluxIsPositive && GalMag<120 && GalPosX>0 && GalPosY>0)
+    set GalFlux = GalFlux         if(GalFluxIsPositive && GalMag<120 && GalPosX>0 && GalPosY>0)
+    set GalCrowdF = GalCrowdF     if(GalFluxIsPositive && GalMag<120 && GalPosX>0 && GalPosY>0)
+    set GalResABS = GalResABS     if(GalFluxIsPositive && GalMag<120 && GalPosX>0 && GalPosY>0)
+    set GalID = GalID             if(GalFluxIsPositive && GalMag<120 && GalPosX>0 && GalPosY>0)
+    
+    
+        print "temp_GalFErr.dat" {GalID GalMag GalMagErr GalFlux GalFErrUncorr GalFErrCorrec}
+    
+    
+    # 
+    # 
+    ### set SimMagErr = SimMagErr>.05 ? SimMagErr : .05 ###<TODO>###
+    set SimF000 = 10**(-0.4*SimM00)*$iuJy*$h_$imax/$m_$imax
+    set SimFlux = 10**(-0.4*SimMag)*$iuJy*$h_$imax/$m_$imax
+    set SimFErr = SimFlux*SimMagErr/1.08
+    # 
+    define doCorrectEdf 1
+    set f$imax = SimFlux set df$imax = SimFErr set noi$imax = SimRMS set x$imax = SimPosX set y$imax = SimPosY
+    set fRes$imax = SimResABS set closeDis$imax = SimCrowdF
+    echo macro read goCorrectdf.sm correctdf
+         macro read goCorrectdf.sm correctdf
+                                   correctsimLF
+                                 set SimCrowdLimit = 1e10 # -0.35
+    set SimFErrUncorr = SimFErr   if(SimMag<120 && SimSel==1 && SimCrowdF<SimCrowdLimit)
+    set SimFErrCorrec = df$imax   if(SimMag<120 && SimSel==1 && SimCrowdF<SimCrowdLimit)
+    set SimFErr = df$imax         if(SimMag<120 && SimSel==1 && SimCrowdF<SimCrowdLimit)
+    set SimM00  = SimM00          if(SimMag<120 && SimSel==1 && SimCrowdF<SimCrowdLimit)
+    set SimF000 = SimF000         if(SimMag<120 && SimSel==1 && SimCrowdF<SimCrowdLimit)
+    set SimFlux = SimFlux         if(SimMag<120 && SimSel==1 && SimCrowdF<SimCrowdLimit)
+    
+        echo 
+        echo TODO: We have selected $(sum(SimCrowdF<SimCrowdLimit))/$(dimen(SimCrowdF)) objects not too crowd!
+        echo 
+        
+        print "temp_SimFErr.dat" {SimMag SimMagErr SimFlux SimFErrUncorr SimFErrCorrec}
+    
+    set SimCrowdF = SimCrowdF     if(SimMag<120 && SimSel==1 && SimCrowdF<SimCrowdLimit)
+    
+    # 
+    # clean
+    unset aaFccF_Normalize unset aaSccS_Normalize unset aaDccD_Normalize
+    unset aaF unset ccF unset aaS unset ccS unset aaD unset ccD
+    # 
+    # calc median df
+    define GalMEdfUncorr $(sprintf('%0.3f',medianf(GalFErrUncorr)))
+    define GalMEdfCorrec $(sprintf('%0.3f',medianf(GalFErrCorrec)))
+    define SimMEdfUncorr $(sprintf('%0.3f',medianf(SimFErrUncorr)))
+    define SimMEdfCorrec $(sprintf('%0.3f',medianf(SimFErrCorrec)))
+    if($imax==24) {
+    define GalMEdfUncorr (sprintf('%0.3e',medianf(GalFErrUncorr)))
+    define GalMEdfCorrec (sprintf('%0.3e',medianf(GalFErrCorrec)))
+    define SimMEdfUncorr (sprintf('%0.3e',medianf(SimFErrUncorr)))
+    define SimMEdfCorrec (sprintf('%0.3e',medianf(SimFErrCorrec)))
+    }
+    # 
+    define TeX_strings 1
+    add_ctype craBlueX1 198 219 239
+    add_ctype craBlueX2 158 202 225
+    add_ctype craBlueX3 107 174 214
+    add_ctype craBlueX4 066 146 198
+    add_ctype craBlueX5 033 113 181
+    add_ctype craBlueX6 008 069 148
+    add_ctype craVertX1 229 245 224
+    add_ctype craVertX2 199 233 192
+    add_ctype craVertX3 161 217 155
+    add_ctype craVertX4 116 196 118
+    add_ctype craVertX5 065 171 093
+    add_ctype craVertX6 035 139 069
+    add_ctype craVertX7 000 090 050
+    add_ctype craRojoX1 254 224 210
+    add_ctype craRojoX2 252 187 161
+    add_ctype craRojoX3 252 146 114
+    add_ctype craRojoX4 251 106 074
+    add_ctype craRojoX5 239 059 044
+    add_ctype craRojoX6 203 024 029
+    add_ctype craRojoX7 153 000 013
+    add_ctype craOcreX1 255 245 235
+    add_ctype craOcreX2 254 230 206
+    add_ctype craOcreX3 253 208 162
+    add_ctype craOcreX4 253 174 107
+    add_ctype craOcreX5 253 141 060
+    add_ctype craOcreX6 241 105 019
+    add_ctype craOcreX7 217 072 001
+    add_ctype craOcreX8 140 045 004
+    # 
+    # 
+    if('$doPlotType'=='Flux') {
+        device postencap "analyze_dfGal_et_dfSim/histogram_of_f"$imax".eps"
+        erase expand 1.5 lweight 3.0
+        ctype default ylabel N
+        ctype default xlabel lg(f$imax)
+        get_hist_flux get_log_10(GalFlux) GalHX GalHF
+        get_hist_flux get_log_10(SimF000) S00HX S00HF
+        get_hist_flux get_log_10(SimFlux) SimHX SimHF
+        set AllHX = GalHX concat S00HX set AllHX = AllHX concat SimHX
+        set AllHF = GalHF concat S00HF set AllHF = AllHF concat SimHF
+        ctype default limits AllHX AllHF box
+        ctype craRojoX6 histogram GalHX GalHF
+        ctype craBlueX6 histogram S00HX S00HF
+        ctype craVertX6 histogram SimHX SimHF
+        relocate ( 05300 29000 )
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts imax = $imax
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts xdate = $xdate
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts N.cat = $(dimen(GalFlux))
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts N.sim = $(dimen(SimFlux))
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts normalized to sum 1.0
+        relocate ( 19000 29000 )
+        ctype craRojoX6 expand 0.10 puts " "
+        ctype craRojoX6 expand 1.01 puts Catalogue Objects\' Galfit $doPlotType
+        ctype craBlueX6 expand 0.10 puts " "
+        ctype craBlueX6 expand 1.01 puts Simulated Objects\' True $doPlotType
+        ctype craVertX6 expand 0.10 puts " "
+        ctype craVertX6 expand 1.01 puts Simulated Objects\' Galfit $doPlotType
+        device nodevice
+        #!open "analyze_dfGal_et_dfSim/histogram_of_f"$imax".eps"
+    }
+    # 
+    if('$doPlotType'=='FErr') {
+        device postencap "analyze_dfGal_et_dfSim/histogram_of_df"$imax".eps"
+        erase expand 1.5 lweight 3.0
+        ctype default ylabel N
+        ctype default xlabel lg(df$imax)
+        get_hist_flux get_log_10(GalFErrUncorr) GalUncorrHX GalUncorrHF
+        get_hist_flux get_log_10(GalFErrCorrec) GalCorrecHX GalCorrecHF
+        get_hist_flux get_log_10(SimFErrUncorr) SimUncorrHX SimUncorrHF
+        get_hist_flux get_log_10(SimFErrCorrec) SimCorrecHX SimCorrecHF
+        set AllHX = GalCorrecHX concat SimUncorrHX set AllHX = AllHX concat SimCorrecHX
+        set AllHF = GalCorrecHF concat SimUncorrHF set AllHF = AllHF concat SimCorrecHF
+        ctype default limits -1.5 2.25 AllHF box
+        ctype craOcreX6 histogram GalUncorrHX GalUncorrHF
+        ctype craRojoX6 histogram GalCorrecHX GalCorrecHF
+        ctype craBlueX6 histogram SimUncorrHX SimUncorrHF
+        ctype craVertX6 histogram SimCorrecHX SimCorrecHF
+        relocate ( 05300 29000 )
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts imax = $imax
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts xdate = $xdate
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts N.cat = $(dimen(GalFlux))
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts N.sim = $(dimen(SimFlux))
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts normalized to sum 1.0
+        relocate ( 18000 29000 )
+        ctype craOcreX6 expand 0.10 puts " "
+        ctype craOcreX6 expand 1.01 puts Catalogue objects\' uncorrect df
+        ctype craRojoX6 expand 0.10 puts " "
+        ctype craRojoX6 expand 1.01 puts Catalogue objects\' corrected df
+        ctype craBlueX6 expand 0.10 puts " "
+        ctype craBlueX6 expand 1.01 puts Simulated objects\' uncorrect df
+        ctype craVertX6 expand 0.10 puts " "
+        ctype craVertX6 expand 1.01 puts Simulated objects\' corrected df
+        device nodevice
+        #!open "analyze_dfGal_et_dfSim/histogram_of_df"$imax".eps"
+    }
+    # 
+    if('$doPlotType'=='SFDF' || '$doPlotType'=='CFDF') {
+        # scatter plot of df versus f
+        if('$doPlotType'=='SFDF') {
+        device postencap "analyze_dfGal_et_dfSim/scatter_of_sfdf"$imax".eps" }
+        if('$doPlotType'=='CFDF') {
+        device postencap "analyze_dfGal_et_dfSim/scatter_of_cfdf"$imax".eps" }
+        erase expand 1.5 lweight 3.0
+        location 3800 31000 3500 31000
+        ctype default ylabel lg(f$imax)
+        ctype default xlabel lg(df$imax)
+       #ctype default limits -1.75 2.25 -2.00 2.75 box
+        ctype default limits -1.75 3.75 -2.00 4.25
+        if($imax==24){limits -5.25 0.75 -5.00 1.25}
+        box
+        if('$doPlotType'=='SFDF') {
+        ctype craOcreX6 ptype 4 1 angle 45 expand 0.5 lweight 0.5 points (get_log_10(GalFErrUncorr)) (get_log_10(GalFlux)) }
+        if('$doPlotType'=='CFDF') {
+        ctype craRojoX6 ptype 4 1 angle 45 expand 0.5 lweight 0.5 points (get_log_10(GalFErrCorrec)) (get_log_10(GalFlux)) }
+        if('$doPlotType'=='SFDF') {
+        ctype craBlueX6 ptype 4 1 angle 00 expand 0.5 lweight 0.5 points (get_log_10(SimFErrUncorr)) (get_log_10(SimFlux)) }
+        if('$doPlotType'=='CFDF') {
+        ctype craVertX6 ptype 4 1 angle 00 expand 0.5 lweight 0.5 points (get_log_10(SimFErrCorrec)) (get_log_10(SimFlux)) }
+        ctype default   ptype 4 1 angle 00 expand 1.5 lweight 3.0
+        relocate ( 05300 29000 )
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts imax = $imax
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts xdate = $xdate
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts N.cat = $(dimen(GalFlux))
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts N.sim = $(dimen(SimFlux))
+        ctype default   expand 0.10 puts " "
+        ctype default   expand 1.01 puts normalized to sum 1.0
+        relocate ( 16000 29000 )
+        if('$doPlotType'=='SFDF') {
+        ctype craOcreX6 expand 0.10 puts " "
+        ctype craOcreX6 expand 0.75 puts Catalogue obj uncorrect df v.s. f (median df $GalMEdfUncorr) }
+        if('$doPlotType'=='CFDF') {
+        ctype craRojoX6 expand 0.10 puts " "
+        ctype craRojoX6 expand 0.75 puts Catalogue obj corrected df v.s. f (median df $GalMEdfCorrec) }
+        if('$doPlotType'=='SFDF') {
+        ctype craBlueX6 expand 0.10 puts " "
+        ctype craBlueX6 expand 0.75 puts Simulated obj uncorrect df v.s. f (median df $SimMEdfUncorr) }
+        if('$doPlotType'=='CFDF') {
+        ctype craVertX6 expand 0.10 puts " "
+        ctype craVertX6 expand 0.75 puts Simulated obj corrected df v.s. f (median df $SimMEdfCorrec) }
+        ctype default   expand 1.50 
+        # 
+        # <TODO> overplot histgram of df
+        define pref_gy2 $gy2
+        define pref_fy1 $fy1
+        define pref_fy2 $fy2
+        location $gx1 $gx2 $gy1 $($gy1+6000)
+        if('$doPlotType'=='SFDF') {
+        get_hist_flux get_log_10(GalFErrUncorr) GalUncorrHX GalUncorrHF
+        get_hist_flux get_log_10(SimFErrUncorr) SimUncorrHX SimUncorrHF
+        set AllHX = GalUncorrHX concat SimUncorrHX
+        set AllHF = GalUncorrHF concat SimUncorrHF
+        ctype default   limits $fx1 $fx2 AllHF # nobox
+        ctype craOcreX6 histogram GalUncorrHX GalUncorrHF
+        ctype craBlueX6 histogram SimUncorrHX SimUncorrHF
+        }
+        if('$doPlotType'=='CFDF') {
+        get_hist_flux get_log_10(GalFErrCorrec) GalCorrecHX GalCorrecHF
+        get_hist_flux get_log_10(SimFErrCorrec) SimCorrecHX SimCorrecHF
+        set AllHX = GalCorrecHX concat SimCorrecHX
+        set AllHF = GalCorrecHF concat SimCorrecHF
+        ctype default   limits $fx1 $fx2 AllHF # nobox
+        ctype craRojoX6 histogram GalCorrecHX GalCorrecHF
+        ctype craVertX6 histogram SimCorrecHX SimCorrecHF
+        }
+        define gy2 $pref_gy2
+        define fy1 $pref_fy1
+        define fy2 $pref_fy2
+        # 
+        # <TODO> overplot histgram of f
+        define pref_gx2 $gx2
+        define pref_fx1 $fx1
+        define pref_fx2 $fx2
+        location $gx1 $($gx1+6000) $gy1 $gy2
+        get_hist_flux get_log_10(GalFlux) GalHX GalHF
+        get_hist_flux get_log_10(SimF000) S00HX S00HF
+        get_hist_flux get_log_10(SimFlux) SimHX SimHF
+        set AllHX = GalHX concat S00HX set AllHX = AllHX concat SimHX
+        set AllHF = GalHF concat S00HF set AllHF = AllHF concat SimHF
+        ctype default   limits AllHF $fy1 $fy2 # nobox
+        if('$doPlotType'=='SFDF') {
+        ctype craOcreX6 angle 90 histogram angle GalHF GalHX }
+        if('$doPlotType'=='CFDF') {
+        ctype craRojoX6 angle 90 histogram angle GalHF GalHX }
+        ctype craBlueX6 angle 90 histogram angle S00HF S00HX
+        ctype craVertX6 angle 90 histogram angle SimHF SimHX
+        ctype default   angle 00
+        define gx2 $pref_gx2
+        define fx1 $pref_fx1
+        define fx2 $pref_fx2
+        # 
+        # <TODO> overplot histogram of Crowdness
+        define pref_gx1 $gx1
+        define pref_gx2 $gx2
+        define pref_gy1 $gy1
+        define pref_gy2 $gy2
+        define pref_fx1 $fx1
+        define pref_fx2 $fx2
+        define pref_fy1 $fy1
+        define pref_fy2 $fy2
+        location 22000 30500 6000 12000
+        get_hist_CrowdF GalCrowdF GalHX GalHF
+        get_hist_CrowdF SimCrowdF SimHX SimHF
+        set AllHX = GalHX concat (SimHX)
+        set AllHF = GalHF concat (SimHF*2.00)
+        ctype default limits AllHX AllHF expand 1.05 box 0 0 0 0
+        relocate ( 22500 11000 ) expand 1.10 puts Crowdness=lg(e^{-r^2})
+        expand 1.5
+        if('$doPlotType'=='SFDF') {
+        ctype craOcreX6 histogram GalHX GalHF }
+        if('$doPlotType'=='CFDF') {
+        ctype craRojoX6 histogram GalHX GalHF }
+        if('$doPlotType'=='SFDF') {
+        ctype craBlueX6 histogram SimHX SimHF }
+        if('$doPlotType'=='CFDF') {
+        ctype craVertX6 histogram SimHX SimHF }
+        define gx1 $pref_gx1
+        define gx2 $pref_gx2
+        define gy1 $pref_gy1
+        define gy2 $pref_gy2
+        define fx1 $pref_fx1
+        define fx2 $pref_fx2
+        define fy1 $pref_fy1
+        define fy2 $pref_fy2
+        # 
+        # 
+        device nodevice
+    }
+    # 
+
+
+
+
+
+correctfbias 00
+    if($imax==16||$imax==24||$imax==100||$imax==160||$imax==1160) {
+        set GalFlux = GalFlux + $bias$imax
+    }
+    if($imax==250) {
+        set TempSNR = GalFlux/GalFErr set GalFlux = GalMag<.5 ? GalFlux+1.0070*(GalFErr-1.524)+.725 : GalFlux
+                                                                              #(GalFErr-1.12)-0.175 : GalFlux
+                                      set GalFErr = GalMag<.5 ? GalFlux/TempSNR : GalFErr
+    }
+    if($imax==350) {
+        set TempSNR = GalFlux/GalFErr set GalFlux = GalMag<.5 ? GalFlux+0.3566*(GalFErr-1.778)-0.35 : GalFlux
+                                                                              #(GalFErr-0.93)-0.325 : GalFlux
+                                      set GalFErr = GalMag<.5 ? GalFlux/TempSNR : GalFErr
+    }
+    if($imax==500) {
+        set TempSNR = GalFlux/GalFErr set GalFlux = GalMag<.5 ? GalFlux+0.6620*(GalFErr-1.24)-0.000 : GalFlux
+                                                                              #(GalFErr-1.24)-0.000 : GalFlux
+                                                                              #(GalFErr-3.008)+0.69 : GalFlux 
+                                      set GalFErr = GalMag<.5 ? GalFlux/TempSNR : GalFErr
+    }
+
+
+
+correctsimLF
+    # 
+    # the luminosity (flux) function is flat for simulations, while is peak-like for real observations. 
+    # we will remove part of simulations
+    # 
+    set _correctflag = SimF000*0+1
+    set _correctflog = get_log_10(SimF000)
+    set _correctfuid = 0,dimen(SimF000)-1
+    unset _correctfbin
+    unset _correctfnum
+    if(1==0) {
+        if($imax==100) {
+            set _correctfbin = 0.0,0.8,0.02
+            set _correctfnum = ((_correctfbin-0.0)/(0.8-0.0))*0.7
+        }
+        if($imax==160) {
+            set _correctfbin = 0.3,1.0,0.02
+            set _correctfnum = ((_correctfbin-0.3)/(1.0-0.3))*0.7
+        }
+        if($imax==250) {
+            set _correctfbin = 0.6,1.2,0.02
+            set _correctfnum = ((_correctfbin-0.6)/(1.2-0.6))*0.7
+        }
+        if($imax==350) {
+            set _correctfbin = 1.1,1.5,0.02
+            set _correctfnum = ((_correctfbin-1.1)/(1.5-1.1))*0.9
+        }
+        if($imax==500) {
+            set _correctfbin = 1.1,1.6,0.02
+            set _correctfnum = ((_correctfbin-1.1)/(1.6-1.1))*0.9
+        }
+        if($imax==1160) {
+            set _correctfbin = 0.1,0.5,0.02
+            set _correctfnum = ((_correctfbin-0.1)/(0.5-0.1))*0.8
+        }
+    }
+    if(is_vector(_correctfbin)&&is_vector(_correctfnum)) {
+        do _correctfbid = 1,dimen(_correctfbin)-1 {
+            set _correctfsid = _correctfuid if(_correctflog>_correctfbin[$_correctfbid-1]&&_correctflog<=_correctfbin[$_correctfbid])
+            # now randomly select _correctfnum percent of 
+            set _correctfrid = random(_correctfnum[$_correctfbid]*dimen(_correctfsid)) * (dimen(_correctfsid)-1)
+            set _correctflag[_correctfsid[_correctfrid]] = -1
+        }
+    }
+    set SimSel = _correctflag
+    unset _correctflog
+    unset _correctflag
+    unset _correctfuid
+    unset _correctfsid
+    unset _correctfrid
+
+
+
+medianf 01
+    set _medianfVEC = $1
+    stats_med _medianfVEC _medianfMED _medianfSIQ
+    set $0 = $_medianfMED
+    return
+
+
+
+
+
+get_hist_flux 03
+    set _hf_VEC = $1
+    vecminmax _hf_VEC _hf_MIN _hf_MAX
+    define _hf_MIN -1.5 # $($_hf_MIN)
+    define _hf_MAX +3.0 # $($_hf_MAX)
+    if($imax==24) {
+    define _hf_MIN -4.5 # $($_hf_MIN)
+    define _hf_MAX +0.0 # $($_hf_MAX)
+    }
+    define _hf_BIN 0.075 # $(($_hf_MAX-$_hf_MIN)/35)
+    echo get_hist vec hx hf $_hf_MIN $_hf_MAX $_hf_BIN
+    get_hist _hf_VEC _hf_x _hf_y $_hf_MIN $_hf_MAX $_hf_BIN
+    set $2 = _hf_x
+    set $3 = _hf_y/dimen(_hf_VEC)
+    # ctype red  ptype 3 0 expand 1.25 points 
+    # ctype blue ptype 4 0 expand 1.25 points 
+
+
+
+
+
+get_hist_CrowdF 03
+    set _hf_VEC = $1
+    stats _hf_VEC _hf_MEAN _hf_SIGMA _hf_KURT
+    stats_med _hf_VEC _hf_MED _hf_SIQ
+    set _hf_SEC = _hf_VEC if(abs(_hf_VEC-$_hf_MED)<=5.0*$_hf_SIGMA)
+    vecminmax _hf_SEC _hf_MIN _hf_MAX
+    define _hf_BIN $(($_hf_MAX-$_hf_MIN)/60)
+    define _hf_MIN $($_hf_MIN+25*$_hf_BIN)
+    define _hf_MAX $($_hf_MAX+08*$_hf_BIN)
+    echo get_hist vec hx hf $_hf_MIN $_hf_MAX $_hf_BIN
+    get_hist _hf_VEC _hf_x _hf_y $_hf_MIN $_hf_MAX $_hf_BIN
+    set $2 = _hf_x
+    set $3 = _hf_y/dimen(_hf_VEC)
+
+
+
+
+get_log_10 01
+    # provide a safe way to do log10
+    set _log_10_vec = $1
+    set _log_10_uid = 0,dimen(_log_10_vec)-1
+    set _log_10_sid = _log_10_uid if(_log_10_vec>0)
+    set _log_10_new = _log_10_vec*0.0-99.0
+    set _log_10_new[_log_10_sid] = lg(_log_10_vec[_log_10_sid])
+    set $0 = _log_10_new
+    return
+
+
+
+

@@ -1,0 +1,17 @@
+[doing1160]
+
+sftp dliu@sappcb34
+cd /data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/doing1160/
+
+for (( i=0; i<=2000; i++ )); do rsync -vvWIrlze ssh $(printf 'box2014101500%04d' $i) sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/doing1160/; done
+
+for (( i=2000; i<=3000; i++ )); do rsync -vvWIrlze ssh $(printf 'box2014101500%04d' $i) sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/doing1160/; done
+
+for (( i=0; i<=3000; i++ )); do boxDir=$(printf 'box2014101500%04d' $i); if [[ -f $boxDir/fit.log ]]; then echo rm -r $boxDir; rm -r $boxDir; fi; done
+
+
+../do_GalsimRunqsub
+
+ls -al *20141015002924*
+cat runbox20141015002924.sh.e*
+

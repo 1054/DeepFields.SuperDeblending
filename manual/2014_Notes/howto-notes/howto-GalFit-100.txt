@@ -1,0 +1,296 @@
+# 0. Clean
+#
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North-3
+    rm aaa* 4* 123 do.* HSO_* summary_run null.fits tmp*.fits fit*.log* galfit.* 
+
+
+
+# 1. Run goFine.sm twice
+# 
+#   REQUIRE goFine.sm xSet_100   (Make sure correct file names are set)
+#   REQUIRE pgh_goodsn_green_Map_v1.0_sci_DL.fits
+#   REQUIRE pgh_goodsn_green_Map_v1.0_rms_DL.fits
+#   REQUIRE psf_goodsn_pacs100_1p2arcsec_v0_100622_cut.fits
+#   REQUIRE RadioOwenMIPS24_priors_March25_2014.txt
+#   
+#   use "RadioOwenMIPS24_priors_March25_2014.txt" as Prior Catalogue
+#   set "fix_astrometry=1" for first run
+#   set "use_prior_mags=0" for first run
+#   set "vary_positions=0" for first run
+#   output "results_XXX" "results_XXX.info" and "FIT_goodsn_XXX.fits"
+#   
+#   use "results_XXX" as Prior Magnitude
+#   set "fix_astrometry=1" for second run
+#   set "use_prior_mags=1" for second run
+#   set "vary_positions=1" for second run
+#   output "results_XXX_vary" "results_XXX_vary.info" and "FIT_goodsn_XXX_vary.fits"
+#   
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    sm
+sm> 
+    data RadioOwenMIPS24_priors_March25_2014.txt read {raF 2 deF 3}
+    ##### EDIT goFine.sm xSet_100
+    macro read goFine.sm xSet_100
+    define use_prior_mags 0
+    define vary_positions 0
+    define fix_astrometry 1
+    define make_residuals 0
+    define xdate <"20140415">
+    Fit_XXX
+    Rebuild_XXX
+sm> 
+    data RadioOwenMIPS24_priors_March25_2014.txt read {raF 2 deF 3}
+    data results_100_20140415 read { xm100 4 }
+    ##### EDIT goFine.sm xSet_100
+    macro read goFine.sm xSet_100
+    define use_prior_mags 1
+    define vary_positions 1
+    define fix_astrometry 1
+    define make_residuals 0
+    define xdate <"20140415">
+    Fit_XXX
+    Rebuild_XXX
+sm> 
+    !rm     fit*.log galfit.* aaa* do.* null.* HSO_* summary_run
+    !mkdir                                           FIT_100_20140415
+    !cp    "FIT_goodsn_100_Map_20140415*.fits"       FIT_100_20140415/
+    !cp    "results_100_20140415*"                   FIT_100_20140415/
+sm> quit
+
+
+
+# 2. Exclude sources
+# 
+#   REQUIRE "ResLMTfluxes_RadioOwen_priors_updated_16_100_160_250_350_500_UPD20140410.txt"   (THE OUTPUT OF AGN_N.sm AGNall)
+#   OUTPUT  "results_100_20140415_vary_Exclude"
+# 
+sm> 
+#     !mkdir    SED_100_20140415_Exclude
+#      cd       SED_100_20140415_Exclude/
+#     !ln -s    "../goFine.sm" "goFine.sm"
+#     !ln -s    "../goSimu.sm" "goSimu.sm"
+#     !ln -s    "../run_predict_flux.sm" "run_predict_flux.sm"
+#     !ln -s    "../results_100_20140415_vary" "results_100_20140415_vary"
+#     !ln -s    "../RadioOwenMIPS24_priors_March25_2014.txt" "RadioOwenMIPS24_priors_March25_2014.txt"
+#     ln -s    "../ResLMTfluxes_RadioOwen_priors_updated_16_100_160_250_350_500_UPD20140410.txt" "ResLMTfluxes_RadioOwen_priors_updated_16_100_160_250_350_500_UPD20140410.txt"
+    define    imax            100
+    define    xdate         <"20140415">
+    #define   imax_predict   "ResLMTfluxes_RadioOwen_priors_updated_16.txt"
+    define    imax_predict   "ResLMTfluxes_RadioOwen_priors_updated_16_100_160_250_350_500_UPD20140415.txt"
+    define    imax_exclude   "results_100_20140415_vary_Exclude"
+    macro     read            run_predict_flux.sm          run_predict_flux
+sm> 
+    !mkdir                                           SED_100_20140415_Exclude
+    !cp    "SED_predictions_*"                       SED_100_20140415_Exclude/
+    !cp    "results_100_20140415_vary"               SED_100_20140415_Exclude/
+    !cp    "results_100_20140415_vary_Exclude"       SED_100_20140415_Exclude/
+    !cp    "RadioOwenMIPS24_priors_March25_2014.txt" SED_100_20140415_Exclude/
+    !cp    "ResLMTfluxes_RadioOwen_priors_updated_16_100_160_250_350_500_UPD20140410.txt"  SED_160_20140415_Exclude/
+sm> quit
+
+
+
+# 3. Make residual map
+# 
+#   REQUIRE "results_100_20140415_vary_Exclude"
+#   OUTPUT  "FIT_goodsn_100_Map_20140415_vary_ExclModel.fits"
+#   
+#   set "make_residuals=1" when run Fit_XXX Rebuild_XXX
+#   
+sm> 
+    ##### data RadioOwenMIPS24_priors_March25_2014.txt read {raF 2 deF 3}
+    data results_100_20140415_vary_Exclude read {idF 1.s raF 2 deF 3 sed_flux 7 sed_err 8 xm100 9}
+    ##### EDIT goFine.sm xSet_100
+    macro read goFine.sm xSet_100
+    define use_prior_mags 1
+    define vary_positions 0
+    define fix_astrometry 1
+    define make_residuals 1
+    define xdate <"20140415_vary_ExclModel">
+    if($make_residuals) {define Xback 0}   ###<Added><20140402><EDaddi>### THIS IS IMPORTANT !!!
+    Fit_XXX
+    Rebuild_XXX
+    print '%10g %15g %15g %15g %15g %15g\n' {idF raF deF xm100 sed_flux sed_err }
+sm> 
+    !rm     fit*.log galfit.* aaa* do.* null.* HSO_* summary_run
+    !mkdir                                                          FIT_100_20140415_ExclModel
+    !cp    "FIT_goodsn_100_Map_20140415_vary_ExclModel*.fits"       FIT_100_20140415_ExclModel/
+    !cp    "results_100_20140415_vary_ExclModel*"                   FIT_100_20140415_ExclModel/
+    !cp    "SED_predictions_100_20140415_vary.csv"                  FIT_100_20140415_ExclModel/
+sm> quit
+
+
+
+# 4. Extract residual map
+# 
+# 
+cl> 
+    imdel    pgh_goodsn_green_Map_v1.0_sci_subfaintDL.fits
+    imcopy   FIT_goodsn_100_Map_20140415_vary_ExclModel.fits[2]    pgh_goodsn_green_Map_v1.0_sci_subfaintDL.fits
+cl> logout
+    edhead   pgh_goodsn_green_Map_v1.0_sci_subfaintDL.fits
+HISTORY   
+HISTORY   2014-04-15
+HISTORY   Subtracted 295 sources that are predicted to be very faint at 100um. 
+HISTORY   When subtracting these sources, Xback = 0, and prior magnitude from 
+HISTORY   results_100_20140415_vary_Exclude
+HISTORY   
+# HISTORY   
+# HISTORY   2014-04-03
+# HISTORY   Subtracted 217 sources that are predicted to be very faint at 100um. 
+# HISTORY   When subtracting these sources, Xback = 0, and prior magnitude from 
+# HISTORY   results_100_20140402_vary_Exclude
+# HISTORY   
+
+
+
+# X. Goto goSimu.sm xsimu
+# 
+# 
+sm> 
+    define imax      100
+    define xdate   <"20140415">
+    macro read run_stat_flux_error.sm run_stat_flux_error
+sm> 
+    !mkdir SIM_100_20140417_ExclNewMap
+    cd     SIM_100_20140417_ExclNewMap
+    !ln -s ../pgh_goodsn_green_Map_v1.0_sci_subfaintDL.fits pgh_goodsn_green_Map_v1.0_sci_subfaintDL.fits
+    !ln -s ../pgh_goodsn_green_Map_v1.0_rms_DL.fits pgh_goodsn_green_Map_v1.0_rms_DL.fits
+    #!ln -s ../psf_goodsn_pacs100_1p2arcsec_v0_100622_cut.fits psf_goodsn_pacs100_1p2arcsec_v0_100622_cut.fits
+    !ln -s ../pgh_goodsn_green_Psf_v1.0.fits pgh_goodsn_green_Psf_v1.0.fits
+    #!ln -s ../results_100_20140415_vary results_100_20140415_vary
+    !ln -s ../goFine.sm goFine.sm
+    !ln -s ../goSimu.sm goSimu.sm
+    data "../RadioOwenMIPS24_priors_March25_2014.txt" read {raF 2 deF 3}
+    define Nsimu     6000
+    define mag0      5.0
+    define mag1      10.0
+    define g_buff    24
+    define f_buff    1
+    macro read goFine.sm xSet_100
+    define imax        100
+    define imax_name  "pgh_goodsn_green_Map_v1.0_sci_subfaintDL"
+    #define xdate     <"20140417"> ### USE FULL LIST RATHER THAN EXCLUDE LIST
+    define use_prior_mags 0 ### use_prior_mags and vary_positions are irrelevant to SimuX. 
+    define vary_positions 0 ### When set vary_positions=1, macro will automatically set use_prior_mags=1, and use xm$imax from results_imax_xdate. 
+    define fix_astrometry 1
+    define make_residuals 0
+    macro read goSimu.sm goSS
+    macro read goSimu.sm SimuX
+sm> 
+    !pwd SIM_100_20140417_ExclNewMap
+    macro read "../run_simu_bin_range.sm" run_simu_bin_range 100
+sm> quit
+
+
+
+# X. Correct bias100 in goSimu.sm R_MIPS100
+#   
+#   
+
+
+
+# 5. Run goFine.sm twice      <NEED TO EXCLUDE SOURCES>
+# 
+#   REQUIRE goFine.sm xSet_100   (Make sure correct file names are set)
+#   REQUIRE pgh_goodsn_green_Map_v1.0_sci_subfaintDL_New_But_Todo.fits
+#   REQUIRE pgh_goodsn_green_Map_v1.0_rms_DL.fits
+#   REQUIRE psf_goodsn_pacs100_1p2arcsec_v0_100622_cut.fits
+#   REQUIRE RadioOwenMIPS24_priors_March25_2014.txt
+#   REQUIRE SED_predictions_100_20140402_vary.csv   (The output of AGN_N.sm and run_predict_flux.sm)
+#   
+#   use "RadioOwenMIPS24_priors_March25_2014.txt" as Prior Catalogue
+#   set "fix_astrometry=1" for first run
+#   set "use_prior_mags=0" for first run
+#   set "vary_positions=0" for first run
+#   output "results_XXX" "results_XXX.info" and "FIT_goodsn_XXX.fits"
+#   
+#   use "results_XXX" as Prior Magnitude
+#   set "fix_astrometry=1" for second run
+#   set "use_prior_mags=1" for second run
+#   set "vary_positions=1" for second run
+#   output "results_XXX_vary" "results_XXX_vary.info" and "FIT_goodsn_XXX_vary.fits"
+#   
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    sm
+sm> 
+    data RadioOwenMIPS24_priors_March25_2014.txt read {idF 1.s raF 2 deF 3}
+    ##### EXCLUDE
+    data SED_predictions_100_20140415_vary.csv read {flagExclude 4}
+    set idF = idF if(flagExclude==0)
+    set raF = raF if(flagExclude==0)
+    set deF = deF if(flagExclude==0)
+    ##### EDIT goFine.sm xSet_100
+    macro read goFine.sm xSet_100
+    ##### EDIT goSimu.sm FixAstrometry for NewMap
+    define imax_name "pgh_goodsn_green_Map_v1.0_sci_subfaintDL"
+    ######
+    define use_prior_mags 0
+    define vary_positions 0
+    define fix_astrometry 1
+    define make_residuals 0
+    define xdate <"20140417_ExclNewMap">
+    Fit_XXX
+    Rebuild_XXX
+sm> 
+    data RadioOwenMIPS24_priors_March25_2014.txt read {idF 1.s raF 2 deF 3}
+    data results_100_20140417_ExclNewMap read { xm100 4 } ### THIS IS ALREADY EXCL
+    ##### EXCLUDE
+    data SED_predictions_100_20140415_vary.csv read {flagExclude 4}
+    set idF = idF if(flagExclude==0)
+    set raF = raF if(flagExclude==0)
+    set deF = deF if(flagExclude==0)
+    ##### EDIT goFine.sm xSet_100
+    macro read goFine.sm xSet_100
+    define use_prior_mags 1
+    define vary_positions 1
+    define fix_astrometry 1
+    define make_residuals 0
+    define xdate <"20140417_ExclNewMap">
+    Fit_XXX
+    Rebuild_XXX
+sm> 
+    !rm     fit*.log galfit.* aaa* do.* null.* HSO_* summary_run
+    !mkdir                                                     "FIT_100_20140417_ExclNewMap"
+    !cp    "FIT_goodsn_100_Map_20140417_ExclNewMap*.fits"      "FIT_100_20140417_ExclNewMap/"
+    !cp    "results_100_20140417_ExclNewMap*"                  "FIT_100_20140417_ExclNewMap/"
+    !cp    "results_100_20140415_vary_Exclude"                 "FIT_100_20140417_ExclNewMap/"
+    !cp    "SED_predictions_100_20140415_vary.csv"             "FIT_100_20140417_ExclNewMap/"
+sm> quit
+    
+
+
+
+# 6. Correct error and update data
+# 
+#   REQUIRES RadioOwen_priors_updated_16.txt
+#   REQUIRES xsimuGH_RAD_SPInewX2_100_dfcorr.csv
+#   REQUIRES results_100_20140403_ExclNewMap_vary
+#   REQUIRES results_100_20140402_vary_Exclude
+#   OUTPUT   RadioOwen_priors_updated_16_100_UPD20140403.txt
+# 
+sm> 
+    !mkdir UPD_100_20140417_ExclNewMap
+    cd     UPD_100_20140417_ExclNewMap/
+    !ln -s "../goFine.sm" "goFine.sm"
+    !ln -s "../default.sm" "default.sm"
+    !ln -s "../run_update_owen.sm" "run_update_owen.sm"
+    !ln -s ../SED_100_20140415_Exclude/results_100_20140415_vary_Exclude results_100_20140415_vary_Exclude
+    !ln -s ../FIT_100_20140417_ExclNewMap/results_100_20140417_ExclNewMap_vary results_100_20140417_ExclNewMap_vary
+    !ln -s ../SIM_100_20140417_ExclNewMap/xsimuGH_RAD_SPInewX2_100_dfcorr.csv xsimuGH_RAD_SPInewX2_100_dfcorr.csv
+    !cp    ../RadioOwen_priors_updated_16_100_160_250_350_500_UPD20140415.txt RadioOwen_priors_updated_16_100_160_250_350_500_UPD20140415.txt
+    define imax           100
+    define xdate        <"20140417_ExclNewMap">
+    define imax_priors   "RadioOwen_priors_updated_16_100_160_250_350_500_UPD20140417.txt"
+    define imax_update   "RadioOwen_priors_updated_16_100_160_250_350_500_UPD20140417B.txt"
+    define imax_exclude  "results_100_20140415_vary_Exclude"
+    data   "xsimuGH_RAD_SPInewX2_100_dfcorr.csv"   read { aaF 1 ccF 2 }
+    
+    # 20140403
+    # define imax_priors   "RadioOwen_priors_updated_16.txt"
+    # define imax_update   "RadioOwen_priors_updated_16_100_UPD20140403.txt"
+    # define imax_exclude  "results_100_20140402_vary_Exclude"
+    # data   "xsimuGH_RAD_SPInewX2_100_dfcorr.csv"   read { aaF 1 ccF 2 }
+    
+    macro  read  "run_update_owen.sm"   run_update_owen
+sm> quit

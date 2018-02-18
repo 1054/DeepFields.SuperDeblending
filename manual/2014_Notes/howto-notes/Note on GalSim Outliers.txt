@@ -1,0 +1,15 @@
+On 16um, local galaxies which are not in our prior catalog can affect our simulation. 
+
+how to check the sim obj?    
+    cd doing16
+    grep -n 2.051377 xsimuGH_RAD_SPInewX2_500.dat
+    grep -n 2.051377 summary_sim | cut -f 1 -d ":" | while read VAR4; do expr $VAR4 - 3; done | while read VAR5; do echo ds9mfc fit$VAR5.fits; done
+    grep -n 2.051377 summary_sim | tr -s ' ' | cut -d ' ' -f 2,3 | while read VAR4; do echo xpaset -p GNSkyMap pan to $VAR4 fk5; done
+    
+
+some interesting/problematic cases: 
+    xpaset -p GNSkyMap pan to 189.0867685 62.2717491 fk5 # two local galaxies not in our prior catalog
+    xpaset -p GNSkyMap pan to 189.5158640 62.2860497 fk5 # Xm=1.120788 # a large extended local elliptical galaxy
+    xpaset -p GNSkyMap pan to 189.0129360 62.1864674 fk5 # Xm=0.8986588 # too close to a bright source ID14289
+    
+    

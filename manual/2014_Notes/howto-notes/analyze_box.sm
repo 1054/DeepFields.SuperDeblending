@@ -1,0 +1,71 @@
+analyze_box
+    # 
+    #    macro read analyze_box.sm analyze_box
+    # 
+    define imax 24
+    chdir "doing"$imax
+    if(is_file("summary_run")) {
+          data "summary_run" read {boxId 1 boxNc 2}
+         read {boxSx1 3 boxSx2 4 boxSy1 5 boxSy2 6}
+        read {boxLx1 7 boxLx2 8 boxLy1 9 boxLy2 10}
+    }
+    set boxCx = 0.5*(boxSx1+boxSx2)
+    set boxCy = 0.5*(boxSy1+boxSy2)
+    set boxSx = 1.0*(boxSx2-boxSx1)
+    set boxSy = 1.0*(boxSy2-boxSy1)
+    set boxLx = 1.0*(boxLx2-boxLx1)
+    set boxLy = 1.0*(boxLy2-boxLy1)
+    box2ds9reg boxCx boxCy boxSx boxSy boxId "ds9."$imax".boxgalfit.image.reg"
+    echo Output to "ds9."$imax".boxgalfit.image.reg"
+    !open "ds9."$imax".boxgalfit.image.reg"
+    chdir ".."
+    # done
+
+
+
+
+box2ds9reg 06
+            # 
+            # Input: ra dec radius id output
+            # Notes: ra, dec are in degree unit, radius is in arcsec unit.
+            #        if id is -1 then no id will be print. 
+            # 
+            if($?6==0) {
+                echo Usage: 
+                echo     box2ds9reg ra dec radx rady -1 ds9.output.fk5.reg
+                return
+            }
+            print  $6 '\# Region file format: DS9 version 4.1\n' {}
+            print +$6 'global color=green dashlist=8 3 width=1 font=\"helvetica 7 normal roman\" ' {} 
+            print +$6 'select=1 highlite=1 dash=0 fixed=0 edit=1 move=0 delete=1 include=1 source=1\n' {}
+            print +$6 'image\n' {}
+            onMute
+            set _box2ds9reg_r1 = $1
+            set _box2ds9reg_r2 = $2
+            if(dimen($3)==dimen($1)) { set _box2ds9reg_r3 = $3 } else { set _box2ds9reg_r3 = $1*0.0+100.0 }
+            if(dimen($4)==dimen($1)) { set _box2ds9reg_r4 = $4 } else { set _box2ds9reg_r4 = $1*0.0+100.0 }
+            if(dimen($5)==dimen($1)) { set _box2ds9reg_r5 = $5 } else { unset _box2ds9reg_r5 }
+            if(is_vector(_box2ds9reg_r5)) {
+            print +$6 'box(%0.3f,%0.3f,%0.3f,%0.3f,0) \# text={ID%0.0f}\n' \
+               {_box2ds9reg_r1 _box2ds9reg_r2 _box2ds9reg_r3 _box2ds9reg_r4 _box2ds9reg_r5}
+            } else {
+            print +$6 'box(%0.3f,%0.3f,%0.3f,%0.3f,0)\n' \
+               {_box2ds9reg_r1 _box2ds9reg_r2 _box2ds9reg_r3 _box2ds9reg_r4}
+            }
+            unMute
+
+
+
+
+
+onMute 00
+            #
+            if($?print_noheader) { define pref_noheader $print_noheader } else { define pref_noheader 0 } define print_noheader 1
+            if($?verbose) { define pref_verbose $verbose } else { define pref_verbose 1 } verbose 0
+
+
+
+unMute 00
+            #
+            if($?pref_noheader) { define print_noheader $pref_noheader undef pref_noheader }
+            if($?pref_verbose) { verbose $pref_verbose undef pref_verbose }

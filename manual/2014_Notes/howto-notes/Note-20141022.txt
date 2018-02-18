@@ -1,0 +1,55 @@
+[doing100]
+
+mkdir backup20141022A
+cp xsimu* xprior* do_*.smlog summary_sim* backup20141022A
+
+mkdir backup20141022B
+find . -maxdepth 1 -name "fit*.fits" -print0 | xargs -0 -J % mv % backup20141022B
+find . -maxdepth 1 -name "fit*.input" -print0 | xargs -0 -J % mv % backup20141022B
+find . -maxdepth 1 -name "fit*.stdout" -print0 | xargs -0 -J % mv % backup20141022B
+
+ln -s ../goSimuCheckSimFits.sm
+sm 
+macro read goSimuCheckSimFits.sm goCheckSimSummary
+
+edit goSimu.sm
+define doRedoGalsim 1
+set ii_s = ii_s if(Xck_==0) ......
+./do_Galsim 100 201408 -vary -mag0 6.0 -mag1 9.0 -fitsname pgh_goodsn_green_Map_v1.0_sci_subfaintDL
+./do_Galsim 100 201408 -vary -mag0 6.0 -mag1 9.0 -fitsname pgh_goodsn_green_Map_v1.0_sci_subfaintDL -fakedetection
+edit xsimu*.dat backup20141022A/xsimu*.dat
+
+./do100_Step7_Statistics_201408
+
+ln -s ../goSimuFakeDetection.sm
+sm
+macro read goSimuFakeDetection.sm goReadFakeDetection
+
+
+
+[doing160]
+cd doing160
+../do_PackGalsim
+scp ../sim_pack_160.7z sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/
+AT PREC5600
+cd doing160
+7z x ../sim_pack_160.7z
+./do_Galsim 160 201408 -vary -mag0 5.5 -mag1 8.2 -fitsname pgh_goodsn_red_Map_v1.0_sci_subfaintDL
+
+
+
+
+
+[SkyMap]
+
+cd GalFit
+
+rsync -vIrlze ssh --include="doing16/" --include="FIT_goodsn_*.fits" --exclude='*' --dry-run /Users/dliu/Working/2014-CEA/Tool/Level_3_SciData/GalFit/ sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/
+
+rsync -vIrlze ssh --include="doing16/" --include="FIT_goodsn_*.fits" --include="ds9.*.reg" --exclude='*' ./ sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/
+rsync -vIrlze ssh --include="doing100/" --include="FIT_goodsn_*.fits" --include="ds9.*.reg" --exclude='*' ./ sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/
+rsync -vIrlze ssh --include="doing160/" --include="FIT_goodsn_*.fits" --include="ds9.*.reg" --exclude='*' ./ sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/
+rsync -vIrlze ssh --include="doing250/" --include="FIT_goodsn_*.fits" --include="ds9.*.reg" --exclude='*' ./ sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/
+rsync -vIrlze ssh --include="doing350/" --include="FIT_goodsn_*.fits" --include="ds9.*.reg" --exclude='*' ./ sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/
+rsync -vIrlze ssh --include="doing500/" --include="FIT_goodsn_*.fits" --include="ds9.*.reg" --exclude='*' ./ sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/
+

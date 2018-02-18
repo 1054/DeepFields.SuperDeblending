@@ -1,0 +1,36 @@
+go
+    # 
+    # macro read Correlating_Outlier_Positions_at_All_Bands.sm go
+    # 
+    set bands = {16 100 160 250 350 500}
+    unset ralist
+    unset delist
+    unset cklist
+    unset bdlist
+    unset Xmlist
+    foreach imax bands {
+        data "../../GalFit/doing"$imax"/aaa_Sim_3Sigma_Outliers.txt"
+        read <ra$imax 1 de$imax 2 px$imax 3 py$imax 4 Xm$imax 5>
+        set bd$imax = ra$imax*0+$imax
+        set ck$imax = ra$imax*0+0
+        if(!is_vector(ralist)) {set ralist=ra$imax} else {set ralist=ralist concat ra$imax}
+        if(!is_vector(delist)) {set delist=de$imax} else {set delist=delist concat de$imax}
+        if(!is_vector(bdlist)) {set bdlist=bd$imax} else {set bdlist=bdlist concat bd$imax}
+        if(!is_vector(cklist)) {set cklist=ck$imax} else {set cklist=cklist concat ck$imax}
+        if(!is_vector(Xmlist)) {set Xmlist=Xm$imax} else {set Xmlist=Xmlist concat Xm$imax}
+    }
+    
+    set rLimit = 4.0 # arcsec
+    do i=0,dimen(ralist)-1 {
+        foreach imax bands {
+            set rsq = ((ra$imax-ralist[$i])*COS(delist[$i]/180.0*pi))**2 + (de$imax-delist[$i])**2
+            set rsq = sqrt(rsq)*3600.0
+            set cklist[$i] = cklist[$i] + (sum(rsq<=rLimit)>0)
+        }
+    }
+    
+    set sortlist = cklist*20000.0 + delist*(cklist-1.0)
+    sort {sortlist ralist delist bdlist cklist Xmlist}
+    foreach  var  {ralist delist bdlist cklist Xmlist} {set $var = reverse($var)}
+    print "Correlating_Outlier_Positions_at_All_Bands.txt" '%15.7f %15.7f %10.0f %10.0f %12g\n' {ralist delist bdlist cklist Xmlist}
+    print 'xpaset -p GNSkyMap pan to %0.7f %0.7f fk5\n'{ralist delist}

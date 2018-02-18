@@ -1,0 +1,44 @@
+[doing1160]
+
+ssh hubble
+
+cd GOODS-North/doing1160
+
+for (( i=0; i<=6587; i++ )); do boxDir=$(printf 'box2014101500%04d' $i); if [[ -f $boxDir/fit.log ]]; then echo rsync $boxDir ...; rsync -vvWIrlze ssh $boxDir sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/doing1160/; fi; done
+
+for (( i=0; i<=6587; i++ )); do boxDir=$(printf 'box2014101500%04d' $i); if [[ -f $boxDir/fit.log ]]; then echo rm -r $boxDir; rm -r $boxDir; fi; done
+
+ls -al *20141015006218*
+ls -al *20141015006219*
+
+../do_GalsimRunqsub
+
+<TODO> boxfaked
+
+
+
+
+[doing160]
+
+sftp copy doing160 xsimu*
+
+do160_Step7_Statistics
+
+edit goSimuFakeDetection.sm dfCorrection
+
+sm
+macro read goSimuFakeDetection.sm goReadFakeDetection
+
+
+
+
+[GalSimFakeDetection]
+found several fake detections … hard to distinguish …
+see /Users/dliu/Working/2014-CEA/Tool/Level_3_SciData/GalSim/Combined_GalSim_FakeDetection
+
+
+
+
+
+
+

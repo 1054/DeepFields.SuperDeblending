@@ -1,0 +1,33 @@
+[doing1160]
+
+copy from hubble to sappcb34
+
+cd ~/GOODS-North/doing1160/
+
+rsync -vIrlze ssh --include="*/" --include="boxfaked20141015005*/*" --exclude='*' --dry-run --prune-empty-dirs . sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/doing1160/
+
+rsync -vIrlze ssh --include="*/" --include="boxfaked20141015005*/*" --exclude='*' --prune-empty-dirs . sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/doing1160/
+
+rsync -vIrlze ssh --include="*/" --include="boxfaked20141015006*/*" --exclude='*' --prune-empty-dirs . sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/doing1160/
+
+for (( i=5000; i<=6800; i++ )); do boxDir=$(printf 'boxfaked2014101500%04d' $i); if [[ -f $boxDir/fit.log ]]; then echo rm -r $boxDir; rm -r $boxDir; fi; done
+
+
+copy from sappcb34 doing1160 to hubble 
+
+cd /data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/doing1160/
+
+rsync -vIrlze ssh --include="*/" --include="boxfaked20141015004*/*" --include="runboxfaked20141015004*.sh"  --exclude='*' --dry-run --prune-empty-dirs . hubble.extra.cea.fr:~/GOODS-North/doing1160/
+
+rsync -vIrlze ssh --include="*/" --include="boxfaked20141015004*/*" --include="runboxfaked20141015004*.sh"  --exclude='*' --prune-empty-dirs . hubble.extra.cea.fr:~/GOODS-North/doing1160/
+
+cd ..
+
+../do_GalsimRunqsub
+
+<TODO> boxfaked
+
+
+
+
+

@@ -1,0 +1,41 @@
+After we run the simulations, we got
+    xsimuGH_RAD_SPInewX2_100.dat
+    xsimuGH_RAD_SPInewX2_100.log
+    summary_sim
+and a lot of 
+    fit*.fits
+    fit*.log
+
+
+Then we can analyze each simu objects 
+
+e.g. we found that a 5-sigma outlier which has a simulated magnitude of "8.100342"
+then
+    cd doing100
+    cat xsimuGH_RAD_SPInewX2_100.dat | grep -n "8.100342"
+
+we got the line number "495:", so the "fit*.fits" is "494"
+    ds9mfc fit494.fits
+
+and we want to get its ra dec
+then
+    cat summary_sim | grep "8.100342"
+
+the first two numbers are ra and dec
+then
+    xpaset -p GNSkyMap pan to ra dec fk5
+
+
+
+
+
+
+
+
+
+
+for i in 16 100 160 250 350 500; do cp doing$i/aaa_Sim_Analyze_Results.txt ../GalSim/"Analysis of Correcting df"$i".txt"; done
+
+for i in 16 100 160 250 350 500; do cp doing$i/aaaEdfHistogram.eps ../GalSim/"Analysis of Correcting df"$i" Step123 Corrected Histogram.eps"; done
+
+    

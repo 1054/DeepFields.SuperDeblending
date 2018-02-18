@@ -1,0 +1,150 @@
+# 2014-03-15
+
+# use xy2sky to convert xy to ra dec
+  xy2sky FIT_goodsn_16_Map_20140310_vary.fits 462.25 1252.76
+
+# use xy2sky to convert xy to ra dec and store into a result file
+  xy2sky  -d  FIT_goodsn_16_Map_20140310_vary.fits  @$ResultFileName  >  $RADecFileName
+  (note that -d means using degree units, @XXX is the output file, >YYY means redirect stdout to YYY log file.)
+
+# use idl program radec2degree to convert radec to degree
+  idl -e "radec2degree, '12:37:21.877 +62:23:48.55', /print"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-N
+
+sm
+
+    data RadioOwenMIPS24_priors_March7_2014.txt read {id 1 ra 2 de 3 f24 5 df24 6}
+         ### print '%-5i %15.7f %15.7f %10.2f %10.2f\n' {id ra de f24 df24}
+         ### echo Dimension of ra,dec is $(dimen(ra)).
+    
+    set idI = 1, dimen(ra)
+    set raF = ra
+    set deF = de
+
+    macro read goFine2.sm xFit_24
+
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-N
+
+sm> quit
+
+
+
+
+
+
+
+
+
+
+
+cd /Users/dliu/Working/2014-CEA/Tool/Level_3_SciData/ClumpyFinder
+
+sm
+
+sm> cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-N
+
+### xSet_24
+
+sm> macro read goFine.sm xSet_24
+    ##### define imax 24
+    ##### define imax_name, imax_name_rms, imax_name_psf, psf_resampl, xdate
+    ##### define mag_toofaint, mag_noise, mag_start, xback
+    ##### define use_prior_mags 1
+    ##### define f_buffer 1
+    ##### define g_buffer 20
+    ##### define xstep 25
+    ##### define ystep 25
+
+### xFit_24
+
+sm> data irac_mips_fluxes_hdfn.dat read {raF 1 deF 2 xf24 17}
+
+sm> set xcoo = xf24>300
+
+sm> set xm24 = -2.5*lg((xf24+.01)/6.691)
+    ### convert flux xf24 to magnitude xm24
+
+sm> foreach var {raF deF xf24 xm24} {set $var = $var if(xcoo)}
+    ####### exclude ids that have xcoo!=1 (?)
+
+### Fit_XXX
+
+sm> macro read goFine.sm xdo_sizes   ### <TODO> need dfits <TODO> ###
+    ##### define imax_xsize 1170
+    ##### define imax_ysize 1200
+
+sm> macro read goSimu.sm gPriors    ### <TODO> need sky2xy <TODO> ###
+    ##### convert WCS raF,deF to pixel x24,y24
+    ##### fix astrometry
+
+sm> macro read goSimu.sm noise_XXX   ### <TODO> need imstat <TODO> ###
+    ##### use IRAF tool imstat to calculate the RMS of each source with image RMS.fits
+    ##### x1=int(x0)-1, x2=int(x0)+1, y1=int(y0)-1, y2=int(y0)+1
+
+sm> if($use_prior_mags) {set m$imax=xm$imax} else {set m$imax=x$imax*0+$mag_start}
+
+sm> vecminmax y$imax min max
+sm> set y_pos = 0,$max+$ystep, $ystep
+sm> set y_pos = y_pos>=1 ? y_pos : 1
+sm> set y_pos = y_pos<=$imax_ysize ? y_pos : $imax_ysize
+sm> vecminmax x$imax min max
+sm> set x_pos = 0,$max+$xstep, $xstep
+sm> set x_pos = x_pos>=1 ? x_pos : 1
+sm> set x_pos = x_pos<=$imax_xsize ? x_pos : $imax_xsize
+
+sm> set Lx1 = x_pos-$f_buff-$g_buff 
+sm> set Lx1 = Lx1>=1 ? Lx1 : 1 
+sm> set Lx1 = Lx1<=$imax_xsize ? Lx1 : $imax_xsize
+sm> set Lx2 = x_pos+$f_buff+$g_buff 
+sm> set Lx2 = Lx2>=1 ? Lx2 : 1 
+sm> set Lx2 = Lx2<=$imax_xsize ? Lx2 : $imax_xsize
+sm> set Ly1 = y_pos-$f_buff-$g_buff 
+sm> set Ly1 = Ly1>=1 ? Ly1 : 1 
+sm> set Ly1 = Ly1<=$imax_ysize ? Ly1 : $imax_ysize
+sm> set Ly2 = y_pos+$f_buff+$g_buff 
+sm> set Ly2 = Ly2>=1 ? Ly2 : 1 
+sm> set Ly2 = Ly2<=$imax_ysize ? Ly2 : $imax_ysize
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+galfit input file HSO_24.INPUT:
+    A) image.fits
+    B) tmp.fits
+    C) RMS.fits
+    D) PSF.fits
+    E) psf_resampl
+    F) none
+    G) CONSTRAINTS file HSO_24.CONSTRAINTS
+    H) x1 x2 y1 y2
+
+cd /Users/dliu/Working/2014-CEA/Tool/Level_3_SciData/ClumpyFinder
+
+cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-N
+
+galfit HSO_24.INPUT
+

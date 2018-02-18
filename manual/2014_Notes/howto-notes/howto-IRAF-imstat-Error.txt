@@ -1,0 +1,9 @@
+vocl> imstat
+ERROR: IRAF Main: command syntax error
+
+rm $HOME/.iraf/uparm/imlimstas.par
+
+
+
+
+=> seems that we can not run multiple IRAF at the same time !!!

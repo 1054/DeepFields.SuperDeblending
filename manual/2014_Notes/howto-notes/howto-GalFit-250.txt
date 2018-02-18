@@ -1,0 +1,350 @@
+# 0. Clean
+#
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North-Do250
+    rm aaa* 4* 123 do.* HSO_* summary_run null.fits tmp*.fits fit*.log* galfit.* 
+
+
+
+# 1. Run goFine.sm once
+# 
+#   REQUIRE goFine.sm xSet_250   (Make sure correct file names are set)
+#   REQUIRE spire250_ima_3p6_v0_100615.fits
+#   REQUIRE spire250_rms_3p6_v0_100615.fits
+#   REQUIRE psf_goodsn_spire250_3p6arcsec_v0_100622.fits
+#   REQUIRE RadioOwenMIPS24_priors_March25_2014.txt
+#   
+#   use "RadioOwenMIPS24_priors_March25_2014.txt" as Prior Catalogue
+#   set "fix_astrometry=1" for first run
+#   set "use_prior_mags=0" for first run
+#   set "vary_positions=0" for first run
+#   output "results_XXX" "results_XXX.info" and "FIT_goodsn_XXX.fits"
+#   
+#   We do not do "vary_position" here, because SPIRE250 has really 
+#   big PSF, "vary_position" would cause unexpected chaos. 
+#   
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    sm
+sm> 
+    data RadioOwenMIPS24_priors_March25_2014.txt read {raF 2 deF 3}
+    ##### EDIT goFine.sm xSet_250
+    macro read goFine.sm xSet_250
+    define use_prior_mags 0
+    define vary_positions 0
+    define fix_astrometry 1
+    define make_residuals 0
+    define xdate <"20140401">
+    Fit_XXX
+    Rebuild_XXX
+sm> 
+    !rm     fit*.log galfit.* aaa* do.* null.* HSO_* summary_run
+    !mkdir                                        FIT_250_20140401
+    !cp    "FIT_goodsn_250_Map_20140401*.fits"    FIT_250_20140401/
+    !cp    "results_250_20140401*"                FIT_250_20140401/
+sm> quit
+
+
+
+# 2. Correct f250 and df250 using R_MIPS250
+#   
+#   
+sm> 
+    define imax    250
+    define xdate <"20140401">
+    macro read goFine.sm R_MIPS250
+sm> quit
+
+
+
+# 3. Update catalogue
+#   
+#    
+sm> 
+    define imax    250
+    define xdate <"20140401">
+    define imax_priors   "RadioOwen_priors_updated_16_100_160_20140401ExNewMap.txt"
+    define imax_update   "RadioOwen_priors_updated_16_100_160_250T_20140401TEST250.txt"
+    # no exclude list for now
+    # aaF ccF are defined inside goFine.sm R_MIPS250
+    macro read goFine.sm R_MIPS250
+    macro read run_update_owen.sm run_update_owen
+sm> quit
+
+
+
+###. THEN GOTO howto-SEDSyn.txt
+#   use temporary 250T + 160 + 100 + 16 + 7.9 + 5.8 + 4.5 + 3.6 + 2.15(K) + 2e5(radio)
+
+
+
+# 4. Exclude sources
+# 
+#   REQUIRES "ResLMTfluxes_RadioOwen_priors_updated_16_100_160_250T_20140401TEST250.txt"   (THE OUTPUT OF AGN_N.sm AGNall)
+#   CREATES  "results_250_20140401_Exclude"
+#   CREATES  "results_250_20140401_Exclude"
+# 
+sm> 
+    define    imax            250
+    define    xdate         <"20140401">
+    define    imax_predict   "ResLMTfluxes_RadioOwen_priors_updated_16_100_160_250T_20140401TEST250.txt"
+    define    imax_exclude   "results_250_20140401_Exclude_Second_Check"
+    macro     read            run_predict_flux.sm          run_predict_flux
+sm> quit
+
+
+
+# 5. Make residual map
+# 
+#   REQUIRES "results_250_20140401_Exclude"
+#   OUTPUTS  "FIT_goodsn_250_Map_20140402_ExclModel.fits"
+#   
+#   set "make_residuals=1" and "Xback=0" when run Fit_XXX Rebuild_XXX
+# 
+sm> 
+    data results_250_20140401_Exclude_Second_Check read {idF 1 raF 2 deF 3 sed_flux 7 sed_ferr 8 xm250 9}
+    ##### EDIT goFine.sm xSet_250
+    macro read goFine.sm xSet_250
+    define use_prior_mags 1
+    define vary_positions 0
+    define fix_astrometry 1
+    define make_residuals 1
+    define xdate <"20140402_ExclModel">
+    if($make_residuals) {define Xback 0}   ###<Added><20140402><EDaddi>### THIS IS IMPORTANT !!!
+    Fit_XXX
+    Rebuild_XXX
+    print '%10g %15g %15g %15g %15g %15g\n' {idF raF deF xm250 sed_flux sed_ferr }
+# sm> quit
+
+
+
+# 6. Extract residual map
+# 
+# 
+sm> 
+    define imax       250
+    define xdate    <"20140402_ExclModel">
+    #!ds9 -mecube -title xpads9 -tile FIT_goodsn_$imax""_Map_$xdate.fits FIT_goodsn_$imax""_Map_$xdate.fits -lock frame image &
+    print  do.cl     '\#\n'    {}
+    print +do.cl     'imdel    FIT_goodsn_$imax""_Map_$xdate""_resi.fits\n'   {}
+    print +do.cl     'imcopy   FIT_goodsn_$imax""_Map_$xdate"".fits[2]   FIT_goodsn_$imax""_Map_$xdate""_resi.fits\n'   {}
+    print +do.cl     '!ds9     FIT_goodsn_$imax""_Map_$xdate""_resi.fits &\n'   {}
+    print +do.cl     'logout\n\n'    {}
+    !cl   <do.cl    > 4_stdout_04_Extract_Residual_Map
+    !edhead   FIT_goodsn_$imax""_Map_$xdate""_resi.fits
+    ### HISTORY   2014-04-02 Third Check
+    ### HISTORY   When exclude faint sources, must set Xback=0. 
+    ### HISTORY   1298 sources that are predicted to be very faint 
+    ### HISTORY   are subtracted in this map.
+    !cp  FIT_goodsn_$imax""_Map_$xdate""_resi.fits  "spire250_ima_3p6_v0_100615_subfaintDL.fits"
+sm> quit
+
+
+
+# X. Goto goSimu.sm xsimu
+# 
+# 
+sm> 
+    define imax      250
+    define xdate   <"20140401">
+    macro read run_stat_flux_error.sm run_stat_flux_error
+sm> 
+    !mkdir SIM_250_20140402NewMap
+    cd     SIM_250_20140402NewMap
+    !ln -s ../spire250_ima_3p6_v0_100615_subfaintDL.fits spire250_ima_3p6_v0_100615_subfaintDL.fits
+    !ln -s ../spire250_rms_3p6_v0_100615.fits spire250_rms_3p6_v0_100615.fits
+    !ln -s ../psf_goodsn_spire250_3p6arcsec_v0_100622.fits psf_goodsn_spire250_3p6arcsec_v0_100622.fits
+    !ln -s ../goFine.sm goFine.sm
+    !ln -s ../goSimu.sm goSimu.sm
+    data "../RadioOwenMIPS24_priors_March25_2014.txt" read {raF 2 deF 3}
+    define Nsimu     6000
+    define mag0     -0.5
+    define mag1      3.5
+    define g_buff    15
+    define f_buff    1
+    macro read goFine.sm xSet_250
+    define imax        250
+    define imax_name  "spire250_ima_3p6_v0_100615_subfaintDL"
+    define xdate     <"20140401"> ### USE FULL LIST RATHER THAN EXCLUDE LIST
+    define use_prior_mags 0 ### use_prior_mags and vary_positions are irrelevant to SimuX. 
+    define vary_positions 0 ### When set vary_positions=1, macro will automatically set use_prior_mags=1, and use xm$imax from results_imax_xdate. 
+    define fix_astrometry 1
+    define make_residuals 0
+    macro read goSimu.sm goSS
+    macro read goSimu.sm SimuX
+sm> quit
+
+
+
+# 7. Run goFine.sm once
+# 
+#   REQUIRE goFine.sm xSet_250   (Make sure correct file names are set)
+#   REQUIRE spire250_ima_3p6_v0_100615_subfaintDL.fits
+#   REQUIRE spire250_rms_3p6_v0_100615.fits
+#   REQUIRE psf_goodsn_spire250_3p6arcsec_v0_100622.fits
+#   REQUIRE RadioOwenMIPS24_priors_March25_2014.txt
+#   REQUIRE SED_predictions_250_20140401.csv   (The output of AGN_N.sm and run_predict_flux.sm)
+#   
+#   use "RadioOwenMIPS24_priors_March25_2014.txt" as Prior Catalogue
+#   set "fix_astrometry=1" for first run
+#   set "use_prior_mags=1" for first run
+#   set "vary_positions=0" for first run
+#   output "results_XXX" "results_XXX.info" and "FIT_goodsn_XXX.fits"
+#   
+#   We do not do "vary_position" here, because SPIRE250 has really 
+#   big PSF, "vary_position" would cause unexpected chaos. 
+#   
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    sm
+sm> 
+    data RadioOwenMIPS24_priors_March25_2014.txt read {idF 1 raF 2 deF 3}
+    ##### EXCLUDE
+    data SED_predictions_250_20140401.csv read {flagExclude 4} # xm250 9 #
+    set idF = idF if(flagExclude==0)
+    set raF = raF if(flagExclude==0)
+    set deF = deF if(flagExclude==0)
+    ##### EDIT goFine.sm xSet_250
+    macro read goFine.sm xSet_250
+    ##### EDIT goSimu.sm FixAstrometry for NewMap
+    define imax_name "spire250_ima_3p6_v0_100615_subfaintDL"
+    ######
+    define use_prior_mags 0
+    define vary_positions 0
+    define fix_astrometry 1
+    define make_residuals 0
+    define xdate <"20140402ExNewMap">
+    Fit_XXX
+    Rebuild_XXX
+sm> 
+    !rm     fit*.log galfit.* aaa* do.* null.* HSO_* summary_run
+    !mkdir                                        FIT_250_20140401
+    !cp    "FIT_goodsn_250_Map_20140401*.fits"    FIT_250_20140401/
+    !cp    "results_250_20140401*"                FIT_250_20140401/
+sm> quit
+
+
+
+# 8. Include additional sources show up in 250um map
+# 
+#   OUTPUT 
+# 
+
+
+
+# 9. Run goFine.sm once
+# 
+#   REQUIRE goFine.sm xSet_250   (Make sure correct file names are set)
+#   REQUIRE spire250_ima_3p6_v0_100615_subfaintDL.fits
+#   REQUIRE spire250_rms_3p6_v0_100615.fits
+#   REQUIRE psf_goodsn_spire250_3p6arcsec_v0_100622.fits
+#   REQUIRE RadioOwenMIPS24_priors_March25_2014.txt
+#   REQUIRE SED_predictions_250_20140401.csv   (The output of AGN_N.sm and run_predict_flux.sm)
+#   
+#   use "RadioOwenMIPS24_priors_March25_2014.txt" as Prior Catalogue
+#   set "fix_astrometry=1" for first run
+#   set "use_prior_mags=1" for first run
+#   set "vary_positions=0" for first run
+#   output "results_XXX" "results_XXX.info" and "FIT_goodsn_XXX.fits"
+#   
+#   We do not do "vary_position" here, because SPIRE250 has really 
+#   big PSF, "vary_position" would cause unexpected chaos.
+#   
+#   Include some sources selected by Dr. Daddi. 
+#   
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    sm
+sm> 
+    data RadioOwenMIPS24_priors_March25_2014.txt read {idF 1.s raF 2 deF 3}
+    ##### EXCLUDE
+    data SED_predictions_250_20140401.csv read {flagExclude 4} # xm250 9 #
+    set idF = idF if(flagExclude==0)
+    set raF = raF if(flagExclude==0)
+    set deF = deF if(flagExclude==0)
+    ##### INCLUDE
+    data results_250_20140402_Include read {idIncl 1.s raIncl 2 deIncl 3}
+    set idF = idF concat idIncl
+    set raF = raF concat raIncl
+    set deF = deF concat deIncl
+    ##### EDIT goFine.sm xSet_250
+    macro read goFine.sm xSet_250
+    ##### EDIT goSimu.sm FixAstrometry for NewMap
+    define imax_name "spire250_ima_3p6_v0_100615_subfaintDL"
+    ######
+    define use_prior_mags 0
+    define vary_positions 0
+    define fix_astrometry 1
+    define make_residuals 0
+    define xdate <"20140402_ExclNewMap_InclNewObj">
+    Fit_XXX
+    Rebuild_XXX
+sm> 
+    !rm     fit*.log galfit.* aaa* do.* null.* HSO_* summary_run
+    !mkdir                                                              FIT_250_20140402_ExclNewMap_InclNewObj
+    !cp    "FIT_goodsn_250_Map_20140402_ExclNewMap_InclNewObj*.fits"    FIT_250_20140402_ExclNewMap_InclNewObj/
+    !cp    "results_250_20140402_ExclNewMap_InclNewObj*"                FIT_250_20140402_ExclNewMap_InclNewObj/
+sm> quit
+
+
+
+# 10. Correct error and update data
+# 
+#   REQUIRES RadioOwen_priors_updated_16_100_160_20140402ExNewMap.txt
+#   REQUIRES results_250_20140402_ExclNewMap_InclNewObj
+#   REQUIRES results_250_20140402_ExclNewMap_InclNewObj_ExclNewObj_ForUpdate
+#   OUTPUT   current_run_goodsn_update
+sm> 
+    !cat results_250_20140402_Include
+    !cp results_250_20140402_ExclNewMap_InclNewObj results_250_20140402_ExclNewMap_InclNewObj_ExclNewObj_ForUpdate
+    !vi results_250_20140402_ExclNewMap_InclNewObj_ExclNewObj_ForUpdate
+    ### /189.19178
+    ### 100dd
+    ### :x
+    
+    # define imax           250
+    # define xdate        <"20140402_ExclNewMap_InclNewObj_ExclNewObj_ForUpdate">
+    # define imax_priors   "RadioOwen_priors_updated_16_100_160_20140402ExNewMap.txt"
+    # define imax_update   "RadioOwen_priors_updated_16_100_160_250_20140402ExNewMap.txt"
+    # define imax_exclude  "results_250_20140401_Exclude"
+    # ###### FOR 250um, "aaF" "ccF" are included inside goFine.sm R_MIPS250.
+    
+    ###### <2014-04-10> Updated 100 measurements!
+    define imax           250
+    define xdate        <"20140402_ExclNewMap_InclNewObj_ExclNewObj_ForUpdate">
+    define imax_priors   "RadioOwen_priors_updated_16_100_160_UPD20140404.txt"
+    define imax_update   "RadioOwen_priors_updated_16_100_160_250_UPD20140410.txt"
+    define imax_exclude  "results_250_20140401_Exclude"
+    ###### FOR 250um, "aaF" "ccF" are included inside goFine.sm R_MIPS250. 
+        
+    macro  read  "run_update_owen.sm"   run_update_owen
+sm> 
+
+
+
+# 11. Correct error and update additional catalog
+# 
+#   REQUIRE results_250_20140402_Include
+#   REQUIRE RadioOwen_priors_additional_250_Initial.txt
+#   REQUIRE results_250_20140402_ExclNewMap_InclNewObj
+#   REQUIRE results_250_20140402_ExclNewMap_InclNewObj_ExclOldObj_ForAdditional
+#   OUTPUT  RadioOwen_priors_additional_250_UPD20140403.txt
+sm> 
+    !cat results_250_20140402_Include
+    !cp results_250_20140402_ExclNewMap_InclNewObj results_250_20140402_ExclNewMap_InclNewObj_ExclOldObj_ForAdditional
+    !vi results_250_20140402_ExclNewMap_InclNewObj_ExclOldObj_ForAdditional
+    ### /189.19178
+    ### move up one line
+    ### :1,.d
+    ### :x
+    
+    !PREPARE RadioOwen_priors_additional_250_Initial.txt ACCORDING TO "results_250_20140402_Include"
+    !vi RadioOwen_priors_additional_250_Initial.txt
+    ### _id _ra _de z_p ........................
+    
+    define imax           250
+    define xdate        <"20140402_ExclNewMap_InclNewObj_ExclOldObj_ForAdditional">
+    define imax_priors   "RadioOwen_priors_additional_250_Initial.txt"
+    define imax_update   "RadioOwen_priors_additional_250_UPD20140403.txt"
+    ###### FOR 250um, "aaF" "ccF" are included inside goFine.sm R_MIPS250_E. 
+    
+    macro  read  "run_update_owen.sm"   run_update_owen
+sm> 
+
+

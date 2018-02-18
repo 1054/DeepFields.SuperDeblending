@@ -1,0 +1,29 @@
+# 1. Make cutout fits image blocks with IRAF
+# 
+# 
+sm> 
+    macro read use_make_cutout_fits.sm make_cutout_fits 18911
+    
+    data "use_priors_idFS.txt" read { idSelected 1.s }
+    foreach idLoop idSelected { macro read use_make_cutout_fits.sm make_cutout_fits $idLoop }
+    
+    
+# 2. Paste cutout fits together to a big map with IDL
+# 
+#     
+idl>
+    .compile use_cutouts.pro use_make_cutout_ps.pro
+    use_make_cutout_ps, 18911
+    
+    readcol, "use_priors_idFN.txt", cutout_Ids, FORMAT='(I)'
+    .compile use_make_cutouts_Raphael.pro use_make_cutout_ps.pro
+    use_make_cutout_ps, cutout_Ids
+    
+    readcol, "SelectedSourceListLowPrio.csv", cutout_Ids, FORMAT='(I)'
+    .compile use_cutouts.pro use_make_cutout_ps.pro
+    use_make_cutout_ps, cutout_Ids
+    
+    readcol, "SelectedSourceList_2.csv", cutout_Ids, FORMAT='(I)', NUMLINE=100
+    .compile use_cutouts.pro use_make_cutout_ps.pro
+    use_make_cutout_ps, cutout_Ids
+

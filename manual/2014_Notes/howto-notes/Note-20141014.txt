@@ -1,0 +1,100 @@
+define imax 500
+data "doing"$imax"/xsimuGH_RAD_SPInewX2_"$imax".dat" read {axx 1}
+data "doing"$imax"/xsimuGH_RAD_SPInewXB_"$imax".dat" read {bxx 1}
+echo $(dimen(axx)) $(dimen(bxx))
+while {axx[$i]==bxx[$i]} {define i $($i+1) if($i>=dimen(axx)||$i>=dimen(bxx)){break}}
+echo $i $(axx[$i]) $(bxx[$i])
+
+
+
+
+
+
+
+macro read goSimuFakeDetection.sm goReadFakeDetection 500
+
+./do500_Step7_Statistics_201408
+
+
+
+
+
+
+
+
+0.2304971
+
+# Check this obj
+grep 0.2304971 do_Galsim.smlog | cut -f 1 -d ' ' | while read FOOBAR; do echo ds9mfc fit$FOOBAR.fits; done
+
+# Check whether this obj has fake detection
+grep 0.2304971 do_Galsim.smlog | cut -f 8,9 -d ' ' | sed 's/X=//g' | sed 's/Y=//g' | sed 's/ /.*/g' | while read FOOBAR; do grep $FOOBAR xsimuGH_RAD_SPInewX2_*.dat; done
+
+# Check whether this obj has fake detection
+grep 0.2304971 do_Galsim.smlog | cut -f 8,9 -d ' ' | sed 's/X=//g' | sed 's/Y=//g' | sed 's/ /.*/g' | while read FOOBAR; do grep $FOOBAR aaa_Sim_Fake_Detections.csv; done
+
+
+
+
+
+
+macro read goSimuCheckSimFits.sm goCheckSimFits
+
+macro read goSimuCheckSimFits.sm goCheckSimFits
+
+macro read goSimuFakeDetection.sm goReadFakeDetection
+
+./do500_Step7_Statistics_201408
+
+
+
+
+
+
+0.0338407
+grep 0.0338407 do_Galsim.smlog | cut -f 1 -d ' ' | while read FOOBAR; do echo ds9mfc fit$FOOBAR.fits; done
+grep 0.0338407 do_Galsim.smlog | cut -f 8,9 -d ' ' | sed 's/X=//g' | sed 's/Y=//g' | sed 's/ /.*/g' | while read FOOBAR; do grep $FOOBAR xsimuGH_RAD_SPInewX2_*.dat; done
+# -- Xf > Tf
+#    its flux has been assigned to two nearby objects
+
+
+
+0.8045914
+grep 0.8045914 do_Galsim.smlog | cut -f 1 -d ' ' | while read FOOBAR; do echo ds9mfc fit$FOOBAR.fits; done
+grep 0.8045914 do_Galsim.smlog | cut -f 8,9 -d ' ' | sed 's/X=//g' | sed 's/Y=//g' | sed 's/ /.*/g' | while read FOOBAR; do grep $FOOBAR xsimuGH_RAD_SPInewX2_*.dat; done
+# -- Xf > Tf
+#    SAME POSITION AS THE ONE ABOVE (Xm=0.0338407) !!!
+#    its flux has been assigned to two nearby objects
+
+
+
+0.7438223
+grep 0.7438223 do_Galsim.smlog | cut -f 1 -d ' ' | while read FOOBAR; do echo ds9mfc fit$FOOBAR.fits; done
+grep 0.7438223 do_Galsim.smlog | cut -f 8,9 -d ' ' | sed 's/X=//g' | sed 's/Y=//g' | sed 's/ /.*/g' | while read FOOBAR; do grep $FOOBAR xsimuGH_RAD_SPInewX2_*.dat; done
+# -- Xf > Tf
+#    associated with negative cavity
+
+
+
+0.3643393
+grep 0.3643393 do_Galsim.smlog | cut -f 1 -d ' ' | while read FOOBAR; do echo ds9mfc fit$FOOBAR.fits; done
+grep 0.3643393 do_Galsim.smlog | cut -f 8,9 -d ' ' | sed 's/X=//g' | sed 's/Y=//g' | sed 's/ /.*/g' | while read FOOBAR; do grep $FOOBAR xsimuGH_RAD_SPInewX2_*.dat; done
+# -- Xf > Tf
+#    SAME POSITION AS THE ONE ABOVE (Xm=0.0338407) !!!
+#    its flux has been assigned to two nearby objects
+
+
+
+0.9042014
+grep 0.904201 do_Galsim.smlog | cut -f 1 -d ' ' | while read FOOBAR; do echo ds9mfc fit$FOOBAR.fits; done
+grep 0.904201 do_Galsim.smlog | cut -f 8,9 -d ' ' | sed 's/X=//g' | sed 's/Y=//g' | sed 's/ /.*/g' | while read FOOBAR; do grep $FOOBAR xsimuGH_RAD_SPInewX2_*.dat; done
+# -- Xf > Tf
+#    its flux has been assigned to two nearby objects
+
+
+
+
+
+
+
+

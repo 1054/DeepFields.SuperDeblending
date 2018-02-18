@@ -1,0 +1,115 @@
+# 0. Clean
+#
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    rm aaa* 4* do.cl do.csh summary_run null.fits tmp*.fits fit*.log* galfit.* 
+    rm *.CONSTRAINTS *.INPUT simu.csv simu.dat
+    rm -rf sim_galfit_output sim_diagram_output
+    mkdir  sim_galfit_output sim_diagram_output
+
+
+
+# 1. Run goFine2
+# 
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    sm
+sm> 
+    define imax      160
+    define xdate   <"20140402ExNewMap_New">
+    macro read "../run_stat_flux_error.sm" run_stat_flux_error
+sm> quit
+
+
+
+# 2. Run goSimu2
+#
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    sm
+sm>
+    !rm -rf sim_galfit_output sim_diagram_output  >> /dev/null 2>&1
+    !mkdir  sim_galfit_output sim_diagram_output  >> /dev/null 2>&1
+    !rm     xsimuGH_RAD_SPInewX2_160.dat
+    
+    !ln -s ../goFine.sm goFine.sm
+    !ln -s ../goSimu.sm goSimu.sm
+    
+    data "../RadioOwenMIPS24_priors_March25_2014.txt" read {raF 2 deF 3}
+    data "../results_160_20140331FixNone_vary" read {xm160 4} ### SimuX gPriors will read xm160 from results_imax_xdate
+    define Nsimu     8000
+    define mag0      4.0
+    define mag1      10.0
+    define g_buff    16
+    define f_buff    1
+    macro read goFine.sm xSet_160
+    define imax        160
+    define imax_name  "pgh_goodsn_red_Map_v1.0_sci_subfaintDL_New_But_Wait_Todo"
+    define xdate     <"20140331FixNone"> ### MUST USE NOT EXCLUDE LIST
+    define use_prior_mags 1
+    define vary_positions 1
+    define fix_astrometry 0
+    define make_residuals 0
+    macro read goSimu.sm goSS
+    macro read goSimu.sm SimuX
+    
+sm> quit
+
+
+
+# 5. Estimate error correction
+# 
+#   REQUIRES current_run_goodsn_priors
+#   REQUIRES xsimuGH_RAD_SPInewX2_100.dat
+#   REQUIRES results_100_xdate_vary
+#   OUTPUT   current_run_goodsn_update
+# 
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    sm
+sm> 
+    macro read goSimu2.sm Rsimu 160
+sm> quit
+
+
+
+# 6. Correct error and update data
+# 
+#   REQUIRES current_run_goodsn_priors
+#   REQUIRES xsimuGH_RAD_SPInewX2_100.dat
+#   REQUIRES results_100_xdate_vary
+#   OUTPUT   current_run_goodsn_update
+sm> 
+    !mkdir UPDATE_160_20140402_NEW
+    cd     UPDATE_160_20140402_NEW
+    !ln -s ../goFine.sm goFine.sm
+    !ln -s ../default.sm default.sm
+    !ln -s ../results_160_20140331FixNone_Exclude results_160_20140331FixNone_Exclude
+    !ln -s ../results_160_20140402ExNewMap_New_vary results_160_20140402ExNewMap_New_vary
+    !ln -s ../RadioOwen_priors_updated_16_100_20140331ExNewMap.txt RadioOwen_priors_updated_16_100_20140331ExNewMap.txt
+    define imax           160
+    define xdate        <"20140402ExNewMap_New">
+    define imax_priors   "RadioOwen_priors_updated_16_100_20140331ExNewMap.txt"
+    define imax_update   "RadioOwen_priors_updated_16_100_160_20140402ExNewMap.txt"
+    define imax_exclude  "results_160_20140331FixNone_Exclude"
+    data   "../xsimuGH_RAD_SPInewX2_160_dfcorr.csv"   read { aaF 1 ccF 2 }
+    
+    # 2014-04-02 (exclude not set mag prior)
+    # define imax_priors   "RadioOwen_priors_updated_16_100_20140331ExNewMap.txt"
+    # define imax_update   "RadioOwen_priors_updated_16_100_160_20140401ExNewMap_20140402CorrFlux.txt"
+    # data   "xsimuGH_RAD_SPInewX2_100_dfcorr.csv"   read { aaF 1 ccF 2 }
+    
+    # 2014-03-31 (update catalog with rough 160 results)
+    # define imax_update   "RadioOwen_priors_updated_16_100_160T_20140331TEST160.txt"
+    # define imax_exclude  "current_run_goodsn_100_exclude"
+    # data   "xsimuGH_RAD_SPInewX2_100_dfcorr.csv"   read { aaF 1 ccF 2 }
+    
+    macro  read  "../run_update_owen.sm"   run_update_owen
+    
+sm> 
+
+
+
+###. THEN GOTO HOWTO-GALFIT-100.TXT   ($bias->exclude->subtractMap->)
+
+###. THEN GOTO HOWTO-GALSIM-100.TXT   ()
+
+###. THEN GOTO HOWTO-SEDSYN-100.TXT
+
+

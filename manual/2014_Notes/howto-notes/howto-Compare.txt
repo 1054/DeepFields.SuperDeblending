@@ -1,0 +1,56 @@
+# -. Compare with Early Result (08Feb11)
+# 
+#   REQUIRES "run_ds9_mecube.sm" 
+#   REQUIRES "run_csv_compare.sm"
+#   REQUIRES "run_mag_compare_plot.sm"
+#  
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North/FIT_100_20140417_ExclNewMap/Compare_with_Earlier_Result
+    cp    /Users/dliu/datahso/results_100_08Feb11_resi                ./results_100_08Feb11_vary
+    cp    /Users/dliu/datahso/FIT_goodsn_100_Map_08Feb11_resi.fits    ./
+    cp    ../../RadioOwenMIPS24_priors_March25_2014.txt               ./
+    
+    ln -s ../FIT_goodsn_100_Map_20140417_ExclNewMap_vary.fits FIT_goodsn_100_Map_20140417_ExclNewMap_vary.fits
+    ln -s ../results_100_20140417_ExclNewMap_vary results_100_20140417_ExclNewMap_vary
+    ln -s ../results_100_20140415_vary_Exclude results_100_20140415_vary_Exclude
+    
+    sm 
+sm> 
+    # Repair earlier results
+    !edhead pacs160_ima_2p4_v0_100615_ED.fits
+    !edhead FIT_goodsn_160_Map_08Feb11_vary.fits
+    ...... copy wcs 
+    
+    # Write ds9 regions "(box x,y)"
+    define imax       100
+    define xdate    <"08Feb11_vary"> #23Apr13_sub#
+    define xcolor     red
+    macro read  "../../../GOODS-North/run_csv_create.sm"   run_csv_create
+    
+    # Write ds9 regions "(box x,y)"
+    define imax       100
+    define xdate    <"20140417_ExclNewMap_vary">
+    define xcolor     yellow
+    define imax_prior "RadioOwenMIPS24_priors_March25_2014.txt"
+    define imax_exclude "results_100_20140415_vary_Exclude"
+    macro read  "../../../GOODS-North/run_csv_create.sm"   run_csv_create
+    
+    # Show ds9
+    define imax          160
+    define xdate_old   <"08Feb11_vary">
+    define xdate_new   <"20140415_ExclNewMap_vary">
+    macro read  "../../../GOODS-North/run_ds9_mecube.sm"   run_ds9_mecube
+    
+    # Run csv compare macro
+    define imax          100
+    define xdate_old   <"20140403_ExclNewMap_vary">
+    define xdate_new   <"20140417_ExclNewMap_vary">
+    define rdmaxdiff     3.0
+    macro read  "../../../GOODS-North/run_csv_compare.sm"   run_csv_compare
+    
+    # Run comparing figure plot macro
+    define imax          160
+    define xdate_old   <"20140404_ExclNewMap_vary">
+    define xdate_new   <"20140417_ExclNewMap_vary">
+    macro read  "../../../GOODS-North/run_mag_compare_plot.sm"   run_mag_compare_plot
+    
+sm> quit

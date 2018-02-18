@@ -1,0 +1,37 @@
+doing350
+
+grep -n 0.05573113 summary_sim 
+132:      189.2874996        62.2654130         320.817         312.720       0.05573113
+
+grep -n 0.2829716 summary_sim 
+5994:      189.2861912        62.2664933         321.274         313.530        0.2829716
+
+
+
+
+
+grep '                                                               1.85           242.17' xsimuGH_RAD_SPInewX2_500.dat 
+
+
+sed -e 's/                                                               1.85           242.17/\#                                                              1.85           242.17/g' xsimuGH_RAD_SPInewX2_500.dat > xsimuGH_RAD_SPInewX2_500_Snapshot1.dat
+
+
+
+
+grep '                                                               ' xsimuGH_RAD_SPInewXB_500.dat
+
+sed -e 's/                                                               /\#                                                              /g' xsimuGH_RAD_SPInewXB_500.dat > xsimuGH_RAD_SPInewXB_500_Snapshot1.dat
+
+20                5                0
+
+
+
+
+
+
+
+
+grep -n 2.051377 do_Galsim.smlog
+
+
+

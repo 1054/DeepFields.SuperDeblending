@@ -1,0 +1,62 @@
+[doing1160]
+
+copy from hubble to sappcb34
+
+cd ~/GOODS-North/doing1160/
+
+for (( i=0; i<=6587; i++ )); do boxDir=$(printf 'boxfaked2014101500%04d' $i); if [[ -f $boxDir/fit.log ]]; then echo rsync $boxDir ...; rsync -vvWIrlze ssh $boxDir sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/doing1160/; fi; done
+
+for (( i=0; i<= 6587; i++ )); do boxDir=$(printf 'boxfaked2014101500%04d' $i); if [[ -f $boxDir/fit.log ]]; then echo rm -r $boxDir; rm -r $boxDir; fi; done
+
+for (( i=0; i<= 6587; i++ )); do boxRun=$(printf 'runboxfaked2014101500%04d.sh' $i); if [[ -f $boxRun ]]; then echo rm $boxRun; rm $boxRun; fi; done
+
+
+
+
+[doing1160]
+
+on sappcb34
+
+cd /data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/doing1160/
+
+../do_GalsimFakeDetectionsRunqsub
+
+
+
+[doing1160]
+
+on sappcb34
+
+cd /data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/doing1160/
+
+mkdir backup20141027BoxFakeDone
+
+find . -maxdepth 1 -name "boxfaked20141015*" -print0 | xargs -0 -I % mv % backup20141027BoxFakeDone
+
+find . -maxdepth 1 -name "runboxfaked20141015*.sh" -print0 | xargs -0 -I % mv % backup20141027BoxFakeDone
+
+7z a -t7z -mx3 backup20141027BoxFakeDone.7z backup20141027BoxFakeDone
+
+find . -maxdepth 1 -name "*.sh.e*" -print0 | xargs -0 -I % rm %
+find . -maxdepth 1 -name "*.sh.o*" -print0 | xargs -0 -I % rm %
+
+
+
+[doing1160]
+
+on sapmcm116
+
+cd /Users/dliu/Working/2014-CEA/Tool/Level_3_SciData/GalFit/doing1160
+
+for (( i=0; i<=6587; i++ )); do boxDir=$(printf 'boxfaked2014101500%04d' $i); echo rsync $boxDir ...; rsync -vWIrlze ssh sappcb34:/data/dliu/GoodsNorth/Tool/Level_3_SciData/GalFit/doing1160/backup20141027BoxFakeDone/$boxDir .; done
+
+cd backup20141024BoxDone
+find . -maxdepth 1 -name "box20141015*" -print0 | xargs -0 -J % mv % ../
+cd backup20141024BoxFakeDone
+find . -maxdepth 1 -name "boxfaked20141015*" -print0 | xargs -0 -J % \mv % ../
+
+cd /Users/dliu/Working/2014-CEA/Tool/Level_3_SciData/GalFit/doing1160
+./do_Galsim 1160 201408 -mag0 "-5.5" -mag1 "-3.0" -fitsname combined_maw0_4_azw0_5_sig_astro_subfaintDL -postparallel
+
+
+

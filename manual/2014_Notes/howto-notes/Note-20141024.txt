@@ -1,0 +1,24 @@
+[doing1160]
+
+copy from sappcb34 doing1160 to hubble 
+
+cd GalFit/doing1160/
+
+rsync -vIrlze ssh --include="*/" --include="boxfaked20141015006*/*" --include="runboxfaked20141015006*.sh"  --exclude='*' --dry-run --prune-empty-dirs . hubble.extra.cea.fr:~/GOODS-North/doing1160/
+
+rsync -vIrlze ssh --include="*/" --include="boxfaked20141015006*/*" --include="runboxfaked20141015006*.sh"  --exclude='*' --prune-empty-dirs . hubble.extra.cea.fr:~/GOODS-North/doing1160/
+
+rsync -vIrlze ssh --include="*/" --include="boxfaked20141015005*/*" --include="runboxfaked20141015005*.sh"  --exclude='*' --prune-empty-dirs . hubble.extra.cea.fr:~/GOODS-North/doing1160/
+
+cd ..
+
+rsync -vIrlze ssh --include="*/" --include="do_GalsimFakeDetectionsRunqsub" --exclude='*' --prune-empty-dirs . hubble.extra.cea.fr:~/GOODS-North/
+
+../do_GalsimRunqsub
+
+<TODO> boxfaked
+
+
+
+
+

@@ -1,0 +1,217 @@
+# 0. Clean
+#
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    rm aaa* 4* do.cl do.csh summary_run null.fits tmp*.fits fit*.log* galfit.* 
+    rm *.CONSTRAINTS *.INPUT simu.csv simu.dat
+    rm -rf sim_galfit_output sim_diagram_output
+    mkdir  sim_galfit_output sim_diagram_output
+
+
+
+# 1. Run goFine2
+# 
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    sm
+sm> 
+    define imax      100
+    define xdate   <"20140329Ex">
+    macro read run_stat_flux_error.sm run_stat_flux_error
+sm> quit
+
+
+
+# 2. Run goSimu2
+#
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    sm
+sm>
+    !rm -rf sim_galfit_output sim_diagram_output  >> /dev/null 2>&1
+    !mkdir  sim_galfit_output sim_diagram_output  >> /dev/null 2>&1
+    
+    !cp    "GOODS_N_Prior_Catalogue/RadioOwen_priors_updated_16.txt"                      "current_run_goodsn_priors"
+    !cp    "GOODS_N_PACS_Photo/pgh_goodsn_green_Map_v1.0_sci_subtractDL.fits"             "current_run_goodsn_100_sci.fits"
+    !cp    "GOODS_N_PACS_Photo/pgh_goodsn_green_Map_v1.0_rms_DL.fits"                     "current_run_goodsn_100_rms.fits"
+    !cp    "GOODS_N_PACS_Photo/psf_goodsn_pacs100_1p2arcsec_v0_100622_cut.fits"           "current_run_goodsn_100_psf.fits" 
+    
+    define imax      100
+    define xdate   <"20140329">
+    ######  WE SHOULD USE NEW MAP !!!
+    ######  WE SHOULD USE <"20140329"> RATHER THAN <"20140329Ex"> !!!
+    ######  WE SHOULD REMOVE exclude FILE 
+    ######  THE exclude FILE SHOULD HAVE A COPY OF "FIT_"$imax"_"$xdate"Ex/current_run_goodsn_"$imax"_exclude"
+    !rm    "current_run_goodsn_"$imax"_exclude"
+    !rm    "xsimuGH_RAD_SPInewX2_"$imax".dat"
+    define use_prior_magsfile   "results_"$imax"_"$xdate"_vary"
+    #####  EDIT goFine2.sm   xSet_100
+    #####  EDIT goSimu2.sm   SimuX_100
+    #####  EDIT goSimu2.sm   Simu_All
+    macro  read goFine2.sm   xSet_100   1
+    macro  read goSimu2.sm   Simu_All
+sm> quit
+
+
+
+# 3. Check <SKIP>
+#   we might want to check the galfit stamp inside each loop
+#
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    cd Compare_FIT_GOODS_N_16_20140319S
+    sm
+sm> 
+    define imax          16
+    define xdate_old   <"08Feb11">
+    define xdate_new   <"20140319S">
+    macro read  "../run_ds9_mecube.sm"   run_ds9_mecube
+    !sleep 1.5
+    !xpaset -p xpads9 pan to         1061.17           490.05
+    !grep   "1061.1"   "../sim_galfit_output/*.stdout"
+sm> 
+    define imax    16
+    define NLoop    1
+    define NStep   197
+    macro read  "../run_ds9_galfit.sm"   run_ds9_galfit
+sm> 
+    print  do.ds9  '\#!/bin/bash\n' {}
+    print +do.ds9  'ds9  -title xpads9 -tile -mecube -lock frame image -lock crosshair wcs' {}
+    print +do.ds9       ' ../sim_galfit_output/galfit.16.$NLoop.$NStep.original.fits' {}
+    print +do.ds9       ' ../sim_galfit_output/galfit.16.$NLoop.$NStep.simulate.fits' {}
+    print +do.ds9       ' ../sim_galfit_output/galfit.16.$NLoop.$NStep.recovery.fits' {}
+    print +do.ds9       ' ../sim_galfit_output/galfit.16.$NLoop.$NStep.recovery.fits' {}
+    print +do.ds9       ' &\n' {}
+    print +do.ds9         '\n' {}
+    !chmod a+x do.ds9
+    !./do.ds9
+    !sleep 1.5
+    !xpaset -p xpads9 frame 3
+    !xpaset -p xpads9 cube  2   # the combined map
+    !xpaset -p xpads9 frame 4
+    !xpaset -p xpads9 cube  3   # the galfited map
+sm> quit
+
+
+
+# 4. Analyse <SKIP>
+#   compare simulated magnitude with recovered magnitude
+# 
+sm> 
+    define imax         100
+    define DataFile    "xsimuGH_RAD_SPInewX2_"$imax".dat"
+    define PlotFile1   "xsimuGH_RAD_SPInewX2_"$imax".plot.mm.pdf"
+    define PlotFile2   "xsimuGH_RAD_SPInewX2_"$imax".plot.dm.pdf"
+    define PlotFile3   "xsimuGH_RAD_SPInewX2_"$imax".plot.ff.pdf"
+    define PlotFile4   "xsimuGH_RAD_SPInewX2_"$imax".plot.df.pdf"
+    
+    data $DataFile read { SimulateX 1 SimulateY 2 SimulatedMag 3 RecoveredMag 4 RecoveredMagErr 5 SourceRMS 6 }
+    
+    # PLOT MAGNITUDE-MAGNITUDE DIAGRAM
+    device pdf $PlotFile1
+    limits -4 12 -4 12
+    points SimulatedMag RecoveredMag ### error_y SimulatedMag RecoveredMag RecoveredMagErr
+    expand 1.0001   # to avoid font confusing
+    box           # to draw xaxis yaxis
+    xlabel "Magnitude (simulated)"
+    ylabel "Magnitude (recovered)"
+    device nodevice
+    echo Plotted as $PlotFile1
+    
+    # PLOT MAGNITUDE-MAGNITUDE DIAGRAM
+    device pdf $PlotFile2
+    limits -4 12 -4 12
+    points SimulatedMag (SimulatedMag-RecoveredMag)
+    expand 1.0001   # to avoid font confusing
+    box           # to draw xaxis yaxis
+    xlabel "Magnitude (simulated)"
+    ylabel "Simulated-Recovered Magnitude"
+    device nodevice
+    echo Plotted as $PlotFile2
+    
+    # CONVERT MAGNITUDE TO FLUX
+    define f_fact $(19.03) define fbias 0 define conf_noise 0  define sss_noise 0.2 define coeff_contam_X 0 ### 16um South
+	set RecoveredFlux = 10**(-0.4*RecoveredMag)*$f_fact            ### Recovered Source Flux        ( f)
+	set RecoveredFErr = RecoveredFlux*RecoveredMagErr/1.08         ### Recovered Source Flux Error  (df)
+	set SimulatedFlux = 10**(-0.4*SimulatedMag)*$f_fact            ### Simulated Source Flux        (Xf)
+	set SimMinRecFlux = SimulatedFlux-RecoveredFlux                ### Sim-Minus-Rec Flux         (Xf-f)
+	
+	# PLOT FLUX-FLUX DIAGRAM
+    device pdf $PlotFile3
+    limits -2.1 3.1 -2.1 3.1
+    set logSimulatedFlux = lg(SimulatedFlux)
+    set logRecoveredFlux = lg(RecoveredFlux)
+    points logSimulatedFlux logRecoveredFlux
+    #error_y logSimulatedFlux logRecoveredFlux RecoveredFErr
+    expand 1.0001  # to avoid font confusing
+    box  # to draw xaxis yaxis
+    xlabel "log\d1\d0Flux (simulated) (log\d1\d0Xf)"
+    ylabel "log\d1\d0Flux (recovered) (log\d1\d0f)"
+    device nodevice
+    echo Plotted as $PlotFile3
+	
+	# PLOT (FLUX-FLUX)-FLUX DIAGRAM
+    device pdf $PlotFile4
+    limits -2.1 3.1 -2.1 3.1
+    set logSimulatedFlux = lg(SimulatedFlux)
+    set logSimMinRecFlux = lg(SimMinRecFlux)
+    points logSimulatedFlux logSimMinRecFlux
+    expand 1.0001  # to avoid font confusing
+    box  # to draw xaxis yaxis
+    xlabel "log\d1\d0Flux (simulated) (log\d1\d0Xf)"
+    ylabel "Simulated-Recovered Flux (Xf-f)"
+    device nodevice
+    echo Plotted as $PlotFile4
+    
+    print $DataFile.conv '%16.3f %16.3f %16.3f %16.3f %16.3f %16.3f\n' { SimulateX SimulateY SimulatedFlux RecoveredFlux RecoveredFErr SourceRMS }
+	
+sm> quit
+
+
+
+# 5. Estimate error correction
+# 
+#   REQUIRES current_run_goodsn_priors
+#   REQUIRES xsimuGH_RAD_SPInewX2_100.dat
+#   REQUIRES results_100_xdate_vary
+#   OUTPUT   current_run_goodsn_update
+# 
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    sm
+sm> 
+    !cp    "GOODS_N_Prior_Catalogue/RadioOwen_priors_updated_16.txt"              "current_run_goodsn_priors"
+    define imax       100
+    define xdate    <"20140329Ex">
+    macro  read     "goSimu2.sm"         Rsimu  $imax
+    
+
+
+
+# 6. Correct error and update data
+# 
+#   REQUIRES current_run_goodsn_priors
+#   REQUIRES xsimuGH_RAD_SPInewX2_100.dat
+#   REQUIRES results_100_xdate_vary
+#   OUTPUT   current_run_goodsn_update
+# 
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    sm
+sm> 
+    !cp    "RadioOwen_priors_updated_16.txt"  "current_run_goodsn_priors"
+    define imax           100
+    define xdate        <"20140331ExNewMap">
+    define imax_priors   "RadioOwen_priors_updated_16.txt"
+    define imax_update   "RadioOwen_priors_updated_16_100_20140331ExNewMap.txt"
+    define imax_exclude  "current_run_goodsn_100_exclude"
+    data   "xsimuGH_RAD_SPInewX2_100_dfcorr.csv"   read { aaF 1 ccF 2 }
+    macro  read  "run_update_owen.sm"   run_update_owen
+    !cp    "current_run_goodsn_update"  "RadioOwen_priors_updated_16_100_20140331ExNewMap.txt"
+sm> quit
+
+
+
+
+
+###. THEN GOTO HOWTO-GALFIT-100.TXT   ($bias->exclude->subtractMap->)
+
+###. THEN GOTO HOWTO-GALSIM-100.TXT   ()
+
+###. THEN GOTO HOWTO-SEDSYN-100.TXT
+
+

@@ -1,0 +1,984 @@
+Simu_All	define Ntime 20
+		set iUi=1,$Ntime foreach UiU iUi {
+		define Nsimu 4000  # 20000 is too long
+		goSS
+		foreach ddar {20cm} {
+		SimuX_$ddar
+		}
+		}
+
+SimuX_24	macro read goFine.sm xSet_24
+
+		#define mag0 -5 define mag1 0
+		define mag0 -4 define mag1 1.5
+		define g_buff 35
+		define f_buff 1
+
+		cd                                  /Users/edaddi/HDFN/HGOODS/Ref_catalogs
+		data irac_mips_fluxes_hdfn.dat read {raF 1 deF 2}
+		cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+
+		SimuX
+
+SimuX_70        macro read goFine.sm xSet_70
+	
+		define mag0 -4 define mag1 0
+		define y_buff 18
+		define f_buff 1
+
+		SimuX
+
+SimuX_100       macro read goFine.sm xSet_100
+
+		define mag0 5 define mag1 10
+		define g_buff 24
+		define f_buff 1
+
+		SimuX
+
+SimuX_160	macro read goFine.sm xSet_160
+		define mag0 4 define mag1 10
+		define g_buff 16
+		define f_buff 1
+
+		SimuX
+
+SimuX_250       macro read goFine.sm xSet_250
+		define mag0 -0.5 define mag1 3.5
+		define g_buff 15
+		define f_buff 1
+		
+		SimuX
+
+SimuX_350	macro read goFine.sm xSet_350
+		define mag0 -0.5 define mag1 3.5
+		define g_buff 15
+		define f_buff 1
+		data all_priors_RAD_350.txt read {raF 1 deF 2}
+		
+		SimuX
+
+SimuX_500	macro read goFine.sm xSet_500
+		define mag0 -1 define mag1 3.0
+		define g_buff 15
+		define f_buff 1
+		
+		data all_priors_RAD_500.txt read {raF 1 deF 2}
+		SimuX
+
+SimuX_1100	macro read goFine.sm xSet_1100
+		define mag0 4 define mag1 7
+		define g_buff 26
+		define f_buff 1
+		
+		SimuX
+
+SimuX_20cm	macro read goFine.sm xSet_20cm_Owen
+		define mag0 6 define mag1 12
+		define g_buff 31
+		define f_buff 1
+
+		cd                                  /Users/edaddi/HDFN/HGOODS/Ref_catalogs
+		data irac_mips_fluxes_hdfn.dat read {raF 1 deF 2}
+		cd                                  /Users/edaddi/HDFN/PEP/PEP_frozen_data_v2/maps
+		data Owen_missing_in_IRAC.txt read {raO 1 deO 2} set raF = raF concat raO set deF = deF concat deO
+		
+		SimuX
+
+SimuX		## define Nsimu 1000
+		define outfile   "xsimuGH_RAD_SPInew_"$imax".dat"
+		define outfile   "xsimuGH_RAD_SPInewX2_"$imax".dat"
+		define outfile   "xsimu_South_GH9_2014_"$imax".dat"     # GOODS-S
+		#define outfile   "xsimu_DF_GH1_"$imax".dat"     # Daddi-F
+		#!\rm $outfile
+		!\rm simu*fits
+		#define mag_start 5
+
+		#set x_si = 189.05+0.35*random($Nsimu)
+		#set y_si = 62.15+0.15*random($Nsimu)
+		###  goSS      # commented here to have a global one
+
+		set mag_si = $mag0+($mag1-$mag0)*random($Nsimu)
+		##declare mag_si $(dimen(x_si))                            #### use these 2 for zero flux sources
+		##set mag_si = x_si*0+19
+
+		get_coordX
+		gPriors
+		macro read goFine.sm xdo_sizes
+
+		set ii_s = 0,dimen(x_si)-1 foreach sar ii_s {
+		#Here create simulated image with added object
+
+		define xSi $(x_si_[$sar]) define ySi $(y_si_[$sar]) define mSi $(mag_si[$sar])
+
+		set Aa = $xSi set Bb = $ySi set Cc=$mSi
+		set Lx1 = int(Aa)-$f_buff-$g_buff set Lx1 = Lx1>=1 ? Lx1 : 1 set Lx1 = Lx1<=$imax_xsize ? Lx1 : $imax_xsize
+		set Lx2 = int(Aa)+$f_buff+$g_buff set Lx1 = Lx1>=1 ? Lx1 : 1 set Lx1 = Lx1<=$imax_xsize ? Lx1 : $imax_xsize
+		set Ly1 = int(Bb)-$f_buff-$g_buff set Ly1 = Ly1>=1 ? Ly1 : 1 set Ly1 = Ly1<=$imax_ysize ? Ly1 : $imax_ysize
+		set Ly2 = int(Bb)+$f_buff+$g_buff set Ly1 = Ly1>=1 ? Ly1 : 1 set Ly1 = Ly1<=$imax_ysize ? Ly1 : $imax_ysize
+
+		#!\cp HSO_$imax"_simu1.header" HSO_$imax".INPUT"
+		define aa_file "HSO_$imax"".INPUT"
+		#print $aa_file 'A) $imax_name".fits" \n B) simu.fits \n C) $imax_name_rms".fits" \n D) $imax_name_psf".fits" \n E) $psf_resampl \n F) none \n G) none \n I) 1   1 \n J) 0 \n K) 0.06   0.06 \n O) both \n P) 1 \n S) 0 \n' {}          # here P=1 because we are adding an object
+		#print +$aa_file 'H) $(Lx1[0]) $(Lx2[0]) $(Ly1[0]) $(Ly2[0]) \n' {}
+		
+		print $aa_file 'A) $imax_name".fits" \n' {}
+        print +$aa_file 'B) simu.fits \n' {}
+        print +$aa_file 'C) $imax_name_rms".fits" \n' {}
+        print +$aa_file 'D) $imax_name_psf".fits" \n' {}
+        print +$aa_file 'E) $psf_resampl \n' {}
+        print +$aa_file 'F) none \n' {}
+        print +$aa_file 'G) none \n' {}
+        print +$aa_file 'I) 1 1 \n' {}
+        print +$aa_file 'J) 0 \n K) 0.06   0.06 \n O) regular \n P) 1 \n \n' {}
+        print +$aa_file 'H) $(Lx1[$0]) $(Lx2[$0]) $(Ly1[$0]) $(Ly2[$0]) \n' {}
+
+		print +$aa_file '\n 0) psf \n 1) %.3f %.3f 0 0 \n 3) %.3f  0 \n Z) 0  \n \n' {Aa Bb Cc}
+
+		
+		#!/dsm/upgal/data/edaddi/galfit/galfit $aa_file
+		!/Users/edaddi/software/galfit $aa_file
+		#define aaa ?
+
+		!\rm simu3.fits
+		print do.cl 'images\n' {}
+		print +do.cl 'imutil\n' {}
+		print +do.cl 'imdel simu2.fits\n' {}
+		print +do.cl 'imdel simu3.fits\n' {}
+		print +do.cl 'imdel simu_rms.fits \n' {}
+		print +do.cl 'imcopy $imax_name""[$(Lx1[0]):$(Lx2[0]),$(Ly1[0]):$(Ly2[0])] simu3 \n' {}
+		print +do.cl 'imarith simu + simu3 simu2.fits\n' {}
+		print +do.cl 'imcopy $imax_name_rms""[$(Lx1[0]):$(Lx2[0]),$(Ly1[0]):$(Ly2[0])] simu_rms \n' {}
+		print +do.cl 'logout\n' {}
+		!cl < do.cl 
+
+		Simu_
+		
+		#define aaa ?
+		}
+
+Simu_ 00	
+		
+
+		!\rm galfit.*
+		!\rm tmp*fits
+		!\rm HSO_$imax".CONSTRAINTS"
+		!\rm summary_run
+		!\rm fit*log
+
+		set Sx$imax = x$imax concat Aa           # Here join the prior list with the fake object in exam
+		set Sy$imax = y$imax concat Bb
+
+
+		set Snoi$imax = Sx$imax*0 concat 0
+		noise_AaB       # determine NNN, the noise at the fake object position
+
+		set Sm$imax = Sx$imax*0+$mag_start
+
+		## fit the simulated galaxies and objects around only
+		set coo = abs(Sy$imax-Bb[0])<$g_buff && abs(Sx$imax-Aa[0])<$g_buff
+		set xx$imax = Sx$imax-$(Lx1[0])+1 if(coo)
+		set yy$imax = Sy$imax-$(Ly1[0])+1 if(coo)
+		set mm$imax = Sm$imax if(coo)
+
+		echo $(dimen(xx$imax)) 
+		#define aaa ?
+		## to here
+
+		define aa_file "HSO_$imax"".INPUT"
+		#print $aa_file 'A) simu2.fits \n B) simu3.fits \n C) simu_rms.fits \n D) $imax_name_psf".fits" \n E) $psf_resampl \n F) none \n G) HSO_$imax".CONSTRAINTS" \n I) 1   1 \n J) 0 \n K) 0.06   0.06 \n O) both \n P) 0 \n S) 0 \n' {}          # here P=0
+		#print +$aa_file 'H) 1 $(Lx2[0]-Lx1[0]+1) 1 $(Ly2[0]-Ly1[0]+1) \n' {}
+
+		print $aa_file 'A) simu2.fits \n' {}
+        print +$aa_file 'B) simu3.fits \n' {}
+        print +$aa_file 'C) simu_rms.fits \n' {}
+        print +$aa_file 'D) $imax_name_psf".fits" \n' {}
+        print +$aa_file 'E) $psf_resampl \n' {}
+        print +$aa_file 'F) none \n' {}
+        print +$aa_file 'G) HSO_$imax".CONSTRAINTS" \n' {}
+        print +$aa_file 'I) 1 1 \n' {}
+        print +$aa_file 'J) 0 \n K) 0.06   0.06 \n O) regular \n P) 0 \n \n' {}
+        print +$aa_file 'H) 1 $(Lx2[0]-Lx1[0]+1) 1 $(Ly2[0]-Ly1[0]+1) \n' {}
+
+
+		set aa1 = xx$imax set aa2 = yy$imax set aa3 = mm$imax
+		
+		print +$aa_file            '\n 0) psf \n 1) %.3f %.3f 0 0 \n 3) %.3f  1 \n Z) 0  \n \n' {aa1 aa2 aa3}
+		print +$aa_file            '\n 0) sky \n 1) $Xback  0 \n 2) 0 0 \n 3) 0 0 \n Z) 0  \n \n' {}
+		
+		set oo=1,dimen(xx$imax) print HSO_$imax".CONSTRAINTS" '   %d   mag -10 to $mag_toofaint  \n' {oo}
+
+
+		#!/dsm/upgal/data/edaddi/galfit/galfit HSO_$imax".INPUT"
+		!/Users/edaddi/software/galfit $aa_file
+		if(is_file("fit.log")) { 
+		goRead
+		echo all done
+		} else { echo CRASH !!!!!!!
+		define aaa ?}
+
+		#define aaa ?    # uncomment this to check result of Simu
+
+goRead  00	
+		!\rm aaa1
+        !\rm aaa2
+        !\rm aaa3
+
+		!sed -i -e's/\[//g' -e's/\]//g' -e's/,]//g' -e's/\,//g' -e's/)//g' -e's/(//g' fit.log
+
+		!grep -A1 psf fit.log | grep -e"--" -v > aaa3
+
+        !grep psf aaa3 > aaa2
+        !grep psf -v aaa3 > aaa1
+
+		data aaa1 read _err 3
+		data aaa2 read '%s %s %f %f %f'  {_aa _bb xg yg _mag}
+
+		#define aaa ?
+
+		set xcoox = abs(xg-Aa[0]+$(Lx1[0])-1)<.02 && abs(yg-Bb[0]+$(Ly1[0])-1)<.02
+		set mm = _mag if(xcoox)
+		set ee = _err if(xcoox)
+
+		print +$outfile '%.2f %.2f %.3f %.3f %.3f\n' {Aa Bb Cc mm ee NNN}
+
+Rsimu	01	define xima $1 
+		#define xima_name "xsimuGH9_"$xima".dat"                     #GOODS-N
+		define xima_name "xsimu_South_GH9_2014_"$xima".dat"		     #GOODS-S
+		#define xima_name "xsimu_DF_GH1_"$xima".dat" 		     # Daddi-F
+		#define xima_name "xsimuGH_RAD_SPInewX_"$xima".dat"                     #GOODS-N
+		define Field G_S      # G_S G_N D_F
+		#data $xima_name read {px 1 py 2 min 3 m 4 e 5} set n=e*0+1e-5
+		data $xima_name read {px 1 py 2 min 3 m 4 e 5 n 6}
+		echo $xima_name $(dimen(m)) objects
+
+		#define imax $xima
+		#if(is_file($xima_name"_contam_X_simu.dat") && 1) {
+		#data $xima_name"_contam_X_simu.dat" read contam_X 1
+		#echo XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+		#} else {
+		#if('$Field' == 'G_S' ) {
+		#growth_S} else {
+		#growth }        # for Nord
+		#}
+		set contam_X=px*0
+
+
+		define f_fact 1 define fbias 0 define conf_noise 0 define sss_noise 1 define coeff_contam_X 0
+		#if($xima==250)  {define f_fact $(1/10.37*1000) define fbias 0.65 define conf_noise 3.4  define sss_noise 1 define coeff_contam_X 0}    # 250
+		if($xima==250)  {define f_fact $(1/31.16*1000) define fbias 0.65 define conf_noise 3.4  define sss_noise 1 define coeff_contam_X 0.3}    # 250  finer scale
+		#if($xima==350)  {define f_fact $(1/7.17*1000) define fbias -1.55 define conf_noise 3.4   define sss_noise 1 define coeff_contam_X 0}    # 350
+		if($xima==350)  {define f_fact $(1/34.42*1000) define fbias -0.75 define conf_noise 3.4  define sss_noise 1 define coeff_contam_X 0.3}    # 350 finer scale
+		#if($xima==500)  {define f_fact $(1/7.62*1000) define fbias 2.2 define conf_noise 3.1  define sss_noise 1 define coeff_contam_X 0}     # 500
+		if($xima==500)  {define f_fact $(1/32.198*1000) define fbias 2.2 define conf_noise 3.1  define sss_noise 1 define coeff_contam_X 0.25}     # 500 finer scale
+		#if($xima==70)   {define f_fact 1 define fbias 0.2 define conf_noise 0.7  define sss_noise 1 define coeff_contam_X 0}     		      # 70
+		if( '$xima' == '70P' )   {define f_fact $(1/.886*1000) define fbias 0.0 define conf_noise 0.0  define sss_noise 1 define coeff_contam_X 0.12}     		      # 70 PEP South
+		if($xima==24)   {define f_fact $(6.691*1.206) define fbias 0 define conf_noise 0  define sss_noise 1 define coeff_contam_X 0}     		      # 70
+		if($xima==16)   {define f_fact $(19.03) define fbias 0 define conf_noise 0  define sss_noise 0.2 define coeff_contam_X 0}     		      # 16um South
+		if($xima==1100) {define f_fact 1000 set df=df define fbias 0 define conf_noise 0  define sss_noise 1 define coeff_contam_X 0}     # 1100
+		#if($xima==160)  {define f_fact $(0.90/.806*1000) define fbias 0 define conf_noise 1.5  define sss_noise 1 define coeff_contam_X 0.3}     # 160 PEP
+		#if($xima==160)  {define f_fact $(1/.806*1000) define fbias 0 define conf_noise 1.5  define sss_noise 1 define coeff_contam_X 0.3}     # 160  H-GOODS N, Paola's pixels
+		if($xima==160)  {define f_fact $(1.29*1000) define fbias 0 define conf_noise 0.0  define sss_noise 5e-5 define coeff_contam_X 0.16}     # 160  H-GOODS N, finer scale
+		#if($xima==160)  {define f_fact $(1.37*1000) define fbias 0 define conf_noise 0.0  define sss_noise 2.8e-5 define coeff_contam_X 0.2}     # 160  H-GOODS S, finer scale
+		#if($xima==100)  {define f_fact $(0.94/.859*1000) define fbias 0 define conf_noise 0.7  define sss_noise 1 define coeff_contam_X 0.3}     # 100 PEP
+		#if($xima==100)  {define f_fact $(1/.859*1000) define fbias 0 define conf_noise 0.7  define sss_noise 1 define coeff_contam_X 0.3}     # 100  H-GOODS N, Paola's pixels
+		if($xima==100)  {define f_fact $(1.37*1000) define fbias 0 define conf_noise 0.7 define sss_noise 2.1e-5 define coeff_contam_X 0.16 }     # 100  H-GOODS N, finer scale
+		#if($xima==100)  {define f_fact $(1.42*1000) define fbias 0 define conf_noise 0.7 define sss_noise 1.3e-5 define coeff_contam_X 0.16 }     # 100  H-GOODS S, finer scale
+		#if( '$xima' == '20cm' )  {define f_fact $(1.004/13.23) define fbias 0 define conf_noise 0 define sss_noise 1.3e-1 define coeff_contam_X 0. }     # Radio Nord  Morrison 
+		if( '$xima' == '20cm' )  {define f_fact $(1.00/37.5055*1e6) define fbias 0 define conf_noise 0 define sss_noise 1.3e-1 define coeff_contam_X 0. }     # Radio Nord Owen
+
+		set e = e>=0 && e<0.02 ? 0.02 : e
+
+		set f = 10**(-0.4*m)*$f_fact
+		set df = f*e/1.08
+		set fU = f+$fbias
+		set dfU = (df**2+($conf_noise)**2)**.5
+
+		set Xf = 10**(-0.4*min)*$f_fact
+
+		set Tdf = df
+		#set df = (df**2+($coeff_contam_X*contam_X)**2)**.5
+
+		set Excl = px*0
+		Exclusions	
+
+		#doPeaks
+	        doStat	
+
+
+doPeaks		set fU=fU-Xf   #take out the little real signal
+		set fU = fU>=0 ? fU : 0 #fluxes are positively defined
+
+		set SNU = fU>0 ? fU/dfU : 0
+		print R$xima_name {min m e fU dfU SNU Xf}
+		set ee = fU if(SNU>2) echo 2-sigma PEAKS $(dimen(ee)/dimen(fU))
+		set ee = fU if(SNU>3) echo 3-sigma PEAKS $(dimen(ee)/dimen(fU))
+
+doStat		
+
+		#set aaF = {0 0.51 0.85 1.75 4.24 10 99} set ccF = {1.24 1.24 1.38 2.59 6.10 10 99} set uui = 1,dimen(Tdf) sort {Tdf uui} spline aaF ccF Tdf Edf sort {uui Tdf Edf} set df = Edf
+		#set aaF = {0 .56 .84 1.23 1.94 3.53 10 99} set ccF = {1.19 1.19 1.44 2.04 2.81 4.81 13 129} set uui = 1,dimen(Tdf) sort {Tdf uui} spline aaF ccF Tdf Edf sort {uui Tdf Edf}
+		#set aaF = {0 1 1.47 2.3 3.8 99} set ccF = {1.60 1.60 2.3 3.2 3.9 99} set uui = 1,dimen(Tdf) sort {Tdf uui} spline aaF ccF Tdf Edf sort {uui Tdf Edf}
+		#set aaF = {0 0.64 0.98 1.53 2.44 3.98 99} set ccF = {1.25 1.25 1.66 2 2.72 3.98 99} set uui = 1,dimen(Tdf) sort {Tdf uui} spline aaF ccF Tdf Edf sort {uui Tdf Edf}
+		#set aaF = {0 1.22 1.75 2.42 3.8 6.4 99} set ccF = {2.42 2.42 3.07 3.44 5.4 8.1 99} set uui = 1,dimen(Tdf) sort {Tdf uui} spline aaF ccF Tdf Edf sort {uui Tdf Edf}
+		set aaF = {0 2.66 3.48 4.89 7.7 12.14 17.17 24.07 37.83 67.47 150 500} set ccF= {4.55 4.55 5.50 6.72 9.23 12.71 14.4 15.77 19.55 20.36 29 30} set ccF=ccF*1.07*1.1*1.04 set uui = 1,dimen(Tdf) sort {Tdf uui} spline aaF ccF Tdf Edf sort {uui Tdf Edf} # 24-N --> 1.07    24-S --> 1.07*1.1*1.04
+		#set aaF = {0 0.38 0.45 0.59 0.82 1.23 1.71 2.34 6.49} set ccF = {2.76 2.76 2.76 2.76 3.13 3.60 3.65 7.44 8.62} set uui = 1,dimen(Tdf) sort {Tdf uui} spline aaF ccF Tdf Edf sort {uui Tdf Edf} # radio Owen
+		#set Edf = df
+		set Edf = (Edf**2+(.0*contam_X)**2)**.5 set df = Edf
+		set Ee = df/f/1.08 set Edf = df
+
+		set xcc = !Excl && m<=20 && Xf<130 #  && Xf<1200 # && e>0.02 && e<3.3 # && Tdf>1.8 && Tdf<3.3 # && lg(Tdf)>lg(n)+5-.9+.1  && contam_X<1 # && lg(n)>-4.8 # && n<$sss_noise #&& contam_X>=15   # && abs((Xf-f)/df)>5      # Remember to limit mas value for the noise! Expecially for South (done in goodArea for MIPS, can be bad area for Herschel)
+		stats_med (lg(Tdf)) me si
+		#set xcc = xcc && (abs(lg(Tdf)-$me)<3*$si)
+		#set xcc = !xcc && Xf>30 && Xf<50
+		#set Edf = (Tdf**2+(0.8448*(lg(n)+5)+.1888)**2)**.5 #set xcc = xcc && Edf/Tdf>1.15
+		#set Edf = (Tdf**2+(0.2*contam_X)**2)**.5 set xcc = xcc && Edf/Tdf>1.15 
+		#set Edf = ((Tdf*1.8)**2+(0.00*contam_X)**2+0.0**2)**.5 set df = Edf #set xcc = xcc && Edf/Tdf>1.15
+		foreach var {px py min m e f df Tdf Xf n contam_X Edf} {set $var = $var if(xcc)}
+		#print {px py min m e f df Tdf Xf n contam_X}
+		print Simu.dat {px py min m e f df Xf}
+		echo $xima_name $(dimen(m)) selected
+		#set xxx = abs(min-m)/e print {min m e xxx}
+		print Simu.reg '\# Region file format: DS9 version 3.0\n' {}
+		print +Simu.reg '"global color=red font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+                print +Simu.reg 'circle(%.2f,%.2f,3) \n' {px py}
+
+		#GoErr
+		#set Uff = f/df set f = f+$a*(df-$me)+$b #set df = Uff>1 ? f/Uff : df
+
+		#Set_zero_SPIRE
+		#set f = f+zero_SPIRE
+
+		gop Xf f
+		error_y Xf f df
+		xlabel True 
+		ylabel Measured
+		rel -22 -22 draw 1e3 1e3
+		#GoFit
+		#set Tf = f*a[1]+a[0]
+		#GoLSQ
+		#set f = f*$a+$b
+		define aaa ?
+
+		gop f (Xf-f)
+		error_y f (Xf-f) df
+		xlabel True 
+		ylabel True -  Measured
+		set wei = 1/df**2 define Mpesata $(sum((Xf-f)*wei)/sum(wei))  echo Mpesata  $Mpesata
+		stats_med df me si echo Median error $me
+		stats (Xf-f) me si ku echo Media $me    Sigma $si     Kurtosis $ku
+		stats_med (Xf-f) meDiana si echo Mediana $meDiana    SIR $si   
+		rel -11 $meDiana draw 2222 $meDiana
+		ltype 1 rel -11 $Mpesata draw 2222 $Mpesata
+		ltype 0
+
+		#set Tf = f+$Mpesata
+		set Tf = f +$meDiana
+		define aaa ?
+
+		device postfile uuu.ps
+		xlabel Meas flux
+		ylabel Fractional variation
+		gop Tf ((Xf-Tf)/Xf)
+		device x11 
+		gop Tf ((Xf-Tf)/Xf)
+		error_y Tf ((Xf-Tf)/Xf) (df/Xf)
+		xlabel Meas flux
+		ylabel (True-Meas)/True
+		
+		define aaa ?
+
+		gop Tf ((Xf-Tf)/df)
+		xlabel Meas flux
+		ylabel (True-Meas)/Error
+		
+		echo Clip outliers ?
+		define aaa ?
+		if($aaa==1) {
+		define nsigma 5
+		set coox = abs((Xf-Tf)/df)<$nsigma
+		define xIn $(dimen(Xf))
+		foreach xar {px py min m e f df Xf Tf Tdf n contam_X Edf} {set $xar = $xar if(coox)}
+		gop Tf ((Xf-Tf)/df)
+		xlabel Meas flux
+		ylabel (True-Meas)/Error  (Clipped $nsigma Sigma)
+		echo Clipped $((1-dimen(Xf)/$xIn)*100)% of data ($($xIn-dimen(Xf)) of $xIn)
+		define aaa ?
+		}
+
+		if( '$Field' == 'G_S' && $xima==16) {
+		echo 16um: error scaling ,ultiplicative
+		declare att 0
+		set ss=0.1,10,.01 
+		foreach var ss {set att = att concat $(sum((Xf-Tf)**2/(df**2*$var**2)))}
+		set att = att/dimen(Xf)
+		ticksize -1 0 -1 0
+		gop (lg(ss)) (lg(att))
+		ticksize 0 0 0 0
+		set ee = 1
+		sort {att ss}
+		spline att ss ee tt
+		echo Multiply errors by 
+		print {tt}
+		set dff = df*$(tt[0])
+		define aaa ?
+		} else {
+		# standard chi^2 addition, confusion
+		define Tchi $(sum((Xf-Tf)**2/(df**2))/dimen(Xf))
+		if($Tchi>1) {
+		declare att 0
+		set ss=0.1,10,.01
+		foreach var ss {set att = att concat $(sum((Xf-Tf)**2/(df**2+$var**2)))}
+		set att = att/dimen(Xf)
+		ticksize -1 0 -1 0
+		gop (lg(ss)) (lg(att))
+		ticksize 0 0 0 0
+		set ee = 1
+		sort {att ss}
+		spline att ss ee tt
+		print {tt}
+		set dff = (df**2+$(tt[0])**2)**.5
+		define aaa ?
+		} else { 
+		set dff = df*sqrt($Tchi)
+		echo Reduce error by $(1/sqrt($Tchi))
+		} # end of standard chi^2 addition, confusion
+		}
+		set dff = df # avoid any rescaling here
+		
+		get_hist ((Xf-Tf)/dff) inte hist  -4 4 .2
+		goi inte hist 
+		stats ((Xf-Tf)/dff) me si ku echo $me $si $ku
+		rel $me -11 draw $me 1e13
+		
+		foreach xur {5 4 3 2} {
+		set aa$xur = Xf if(abs((Xf-Tf)/dff)>$xur) set ee$xur = Xf if(((Xf-Tf)/dff)>$xur)
+		echo $xur""sigma outliers $(dimen(aa$xur)/dimen(Xf)*100) % ($(dimen(ee$xur)/dimen(aa$xur)*100) % underestimated)
+		}
+
+		define aaa ?
+		stats_med dff me si echo Median error (final) --> $me ($si)
+		get_hist dff inte hist  $($me-4*$si) $($me+4*$si) $(0.2*$si)
+		goi inte hist
+		stats ((Xf-Tf)/dff) me si ku echo ERROR Stat: system $me, DISPERSION $si (should be one)
+		xlabel Error
+		ylabel Number
+
+
+get_xy_fromRD   define print_noheader 1
+		print do.csh 'xy2sky $imax_name".fits" ' {}
+	 	print +do.csh ' %.7f %.7f' {x_si y_si}       # these are x-y   
+		print +do.csh '\n' {}
+		!\rm aaa
+		!csh < do.csh > aaa
+		
+		data aaa read '%d:%d:%f %d:%d:%f' {ra1 ra2 ra3 de1 de2 de3}
+                set de1=-de1
+                set raF = (ra3/3600+ra2/60+ra1)*15
+                set deF = de3/3600+de2/60+de1
+                set deF=-deF
+		# all this is for the simulated maps where I know only positions
+
+
+get_coordX      define print_noheader 1
+		print do.csh 'sky2xy $imax_name".fits"' {}
+	 	print +do.csh ' %.7f %.7f J2000 ' {x_si y_si}       # these are RA-DEC
+		print +do.csh '\n' {}
+		!\rm aaa
+		!csh < do.csh > aaa
+		
+		data aaa read {x_si_ 5 y_si_ 6}       # these are x-y    !!!!
+		# all this is for the simulated positions
+
+gop	02	limits $1 $2 erase box points $1 $2
+goi	02	limits $1 $2 erase box histogram  $1 $2
+
+goSS	00	set x=17*random($Nsimu)   # use for MIPS priors (GOODS-N)
+		#set x=15*random($Nsimu)   # use for Radio priors (GOODS-N)
+		set y=11*random($Nsimu)
+		#set x=1*random($Nsimu)    # HDFN scan simulation
+		#set y=1*random($Nsimu)    # HDFN scan simulation
+		define ang 44
+		set X=x*cosd($ang)-y*sind($ang)
+		set Y=x*sind($ang)+y*cosd($ang)
+		gop raF deF
+		set Xra = 189.17+X/60/.46-.0
+		set Xde = 62.08+Y/60-.0
+		#set Xra = 189.2026526+X/60/.46-.0  # HDFN scan simulation
+		#set Xde = 62.2043939+Y/60-.0  # HDFN scan simulation
+
+                print do.csh 'sky2xy n_mips_1_s1_v0_37_rms_ED.fits' {}
+		print +do.csh ' %.7f %.7f J2000 ' {Xra Xde}
+                print +do.csh '\n' {}
+                !\rm aaa
+                !csh < do.csh > aaa
+		data aaa read {x24 5 y24 6}
+                #noise24
+		define imax 24 define imax_name_rms "n_mips_1_s1_v0_37_rms_ED" define imax_name $imax_name_rms 
+		macro read goFine.sm xdo_sizes 
+		macro read goFine.sm noise_XXX
+                #set noi24 = noi24**(-2)
+		#set goodArea = noi24>6000    # expos map
+		set goodArea = noi24<0.005   # measured on the new images v0.37  --> 148.16 arcmin^2
+		foreach sss {Xra Xde} {set $sss"_" = $sss if(goodArea)}
+
+		ctype blue points Xra Xde ctype 0
+		ctype red points Xra_ Xde_ ctype 0
+		set x_si = Xra_
+		set y_si = Xde_
+		#Up to here they are just RA-DEC positions simulated
+Read_All	
+		declare SNtot 0
+		foreach ddar {160 250 350 500 100 1100} {
+		define xima $ddar
+		define xima_name "RxsimuS_"$xima".dat"
+		data $xima_name read {uu 6} set SN$ddar = uu
+		if(dimen(SNtot)==0) {set SNtot = uu*0}
+		set SNtot = (SNtot**2+SN$ddar**2)**.5
+		}
+		set ii = 1,dimen(uu)
+		set ee = SNtot if(SNtot>5) echo 5-sigma total PEAKS $(dimen(ee)/dimen(SNtot))
+		set ee = SNtot if(SNtot>5.5) echo 5.5-sigma total PEAKS $(dimen(ee)/dimen(SNtot))
+		set ee = SNtot if(SNtot>6) echo 6-sigma total PEAKS $(dimen(ee)/dimen(SNtot))
+		set ee = SNtot if(SNtot>7) echo 7-sigma total PEAKS $(dimen(ee)/dimen(SNtot))
+		set coo = SNtot>5
+		foreach var {ii SNtot SN100 SN160 SN250 SN350 SN500 SN1100} {set $var = $var if(coo)}
+		print SNtot.dat {ii SNtot SN100 SN160 SN250 SN350 SN500 SN1100}
+		print {ii SNtot SN100 SN160 SN250 SN350 SN500 SN1100}
+		
+		define xima 250
+		define xima_name  "xsimuC_"$xima".dat"
+		data $xima_name read {xS 1 yS 2} set uu=1,dimen(xS)
+		set coo = xS*0 foreach var ii {
+		set eq = xS*0+$var
+		set coo = uu==eq ? 1 : coo}
+		foreach var {uu xS yS} {set $var = $var if(coo)}
+
+		define print_noheader 1
+		print Simu.reg '\# Region file format: DS9 version 3.0\n' {}
+		print +Simu.reg '"global color=blue font=\"helvetica 10 normal\" select=1 edit=1 move=1 delete=1 include=1 fixed=0 source"\n' {}
+                print +Simu.reg 'circle(%.2f,%.2f,4) \# text={SIM%d} \n' {xS yS uu}
+		define print_noheader 0
+
+GoFit	00	set ONE = 1 set X = f set X2 = f**2 set X3 = f**3
+		set vec = { ONE X }
+		set Y = Xf
+		linfit vec Y a var_a set sig_a = sqrt(var_a)
+		set xx = 0,100,.1 set bb=a[0]+a[1]*xx
+		connect  bb xx
+		spline xx bb f FBB
+		print {a}
+GoLSQ	00	set wei = 1/df**2
+		wlsq f Xf wei 
+		set xx = 0,100,.1 set bb = xx*$a+$b connect bb xx
+		echo $a $b
+GoErr	00	stats_med df me si echo Median error $me
+		lsq (df-$me) (Xf-f)
+		gop (df-$me) (Xf-f)
+		xlabel Error - median(Error)
+		ylabel True - Measured
+		echo Err fit $a $b
+		set aa = -10,1000 set bb=$a*aa+$b connect aa bb
+		define aaa ?
+
+gPriors	00	define iX 1000
+		define xGO 1
+		set ccx = 0,dimen(raF)-1
+		declare x$imax 0 declare y$imax 0
+		while {$xGO} {
+		set xcoo = ccx>=$iX-1000 && ccx<$iX foreach var {raF deF} {set $var"_"=$var if(xcoo)} 
+		if(dimen(raF_)) {
+		echo $(dimen(raF_))
+		print do.csh 'sky2xy $imax_name".fits"' {}
+	 	print +do.csh ' %.7f %.7f J2000 ' {raF_ deF_}
+		print +do.csh '\n' {}
+		!\rm aaa
+		!csh < do.csh > aaa
+		!\rm do.csh
+		data aaa read {ximax 5 yimax 6}
+		if(dimen(ximax)!=dimen(raF_)) {
+		echo CRASH !!!!!!!
+		define aaa ?
+		} else {
+		set x$imax = x$imax concat ximax
+		set y$imax = y$imax concat yimax
+		define iX $($iX+1000)
+		} # if2
+		} else {define xGO 0}  # if1
+		} # while
+		if(dimen(x$imax)!=dimen(raF)) {
+                echo CRASH !!!!!!!
+                define aaa ?
+                }
+		
+		set x1=x$imax set y1=y$imax
+	        set fix1 = x1*0 set fix2 = fix1
+                if($vary_positions) {
+                data results_$imax"_"$xdate read {ee 5 mm 4}
+                set fix1 = ee<=.05 && ee>=0
+                set fix2 = fix1
+                define xdate $xdate"_vary"
+                define use_prior_mags 1
+                set xm$imax = mm
+                set xm$imax = xm$imax > $mag_toofaint ? $mag_toofaint : xm$imax
+                }
+
+		if( '$imax_name' == 'HTfinal_coadd20101016_ima_grn' && $fix_astrometry) {
+                set x100 = x100-0.000917146157*x100+0.5255420208
+                set y100 = y100-0.001511578914*y100+0.6674745679
+                }
+                if( '$imax_name' == 'HTfinal_coadd20101016_ima_red' && $fix_astrometry) {
+                set x160 = x160-3.47800451e-05*x160+0.5444692373
+                set y160 = y160-0.00185266044*y160+0.4123865664
+		set x160 = x160+1.588864507e-05+0.1443387568
+		set x160 = x160+0.0009392235661*y160-0.2041141391
+                }
+		if( '$imax_name' == 'pacs160_ima_2p4_v0_100615_ED' && $fix_astrometry) {
+                set x160 = x160-0.11
+                set y160 = y160-9.887011402e-06*y160+0.387675494
+                }
+		if ( '$imax_name' == 'goods_south_wdriz_frac0pt6_norm_19dec06_cut_ima' && $fix_astrometry) {
+                set x16 = x16-0.05
+		set y16 = y16-.21
+		}
+		if ( '$imax_name' == 'goods_north_wdriz_frac0pt6_norm_19dec06_minbackJM' && $fix_astrometry) {
+                set x16 = x16+x16*0.0002672541013-0.2452505082
+		set y16 = y16+.1073
+		}
+		if ( '$imax_name_rms' == 'n_mips_1_s1_v0_37_rms_ED' && $fix_astrometry) {
+                #set x24  = x24 -0.0002197765716*x24 +0.03349415213
+                #set y24  = y24 +0.0002208997321*y24 -0.09302435815
+                #set x24  = x24 +0.0003390817146*y24 -0.19971483953
+                #set y24  = y24 +0.0002345961693*x24 -0.13415789615
+
+			set x24 =x24 -x24*0.000218459022+0.0507825188     # change all signs here wrt the Move160 macro
+		        set y24 =y24 +y24*0.0001888914055-0.0941359848
+		        set x24 =x24 +y24*0.0003340516216-0.2101281967   # YX
+		        set y24 =y24 +x24*0.0002073335871-0.1008526574   # XY
+		}
+
+		if( '$imax_name' == 'spire250_ima_3p6_v0_100615' && $fix_astrometry) {
+                #set x250 = x250+.12   # changed the header, kept same name
+                }
+
+		if( '$imax_name' == 'combined_maw0_4_azw0_5_sig' && $fix_astrometry) {
+                #set x1160 = x1160+.05     # for Penner files, my 'astro' file is corrected in the header
+                #set y1160 = y1160-.89
+                }
+
+		if( '$imax_name' == 'VLA_20cm_Glenn_May09' && $fix_astrometry) {
+		set y20cm=y20cm+y20cm*0.0002401342936-0.6948485975
+                set x20cm=x20cm-y20cm*0.0002626516216+0.8761281967
+                set y20cm=y20cm+x20cm*0.0003082074691-0.7643211484
+		echo 20cm astrometry fixed
+		}
+		if( '$imax_name' == 'VLA_Owen_2arcsec_NOPBC' && $fix_astrometry) {
+
+						set x20cm=x20cm+x20cm*0.0001380607703+0.4105169177
+				        set y20cm=y20cm+y20cm*0.0002927727061+0.5311308503
+				        set x20cm=x20cm-y20cm*9.378555114e-05+0.1738602072   # YX
+				        set y20cm=y20cm+x20cm*0.0002324701782-0.4149723053   # XY
+
+
+		echo 20cm Owen astrometry fixed
+		#define aaa ?
+		}
+		if( '$imax_name' == 'VLA_Owen_2arcsec_big_NOPBC' && $fix_astrometry) {
+
+						set x20cm=x20cm+x20cm*0.0001143673362+0.3045236176
+        				set y20cm=y20cm+y20cm*0.0003095426073+0.14953011275
+		        		set x20cm=x20cm-y20cm*6.067988215e-05+0.2183290869   # YX
+				        set y20cm=y20cm+x20cm*0.0002068205358-1.03707981145  # XY
+
+
+
+		echo 20cm Owen astrometry fixed BIG MAPS
+		#define aaa ?
+		}
+
+
+		if( ('$imax' == 'ch1N' || '$imax' == 'ch2N' || '$imax' == 'ch3N' || '$imax' == 'ch4N') && $fix_astrometry) {
+		set x$imax=x$imax+x$imax*0.000146749022+0.3915825188
+                set y$imax=y$imax+y$imax*0.0001650914055+0.2772359848
+                set y$imax=y$imax-x$imax*0.0001263335871+0.1138526574
+		echo IRAC HDFN Astrometry fixed
+		}
+
+		# CDFS below 
+
+		if( '$imax_name' == 'ecdfs_spire250_naive36_first_reduction_sci' && $fix_astrometry) {
+                set x$imax = x$imax-0.72  
+                set y$imax = y$imax-0.39  
+                }
+
+		if( '$imax_name_rms' == 's_mips_1_s1_v0_30_rms_ED' && $fix_astrometry) {
+						#set x$imax=x$imax+x$imax*0.0002401855309-0.03187650442
+				        #set x$imax=x$imax-y$imax*7.638338138e-05 +0.03554521874 # YX
+				        #set y$imax=y$imax-x$imax*0.0001534190524 +0.08358967304 # XY
+				        #set y$imax=y$imax+y$imax*5.154597238e-05+0.007481802255
+						set x$imax=x$imax+0.05
+						set y$imax=y$imax+0.03
+					echo ASTROMETRY FIXED 
+                }
+
+
+		#### Daddi Field below
+
+		if ( ( '$imax_name' == 'DaddiF_IRAC_ch1_cut' || '$imax_name' == 'DaddiF_IRAC_ch2_cut' || '$imax_name' == 'DaddiF_IRAC_ch3_cut' || '$imax_name' == 'DaddiF_IRAC_ch4_cut' ) && $fix_astrometry) {
+                set x$imax = x$imax +.22
+                set y$imax = y$imax -.45
+                }
+
+		if ( '$imax_name' == 'DaddiF_IRAC_ch1_140cut_wcs' && $fix_astrometry) {
+		set x$imax = x$imax +0.002715624403*x$imax-0.02680298686
+		set x$imax = x$imax -0.001861029072*y$imax+0.2884926498
+                set y$imax = y$imax +.51
+		set y$imax = y$imax+x$imax*0.002464421326-0.2463779151
+		set y$imax = y$imax-0.001622305834*y$imax+0.2524737418
+		}
+
+		if ( '$imax_name' == 'DaddiF_IRAC_ch2_140cut_wcs' && $fix_astrometry) {
+		set x$imax = x$imax +0.002354499185*x$imax-0.1950650364
+		set y$imax = y$imax +.71
+		set y$imax = y$imax -y$imax*0.002457780996+0.6575413942
+		set y$imax = y$imax -x$imax*0.001179208979+0.1909260452
+		}
+
+		if ( '$imax_name' == 'DaddiF_IRAC_ch3_140cut_wcs' && $fix_astrometry) {
+		set x$imax = x$imax +.75
+		set y$imax = y$imax +.81
+		}
+
+		if ( '$imax_name' == 'DaddiF_IRAC_ch4_140cut_wcs' && $fix_astrometry) {
+		set x$imax = x$imax +.20
+		set y$imax = y$imax +.80
+		}
+
+		if ( '$imax_name' == 'Daddi-B_Kong_140cut_wcs' && $fix_astrometry ) {
+		set x$imax = x$imax -0.05
+		set y$imax = y$imax +.06
+		}
+
+		if ( '$imax_name' == 'Daddi-I_Kong_140cut_wcs' && $fix_astrometry ) {
+		set x$imax = x$imax -0.16
+		set y$imax = y$imax +.31
+		}
+
+		if ( '$imax_name' == 'Daddi-z_Kong_140cut_wcs' && $fix_astrometry ) {
+		set x$imax = x$imax -0.17
+		set y$imax = y$imax +.40
+		}
+
+		if ( '$imax_name' == 'Kampone_R_140cut_rewcsd_wcs' && $fix_astrometry ) {
+		set x$imax = x$imax -0.13
+		set y$imax = y$imax +.10
+		}
+
+		if ( '$imax_name' == 'Clu_Daddi_TOT_Ks_140cut_wcs' && $fix_astrometry ) {
+		set x$imax = x$imax +0.34
+		set y$imax = y$imax +0.35
+		set x$imax = x$imax -x$imax*0.0009116989677+0.8645442128
+		set y$imax = y$imax -y$imax*0.0005042551784+0.6030564308
+		set x$imax = x$imax -y$imax*0.000742044358+0.61405223610 
+		set y$imax = y$imax -x$imax*0.0003603264922+0.3345334232
+		}
+
+		if ( '$imax_name' == 'Clu_Daddi_TOT_H_140cut_wcs' && $fix_astrometry ) {
+		set x$imax = x$imax -x$imax*0.001762206433+1.769846201  
+		set y$imax = y$imax -y$imax*0.0006132633425+0.3469879925
+		set x$imax = x$imax -y$imax*0.000279902597+0.2256904244  
+		set y$imax = y$imax -x$imax*0.0003727326402+0.2970974147
+		set x$imax = x$imax -x$imax*0.0004733886453+0.4716832638
+		set x$imax = x$imax -y$imax*0.0002297334868+0.1930025816 
+		}
+
+		if ( '$imax_name' == 'Clu_Daddi_TOT_Js_140cut_wcs' && $fix_astrometry ) {
+		set x$imax = x$imax -x$imax*0.0003916706482+0.6712532043
+		set y$imax = y$imax -y$imax*0.0007378464215+0.4314256907
+		set x$imax = x$imax -y$imax*0.0003044059849+0.2557511628 
+		set y$imax = y$imax -x$imax*0.0002335259924+0.1862765402
+		}
+
+		if ( '$imax_name' == 'Clu_Daddi_TOT_Y_140cut_wcs' && $fix_astrometry ) {
+		set x$imax = x$imax -x$imax*0.0004029393313+0.7617089748
+		set y$imax = y$imax -y$imax*0.0003235304321+0.6199549437
+		}
+
+		if ( '$imax_name' == 'daddi_F160W_nic3_drz_sci_140wcs' && $fix_astrometry ) {
+		set y$imax = y$imax +y$imax*0.0002901107946-0.4368240833
+		set x$imax = x$imax +y$imax*0.0003235195181-0.4386820495 
+		set y$imax = y$imax +x$imax*0.0006020937581-0.2403138429
+		}
+
+		if ( '$imax_name' == 'f140w_006_sci' && $fix_astrometry ) {
+		set x$imax = x$imax +.41
+		set y$imax = y$imax +.82
+		set x$imax = x$imax -x$imax*0.0002420013916+0.1412426829
+		}
+		if ( ('$imax_name' == 'wfc3_bkgsubED_may12_sci' || '$imax' == 'HW_DF' ) && $fix_astrometry ) {
+		set x$imax = x$imax +.41
+		set y$imax = y$imax +.82
+		set x$imax = x$imax -x$imax*0.0002420013916+0.1412426829
+		set x$imax=x$imax+y$imax*0.001073658001-1.37574172  
+                set y$imax=y$imax-x$imax*0.001517634606+2.467997074
+		}
+
+
+
+
+
+ppp24   00      set ii=0,dimen(x24)-1
+                declare near_2 0
+                foreach var ii {
+                set dist = (x24-x24[$var])**2+(y24-y24[$var])**2 if(ii!=$var)
+                vecminmax dist min max
+                set near_2 = near_2 concat $(sqrt($min))
+                }  # check separations
+
+noise_AaB       !\rm aaa_noise
+                set x1=Aa-1 set x2=Aa+1
+                set y1=Bb-1 set y2=Bb+1
+                print do.cl 'images\n imutil\n' {}
+                print +do.cl 'imstat $imax_name_rms[%.0f:%.0f,%.0f:%.0f] >> aaa_noise \n' {x1 x2 y1 y2}
+                print +do.cl 'logout\n' {}
+                !cl < do.cl
+
+                data aaa_noise read NNN 4
+
+growth 		macro read goFine.sm R_MIPS$imax
+		Xgrowth_simu
+growth_S	macro read goFine_South.sm R_MIPS$imax"_S"
+		Xgrowth_simu
+Xgrowth_simu	
+		declare contam_X 0
+		data growthCurve_$xima".dat" read {xGr 1 yGr 2}
+		set iiX=0,dimen(px)-1 foreach var iiX {
+		set dist = sqrt((x$xima-px[$var])**2+(y$xima-py[$var])**2)
+		set eeX=f$xima sort {dist eeX} spline xGr yGr dist yGr_X
+		set yGr_X = dist<50 ?  yGr_X : 0
+		set contam_X = contam_X concat $(sum(yGr_X*eeX))
+		} 
+		print $xima_name"_contam_X_simu.dat" {contam_X}
+Xgrowth_data		
+		declare contam_X 0
+		data growthCurve_$imax".dat" read {xGr 1 yGr 2}
+		set iiX=0,dimen(x$imax)-1 foreach var iiX {
+		set dist = sqrt((x$imax-x$imax[$var])**2+(y$imax-y$imax[$var])**2)
+		set eeX=f$imax sort {dist eeX} spline xGr yGr dist yGr_X
+		set yGr_X = dist<50 && dist>0 ?  yGr_X : 0
+		set contam_X = contam_X concat $(sum(yGr_X*eeX))
+		} 
+		print $rrrr_name"_contam_X.dat" {contam_X}
+Xgrowth_data_RP	# new one: reads 24um based catalog to estimate contam for RP catalog	
+		declare contam_X 0
+		data growthCurve_$imax".dat" read {xGr 1 yGr 2}
+		set xxx1 = x$imax""_GH set yyy1 = y$imax""_GH
+		set iiX=0,dimen(x$imax""_GH)-1 foreach var iiX {
+		set dist = sqrt((x$imax-xxx1[$var])**2+(y$imax-yyy1[$var])**2)
+		set eeX=f$imax sort {dist eeX} spline xGr yGr dist yGr_X
+		set iyy =0,dimen(dist)-1 set dddco = iyy>0 foreach gar {dist eeX yGr_X} {set $gar = $gar if(dddco)}
+		set yGr_X = dist<50 ?  yGr_X : 0
+		set contam_X = contam_X concat $(sum(yGr_X*eeX))
+		} 
+		print $rrrr_name"_contam_X.dat" {contam_X}
+Exclusions	
+		if( $xima==100 && '$Field' == 'G_S') {
+		data South_100_exclusion.dat read {cEx 1 cEy 2 rE 3} set iiD=0,dimen(cEx)-1 foreach far iiD {
+                   set Excl = (px-cEx[$far])**2+(py-cEy[$far])**2<(rE[$far])**2 ? 1 : Excl
+		   }
+                }
+                if( $xima==160 && '$Field' == 'G_S' ) {
+		set Excl = px*0
+		data South_160_exclusion.dat read {cEx 1 cEy 2 rE 3} set iiD=0,dimen(cEx)-1 foreach far iiD {
+                   set Excl = (px-cEx[$far])**2+(py-cEy[$far])**2<(rE[$far])**2 ? 1 : Excl
+		   }
+                }
+
+
+Set_zero_SPIRE	00	gop contam_X (Xf-f)
+			xlabel contam_X
+			ylabel True - Measured
+			define xFIT 1
+			define zero_SPIRE_file "zero_SPIRE_70_S.dat"
+			if($xFIT) {
+			macro read polyfit.sm polyfit contam_X (Xf-f) Tdf 1    # 10 for SPIRE GOODS-N
+			#print $zero_SPIRE_file {a}     # uncomment only if need to be redefined !!!
+			#print x$zero_SPIRE_file '$me_x $me_y\n' {}     # uncomment only if need to be redefined !!!
+			} else {
+			data $zero_SPIRE_file read a 1
+			}
+			define step_x .1
+			set xx = -400,500,$step_x set yy = xx*0
+			do i=0,dimen(a)-1 {
+	                    set yy = yy+a[$i]*(xx)**(dimen(a)-1-$i)
+                            }
+	                set xx = xx+$me_x
+	                set yy = yy+$me_y
+	                ctype red connect xx yy ctype 0
+			spline xx yy contam_X zero_SPIRE
+			set zero_SPIRE = contam_X>50 ? 0 : zero_SPIRE
+			define aaa ?
+IRAC_chance	00	
+			set iIR =0,dimen(Xde_)-1
+			declare distIR 0
+			foreach Iar iIR {
+			set xDIST = (($(Xra_[$Iar])-raF)*cosd($(Xde_[$Iar])))**2+($(Xde_[$Iar])-deF)**2
+			vecminmax xDIST miI maI
+			set distIR = distIR concat $($miI**.5*3600)
+			}
+			sort {distIR}
+			set eIR = (iIR+1)/dimen(iIR)
+			set distIR = distIR<10 ? distIR : 10
+			ticksize -1 0 -1 0 
+			lw 3 expand 1.5
+			limits (lg(distIR_BASE)) -2 0.1 erase box connect (lg(distIR_BASE)) (lg(eIR_BASE))
+			#limits (lg(distIR)) -2 0.1 erase box connect (lg(distIR)) (lg(eIR))
+			rel $(lg(.5)) -11 draw $(lg(.5)) 111
+			rel $(lg(1.)) -11 draw $(lg(1.)) 111
+			rel $(lg(2.)) -11 draw $(lg(2.)) 111
+			ticksize 0 0 0 0   
+			xlabel log Distance arcsec
+			ylabel log Probability
+			#ctype blue connect (lg(distIR_U)) (lg(eIR_U)) ctype 0
+			ctype red  connect (lg(distIR)) (lg(eIR)) ctype 0
+			# set distIR_BASE = distIR set eIR_BASE = eIR     # only use when setting limits with goSS (go edit that first !)
+scanX	00		#data Fabian_candidates_neg.txt read {ee 1.s ra1 7 ra2 8 ra3 9 de1 11 de2 12 de3 13}
+			data Chris_candidates.txt read {ee 1.s ra1 4 ra2 5 ra3 6 de1 7 de2 8 de3 9}
+			set Xra_ = (ra3/3600+ra2/60+ra1)*15
+			set Xde_ = de3/3600+de2/60+de1
+			set iIR =0,dimen(Xde_)-1
+			foreach grt {distIR idIRAC Fmips eFmips Fradio eFradio} {declare $grt 0}
+			foreach Iar iIR {
+			set xDIST = (($(Xra_[$Iar])-raF)*cosd($(Xde_[$Iar])))**2+($(Xde_[$Iar])-deF)**2
+			vecminmax xDIST miI maI
+			set distIR = distIR concat $($miI**.5*3600)
+			set xIRAC = id_ if(xDIST<=$miI+.0001*$miI) 
+			set x_mips = mips_ if(xDIST<=$miI+.0001*$miI) 
+			set x_emips = emips_ if(xDIST<=$miI+.0001*$miI) 
+			set x_radio = radio_ if(xDIST<=$miI+.0001*$miI) 
+			set x_eradio = eradio_ if(xDIST<=$miI+.0001*$miI) 
+			set idIRAC = idIRAC concat xIRAC[0]
+			set Fmips = Fmips concat x_mips[0]
+			set eFmips = eFmips concat x_emips[0]
+			set Fradio = Fradio concat x_radio[0]
+			set eFradio = eFradio concat x_eradio[0]
+			}
+			sort {distIR ee Xra_ Xde_ idIRAC Fmips eFmips  Fradio eFradio}
+			declare chance_P 0
+			foreach gar distIR {
+			set eDi = abs($gar-distIR_BASE) set pDi = eIR_BASE sort {eDi pDi} set chance_P = chance_P concat pDi[0]
+			}
+			#spline distIR_BASE eIR_BASE distIR chance_P
+			set totC = eIR*dimen(ee) set chanceC = chance_P*dimen(ee) set err_CP = sqrt(chanceC)
+			set dev = (totC-chanceC)/err_CP
+			define print_noheader 0
+			print '%.7f %.7f %.0f\n' {Xra_ Xde_ idIRAC distIR ee totC chanceC err_CP chance_P dev Fmips eFmips Fradio eFradio}
+
+xErr	02	set coo = df>=$1 && df<$2
+			set EE1 = df if(coo) stats EE1 me si ku echo $me $si $(dimen(EE1))
+			set EE = ((Xf-Tf)) if(coo) stats EE me si ku
+			gop EE1 EE
+			set EE = EE if(abs(EE-$me)<5*$si) stats EE me si ku
+			set EE = EE if(abs(EE-$me)<5*$si) stats EE me si ku
+			set EE = EE if(abs(EE-$me)<5*$si) stats EE me si ku
+			echo $me $si

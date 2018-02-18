@@ -1,0 +1,637 @@
+make_cutout_fits 01 
+    
+    # Usage: 
+    #     macro read use_make_cutout_fits.sm make_cutout_fits
+    # 
+    
+    # define SelectSourceId $1
+    # define SelectSourceNo $1
+    define SelectSourceId $1
+    
+    set PhotoFileList = { "/Users/dliu/datahst/gn_acs_old_f435w_060mas_v2_drz.fits" }
+    set PhotoBandList = { "ACS_F435W" }
+    
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahst/gn_acs_old_f606w_060mas_v2_drz.fits" }
+    set PhotoBandList = PhotoBandList concat { "ACS_F606W" }
+    
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahst/gn_acs_old_f775w_060mas_v2_drz.fits" }
+    set PhotoBandList = PhotoBandList concat { "ACS_F775W" }
+    
+    # set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahst/gn_acs_old_f775w_600mas_v2_drz.fits" }
+    # set PhotoBandList = PhotoBandList concat { "ACS_F775W600" }
+    
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahst/gn_acs_old_f850l_060mas_v2_drz.fits" }
+    set PhotoBandList = PhotoBandList concat { "ACS_F850L" }
+    
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahst/gn_all_candels_wfc3_f105w_060mas_v0.8_drz.fits" }
+    set PhotoBandList = PhotoBandList concat { "WFC3_F105W" }
+    
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahst/gn_all_candels_wfc3_f125w_060mas_v0.8_drz.fits" }
+    set PhotoBandList = PhotoBandList concat { "WFC3_F125W" }
+    
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahst/gn_all_candels_wfc3_f160w_060mas_v0.8_drz.fits" }
+    set PhotoBandList = PhotoBandList concat { "WFC3_F160W" }
+    
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahst/WIRCAM_MOIRCS_Pannella_08.fits" }
+    set PhotoBandList = PhotoBandList concat { "WIRCAM_215" }
+    
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahst/n_irac_1_s12_v0.31_sci.fits" }
+    set PhotoBandList = PhotoBandList concat { "IRAC1" }
+    
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahst/n_irac_2_s12_v0.31_sci.fits" }
+    set PhotoBandList = PhotoBandList concat { "IRAC2" }
+    
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahst/n_irac_3_s12_v0.31_sci.fits" }
+    set PhotoBandList = PhotoBandList concat { "IRAC3" }
+    
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahst/n_irac_4_s12_v0.31_sci.fits" }
+    set PhotoBandList = PhotoBandList concat { "IRAC4" }
+    
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahso/goods_north_wdriz_frac0pt6_norm_19dec06_subbackDL.fits" }
+    set PhotoBandList = PhotoBandList concat { "IRSX16" }
+    
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahso/n_mips_1_s1_v0.37_sci_BS.fits" }
+    set PhotoBandList = PhotoBandList concat { "MIPS24" }
+    
+    ### set PhotoFileList = PhotoFileList concat { "/Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North-Do160/pgh_goodsn_green_Map_v1.0_sci_DL.fits" }
+    ### set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahso/pgh_goodsn_green_Map_v1.0_sci_DL.fits" } ### - please use maps with faint sources subtracted (for PACS and SPIRE)
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahso/pgh_goodsn_green_Map_v1.0_sci_subfaintDL.fits" }
+    set PhotoBandList = PhotoBandList concat { "PACS100" }
+    
+    ### set PhotoFileList = PhotoFileList concat { "/Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North-Do160/pgh_goodsn_red_Map_v1.0_sci_DL.fits" }
+    ### set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahso/pgh_goodsn_red_Map_v1.0_sci_DL.fits" } ### - please use maps with faint sources subtracted (for PACS and SPIRE)
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahso/pgh_goodsn_red_Map_v1.0_sci_subfaintDL.fits" }
+    set PhotoBandList = PhotoBandList concat { "PACS160" }
+    
+    ### set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahso/spire250_ima_3p6_v0_100615.fits" }
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahso/spire250_ima_3p6_v0_100615_subfaintDL.fits" }
+    set PhotoBandList = PhotoBandList concat { "SPIRE250" }
+    
+    ### set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahso/spire350_ima_4p8_v0_100615.fits" }
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahso/spire350_ima_4p8_v0_100615_subfaintDL.fits" }
+    set PhotoBandList = PhotoBandList concat { "SPIRE350" }
+    
+    ### set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahso/spire500_ima_7p2_v0_100615.fits" }
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahso/spire500_ima_7p2_v0_100615_subfaintDL.fits" }
+    set PhotoBandList = PhotoBandList concat { "SPIRE500" }
+    
+    set PhotoFileList = PhotoFileList concat { "/Users/dliu/datahso/VLA_Owen_2arcsec_big.fits" }
+    set PhotoBandList = PhotoBandList concat { "VLA" }
+    
+    print do.sh 'ds9 -title xpads9 -lock frame wcs -lock scale yes -scale zscale -tile ' {}
+    do j=0,dimen(PhotoFileList)-1 { 
+        define PhotoFileName $(PhotoFileList[$j])
+        define PhotoBandName $(PhotoBandList[$j])
+        cutout_each_photo $PhotoFileName $PhotoBandName
+        echo 
+        print +do.sh '$CutoutOutDir/$CutoutOutput ' {}
+        print +do.sh '-regions load $CutoutOutDir/$CutoutOutReg ' {}
+        print +$CutoutOutDir"/cutout_list" '$CutoutOutput\n' {}
+        if(0==$j) { 
+            set CutoutPhotoList = < '$CutoutOutput' >
+        } else {
+            set CutoutPhotoList = CutoutPhotoList concat < '$CutoutOutput' >
+        }
+    }
+    
+    print +do.sh '&\n' {}
+    print +do.sh 'sleep 2.0\n' {}
+    
+    # print +do.sh 'xpaset -p xpads9 frame last\n' {}
+    # print +do.sh 'xpaset -p xpads9 lock frame wcs\n' {}
+    # print +do.sh 'xpaset -p xpads9 lock scale yes\n' {}
+    # print +do.sh 'xpaset -p xpads9 scale zscale\n' {}
+    # print +do.sh 'xpaset -p xpads9 view panner no\n' {}
+    # print +do.sh 'xpaset -p xpads9 view magnifier no\n' {}
+    # print +do.sh 'xpaset -p xpads9 view buttons no\n' {}
+    # print +do.sh 'xpaset -p xpads9 view info yes\n' {}
+    # print +do.sh 'xpaset -p xpads9 view filename yes\n' {}
+    # print +do.sh 'xpaset -p xpads9 view object yes\n' {}
+    print +do.sh '\n' {}
+    # print +dosetds9.sh 'xpaset -p xpads9 lock frame wcs\n' {}
+    # print +dosetds9.sh 'xpaset -p xpads9 lock scale yes\n' {}
+    # print +dosetds9.sh 'xpaset -p xpads9 scale zscale\n' {}
+    # print +dosetds9.sh '\n' {}
+    
+    !cp do.sh plot_Id$SelectSourceId"".sh
+    
+    # idl
+    # print  do.sh 'PRO doss\n\nwindow,1,xsize=1100,ysize=100\n' {}
+    # define xstart 0
+    # foreach CutoutOutput CutoutPhotoList {
+    #     print +do.sh 'fits_read,\"$CutoutOutput\",image,header\n' {}
+    #     print +do.sh 'tvscl,frebin(image,100,100),$xstart,0\n' {}
+    #     define xstart $($xstart+100)
+    # }
+    # print +do.sh  '\nEND\n' {}
+    # !cp do.sh plot_tvscl_Id$SelectSourceId""_No$SelectSourceNo"".sh
+    
+    # cl
+    print  do.sh '!ds9 &\n!sleep 6.9\n' {}
+    define xstart 1
+    foreach CutoutOutput CutoutPhotoList {
+        print +do.sh 'display $CutoutOutDir/$CutoutOutput $xstart fill=yes\n!sleep 0.2\n' {}
+        define xstart $($xstart+1)
+    }
+    print +do.sh  'logout\n\n' {}
+    
+    # <TODO> Uncomment this if you want to output the iraf display script
+    # !cp do.sh plot_iraf_Id$SelectSourceId.sh
+    # <TODO> Uncomment this if you want to output the iraf display script
+    
+    # !cl < do.sh > do.cs
+    
+    # define ds9command "-title xpads9 -tile "
+    # foreach cophoto CutoutPhotoList { echo "$ds9command $cophoto" }
+    
+    # !ds9 $RectFits
+    # !ds9 -tile
+    # !./do.sh
+    
+
+
+
+
+
+
+cutout_each_photo 02
+    
+    # Must provide: 
+    #                $1 = InputPhotoFile
+    #                $2 = InputPhotoBand
+    #                $SelectSourceId or $SelectSourceNo
+    #                "use_priors_all.txt"
+    
+    set InputPhotoFileName = '$1' define InputPhotoFile "$(InputPhotoFileName[0])" ### By this conversion, $InputPhotoFile stores the string rather than '$1'
+    set InputPhotoBandName = '$2' define InputPhotoBand "$(InputPhotoBandName[0])" ### By this conversion, $InputPhotoBand stores the string rather than '$2'
+    
+    # define SelectSourceId 1
+    # define SelectSourceNo 300
+    define SelectSourceRA 0.0
+    define SelectSourceDec 0.0
+    # verbose 0 data "RadioOwen_priors_updated_16_100_160_250_350_500_UPD20140404.txt" read {id 1.s ra 2 de 3} verbose 1
+    # verbose 0 data "RadioOwen_priors_updated_16_100_160_250_350_500_UPD20140404.txt" read {idF 1.s} verbose 1 
+    # print "use_priors_idF.txt" '%10.0f\n' {idF} #<TODO># JUST RUN ONCE
+    verbose 0 data "use_priors_all.txt" read {id 9.s raF 1 deF 2 ra3D 3 de3D 4 raP 5 deP 6} verbose 1
+    verbose 0 data "use_priors_idF.txt" read {id 1.s} verbose 1 #<TODO># use_priors_all.txt id HAS PROBLEM!
+    # verbose 0 data "RadioOwen_priors_updated_16_100_160_250_350_500_UPD20140404.txt" read {id 1.s} verbose 1 #<TODO># use_priors_all.txt id HAS PROBLEM!
+    set idFA = { "N/A" }
+    
+    # If we use additional catalog <TODO>
+    # verbose 0 data "RadioOwen_priors_additional_250_350_500_UPD20140404.txt" read {idFA 1.s raFA 2 deFA 3} verbose 1
+    
+    # Use HST Coordinates Priorily
+    set ra = raF set de = deF
+    set ra = (raP!=-99)? raP : ra set de = (deP!=-99)? deP : de
+    set ra = (ra3D!=-99)? ra3D : ra set de = (de3D!=-99)? de3D : de
+    #<TODO><DEL># set ra_PrioHST = ra set de_PrioHST = de
+    #<TODO><DEL># set ra_PrioIRAC = raF set de_PrioIRAC = deF
+    
+    ### - please use IRAC coordinates from IRAC and up to all longer wavelengths (but HST or Ks at shorter wavelengths)
+    if(index('$InputPhotoBand','ACS_F')>=0 || index('$InputPhotoBand','WFC3_F')>=0 || index('$InputPhotoBand','WIRCAM')>=0) {
+        echo Using HST coordinates for $InputPhotoBand $InputPhotoFile
+        #### Use HST Preferred ra3D de3D for <IRAC wavelengthes
+    } else {
+        echo Using IRAC coordinates for $InputPhotoBand $InputPhotoFile
+        set ra = raF set de = deF
+    }
+    
+    ### Find the Source According to Id
+    do i=0,dimen(id)-1,1 { 
+        if($?SelectSourceId) {
+            if('$(id[$i])'=='$SelectSourceId') { ###<corrected><dzliu>### must use '$(id[$i])' to compare string!
+                define SelectSourceNo  $i
+                define SelectSourceRA  $(ra[$i])
+                define SelectSourceDec $(de[$i])
+                # echo RA Dec ID $(ra[$i]) $(de[$i]) $(id[$i])
+            }
+        } else {
+            if($?SelectSourceNo) {
+                if($i==$SelectSourceNo) { 
+                    define SelectSourceId  $(id[$i])
+                    define SelectSourceRA  $(ra[$i])
+                    define SelectSourceDec $(de[$i])
+                    # echo RA Dec ID $(ra[$i]) $(de[$i]) $(id[$i])
+                }
+            } else {
+                echo Error! Please set SelectSourceId or SelectSourceNo!
+                exit
+            }
+        }
+    }
+    ### Find the Source According to IdFA (AddtionalCatalog)
+    do i=0,dimen(idFA)-1,1 { 
+        if($?SelectSourceId) {
+            if('$(idFA[$i])'=='$SelectSourceId') { ###<corrected><dzliu>### must use '$(id[$i])' to compare string!
+                define SelectSourceNo  $i
+                define SelectSourceRA  $(raFA[$i])
+                define SelectSourceDec $(deFA[$i])
+                # echo RA Dec ID $(ra[$i]) $(de[$i]) $(id[$i])
+            }
+        }
+    }
+    if($?SelectSourceId==0 || $?SelectSourceNo==0 || $?SelectSourceRA==0 || $?SelectSourceDec==0) {
+        echo Error! Could not find $SelectSourceId!
+        exit
+    }
+    # define aaa ?
+    # Now we got matched SourceId,SourceRA,SourceDec for this run. 
+    
+    
+    # Calculate the difference of 3D-HST position (ra3D,de3D) and IRAC position (raF,deF)
+    if(is_vector(raCorr)) { unset raCorr }
+    if(is_vector(deCorr)) { unset deCorr }
+    if(is_vector(idCorr)) { unset idCorr }
+    if(is_vector(colorCorr)) { unset colorCorr }
+    if(index('$InputPhotoBand','ACS_F')>=0 || index('$InputPhotoBand','WFC3_F')>=0 || index('$InputPhotoBand','WIRCAM')>=0) {
+        if($(ra3D[$SelectSourceNo])!=-99&&$(ra3D[$SelectSourceNo])!=0.0) {
+            set raDiff = (ra3D[$SelectSourceNo]-raF[$SelectSourceNo])*3600.0
+            set deDiff = (de3D[$SelectSourceNo]-deF[$SelectSourceNo])*3600.0
+            set distDiff = sqrt(raDiff**2+deDiff**2)
+            set distFlag = distDiff > 1.0 #<TODO># offset limit 1.0" ??
+            set distFlag = 1 #<TODO># no limit ?? all sources will show 2 sets of coordinates !!
+            if(1==distFlag[0]) { ### 3D-HST coordinate has large offset (>1.0") than IRAC offset! Show IRAC coordinate as "red" symbol!
+                set raCorr = raF[$SelectSourceNo]
+                set deCorr = deF[$SelectSourceNo]
+                set idCorr = <$SelectSourceId"(IRAC)">
+                set colorCorr = <"red">
+            }
+        }
+    } else {
+        if($(ra3D[$SelectSourceNo])!=-99&&$(ra3D[$SelectSourceNo])!=0.0) {
+            set raDiff = (ra3D[$SelectSourceNo]-raF[$SelectSourceNo])*3600.0
+            set deDiff = (de3D[$SelectSourceNo]-deF[$SelectSourceNo])*3600.0
+            set distDiff = sqrt(raDiff**2+deDiff**2)
+            set distFlag = distDiff > 1.0 #<TODO># offset limit 1.0" ??
+            set distFlag = 1 #<TODO># no limit ?? all sources will show 2 sets of coordinates !!
+            if(1==distFlag[0]) { ### IRAC coordinate has large offset (>1.0") than 3D-HST offset! Show 3D-HST coordinate as "blue" symbol!
+                set raCorr = ra3D[$SelectSourceNo]
+                set deCorr = de3D[$SelectSourceNo]
+                set idCorr = <$SelectSourceId"(HST)">
+                set colorCorr = <"blue">
+            }
+        }
+    }
+    
+    
+    # Locate nearby sources (including itself) and Make region circles
+    if($SelectSourceRA!=0.0&&$SelectSourceDec!=0.0&&$SelectSourceRA!=-99&&$SelectSourceDec!=-99) {
+        set raDiff = ra - $SelectSourceRA set deDiff = de - $SelectSourceDec
+        set distDiff = (raDiff*3600.0)**2 + (deDiff*3600.0)**2
+        set distNear = distDiff < 100.0**2 # within nearby 100" radius <TODO> 100.0"
+        set idNear = id if(distNear)
+        set raNear = ra if(distNear)
+        set deNear = de if(distNear)
+        print  do.ds9.reg '\# Region file format: DS9 version 4.1\n' {}
+        print +do.ds9.reg 'global color=yellow dashlist=8 3 width=1 select=1 highlite=1 dash=0 fixed=0 edit=1 move=0 delete=1 include=1 source=1\n' {}
+        print +do.ds9.reg 'fk5\n' {}
+    }
+    
+    
+    # Cut fits image
+    if($SelectSourceRA!=0.0&&$SelectSourceDec!=0.0&&$SelectSourceRA!=-99&&$SelectSourceDec!=-99) {
+        echo Id $SelectSourceId No $SelectSourceNo Band $InputPhotoBand Photo $InputPhotoFile
+        
+        !sky2xy $InputPhotoFile $SelectSourceRA $SelectSourceDec > aaa
+        verbose 0 data aaa read {aaaX 5 aaaY 6} verbose 1
+        define SelectSourceX $(aaaX[0])
+        define SelectSourceY $(aaaY[0])
+        
+        unset aaaNAXIS1 unset aaaNAXIS2
+        !gethead $InputPhotoFile NAXIS1 NAXIS2 > aaa
+        !ls -s aaa > aas
+        verbose 0 data aas read {aaaFileSize 1} verbose 1
+        if(aaaFileSize>0) {
+        verbose 0 data aaa read {aaaNAXIS1 1 aaaNAXIS2 2} verbose 1
+        }
+        
+        # get pixel scales
+        unset aaaCDELT1 unset aaaCDELT2
+        if(!is_vector(aaaCDELT1)||!is_vector(aaaCDELT2)) {
+            !gethead $InputPhotoFile CD1_1 CD2_2 > aaa
+            !ls -s aaa > aas
+            verbose 0 data aas read {aaaFileSize 1} verbose 1
+            if(aaaFileSize>0) {
+            verbose 0 data aaa read {aaaCDELT1 1 aaaCDELT2 2} verbose 1
+            }
+            ### <Corrected> ### First check CD1_1 ! In ACS images, CD1_1 conflicts CDELT1 ! But CD1_1 is correct !
+        }
+        if(!is_vector(aaaCDELT1)||!is_vector(aaaCDELT2)) {
+            !gethead $InputPhotoFile CDELT1 CDELT2 > aaa
+            !ls -s aaa > aas
+            verbose 0 data aas read {aaaFileSize 1} verbose 1
+            if(aaaFileSize>0) {
+            verbose 0 data aaa read {aaaCDELT1 1 aaaCDELT2 2} verbose 1
+            }
+        }
+        if(!is_vector(aaaNAXIS1)||!is_vector(aaaNAXIS2)) {
+            echo Cannot determin NAXIS1 NAXIS2!
+            define aaa ?
+        }
+        if(!is_vector(aaaCDELT1)||!is_vector(aaaCDELT2)) {
+            echo Cannot determin CDELT1 CDELT2!
+            define aaa ?
+        }
+        
+        # convert pixel scale
+        define PhotoDimenX $(aaaNAXIS1[0])
+        define PhotoDimenY $(aaaNAXIS2[0])
+        define PhotoPixscX $(aaaCDELT1[0]*3600.0) # "/pix
+        define PhotoPixscY $(aaaCDELT2[0]*3600.0) # "/pix
+        
+        # define box sides in arcsec unit
+        # define CutoutSideRA  30 # arcsec
+        # define CutoutSideDec 30 # arcsec
+        
+        define print_noheader 1
+        
+        # define box sides in arcsec unit <Updated>
+        # and also prepare ds9 region file
+        if(index('$InputPhotoBand','ACS_F')>=0 || index('$InputPhotoBand','WFC3_F')>=0) {
+            # cutout box sides
+            define CutoutSideRA  5 # arcsec
+            define CutoutSideDec 5 # arcsec
+            # cutout box ds9 region - current source position difference from 3D-HST and IRAC # <Added><DLIU><DADDI> #
+            if(is_vector(raCorr) && is_vector(deCorr) && is_vector(idCorr) && is_vector(colorCorr)) {
+            print +do.ds9.reg 'box(%0.7f,%0.7f,1\",1\",0) \# color=%s width=1 text={%s} dash=0 fixed=1 move=0 rotate=0\n' {raCorr deCorr colorCorr idCorr}
+            }
+            # cutout box ds9 regions
+            print +do.ds9.reg 'box(%0.7f,%0.7f,1\",1\",0) \# color=yellow width=1 text={%s} dash=0 fixed=1 move=0 rotate=0\n' {raNear deNear idNear} # magenta
+            # cutout box ds9 regions - Addtional Sources
+            data "/Users/dliu/Working/2014-CEA/Data/Level_4_SciDataTable/use_priors_add.txt" read {idNewX 1.s raNewX 2 deNewX 3}
+            print +do.ds9.reg 'box(%0.7f,%0.7f,1\",1\",0) \# color=magenta width=1 font=\"helvetica 6 normal roman\" text={%s} dash=0 fixed=1 move=0\n' {raNewX deNewX idNewX} # magenta
+        }
+        if(index('$InputPhotoBand','WIRCAM')>=0 || index('$InputPhotoBand','VLA')>=0) {
+            # cutout box sides
+            define CutoutSideRA  5 # arcsec
+            define CutoutSideDec 5 # arcsec
+            # cutout box ds9 region - current source position difference from 3D-HST and IRAC # <Added><DLIU><DADDI> #
+            if(is_vector(raCorr) && is_vector(deCorr) && is_vector(idCorr) && is_vector(colorCorr)) {
+            print +do.ds9.reg 'box(%0.7f,%0.7f,6\",6\",0) \# color=%s width=1 text={%s} dash=0 fixed=1 move=0 rotate=0\n' {raCorr deCorr colorCorr idCorr}
+            }
+            # cutout box ds9 regions
+            print +do.ds9.reg 'box(%0.7f,%0.7f,6\",6\",0) \# color=yellow width=1 text={%s} dash=0 fixed=1 move=0 rotate=0\n' {raNear deNear idNear} # magenta
+            # cutout box ds9 regions - Addtional Sources
+            data "/Users/dliu/Working/2014-CEA/Data/Level_4_SciDataTable/use_priors_add.txt" read {idNewX 1.s raNewX 2 deNewX 3}
+            print +do.ds9.reg 'box(%0.7f,%0.7f,6\",6\",0) \# color=magenta width=1 font=\"helvetica 6 normal roman\" text={%s} dash=0 fixed=1 move=0\n' {raNewX deNewX idNewX} # magenta
+        }
+        if(index('$InputPhotoBand','IRAC')>=0) {
+            # cutout box sides
+            define CutoutSideRA  5 # arcsec
+            define CutoutSideDec 5 # arcsec
+            # cutout box ds9 region - current source position difference from 3D-HST and IRAC # <Added><DLIU><DADDI> #
+            if(is_vector(raCorr) && is_vector(deCorr) && is_vector(idCorr) && is_vector(colorCorr)) {
+            print +do.ds9.reg 'box(%0.7f,%0.7f,10\",10\",0) \# color=%s width=1 text={%s} dash=0 fixed=1 move=0 rotate=0\n' {raCorr deCorr colorCorr idCorr}
+            }
+            # cutout box ds9 regions
+            print +do.ds9.reg 'box(%0.7f,%0.7f,10\",10\",0) \# color=yellow width=1 text={%s} dash=0 fixed=1 move=0 rotate=0\n' {raNear deNear idNear} # magenta
+            # cutout box ds9 regions - Addtional Sources
+            data "/Users/dliu/Working/2014-CEA/Data/Level_4_SciDataTable/use_priors_add.txt" read {idNewX 1.s raNewX 2 deNewX 3}
+            print +do.ds9.reg 'box(%0.7f,%0.7f,10\",10\",0) \# color=magenta width=1 font=\"helvetica 6 normal roman\" text={%s} dash=0 fixed=1 move=0\n' {raNewX deNewX idNewX} # magenta
+        }
+        if(index('$InputPhotoBand','IRSX')>=0 || index('$InputPhotoBand','MIPS')>=0) {
+            # cutout box sides
+            define CutoutSideRA  15 # arcsec
+            define CutoutSideDec 15 # arcsec
+            # cutout box ds9 region - current source position difference from 3D-HST and IRAC # <Added><DLIU><DADDI> #
+            if(is_vector(raCorr) && is_vector(deCorr) && is_vector(idCorr) && is_vector(colorCorr)) {
+            print +do.ds9.reg 'box(%0.7f,%0.7f,15\",15\",0) \# color=%s width=1 text={%s} dash=0 fixed=1 move=0 rotate=0\n' {raCorr deCorr colorCorr idCorr}
+            }
+            # cutout box ds9 regions
+            print +do.ds9.reg 'box(%0.7f,%0.7f,15\",15\",0) \# color=yellow width=1 text={%s} dash=0 fixed=1 move=0 rotate=0\n' {raNear deNear idNear} # magenta
+            # cutout box ds9 regions - Addtional Sources
+            data "/Users/dliu/Working/2014-CEA/Data/Level_4_SciDataTable/use_priors_add.txt" read {idNewX 1.s raNewX 2 deNewX 3}
+            print +do.ds9.reg 'box(%0.7f,%0.7f,15\",15\",0) \# color=magenta width=1 font=\"helvetica 6 normal roman\" text={%s} dash=0 fixed=1 move=0\n' {raNewX deNewX idNewX} # magenta
+        }
+        if(index('$InputPhotoBand','PACS100')>=0) {
+            # cutout box sides
+            define CutoutSideRA  20 # arcsec
+            define CutoutSideDec 20 # arcsec
+            # cutout box ds9 region - current source position difference from 3D-HST and IRAC # <Added><DLIU><DADDI> #
+            if(is_vector(raCorr) && is_vector(deCorr) && is_vector(idCorr) && is_vector(colorCorr)) {
+            print +do.ds9.reg 'box(%0.7f,%0.7f,15\",15\",0) \# color=%s width=1 text={%s} dash=0 fixed=1 move=0 rotate=0\n' {raCorr deCorr colorCorr idCorr}
+            }
+            # cutout box ds9 regions
+            data "/Users/dliu/Working/2014-CEA/Data/Level_4_SciDataTable/SED_predictions_100_20140402_vary.csv"
+            read {flag100Selection 4} set flagSelection = flag100Selection if(distNear)
+            set raIncl = raNear if(flagSelection==0)
+            set deIncl = deNear if(flagSelection==0)
+            set idIncl = idNear if(flagSelection==0)
+            print +do.ds9.reg 'box(%0.7f,%0.7f,15\",15\",0) \# color=yellow width=1 font=\"helvetica 8 normal roman\" text={%s} dash=0 fixed=1 move=0\n' {raIncl deIncl idIncl} # magenta
+            set raExcl = raNear if(flagSelection==1)
+            set deExcl = deNear if(flagSelection==1)
+            set idExcl = idNear if(flagSelection==1)
+            print +do.ds9.reg 'box(%0.7f,%0.7f,15\",15\",0) \# color=orange width=1 font=\"helvetica 6 normal roman\" text={%s} dash=1 fixed=1 move=0\n' {raExcl deExcl idExcl} # magenta
+            # cutout box ds9 regions - Addtional Sources
+            data "/Users/dliu/Working/2014-CEA/Data/Level_4_SciDataTable/use_priors_add.txt" read {idNewX 1.s raNewX 2 deNewX 3}
+            print +do.ds9.reg 'box(%0.7f,%0.7f,15\",15\",0) \# color=magenta width=1 font=\"helvetica 6 normal roman\" text={%s} dash=0 fixed=1 move=0\n' {raNewX deNewX idNewX} # magenta
+        }
+        if(index('$InputPhotoBand','PACS160')>=0) {
+            # cutout box sides
+            define CutoutSideRA  20 # arcsec
+            define CutoutSideDec 20 # arcsec
+            # cutout box ds9 region - current source position difference from 3D-HST and IRAC # <Added><DLIU><DADDI> #
+            if(is_vector(raCorr) && is_vector(deCorr) && is_vector(idCorr) && is_vector(colorCorr)) {
+            print +do.ds9.reg 'box(%0.7f,%0.7f,30\",30\",0) \# color=%s width=1 text={%s} dash=0 fixed=1 move=0 rotate=0\n' {raCorr deCorr colorCorr idCorr}
+            }
+            # cutout box ds9 regions
+            data "/Users/dliu/Working/2014-CEA/Data/Level_4_SciDataTable/SED_predictions_160_20140403_vary.csv"
+            read {flag160Selection 4} set flagSelection = flag160Selection if(distNear)
+            set raIncl = raNear if(flagSelection==0)
+            set deIncl = deNear if(flagSelection==0)
+            set idIncl = idNear if(flagSelection==0)
+            print +do.ds9.reg 'box(%0.7f,%0.7f,30\",30\",0) \# color=yellow width=1 font=\"helvetica 8 normal roman\" text={%s} dash=0 fixed=1 move=0\n' {raIncl deIncl idIncl} # magenta
+            set raExcl = raNear if(flagSelection==1)
+            set deExcl = deNear if(flagSelection==1)
+            set idExcl = idNear if(flagSelection==1)
+            print +do.ds9.reg 'box(%0.7f,%0.7f,30\",30\",0) \# color=orange width=1 font=\"helvetica 6 normal roman\" text={%s} dash=1 fixed=1 move=0\n' {raExcl deExcl idExcl} # magenta
+            # cutout box ds9 regions - Addtional Sources
+            data "/Users/dliu/Working/2014-CEA/Data/Level_4_SciDataTable/use_priors_add.txt" read {idNewX 1.s raNewX 2 deNewX 3}
+            print +do.ds9.reg 'box(%0.7f,%0.7f,30\",30\",0) \# color=magenta width=1 font=\"helvetica 6 normal roman\" text={%s} dash=0 fixed=1 move=0\n' {raNewX deNewX idNewX} # magenta
+        }
+        if(index('$InputPhotoBand','SPIRE250')>=0) {
+            # cutout box sides
+            define CutoutSideRA  50 # arcsec
+            define CutoutSideDec 50 # arcsec
+            # cutout box ds9 region - current source position difference from 3D-HST and IRAC # <Added><DLIU><DADDI> #
+            if(is_vector(raCorr) && is_vector(deCorr) && is_vector(idCorr) && is_vector(colorCorr)) {
+            print +do.ds9.reg 'box(%0.7f,%0.7f,50\",50\",0) \# color=%s width=1 text={%s} dash=0 fixed=1 move=0 rotate=0\n' {raCorr deCorr colorCorr idCorr}
+            }
+            # cutout box ds9 regions
+            data "/Users/dliu/Working/2014-CEA/Data/Level_4_SciDataTable/SED_predictions_250_20140401.csv"
+            read {flag250Selection 4} set flagSelection = flag250Selection if(distNear)
+            set raIncl = raNear if(flagSelection==0)
+            set deIncl = deNear if(flagSelection==0)
+            set idIncl = idNear if(flagSelection==0)
+            print +do.ds9.reg 'box(%0.7f,%0.7f,50\",50\",0) \# color=yellow width=1 font=\"helvetica 8 normal roman\" text={%s} dash=0 fixed=1 move=0\n' {raIncl deIncl idIncl} # magenta
+            set raExcl = raNear if(flagSelection==1)
+            set deExcl = deNear if(flagSelection==1)
+            set idExcl = idNear if(flagSelection==1)
+            print +do.ds9.reg 'box(%0.7f,%0.7f,50\",50\",0) \# color=orange width=1 font=\"helvetica 6 normal roman\" text={%s} dash=1 fixed=1 move=0\n' {raExcl deExcl idExcl} # magenta
+            # cutout box ds9 regions - Addtional Sources
+            data "/Users/dliu/Working/2014-CEA/Data/Level_4_SciDataTable/use_priors_add.txt" read {idNewX 1.s raNewX 2 deNewX 3}
+            print +do.ds9.reg 'box(%0.7f,%0.7f,50\",50\",0) \# color=magenta width=1 font=\"helvetica 6 normal roman\" text={%s} dash=0 fixed=1 move=0\n' {raNewX deNewX idNewX} # magenta
+        }
+        if(index('$InputPhotoBand','SPIRE350')>=0) {
+            # cutout box sides
+            define CutoutSideRA  70 # arcsec
+            define CutoutSideDec 70 # arcsec
+            # cutout box ds9 region - current source position difference from 3D-HST and IRAC # <Added><DLIU><DADDI> #
+            if(is_vector(raCorr) && is_vector(deCorr) && is_vector(idCorr) && is_vector(colorCorr)) {
+            print +do.ds9.reg 'box(%0.7f,%0.7f,60\",60\",0) \# color=%s width=1 text={%s} dash=0 fixed=1 move=0 rotate=0\n' {raCorr deCorr colorCorr idCorr}
+            }
+            # cutout box ds9 regions
+            data "/Users/dliu/Working/2014-CEA/Data/Level_4_SciDataTable/SED_predictions_350_20140403.csv"
+            read {flag350Selection 4} set flagSelection = flag350Selection if(distNear)
+            set raIncl = raNear if(flagSelection==0)
+            set deIncl = deNear if(flagSelection==0)
+            set idIncl = idNear if(flagSelection==0)
+            print +do.ds9.reg 'box(%0.7f,%0.7f,60\",60\",0) \# color=yellow width=1 font=\"helvetica 8 normal roman\" text={%s} dash=0 fixed=1 move=0\n' {raIncl deIncl idIncl} # magenta
+            set raExcl = raNear if(flagSelection==1)
+            set deExcl = deNear if(flagSelection==1)
+            set idExcl = idNear if(flagSelection==1)
+            print +do.ds9.reg 'box(%0.7f,%0.7f,60\",60\",0) \# color=orange width=1 font=\"helvetica 6 normal roman\" text={%s} dash=1 fixed=1 move=0\n' {raExcl deExcl idExcl} # magenta
+            # cutout box ds9 regions - Addtional Sources
+            data "/Users/dliu/Working/2014-CEA/Data/Level_4_SciDataTable/use_priors_add.txt" read {idNewX 1.s raNewX 2 deNewX 3}
+            print +do.ds9.reg 'box(%0.7f,%0.7f,60\",60\",0) \# color=magenta width=1 font=\"helvetica 6 normal roman\" text={%s} dash=0 fixed=1 move=0\n' {raNewX deNewX idNewX} # magenta
+        }
+        if(index('$InputPhotoBand','SPIRE500')>=0) {
+            # cutout box sides
+            define CutoutSideRA  100 # arcsec
+            define CutoutSideDec 100 # arcsec
+            # cutout box ds9 region - current source position difference from 3D-HST and IRAC # <Added><DLIU><DADDI> #
+            if(is_vector(raCorr) && is_vector(deCorr) && is_vector(idCorr) && is_vector(colorCorr)) {
+            print +do.ds9.reg 'box(%0.7f,%0.7f,100\",100\",0) \# color=%s width=1 text={%s} dash=0 fixed=1 move=0 rotate=0\n' {raCorr deCorr colorCorr idCorr}
+            }
+            # cutout box ds9 regions
+            data "/Users/dliu/Working/2014-CEA/Data/Level_4_SciDataTable/SED_predictions_500_20140404.csv"
+            read {flag500Selection 4} set flagSelection = flag500Selection if(distNear)
+            set raIncl = raNear if(flagSelection==0)
+            set deIncl = deNear if(flagSelection==0)
+            set idIncl = idNear if(flagSelection==0)
+            print +do.ds9.reg 'box(%0.7f,%0.7f,100\",100\",0) \# color=yellow width=1 font=\"helvetica 8 normal roman\" text={%s} dash=0 fixed=1 move=0\n' {raIncl deIncl idIncl}
+            set raExcl = raNear if(flagSelection==1)
+            set deExcl = deNear if(flagSelection==1)
+            set idExcl = idNear if(flagSelection==1)
+            print +do.ds9.reg 'box(%0.7f,%0.7f,100\",100\",0) \# color=orange width=1 font=\"helvetica 6 normal roman\" text={%s} dash=1 fixed=1 move=0\n' {raExcl deExcl idExcl}
+            # cutout box ds9 regions - Addtional Sources
+            data "/Users/dliu/Working/2014-CEA/Data/Level_4_SciDataTable/use_priors_add.txt" read {idNewX 1.s raNewX 2 deNewX 3}
+            print +do.ds9.reg 'box(%0.7f,%0.7f,100\",100\",0) \# color=magenta width=1 font=\"helvetica 6 normal roman\" text={%s} fixed=1 move=0\n' {raNewX deNewX idNewX}
+        }
+        
+        if($?CutoutSideRA==0||$?CutoutSideDec==0) {
+            echo Error! Could not determin CutoutSideRA/Dec from $InputPhotoBand !
+            exit
+        }
+        
+        define CutoutSideX   $(-$CutoutSideRA/$PhotoPixscX) # pixel
+        define CutoutSideY   $($CutoutSideDec/$PhotoPixscY) # pixel
+        
+        define CutoutRecFX1  $($SelectSourceX-0.5*$CutoutSideX)
+        define CutoutRecFY1  $($SelectSourceY-0.5*$CutoutSideY)
+        define CutoutRecFX2  $($SelectSourceX+0.5*$CutoutSideX)
+        define CutoutRecFY2  $($SelectSourceY+0.5*$CutoutSideY)
+        
+        define CutoutOutDir  cutout_Id$SelectSourceId
+        define CutoutOutput  cutout_Id$SelectSourceId""_$InputPhotoBand.fits
+        define CutoutOutDir  cutout_Id$SelectSourceId
+        define CutoutOutReg  cutout_Id$SelectSourceId""_$InputPhotoBand.ds9.reg
+        echo CutoutRect $CutoutRecFX1 $CutoutRecFY1 $CutoutRecFX2 $CutoutRecFY2 (CentreDeg $SelectSourceRA $SelectSourceDec) (CentrePix $SelectSourceX $SelectSourceY) (SideDeg $CutoutSideRA $CutoutSideDec) (SidePix $CutoutSideX $CutoutSideY) (PixScale $PhotoPixscX $PhotoPixscY)
+        
+        # Check boundary <NoNeed?>
+        # if($CutoutRectX1<0.0) {define CutoutRectX2 $($CutoutRectX2-$CutoutRectX1) define CutoutRectX1 0.0}
+        # if($CutoutRectY1<0.0) {define CutoutRectY2 $($CutoutRectY2-$CutoutRectY1) define CutoutRectY1 0.0}
+        # if($CutoutRectX2>$PhotoDimenX-1.0) {define CutoutRectX1 $($CutoutRectX1-$CutoutRectX2+$PhotoDimenX+1.0) define CutoutRectX2 $($PhotoDimenX-1.0)}
+        # if($CutoutRectY2>$PhotoDimenY-1.0) {define CutoutRectY1 $($CutoutRectY1-$CutoutRectY2+$PhotoDimenY+1.0) define CutoutRectY2 $($PhotoDimenY-1.0)}
+        
+        # Use IRAF to cut image
+        print  "do.cl" '\n' {}
+        
+        if(0==$j) { 
+            !rm -f $CutoutOutput
+            !rm -rf $CutoutOutDir
+            !sleep 0.3
+            !mkdir $CutoutOutDir
+            # print +"do.cl" 'imdel $CutoutOutput\n' {}
+            echo !mkdir $CutoutOutDir
+        }
+        
+        if($CutoutRecFX1>=0.0 && $CutoutRecFY1>=0.0 && $CutoutRecFX2<=$PhotoDimenX-1.0 && $CutoutRecFY2<=$PhotoDimenY-1.0) {
+            define CutoutRecIX1  $(sprintf('%.0f',$CutoutRecFX1))
+            define CutoutRecIY1  $(sprintf('%.0f',$CutoutRecFY1))
+            define CutoutRecIX2  $(sprintf('%.0f',$CutoutRecFX2))
+            define CutoutRecIY2  $(sprintf('%.0f',$CutoutRecFY2))
+            define CutoutRecStr "[$CutoutRecIX1:$CutoutRecIX2,$CutoutRecIY1:$CutoutRecIY2]"
+            print +"do.cl" 'imcopy $InputPhotoFile""$CutoutRecStr ' {}
+            print +"do.cl" '$CutoutOutDir/$CutoutOutput\nlogout\n\n' {}
+            echo !imcopy $InputPhotoFile""$CutoutRecStr $CutoutOutDir/$CutoutOutput
+        } else {
+            define CutoutDesFX1 0.0 define CutoutDesFX2 $($CutoutSideY-1.0)
+            define CutoutDesFY1 0.0 define CutoutDesFY2 $($CutoutSideX-1.0)
+            if($CutoutRecFX2<0.0 || $CutoutRecFY2<0.0 || $CutoutRecFX1>$PhotoDimenX-1.0 || $CutoutRecFX1>$PhotoDimenX-1.0) { # totally out-of-range
+                define CutoutRecIX1  $(sprintf('%.0f',$CutoutRecFX1*1.0))
+                define CutoutRecIY1  $(sprintf('%.0f',$CutoutRecFY1*1.0))
+                define CutoutRecIX2  $(sprintf('%.0f',$CutoutRecFX2*1.0))
+                define CutoutRecIY2  $(sprintf('%.0f',$CutoutRecFY2*1.0))
+                define CutoutDesIX1  $(sprintf('%.0f',$CutoutDesFX1*1.0))
+                define CutoutDesIY1  $(sprintf('%.0f',$CutoutDesFY1*1.0))
+                define CutoutDesIX2  $(sprintf('%.0f',$CutoutDesFX2*1.0))
+                define CutoutDesIY2  $(sprintf('%.0f',$CutoutDesFY2*1.0))
+                define CutoutSideIX  $(sprintf('%.0f',$CutoutSideX*1.0))
+                define CutoutSideIY  $(sprintf('%.0f',$CutoutSideY*1.0))
+                define CutoutRecStr "[$CutoutRecIX1:$CutoutRecIX2,$CutoutRecIY1:$CutoutRecIY2]"
+                define CutoutDesStr "[$CutoutDesIX1:$CutoutDesIX2,$CutoutDesIY1:$CutoutDesIY2]"
+                print +"do.cl" 'imexpr \"I*0.0+J*0.0\" \"$CutoutOutDir/$CutoutOutput\" dims=\"$CutoutSideIX,$CutoutSideIY\"\nlogout\n\n' {}
+                echo !imexpr \"I*0.0+J*0.0\" \"$CutoutOutDir/$CutoutOutput\" dims=\"$CutoutSideX,$CutoutSideY\"
+                echo Out of image! $InputPhotoFile""$CutoutRecStr But image dimension [$PhotoDimenX,$PhotoDimenY]
+            } else {
+                if($CutoutRecFX1<0.0) { 
+                    define NeedPadLeft $(-$CutoutRecFX1)
+                    define CutoutRecFX1 $($CutoutRecFX1+$NeedPadLeft)
+                    define CutoutDesFX1 $($CutoutDesFX1+$NeedPadLeft)
+                }
+                if($CutoutRecFY1<0.0) { 
+                    define NeedPadBottom $(-$CutoutRecFY1)
+                    define CutoutRecFY1 $($CutoutRecFY1+$NeedPadBottom)
+                    define CutoutDesFY1 $($CutoutDesFY1+$NeedPadBottom)
+                }
+                if($CutoutRecFX2>$PhotoDimenX-1.0) { 
+                    define NeedPadRight $($CutoutRecFX2-($PhotoDimenX-1.0))
+                    define CutoutRecFX2 $($CutoutRecFX2-$NeedPadRight)
+                    define CutoutDesFX2 $($CutoutDesFX2-$NeedPadRight)
+                }
+                if($CutoutRecFY2>$PhotoDimenY-1.0) { 
+                    define NeedPadTop $($CutoutRecFY2-($PhotoDimenY-1.0))
+                    define CutoutRecFY2 $($CutoutRecFY2-$NeedPadTop)
+                    define CutoutDesFY2 $($CutoutDesFY2-$NeedPadTop)
+                }
+                define CutoutRecIX1  $(sprintf('%.0f',$CutoutRecFX1*1.0))
+                define CutoutRecIY1  $(sprintf('%.0f',$CutoutRecFY1*1.0))
+                define CutoutRecIX2  $(sprintf('%.0f',$CutoutRecFX2*1.0))
+                define CutoutRecIY2  $(sprintf('%.0f',$CutoutRecFY2*1.0))
+                define CutoutDesIX1  $(sprintf('%.0f',$CutoutDesFX1*1.0))
+                define CutoutDesIY1  $(sprintf('%.0f',$CutoutDesFY1*1.0))
+                define CutoutDesIX2  $(sprintf('%.0f',$CutoutDesFX2*1.0))
+                define CutoutDesIY2  $(sprintf('%.0f',$CutoutDesFY2*1.0))
+                define CutoutRecStr "[$CutoutRecIX1:$CutoutRecIX2,$CutoutRecIY1:$CutoutRecIY2]"
+                define CutoutDesStr "[$CutoutDesIX1:$CutoutDesIX2,$CutoutDesIY1:$CutoutDesIY2]"
+                print +"do.cl" 'imexpr \"I*0.0+J*0.0\" \"$CutoutOutDir/$CutoutOutput\" dims=\"$CutoutSideX,$CutoutSideY\"\n' {}
+                print +"do.cl" 'imcopy $InputPhotoFile""$CutoutRecStr ' {} 
+                print +"do.cl" '$CutoutOutDir/$CutoutOutput""$CutoutDesStr\nlogout\n\n' {}
+                echo !imexpr \"I*0.0+J*0.0\" \"$CutoutOutDir/$CutoutOutput\" dims=\"$CutoutSideX,$CutoutSideY\"
+                echo !imcopy $InputPhotoFile""$CutoutRecStr $CutoutOutDir/$CutoutOutput""$CutoutDesStr
+            }
+        }
+        
+        !cl < do.cl > do.cs
+        
+        !mv do.ds9.reg $CutoutOutDir/$CutoutOutReg
+        
+        # Use WCSTools to modify fits header
+        !sethead $CutoutOutDir/$CutoutOutput OBJECT='Id $SelectSourceId $InputPhotoBand'
+        echo !sethead $CutoutOutDir/$CutoutOutput OBJECT='Id $SelectSourceId $InputPhotoBand'
+        
+        # define ccc ?
+    }
+
+

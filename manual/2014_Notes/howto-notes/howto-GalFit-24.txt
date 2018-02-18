@@ -1,0 +1,185 @@
+# 0. Clean
+#
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-N
+    rm aaa* 4* 123 do.cl summary_run null.fits tmp*.fits fit*.log fit*.log-e galfit.* 
+    rm *.CONSTRAINTS *.INPUT
+
+
+
+# 1. Run goFine 
+#   with radio Catalogue as prior
+#   set "fix_astrometry=1" in xSet_16
+#   This will output "results_XXX" "results_XXX.info" and "FIT_goodsn_XXX.fits"
+#
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-N
+    sm
+sm> 
+    data   "GOODS_N_Prior_Catalogue/RadioOwenMIPS24_priors_March7_2014.txt"   read {raF 2 deF 3}
+    # edit     goFine2.sm
+    macro read goFine2.sm
+    xSet_16_Run_1
+    Fit_XXX
+    Rebuild_XXX
+sm> quit
+
+
+
+# 2. Run goFine again 
+#   with radio Catalogue as prior
+#   but set "use_prior_mags=1" and "vary_positions=1" in xSet_16
+#   This will output "results_XXX_vary" "results_XXX_vary.info" and "FIT_goodsn_XXX_vary.fits"
+#
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-N
+    sm
+sm> 
+    data   "GOODS_N_Prior_Catalogue/RadioOwenMIPS24_priors_March7_2014.txt"   read {raF 2 deF 3} 
+    data   "results_24_20140316"   read { xm24 4 }
+    macro read goFine2.sm
+    xSet_24_Run_2
+    Fit_XXX
+    Rebuild_XXX
+sm> quit
+
+
+
+# 3. Run some analyze macros <TODO> (could be skipped)
+#   under subdir "Compare_FIT_GOODS_N_16"
+#   where we have prepared these macros:
+#     "FIT_goodsn_24_List_08Feb11_vary.sm" "FIT_goodsn_24_List_20140310_vary.sm"
+#     "run_ds9_mecube.sm"  "run_csv_compare.sm"  "run_mag_compare_plot.sm"
+#
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-N/Compare_FIT_GOODS_N_16_20140315
+    sm 
+sm> # Prepare old results
+    
+    # Read "results_XXX_old_vary" and write ds9 regions "(box x,y)"
+    # This will create "FIT_goodsn_XXX_vary.ds9.regions"
+    define imax       24
+    define xdate    <"20140316">
+    define xcolor     red
+    macro read  "../run_csv_create.sm"   run_csv_create
+    
+    # Read "results_XXX_new_vary" and write ds9 regions "(box x,y)"
+    # This will create "FIT_goodsn_XXX_vary.ds9.regions"
+    define imax       24
+    define xdate    <"20140316_vary">
+    define xcolor  y   ellow
+    macro read  "../run_csv_create.sm"   run_csv_create
+    
+    # Show ds9
+    # First run ds9 in mecube mode
+    # Then read "FIT_goodsn_XXX_old_vary.ds9.regions"
+    # Then read "FIT_goodsn_XXX_new_vary.ds9.regions"
+    define imax          24
+    define xdate_old   <"20140316">
+    define xdate_new   <"20140316_vary">
+    macro read  "../run_ds9_mecube.sm"   run_ds9_mecube
+    
+    # Run csv compare macro
+    define imax          24
+    define xdate_old   <"20140316">
+    define xdate_new   <"20140316_vary">
+    macro read  "../run_csv_compare.sm"   run_csv_compare
+    
+    # Run comparing figure plot macro
+    define imax          24
+    define xdate_old   <"20140316">
+    define xdate_new   <"20140316_vary">
+    macro read  "../run_mag_compare_plot.sm"   run_mag_compare_plot
+    
+sm> quit
+
+
+
+# 4. Extract residual map
+  > cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-N
+    sm
+sm> 
+    define imax       100
+    define xdate    <"20140317">
+    print  do.cl     '\#\n'    {}
+    print +do.cl     'imcopy   FIT_goodsn_$imax""_Map_$xdate""_vary.fits[2]   FIT_goodsn_$imax""_Map_$xdate""_resi.fits\n'   {}
+    print +do.cl     '!ds9     FIT_goodsn_$imax""_Map_$xdate""_resi.fits &\n'   {}
+    print +do.cl     'logout\n\n'    {}
+    !cl   <do.cl    > 4_stdout_Extract_Residual_Map
+sm> quit
+
+
+
+# 5. Copy rms map <TODO> (could be skipped)
+  > cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-N
+    cl
+cl> 
+    imcopy   GOODS_N_MIPS_Photo/n_mips_1_s1_v0_37_rms_ED.fits   FIT_goodsn_24_Map_20140316_rms.fits
+    !ds9 -title xpads9 -tile FIT_goodsn_24_Map_20140316_vary.fits[0] FIT_goodsn_24_Map_20140316_resi.fits FIT_goodsn_24_Map_20140316_rms.fits -lock frame wcs -lock crosshair wcs &
+    !xpaset -p xpads9 frame last
+    !xpaset -p xpads9 scale limits 0.02 1.00
+cl> logout
+
+
+
+# 6. Apply rms mask to original map
+#   we need to exclude high-rms pixels in the original map
+#   we decide to exclude pixels that have rms >= 0.01
+#   note that the typical best rms is about 0.00X
+  > cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-N
+    cl
+cl> 
+    # create mask
+    imcopy     GOODS_N_MIPS_Photo/n_mips_1_s1_v0_37_rms_ED.fits  FIT_goodsn_24_Map_20140316_rms_mask.fits
+    imreplace  FIT_goodsn_24_Map_20140316_rms_mask.fits  0.005 upper=0.01              # <TODO>
+    imreplace  FIT_goodsn_24_Map_20140316_rms_mask.fits  0.0   lower=0.01              # <TODO> lower=0.01
+    imreplace  FIT_goodsn_24_Map_20140316_rms_mask.fits  1.0   lower=0.005 upper=0.005 # <TODO>
+    !ds9       FIT_goodsn_24_Map_20140316_rms_mask.fits
+    # apply mask and make resi_masked map
+    imarith    FIT_goodsn_24_Map_20140316_resi.fits * FIT_goodsn_24_Map_20140316_rms_mask.fits  FIT_goodsn_24_Map_20140316_resi_masked.fits
+    !ds9       FIT_goodsn_24_Map_20140316_resi_masked.fits
+cl> logout
+
+
+
+# 7. Generate smoothed background map
+  > cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-N
+    cl
+cl> 
+    imstat      FIT_goodsn_24_Map_20140316_resi_masked.fits  fields="min,max"
+    fmedian     FIT_goodsn_24_Map_20140316_resi_masked.fits  FIT_goodsn_24_Map_20140316_resi_smoothed.fits  35  35  boundary="reflect"
+    !ds9 -tile  FIT_goodsn_24_Map_20140316_resi_masked.fits  FIT_goodsn_24_Map_20140316_resi_smoothed.fits  -lock frame wcs -lock crosshair wcs &
+cl> logout
+
+
+
+# 8. Generate smooth-background-subtracted origin map
+  > cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-N
+  > cl
+cl> 
+    imarith     FIT_goodsn_24_Map_20140316_vary.fits[0] - FIT_goodsn_24_Map_20140316_resi_smoothed.fits[0]  FIT_goodsn_24_Map_20140316_vary_subtracted.fits
+    !ds9 -tile  FIT_goodsn_24_Map_20140316_vary.fits[0]   FIT_goodsn_24_Map_20140316_vary_subtracted.fits  -lock frame wcs -lock crosshair wcs &
+    imcopy      FIT_goodsn_24_Map_20140316_vary_subtracted.fits   "GOODS_N_MIPS_Photo/goods_north_wdriz_frac0pt6_norm_19dec06_subbackDL.fits"
+cl> logout
+
+
+
+# 9. Run goFine again 
+#   with "FIT_goodsn_24_Map_20140315_vary_subtracted.fits" map as input map
+#   with "results_vary" Catalogue as prior
+#   with "vary_positions=1" and "fix_astrometry=1" in xSet_16
+#   This will output "results_XXX_vary_vary" "results_XXX_vary_vary.info" and "FIT_goodsn_XXX_vary_vary.fits"
+  > cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-N
+    sm
+sm> 
+    data   "GOODS_N_Prior_Catalogue/RadioOwenMIPS24_priors_March7_2014.txt"   read {raF 2 deF 3} 
+    data   "results_16_20140316_vary"   read { xm16 4 }
+    macro read goFine2.sm
+    xSet_16_Run_3
+    Fit_XXX
+    Rebuild_XXX
+sm> quit
+
+
+
+
+
+
+
+

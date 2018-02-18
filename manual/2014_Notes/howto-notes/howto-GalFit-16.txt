@@ -1,0 +1,226 @@
+# 0. Clean
+#
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    rm aaa* 4* 123 do.* HSO_* summary_run null.fits tmp*.fits fit*.log* galfit.* 
+
+
+
+# 1. Run goFine.sm twice
+# 
+#   REQUIRE goFine.sm xSet_16   (Make sure correct file names are set)
+#   REQUIRE goods_north_wdriz_frac0pt6_norm_19dec06_minbackJM.fits
+#   REQUIRE goods_north_wdriz_frac0pt6_norm_19dec06_rms.fits
+#   REQUIRE goods_north_psf_internal_18dec06.fits
+#   REQUIRE RadioOwenMIPS24_priors_March25_2014.txt
+#   
+#   use "RadioOwenMIPS24_priors_March25_2014.txt" as Prior Catalogue
+#   set "fix_astrometry=1" for first run
+#   set "use_prior_mags=0" for first run
+#   set "vary_positions=0" for first run
+#   output "results_XXX" "results_XXX.info" and "FIT_goodsn_XXX.fits"
+#   
+#   use "results_XXX" as Prior Magnitude
+#   set "fix_astrometry=1" for second run
+#   set "use_prior_mags=1" for second run
+#   set "vary_positions=1" for second run
+#   output "results_XXX_vary" "results_XXX_vary.info" and "FIT_goodsn_XXX_vary.fits"
+#   
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    sm
+sm> 
+    data RadioOwenMIPS24_priors_March25_2014.txt read {raF 2 deF 3}
+    ##### EDIT goFine.sm xSet_16
+    macro read goFine.sm xSet_16
+    define use_prior_mags 0
+    define vary_positions 0
+    define fix_astrometry 1
+    define make_residuals 0
+    define xdate <"20140331">
+    Fit_XXX
+    Rebuild_XXX
+sm> 
+    data RadioOwenMIPS24_priors_March25_2014.txt read {raF 2 deF 3}
+    data results_16_20140331 read { xm16 4 }
+    ##### EDIT goFine.sm xSet_16
+    macro read goFine.sm xSet_16
+    define use_prior_mags 1
+    define vary_positions 1
+    define fix_astrometry 1
+    define make_residuals 0
+    define xdate <"20140331">
+    Fit_XXX
+    Rebuild_XXX
+sm> 
+    !rm     fit*.log galfit.* aaa* do.* null.* HSO_16.* summary_run
+    !mkdir                                           FIT_16_20140331
+    !cp    "FIT_goodsn_16_Map_20140331*.fits"        FIT_16_20140331/
+    !cp    "results_16_20140331*"                    FIT_16_20140331/
+sm> quit
+
+
+
+
+# 2. Extract residual map, check rms map, copy rms mask, create rms mask, apply rms mask to background, smooth background, 
+#   
+#   we need to exclude high-rms pixels in the original map
+#   we decide to exclude pixels that have rms >= 0.1
+#   note that the typical best rms is about 0.03
+#    
+#   OUTPUT goods_north_wdriz_frac0pt6_norm_19dec06_subbackDL.fits
+#   
+cl> 
+    imcopy  FIT_goodsn_16_Map_20140331_vary.fits[2]  FIT_goodsn_16_Map_20140331_resi.fits
+    imcopy  goods_north_wdriz_frac0pt6_norm_19dec06_rms.fits  FIT_goodsn_16_Map_20140331_rms.fits
+    !ds9 -title xpads9 -tile FIT_goodsn_16_Map_20140331_resi.fits FIT_goodsn_16_Map_20140331_rms.fits -lock frame wcs -lock crosshair wcs &
+    imdelete   FIT_goodsn_16_Map_20140331_rms_mask.fits
+    imcopy     FIT_goodsn_16_Map_20140331_rms.fits  FIT_goodsn_16_Map_20140331_rms_mask.fits
+    imreplace  FIT_goodsn_16_Map_20140331_rms_mask.fits   0.05 upper=0.09
+    imreplace  FIT_goodsn_16_Map_20140331_rms_mask.fits   0.00 lower=0.09
+    imreplace  FIT_goodsn_16_Map_20140331_rms_mask.fits   1.00 lower=0.05 upper=0.05
+    imdelete   FIT_goodsn_16_Map_20140331_resi_masked.fits
+    imarith    FIT_goodsn_16_Map_20140331_resi.fits * FIT_goodsn_16_Map_20140331_rms_mask.fits FIT_goodsn_16_Map_20140331_resi_masked.fits
+    imstat     FIT_goodsn_16_Map_20140331_resi_masked.fits  fields="min,max"
+    imdelete   FIT_goodsn_16_Map_20140331_resi_smoothed.fits
+    fmedian    FIT_goodsn_16_Map_20140331_resi_masked.fits  FIT_goodsn_16_Map_20140331_resi_smoothed.fits 31 31 boundary="reflect"
+    imarith    FIT_goodsn_16_Map_20140331_vary.fits[0] - FIT_goodsn_16_Map_20140331_resi_smoothed.fits FIT_goodsn_16_Map_20140331_vary_subtracted.fits
+cl> logout
+    cp         FIT_goodsn_16_Map_20140331_vary_subtracted.fits  goods_north_wdriz_frac0pt6_norm_19dec06_subbackDL.fits
+
+
+
+# 
+# # 6. Apply rms mask to original map
+# #   we need to exclude high-rms pixels in the original map
+# #   we decide to exclude pixels that have rms >= 0.1
+# #   note that the typical best rms is about 0.03
+#   > cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+#   > sm
+# sm> 
+#     define imax              16
+#     define xdate           <"20140319">
+#     define imax_name_rms   "GOODS_N_IRSX_Photo/goods_north_wdriz_frac0pt6_norm_19dec06_rms.fits"
+#     # create mask
+#     print  do.cl           '\#\n'    {}
+#     print +do.cl           'imdelete                 FIT_goodsn_$imax""_Map_$xdate""_rms_mask.fits\n'    {}
+#     print +do.cl           'imcopy   $imax_name_rms  FIT_goodsn_$imax""_Map_$xdate""_rms_mask.fits\n'    {}
+#     print +do.cl           'imreplace FIT_goodsn_$imax""_Map_$xdate""_rms_mask.fits   0.05 upper=0.09\n'  {}
+#     print +do.cl           'imreplace FIT_goodsn_$imax""_Map_$xdate""_rms_mask.fits   0.00 lower=0.09\n'  {}
+#     print +do.cl           'imreplace FIT_goodsn_$imax""_Map_$xdate""_rms_mask.fits   1.00 lower=0.05 upper=0.05\n'  {}
+#     print +do.cl           'logout\n\n'    {}
+#     !cl   <do.cl          > 4_stdout_06_Create_RMS_Mask_Map
+#     !ds9  -title xpads9     FIT_goodsn_$imax""_Map_$xdate""_rms_mask.fits &
+#     # apply mask and make resi_masked map
+#     print  do.cl           '\#\n'    {}
+#     print +do.cl           'imdelete  FIT_goodsn_$imax""_Map_$xdate""_resi_masked.fits\n'  {}
+#     print +do.cl           'imarith   FIT_goodsn_$imax""_Map_$xdate""_resi.fits * FIT_goodsn_$imax""_Map_$xdate""_rms_mask.fits'  {}
+#     print +do.cl           '          FIT_goodsn_$imax""_Map_$xdate""_resi_masked.fits\n'  {}
+#     print +do.cl           'logout\n\n'    {}
+#     !cl   <do.cl          > 4_stdout_06_Apply_RMS_Mask_to_Original_Map
+#     !ds9                    FIT_goodsn_$imax""_Map_$xdate""_resi_masked.fits &
+# sm> quit
+# 
+# 
+# 
+# # 7. Generate smoothed background map
+#   > cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+#   > sm
+# sm> 
+#     define imax              16
+#     define xdate           <"20140319">
+#     print  do.cl           '\#\n'    {}
+#     print +do.cl           'imstat   FIT_goodsn_$imax""_Map_$xdate""_resi_masked.fits  fields=\"min,max\"\n' {}
+#     print +do.cl           'imdelete FIT_goodsn_$imax""_Map_$xdate""_resi_smoothed.fits\n'  {}
+#     print +do.cl           'fmedian  FIT_goodsn_$imax""_Map_$xdate""_resi_masked.fits  ' {}
+#     print +do.cl                   ' FIT_goodsn_$imax""_Map_$xdate""_resi_smoothed.fits 31 31 boundary=\"reflect\"\n' {}
+#     print +do.cl           'logout\n\n'    {}
+#     !cl   <do.cl          > 4_stdout_07_Smooth_Masked_Resiual_Map
+#     !ds9  -title xpads9   -tile      FIT_goodsn_$imax""_Map_$xdate""_resi_masked.fits  FIT_goodsn_$imax""_Map_$xdate""_resi_smoothed.fits -lock frame wcs -lock crosshair wcs &
+# sm> quit
+# 
+# 
+# 
+# # 8. Generate smooth-background-subtracted origin map
+#   > cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+#   > sm
+# sm> 
+#     define imax              16
+#     define xdate           <"20140319">
+#     print  do.cl           '\#\n'    {}
+#     print +do.cl           'imarith  FIT_goodsn_$imax""_Map_$xdate""_vary.fits[0] - FIT_goodsn_$imax""_Map_$xdate""_resi_smoothed.fits ' {}
+#     print +do.cl                  '  FIT_goodsn_$imax""_Map_$xdate""_vary_subtracted.fits\n' {}
+#     print +do.cl           'logout\n\n'    {}
+#     !cl   <do.cl          > 4_stdout_08_Subtract_Smoothed_Background_Map
+#     !ds9  -title xpads9   -tile      FIT_goodsn_$imax""_Map_$xdate""_vary.fits[0]  FIT_goodsn_$imax""_Map_$xdate""_vary_subtracted.fits -lock frame wcs -lock crosshair wcs &
+#     !cp    FIT_goodsn_$imax""_Map_$xdate""_vary_subtracted.fits   "GOODS_N_IRSX_Photo/goods_north_wdriz_frac0pt6_norm_19dec06_subbackDL.fits"
+# sm> quit
+# 
+
+
+
+
+
+
+
+
+
+# 3. Run goFine.sm twice
+# 
+#   REQUIRE goFine.sm xSet_16   (Make sure correct file names are set)
+#   REQUIRE goods_north_wdriz_frac0pt6_norm_19dec06_subbackDL.fits
+#   REQUIRE goods_north_wdriz_frac0pt6_norm_19dec06_rms.fits
+#   REQUIRE goods_north_psf_internal_18dec06.fits
+#   REQUIRE RadioOwenMIPS24_priors_March25_2014.txt
+#   
+#   use "RadioOwenMIPS24_priors_March25_2014.txt" as Prior Catalogue
+#   set "fix_astrometry=1" for first run
+#   set "use_prior_mags=0" for first run
+#   set "vary_positions=0" for first run
+#   output "results_XXX" "results_XXX.info" and "FIT_goodsn_XXX.fits"
+#   
+#   use "results_XXX" as Prior Magnitude
+#   set "fix_astrometry=1" for second run
+#   set "use_prior_mags=1" for second run
+#   set "vary_positions=1" for second run
+#   output "results_XXX_vary" "results_XXX_vary.info" and "FIT_goodsn_XXX_vary.fits"
+#   
+    cd /Users/dliu/Working/2014-CEA/Data/Level_3_SciData/GOODS-North
+    sm
+sm> 
+    data RadioOwenMIPS24_priors_March25_2014.txt read {raF 2 deF 3}
+    ##### EDIT goFine.sm xSet_16
+    macro read goFine.sm xSet_16
+    define use_prior_mags 0
+    define vary_positions 0
+    define fix_astrometry 1
+    define make_residuals 0
+    define xdate <"20140331NewMap">
+    Fit_XXX
+    Rebuild_XXX
+sm> 
+    data RadioOwenMIPS24_priors_March25_2014.txt read {raF 2 deF 3}
+    data results_16_20140331 read { xm16 4 }
+    ##### EDIT goFine.sm xSet_16
+    macro read goFine.sm xSet_16
+    define use_prior_mags 1
+    define vary_positions 1
+    define fix_astrometry 1
+    define make_residuals 0
+    define xdate <"20140331NewMap">
+    Fit_XXX
+    Rebuild_XXX
+sm> 
+    !rm     fit*.log* galfit.* tmp*.fits aaa* do.* null.* HSO_* 4_* summary_run
+    !mkdir                                              FIT_16_20140331NewMap
+    !cp    "FIT_goodsn_16_Map_20140331NewMap*.fits"     FIT_16_20140331NewMap/
+    !cp    "results_16_20140331NewMap*"                 FIT_16_20140331NewMap/
+sm> quit
+
+
+
+###. DONE !!!!
+
+
+
+###. THEN GOTO howto-GalSim-16.TXT
+
+
