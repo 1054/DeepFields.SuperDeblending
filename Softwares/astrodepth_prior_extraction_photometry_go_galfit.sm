@@ -676,9 +676,9 @@ go_galfit 01
         writeGalfitLimit fit_$1.limit
         #<BUG><20180109><DZLIU># WRONGLY USED image_sci.fits IN NEGATIVE FITTING MODE
         if(index('$1','n')==0) {
-            writeGalfitInput fit_$1.input image_negative.fits fit_$1.fits image_rms.fits image_psf.fits fit_$1.limit
+            writeGalfitInput fit_$1.input image_negative.fits fit_$1.fits image_rms.fits image_psf.fits image_nan_mask.fits fit_$1.limit
         } else {
-        writeGalfitInput fit_$1.input image_sci.fits fit_$1.fits image_rms.fits image_psf.fits fit_$1.limit
+            writeGalfitInput fit_$1.input image_sci.fits fit_$1.fits image_rms.fits image_psf.fits image_nan_mask.fits fit_$1.limit
         }
         exec_galfit $1
         if(is_file(fit_$1.fits)) {
@@ -799,7 +799,11 @@ print_result 02
                 verbose 1 !rm aaa.getpix.tmp
                 set ResultFluxPeak[$i] = fluxpeak # Jy/beam <20170613>
                 # Get original image pixel value (prevent from at NaN pixel position)
-                !getpix '%15.10e' image_sci_input.fits $(ResultPosX[$i]) $(ResultPosY[$i]) > aaa.getpix.tmp
+                if(index('$1','n')==0) {
+                    !getpix '%15.10e' image_negative_input.fits $(ResultPosX[$i]) $(ResultPosY[$i]) > aaa.getpix.tmp
+                } else {
+                    !getpix '%15.10e' image_sci_input.fits $(ResultPosX[$i]) $(ResultPosY[$i]) > aaa.getpix.tmp
+                }
                 verbose 0 data aaa.getpix.tmp read {fluxorigin 1.f}
                 verbose 1 !rm aaa.getpix.tmp
                 set ResultFluxOrigin[$i] = fluxorigin # Jy/beam <20180109>
@@ -814,7 +818,11 @@ print_result 02
                 verbose 1 !rm aaa.getpix.tmp
                 set ResultFluxPeak[$i] = fluxpeak # Jy/beam <20170613>
                 # Get original image pixel value (prevent the source from being at a position where the pixel value is NaN, e.g., at the edge of the circular area cut by ALMA pipeline for the primary beam attenation.)
-                !getpix '%15.10e' image_sci_input.fits $(ResultPosX[$i]) $(ResultPosY[$i]) > aaa.getpix.tmp
+                if(index('$1','n')==0) {
+                    !getpix '%15.10e' image_negative_input.fits $(ResultPosX[$i]) $(ResultPosY[$i]) > aaa.getpix.tmp
+                } else {
+                    !getpix '%15.10e' image_sci_input.fits $(ResultPosX[$i]) $(ResultPosY[$i]) > aaa.getpix.tmp
+                }
                 verbose 0 data aaa.getpix.tmp read {fluxorigin 1.f}
                 verbose 1 !rm aaa.getpix.tmp
                 set ResultFluxOrigin[$i] = fluxorigin # Jy/beam <20180109>

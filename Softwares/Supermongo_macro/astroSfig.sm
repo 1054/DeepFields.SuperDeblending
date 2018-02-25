@@ -25,6 +25,48 @@ astroSfig
 
 
 
+calc_Pearson2018_SFR 02
+    # 
+    # calculate SFR according to the sSFR evolution track of MS galaxies in Pearson 2018
+    # Table 2
+    # note that they are using Chabrier IMF for SFR and Mstar
+    # input $1 is redshift
+    # input $2 is stellar mass in log in Chabrier IMF
+    # output $0 is SFR in log in Chabrier IMF
+    # 
+    if($?1==0||$?2==0){print 'Usage: calc_Pearson2018_SFR z lg_M_star --> lg_SFR_MS\n' {} return}
+    set _Pearson2018_z = $1
+    set _Pearson2018_Mstar = $2
+    set _Pearson2018_alpha = 0.38 + 0.12 * _Pearson2018_z
+    set _Pearson2018_beta = 1.10 + (0.53 * ln(0.03 + _Pearson2018_z))
+    #set _Pearson2018_alpha = (_Pearson2018_z>=0.2 && _Pearson2018_z<0.5) ? 0.43 : _Pearson2018_alpha
+    #set _Pearson2018_beta = (_Pearson2018_z>=0.2 && _Pearson2018_z<0.5) ? 0.58 : _Pearson2018_beta
+    #set _Pearson2018_alpha = (_Pearson2018_z>=0.5 && _Pearson2018_z<0.8) ? 0.50 : _Pearson2018_alpha
+    #set _Pearson2018_beta = (_Pearson2018_z>=0.5 && _Pearson2018_z<0.8) ? 0.92 : _Pearson2018_beta
+    set _Pearson2018_SFR = _Pearson2018_alpha * (_Pearson2018_Mstar-10.5) + _Pearson2018_beta
+    set $0 = _Pearson2018_SFR
+    return
+
+calc_Schreiber2015_SFR 02
+    # 
+    # calculate SFR according to the sSFR evolution track of MS galaxies in Schreiber 2014 (arxiv) 2015 A&A
+    # equation (9) and text 
+    # note that they are using Salpeter IMF for SFR and Mstar
+    # input $1 is redshift
+    # input $2 is stellar mass in log in Chabrier IMF
+    # output $0 is SFR in log in Chabrier IMF
+    # 
+    if($?1==0||$?2==0){print 'Usage: calc_Schreiber2014_SFR z lg_M_star --> lg_SFR_MS\n' {} return}
+    set _Schreiber2014_z = $1
+    set _Schreiber2014_Mstar = $2
+    set _Schreiber2014_Mstar = _Schreiber2014_Mstar+lg(1.73) # converts Chabrier IMF values to Salpeter IMF values for internal calculation
+    set _Schreiber2014_SFR = _Schreiber2014_Mstar-9.0-0.50+1.5*lg(_Schreiber2014_z+1.0)
+    set _Schreiber2014_mmr = _Schreiber2014_Mstar-9.0-0.36-2.5*lg(_Schreiber2014_z+1.0)
+    set _Schreiber2014_SFR = _Schreiber2014_mmr>0 ? (_Schreiber2014_SFR-0.30*_Schreiber2014_mmr**2) : _Schreiber2014_SFR
+    set _Schreiber2014_SFR = _Schreiber2014_SFR-lg(1.73) # converts back to Chabrier IMF values
+    set $0 = _Schreiber2014_SFR
+    return
+
 calc_Schreiber2014_SFR 02
     # 
     # calculate SFR according to the sSFR evolution track of MS galaxies in Schreiber 2014 (arxiv) 2015 A&A
@@ -36,11 +78,11 @@ calc_Schreiber2014_SFR 02
     if($?1==0||$?2==0){print 'Usage: calc_Schreiber2014_SFR z lg_M_star --> lg_SFR_MS\n' {} return}
     set _Schreiber2014_z = $1
     set _Schreiber2014_Mstar = $2
-    set _Schreiber2014_Mstar = _Schreiber2014_Mstar-lg(1.73)
+    set _Schreiber2014_Mstar = _Schreiber2014_Mstar-lg(1.73) # 20180219 buggy
     set _Schreiber2014_SFR = _Schreiber2014_Mstar-9.0-0.50+1.5*lg(_Schreiber2014_z+1.0)
     set _Schreiber2014_mmr = _Schreiber2014_Mstar-9.0-0.36-2.5*lg(_Schreiber2014_z+1.0)
     set _Schreiber2014_SFR = _Schreiber2014_mmr>0 ? (_Schreiber2014_SFR-0.30*_Schreiber2014_mmr**2) : _Schreiber2014_SFR
-    set _Schreiber2014_SFR = _Schreiber2014_SFR+lg(1.73)
+    set _Schreiber2014_SFR = _Schreiber2014_SFR+lg(1.73) # 20180219 buggy
     set $0 = _Schreiber2014_SFR
     return
 
