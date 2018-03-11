@@ -1262,6 +1262,13 @@ calc_2D_Gaussian_deconvolved_sizes 06
         !printf \\"Maj convol, Maj beam => Maj deconv : \\033[0;31m\\t$(calcds_Maj_convol)\\033[0;0m, \\033[0;33m$(calcds_Maj_beam)\\033[0;0m => \\033[0;34m$(calcds_Maj_deconv)\\033[0;0m\\n\\"
         !printf \\"Min convol, Min beam => Min deconv : \\033[0;31m\\t$(calcds_Min_convol)\\033[0;0m, \\033[0;33m$(calcds_Min_beam)\\033[0;0m => \\033[0;34m$(calcds_Min_deconv)\\033[0;0m\\n\\"
         !printf \\"PA. convol, PA. beam => PA. deconv : \\033[0;31m\\t$(calcds_PA_convol)\\033[0;0m, \\033[0;33m$(calcds_PA_beam)\\033[0;0m => \\033[0;34m$(calcds_PA_deconv)\\033[0;0m\\n\\"
+    } else {
+        print 'Usage: \n' {}
+        print '    calc_2D_Gaussian_deconvolved_sizes convol_Maj convol_Min convol_PA beam_maj beam_min beam_PA\n' {}
+        print '    set deconvolved_Maj = calcds_Maj_deconv\n' {}
+        print '    set deconvolved_Min = calcds_Min_deconv\n' {}
+        print '    set deconvolved_PA = calcds_PA_deconv\n' {}
+        print '\n' {}
     }
 
 calc_2D_Gaussian_convolved_sizes 06
@@ -1313,6 +1320,13 @@ calc_2D_Gaussian_convolved_sizes 06
         !printf \\"Maj deconv, Maj beam => Maj convol : \\033[0;31m\\t$(calcds_Maj_deconv)\\033[0;0m, \\033[0;33m$(calcds_Maj_beam)\\033[0;0m => \\033[0;34m$(calcds_Maj_convol)\\033[0;0m\\n\\"
         !printf \\"Min deconv, Min beam => Min convol : \\033[0;31m\\t$(calcds_Min_deconv)\\033[0;0m, \\033[0;33m$(calcds_Min_beam)\\033[0;0m => \\033[0;34m$(calcds_Min_convol)\\033[0;0m\\n\\"
         !printf \\"PA. deconv, PA. beam => PA. convol : \\033[0;31m\\t$(calcds_PA_deconv)\\033[0;0m, \\033[0;33m$(calcds_PA_beam)\\033[0;0m => \\033[0;34m$(calcds_PA_convol)\\033[0;0m\\n\\"
+    } else {
+        print 'Usage: \n' {}
+        print '    calc_2D_Gaussian_convolved_sizes Maj Min PA beam_maj beam_min beam_PA\n' {}
+        print '    set convolved_Maj = calcds_Maj_convol\n' {}
+        print '    set convolved_Min = calcds_Min_convol\n' {}
+        print '    set convolved_PA = calcds_PA_convol\n' {}
+        print '\n' {}
     }
 
 
