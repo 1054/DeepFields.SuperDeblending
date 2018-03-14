@@ -4,3 +4,5 @@ load astroSfig.sm
 QUIT
 load astroSfig2.sm
 QUIT
+load astroGalfit.sm calc_2D_Gaussian_convolved_sizes
+QUIT
