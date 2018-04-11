@@ -309,8 +309,8 @@ calc_Condon1997_errors 02
         set source_gaussian_snr = Condon_rho
         # 
         set Condon_i = 0,dimen(source_total)-1
-        set Condon_i = Condon_i if(maj>0 && min>0)
-        if(dimen(Condon_i)>0) {
+        if(sum((maj>0 && min>0))>0) {
+            set Condon_i = Condon_i if(maj>0 && min>0)
             set source_major_err[Condon_i] = maj[Condon_i] * source_major_err_rel[Condon_i] # Condon1997 Eq(21)
             set source_minor_err[Condon_i] = min[Condon_i] * source_minor_err_rel[Condon_i] # Condon1997 Eq(21)
         }

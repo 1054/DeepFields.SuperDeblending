@@ -1272,7 +1272,8 @@ rMatrix 01
 		read {zz 1 tySFR 2 tyAGN 3 normAGN 4 normSTR 5 normSFR 6 chi2 7 n 8 dl 9}
 		do out_Index = 0, dimen(out_Bands)-1 {
 			#echo Reading "fit_matrix_HDFN/fit_matrix_"$1".txt" mrx_$(out_Bands[$out_Index]) $($out_Index+9).f
-		 	read <mrx_$(out_Bands[$out_Index]) $($out_Index+9).f>
+		 	#read <mrx_$(out_Bands[$out_Index]) $($out_Index+9).f>  #<BUG><20180411><02h43m>#
+		 	read <mrx_$(out_Bands[$out_Index]) $($out_Index+10).f>
 		}
 		
 		# rfile "fit_matrix_HDFN/fit_matrix_"$1".txt"           # rfile is too slow
@@ -1408,7 +1409,10 @@ rMatrix 01
 		set _norm_zz_best = zz       if(chi2<$miiChi+1e-3)
 		###<20140610><DZLIU>### predict 2mm
 		###<20170315><DZLIU>### use arrays and foreach so that we can easily add new band for output in the future
-		foreach mrx_var out_Bands {set _norm$mrx_var""_best = mrx_$mrx_var if(chi2<$miiChi+1e-3)}
+		foreach mrx_var out_Bands {
+			#<DEBUG><20180411><02h43m>#echo set _norm$mrx_var""_best = mrx_$mrx_var if(chi2<$miiChi+1e-3)
+			set _norm$mrx_var""_best = mrx_$mrx_var if(chi2<$miiChi+1e-3)
+		}
 		
 		
 		if(dimen(_normAGN_best)>0) {stats _normAGN_best meAGN si ku} else {define meAGN 0.0}

@@ -102,11 +102,37 @@ calc_Sargent2014_SFR 02
     # 
     if($?1==0||$?2==0){print 'Usage: calc_Sargent2014_SFR z lg_M_star --> lg_SFR_MS\n' {} return}
     set _Sargent2014_z = $1
-    set _Sargent2014_Mstar = $2
-    set _Sargent2014_sSFR = 0.095 * 10**(-0.21*($2-lg(5e10))) * exp(2.05*$1/(1.0+0.16*$1**1.54))
-    set _Sargent2014_SFR = lg(_Sargent2014_sSFR / 1e9 * 10**($2))
-    set $0 = _Sargent2014_SFR
+    set _Sargent2014_lgMstar = $2
+    set _Sargent2014_sSFR = 0.095 * 10**(-0.21*(_Sargent2014_lgMstar-lg(5e10))) * exp(2.05*_Sargent2014_z/(1.0+0.16*_Sargent2014_z**1.54))
+    set _Sargent2014_lgSFR = lg(_Sargent2014_sSFR / 1e9 * 10**(_Sargent2014_lgMstar))
+    set $0 = _Sargent2014_lgSFR
     #print {_Sargent2014_SFR _Sargent2014_sSFR _Sargent2014_Mstar _Sargent2014_z}
+    return
+
+calc_Speagle2014_SFR 03
+    # 
+    # calculate SFR according to the SFR evolution track of MS galaxies in Speagle 2014 ApJS (2014ApJS..214...15S)
+    # note that they are using Chabrier IMF for SFR and Mstar
+    # input $1 is redshift
+    # input $2 is stellar mass in log in Chabrier IMF
+    # input $3 is cosmoAge (optional, if not given then will compute with "calc_cosmic_age" in this macro)
+    # output $0 is SFR in log in Chabrier IMF
+    # 
+    # see 
+    #     equation 28  lg SFR(M_star,cosmoAge) = ((0.84 +- 0.02) - (0.026 +- 0.003) * cosmoAge) * lgMstar
+    #                                            - ((6.51 +- 0.24) - (0.11 +- 0.03) * t)
+    # 
+    if($?1==0||$?2==0){print 'Usage: calc_Speagle2014_SFR z lg_M_star cosmoAge --> lg_SFR_MS\n' {} return}
+    set _Speagle2014_z = $1
+    set _Speagle2014_lgMstar = $2
+    if($?3) {
+        set _Speagle2014_cosmoAge = $3
+    } else {
+        set _Speagle2014_cosmoAge = calc_cosmic_age(_Speagle2014_z)
+    }
+    set _Speagle2014_lgSFR = (0.84 - 0.026*_Speagle2014_cosmoAge) * _Speagle2014_lgMstar - (6.51 - 0.11*_Speagle2014_cosmoAge)
+    set _Speagle2014_sSFR = 10**(_Speagle2014_lgSFR - _Speagle2014_lgMstar)
+    set $0 = _Speagle2014_lgSFR
     return
 
 calc_Bethermin2014_SFR 02
@@ -1936,7 +1962,11 @@ calc_FIR_lines 01
         set _calc_v = calc_line_freq(cii,$_calc_i,$1)
         echo [CII]($_calc_i-$($_calc_i-1)) @ $(_calc_v) GHz
     }
-    do _calc_i=1,1 {
+    do _calc_i=1,2 {
+        set _calc_v = calc_line_freq(oiii,$_calc_i,$1)
+        echo [OIII]($_calc_i-$($_calc_i-1)) @ $(_calc_v) GHz
+    }
+    do _calc_i=1,2 {
         set _calc_v = calc_line_freq(oi,$_calc_i,$1)
         echo [OI]($_calc_i-$($_calc_i-1)) @ $(_calc_v) GHz
     }
