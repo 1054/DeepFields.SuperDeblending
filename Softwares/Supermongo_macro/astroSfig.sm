@@ -740,10 +740,11 @@ calc_dzliu_NII 04
     set _dzliu_ObsFreq = _dzliu_LumTIR*0+0.0
     if($?3) { if($3>0) { 
         define _dzliu_Verbose $verbose verbose 0
-        set _dzliu_FreqNII = _dzliu_LumTIR*0 + calc_line_freq(NII,$2,0) # FreqNII is restframe
+        set _dzliu_ResFreq = _dzliu_LumTIR*0 + calc_line_freq(NII,$2,0) # FreqNII is restframe
         set _dzliu_ObsFreq = _dzliu_LumTIR*0 + calc_line_freq(NII,$2,$3) # ObsFreq is obsframe
+        set _dzliu_FreqNII = _dzliu_ObsFreq
         set _dzliu_LumDist = calc_lumdist($3) 
-        set _dzliu_FluxNII[_dzliu_PosID] = convert_lprm2flux($3,_dzliu_LPrmNII[_dzliu_PosID],_dzliu_FreqNII,_dzliu_LumDist)
+        set _dzliu_FluxNII[_dzliu_PosID] = convert_lprm2flux($3,_dzliu_LPrmNII[_dzliu_PosID],_dzliu_ResFreq,_dzliu_LumDist)
         verbose $_dzliu_Verbose undef _dzliu_Verbose
     }}
     if($verbose) { 
@@ -1093,7 +1094,7 @@ calc_FIR_line_fluxes 08
             set _dzliu_CI_x = 6.0,11.5,0.05
             set _dzliu_CI_y = 0.0653741952625 * _dzliu_CI_x**3 - 1.92089044289 * _dzliu_CI_x**2 + 19.8655338987 * _dzliu_CI_x - 59.3221991296
             set _dzliu_CI_LFIR = lg(_IR_luminosity[gid]/1.3)
-            interp2 _dzliu_CI_y _dzliu_CI_x _dzliu_CI_LFIR _dzliu_CI_LPrm
+            interp_dzliu _dzliu_CI_y _dzliu_CI_x _dzliu_CI_LFIR _dzliu_CI_LPrm
             set _line_lprm[gid] = 10**_dzliu_CI_LPrm
             set _line_lprm[gid] = _line_lprm[gid] * _line_excitation[gid] # calc excitation if user-given
             set _line_method_lprm_to_flux = 1
