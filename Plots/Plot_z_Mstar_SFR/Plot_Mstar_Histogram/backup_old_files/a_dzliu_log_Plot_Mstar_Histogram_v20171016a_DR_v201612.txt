@@ -1,0 +1,2569 @@
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Plots/Plot_z_Mstar_SFR/Plot_Mstar_Histogram"
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201612"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Cloud
+VisitDirPathVector: chdir Github
+VisitDirPathVector: chdir DeepFields.SuperDeblending
+VisitDirPathVector: chdir datarelease
+VisitDirPathVector: chdir 201612
+CatalogReader: 
+Read these vectors: snrIR, z, zphot, zspec, ubestfit (z equals zphot, zphot equals zspec when available)
+Read these vectors: coo_SED (=-1,0,1), coo_AGN (=0,1), coo_FIR (=0,1)
+Read these vectors: SFR_of_MS, lgSFR_of_MS, dis_to_MS (dex), flag_SB (string)
+Read these vectors: xfSFR, xeSFR
+Read these vectors: Mstar, Mstar_err, lgMstar, lgMstar_err
+Read these vectors: SFR,   SFR_err,   lgSFR,   lgSFR_err,   eSFR
+Read these vectors: LIR,   LIR_err,   lgLIR,   lgLIR_err,   eLIR
+Read these vectors: Umean, Umean_err, lgUmean, lgUmean_err, eUmean
+Read these vectors: Mdust, Mdust_err, lgMdust, lgMdust_err, eMdust
+Read these vectors: SSFR,  SSFR_err,  lgSSFR,  lgSSFR_err,  eSSFR
+Read these vectors: Mgas,  lgMgas,    dL (lumdist)
+CatalogReader: done!
+
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201612"
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Plots/Plot_z_Mstar_SFR/Plot_Mstar_Histogram"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Work
+VisitDirPathVector: chdir DeepFields
+VisitDirPathVector: chdir Plots
+VisitDirPathVector: chdir Plot_z_Mstar_SFR
+VisitDirPathVector: chdir Plot_Mstar_Histogram
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Muzzin2013_SMF_SFG.txt
+zInput = 0.3849157895
+zLower = 0.35
+zUpper = 0.75
+aLower = 0.9127105262
+aUpper = 0.08728947375
+Outputing to list_Muzzin_Schechter_Correction_z_bin_0.2_0.5_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 23559.27998
+sum(SMF_SFR) = 684.760455 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.02906542372 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 1055.191335 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.0447887769 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 406.9268428 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.01727246517 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 565.0466 # - The directly observed SFR
+rho(OBS_SFR) = 0.02398403519 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Ilbert2013_SMF_SFG.txt
+zInput = 0.3849157895
+zLower = 0.35
+zUpper = 0.65
+aLower = 0.883614035
+aUpper = 0.116385965
+Outputing to list_Ilbert_Schechter_Correction_z_bin_0.2_0.5_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 23559.27998
+sum(SMF_SFR) = 341.1364278 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.01447991739 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 511.0479222 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.02169200089 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 215.0513733 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.009128096168 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 565.0466 # - The directly observed SFR
+rho(OBS_SFR) = 0.02398403519 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 0.3849157895
+zLower = 0.35
+zUpper = 0.65
+aLower = 0.883614035
+aUpper = 0.116385965
+Outputing to list_Davidzon_Schechter_Correction_z_bin_0.2_0.5_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 23559.27998
+sum(SMF_SFR) = 339.3608023 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.01440454898 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 527.7432063 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.0224006509 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 199.6411547 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.008473992199 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 565.0466 # - The directly observed SFR
+rho(OBS_SFR) = 0.02398403519 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Muzzin2013_SMF_SFG.txt
+zInput = 0.3849157895
+zLower = 0.35
+zUpper = 0.75
+aLower = 0.9127105262
+aUpper = 0.08728947375
+Gaussian Toal        120.27290
+Lorentz Toal        98.323458
+Kernel Toal        95.801985
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Muzzin_Schechter_Convolved.dat
+Outputing to list_Muzzin_Schechter_Correction_z_bin_0.2_0.5_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 23559.27998
+sum(SMF_SFR) = 697.4503347 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.02960405986 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 1068.737554 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.04536376134 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 419.0321965 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.01778629045 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 565.0466 # - The directly observed SFR
+rho(OBS_SFR) = 0.02398403519 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Ilbert2013_SMF_SFG.txt
+zInput = 0.3849157895
+zLower = 0.35
+zUpper = 0.65
+aLower = 0.883614035
+aUpper = 0.116385965
+Gaussian Toal        120.27290
+Lorentz Toal        98.323458
+Kernel Toal        95.801985
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Ilbert_Schechter_Convolved.dat
+Outputing to list_Ilbert_Schechter_Correction_z_bin_0.2_0.5_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 23559.27998
+sum(SMF_SFR) = 347.5031331 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.01475015932 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 516.7428036 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.0219337265 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 221.4547297 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.009399893798 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 565.0466 # - The directly observed SFR
+rho(OBS_SFR) = 0.02398403519 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 0.3849157895
+zLower = 0.35
+zUpper = 0.65
+aLower = 0.883614035
+aUpper = 0.116385965
+Gaussian Toal        120.27290
+Lorentz Toal        98.323458
+Kernel Toal        95.801985
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Davidzon_Schechter_Convolved.dat
+Outputing to list_Davidzon_Schechter_Correction_z_bin_0.2_0.5_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 23559.27998
+sum(SMF_SFR) = 345.6292267 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.01467061927 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 534.4185696 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.02268399417 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 205.5761203 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.008725908453 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 565.0466 # - The directly observed SFR
+rho(OBS_SFR) = 0.02398403519 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Muzzin2013_SMF_SFG.txt
+zInput = 0.7635553797
+zLower = 0.75
+zUpper = 1.25
+aLower = 0.9728892406
+aUpper = 0.0271107594
+Outputing to list_Muzzin_Schechter_Correction_z_bin_0.5_1.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 113909.7677
+sum(SMF_SFR) = 5857.338292 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.05142086067 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 7757.057831 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.06809826751 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 3680.483525 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.03231051735 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 4741.749 # - The directly observed SFR
+rho(OBS_SFR) = 0.04162723792 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Ilbert2013_SMF_SFG.txt
+zInput = 0.7635553797
+zLower = 0.65
+zUpper = 0.95
+aLower = 0.6214820677
+aUpper = 0.3785179323
+Outputing to list_Ilbert_Schechter_Correction_z_bin_0.5_1.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 113909.7677
+sum(SMF_SFR) = 2521.735554 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.02213800981 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 3210.063115 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.02818075377 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 1573.750356 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.01381576302 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 4741.749 # - The directly observed SFR
+rho(OBS_SFR) = 0.04162723792 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 0.7635553797
+zLower = 0.65
+zUpper = 0.95
+aLower = 0.6214820677
+aUpper = 0.3785179323
+Outputing to list_Davidzon_Schechter_Correction_z_bin_0.5_1.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 113909.7677
+sum(SMF_SFR) = 2725.845657 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.02392986758 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 3553.018018 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.03119151317 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 1677.714925 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.01472845534 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 4741.749 # - The directly observed SFR
+rho(OBS_SFR) = 0.04162723792 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Muzzin2013_SMF_SFG.txt
+zInput = 0.7635553797
+zLower = 0.75
+zUpper = 1.25
+aLower = 0.9728892406
+aUpper = 0.0271107594
+Gaussian Toal        120.27290
+Lorentz Toal        97.827037
+Kernel Toal        94.610597
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Muzzin_Schechter_Convolved.dat
+Outputing to list_Muzzin_Schechter_Correction_z_bin_0.5_1.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 113909.7677
+sum(SMF_SFR) = 5994.898297 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.05262848323 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 7909.348212 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.06943520625 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 3820.92567 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.03354344186 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 4741.749 # - The directly observed SFR
+rho(OBS_SFR) = 0.04162723792 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Ilbert2013_SMF_SFG.txt
+zInput = 0.7635553797
+zLower = 0.65
+zUpper = 0.95
+aLower = 0.6214820677
+aUpper = 0.3785179323
+Gaussian Toal        120.27290
+Lorentz Toal        97.827037
+Kernel Toal        94.610597
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Ilbert_Schechter_Convolved.dat
+Outputing to list_Ilbert_Schechter_Correction_z_bin_0.5_1.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 113909.7677
+sum(SMF_SFR) = 2583.480989 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.02268006547 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 3273.10531 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.02873419354 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 1634.432005 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.01434847984 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 4741.749 # - The directly observed SFR
+rho(OBS_SFR) = 0.04162723792 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 0.7635553797
+zLower = 0.65
+zUpper = 0.95
+aLower = 0.6214820677
+aUpper = 0.3785179323
+Gaussian Toal        120.27290
+Lorentz Toal        97.827037
+Kernel Toal        94.610597
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Davidzon_Schechter_Convolved.dat
+Outputing to list_Davidzon_Schechter_Correction_z_bin_0.5_1.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 113909.7677
+sum(SMF_SFR) = 2790.69657 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.02449918586 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 3623.987525 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.03181454584 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 1741.956254 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.01529242215 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 4741.749 # - The directly observed SFR
+rho(OBS_SFR) = 0.04162723792 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Muzzin2013_SMF_SFG.txt
+zInput = 1.214319277
+zLower = 0.75
+zUpper = 1.25
+aLower = 0.071361446
+aUpper = 0.928638554
+Outputing to list_Muzzin_Schechter_Correction_z_bin_1.0_1.5_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 186731.9843
+sum(SMF_SFR) = 11968.08455 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.06409231174 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 12994.67146 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.06958996079 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 7706.57901 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.04127080339 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 7251.942 # - The directly observed SFR
+rho(OBS_SFR) = 0.03883609992 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Ilbert2013_SMF_SFG.txt
+zInput = 1.214319277
+zLower = 0.95
+zUpper = 1.3
+aLower = 0.2448020657
+aUpper = 0.7551979343
+Outputing to list_Ilbert_Schechter_Correction_z_bin_1.0_1.5_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 186731.9843
+sum(SMF_SFR) = 7498.23364 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.04015505789 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 7908.941483 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.04235450886 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 4823.652077 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02583195426 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 7251.942 # - The directly observed SFR
+rho(OBS_SFR) = 0.03883609992 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 1.214319277
+zLower = 0.95
+zUpper = 1.3
+aLower = 0.2448020657
+aUpper = 0.7551979343
+Outputing to list_Davidzon_Schechter_Correction_z_bin_1.0_1.5_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 186731.9843
+sum(SMF_SFR) = 7133.608373 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.03820239152 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 7683.511689 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.04114727168 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 4570.693691 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02447729407 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 7251.942 # - The directly observed SFR
+rho(OBS_SFR) = 0.03883609992 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Muzzin2013_SMF_SFG.txt
+zInput = 1.214319277
+zLower = 0.75
+zUpper = 1.25
+aLower = 0.071361446
+aUpper = 0.928638554
+Gaussian Toal        120.27290
+Lorentz Toal        97.206902
+Kernel Toal        93.153558
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Muzzin_Schechter_Convolved.dat
+Outputing to list_Muzzin_Schechter_Correction_z_bin_1.0_1.5_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 186731.9843
+sum(SMF_SFR) = 12323.96348 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.06599813913 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 13389.53104 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.07170454003 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 8081.052913 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.04327621186 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 7251.942 # - The directly observed SFR
+rho(OBS_SFR) = 0.03883609992 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Ilbert2013_SMF_SFG.txt
+zInput = 1.214319277
+zLower = 0.95
+zUpper = 1.3
+aLower = 0.2448020657
+aUpper = 0.7551979343
+Gaussian Toal        120.27290
+Lorentz Toal        97.206902
+Kernel Toal        93.153558
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Ilbert_Schechter_Convolved.dat
+Outputing to list_Ilbert_Schechter_Correction_z_bin_1.0_1.5_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 186731.9843
+sum(SMF_SFR) = 7728.799758 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.04138980147 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 8140.685195 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.04359555877 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 5059.95711 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02709743127 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 7251.942 # - The directly observed SFR
+rho(OBS_SFR) = 0.03883609992 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 1.214319277
+zLower = 0.95
+zUpper = 1.3
+aLower = 0.2448020657
+aUpper = 0.7551979343
+Gaussian Toal        120.27290
+Lorentz Toal        97.206902
+Kernel Toal        93.153558
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Davidzon_Schechter_Convolved.dat
+Outputing to list_Davidzon_Schechter_Correction_z_bin_1.0_1.5_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 186731.9843
+sum(SMF_SFR) = 7346.88479 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.0393445441 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 7913.060102 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.04237656517 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 4793.095366 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02566831485 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 7251.942 # - The directly observed SFR
+rho(OBS_SFR) = 0.03883609992 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Muzzin2013_SMF_SFG.txt
+zInput = 1.756268293
+zLower = 1.75
+zUpper = 2.25
+aLower = 0.987463414
+aUpper = 0.012536586
+Outputing to list_Muzzin_Schechter_Correction_z_bin_1.5_2.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 224981.1473
+sum(SMF_SFR) = 16795.68813 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.07465375802 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 15919.35866 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.07075863398 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 12270.61764 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.05454064832 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 7780.259 # - The directly observed SFR
+rho(OBS_SFR) = 0.03458182649 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Ilbert2013_SMF_SFG.txt
+zInput = 1.756268293
+zLower = 1.75
+zUpper = 2.25
+aLower = 0.987463414
+aUpper = 0.012536586
+Outputing to list_Ilbert_Schechter_Correction_z_bin_1.5_2.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 224981.1473
+sum(SMF_SFR) = 13706.13455 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.06092125811 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 11688.41 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.051952842 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 9018.705741 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.04008649546 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 7780.259 # - The directly observed SFR
+rho(OBS_SFR) = 0.03458182649 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 1.756268293
+zLower = 1.75
+zUpper = 2.25
+aLower = 0.987463414
+aUpper = 0.012536586
+Outputing to list_Davidzon_Schechter_Correction_z_bin_1.5_2.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 224981.1473
+sum(SMF_SFR) = 10848.20765 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.04821829642 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 9642.842202 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.04286066773 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 7277.166206 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.03234567115 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 7780.259 # - The directly observed SFR
+rho(OBS_SFR) = 0.03458182649 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Muzzin2013_SMF_SFG.txt
+zInput = 1.756268293
+zLower = 1.75
+zUpper = 2.25
+aLower = 0.987463414
+aUpper = 0.012536586
+Gaussian Toal        120.27290
+Lorentz Toal        96.587288
+Kernel Toal        91.731248
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Muzzin_Schechter_Convolved.dat
+Outputing to list_Muzzin_Schechter_Correction_z_bin_1.5_2.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 224981.1473
+sum(SMF_SFR) = 17395.05262 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.07731782339 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 16555.80811 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.07358753524 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 12991.72981 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.05774585987 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 7780.259 # - The directly observed SFR
+rho(OBS_SFR) = 0.03458182649 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Ilbert2013_SMF_SFG.txt
+zInput = 1.756268293
+zLower = 1.75
+zUpper = 2.25
+aLower = 0.987463414
+aUpper = 0.012536586
+Gaussian Toal        120.27290
+Lorentz Toal        96.587288
+Kernel Toal        91.731248
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Ilbert_Schechter_Convolved.dat
+Outputing to list_Ilbert_Schechter_Correction_z_bin_1.5_2.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 224981.1473
+sum(SMF_SFR) = 14253.57525 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.06335453178 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 12185.17385 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.05416086635 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 9564.425247 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.04251211873 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 7780.259 # - The directly observed SFR
+rho(OBS_SFR) = 0.03458182649 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 1.756268293
+zLower = 1.75
+zUpper = 2.25
+aLower = 0.987463414
+aUpper = 0.012536586
+Gaussian Toal        120.27290
+Lorentz Toal        96.587288
+Kernel Toal        91.731248
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Davidzon_Schechter_Convolved.dat
+Outputing to list_Davidzon_Schechter_Correction_z_bin_1.5_2.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 224981.1473
+sum(SMF_SFR) = 11241.91477 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.04996825246 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 10067.31651 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.04474737829 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 7706.778859 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.03425522072 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 7780.259 # - The directly observed SFR
+rho(OBS_SFR) = 0.03458182649 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Muzzin2013_SMF_SFG.txt
+zInput = 2.230605263
+zLower = 1.75
+zUpper = 2.25
+aLower = 0.038789474
+aUpper = 0.961210526
+Outputing to list_Muzzin_Schechter_Correction_z_bin_2.0_2.5_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 239356.4258
+sum(SMF_SFR) = 9895.586717 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.04134247361 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 10009.22926 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.04181725737 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 7496.119725 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.03131781276 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 13421.58 # - The directly observed SFR
+rho(OBS_SFR) = 0.05607361472 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Ilbert2013_SMF_SFG.txt
+zInput = 2.230605263
+zLower = 1.75
+zUpper = 2.25
+aLower = 0.038789474
+aUpper = 0.961210526
+Outputing to list_Ilbert_Schechter_Correction_z_bin_2.0_2.5_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 239356.4258
+sum(SMF_SFR) = 11623.89377 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.04856311559 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 9743.588152 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.04070744339 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 7209.504814 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.03012037296 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 13421.58 # - The directly observed SFR
+rho(OBS_SFR) = 0.05607361472 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 2.230605263
+zLower = 1.75
+zUpper = 2.25
+aLower = 0.038789474
+aUpper = 0.961210526
+Outputing to list_Davidzon_Schechter_Correction_z_bin_2.0_2.5_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 239356.4258
+sum(SMF_SFR) = 11389.5798 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.04758418233 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 8720.866965 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.03643464735 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 6334.81436 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02646603006 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 13421.58 # - The directly observed SFR
+rho(OBS_SFR) = 0.05607361472 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Muzzin2013_SMF_SFG.txt
+zInput = 2.230605263
+zLower = 1.75
+zUpper = 2.25
+aLower = 0.038789474
+aUpper = 0.961210526
+Gaussian Toal        120.27290
+Lorentz Toal        95.968327
+Kernel Toal        90.342628
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Muzzin_Schechter_Convolved.dat
+Outputing to list_Muzzin_Schechter_Correction_z_bin_2.0_2.5_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 239356.4258
+sum(SMF_SFR) = 10303.55566 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.04304691476 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 10446.71796 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.04364502824 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 8010.914267 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.03346855736 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 13421.58 # - The directly observed SFR
+rho(OBS_SFR) = 0.05607361472 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Ilbert2013_SMF_SFG.txt
+zInput = 2.230605263
+zLower = 1.75
+zUpper = 2.25
+aLower = 0.038789474
+aUpper = 0.961210526
+Gaussian Toal        120.27290
+Lorentz Toal        95.968327
+Kernel Toal        90.342628
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Ilbert_Schechter_Convolved.dat
+Outputing to list_Ilbert_Schechter_Correction_z_bin_2.0_2.5_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 239356.4258
+sum(SMF_SFR) = 12154.34744 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.050779282 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 10248.69978 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.04281773405 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 7716.729315 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.03223949092 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 13421.58 # - The directly observed SFR
+rho(OBS_SFR) = 0.05607361472 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 2.230605263
+zLower = 1.75
+zUpper = 2.25
+aLower = 0.038789474
+aUpper = 0.961210526
+Gaussian Toal        120.27290
+Lorentz Toal        95.968327
+Kernel Toal        90.342628
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Davidzon_Schechter_Convolved.dat
+Outputing to list_Davidzon_Schechter_Correction_z_bin_2.0_2.5_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 239356.4258
+sum(SMF_SFR) = 11907.56246 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.04974824647 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 9230.474173 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.03856371995 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 6781.442568 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02833198459 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 13421.58 # - The directly observed SFR
+rho(OBS_SFR) = 0.05607361472 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Muzzin2013_SMF_SFG.txt
+zInput = 2.720151515
+zLower = 2.25
+zUpper = 2.75
+aLower = 0.05969697
+aUpper = 0.94030303
+Outputing to list_Muzzin_Schechter_Correction_z_bin_2.5_3.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 240377.9575
+sum(SMF_SFR) = 10004.20433 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.0416186427 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 9824.499314 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.04087104915 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 8064.516809 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.03354931914 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 9217.4 # - The directly observed SFR
+rho(OBS_SFR) = 0.03834544605 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Ilbert2013_SMF_SFG.txt
+zInput = 2.720151515
+zLower = 2.25
+zUpper = 2.75
+aLower = 0.05969697
+aUpper = 0.94030303
+Outputing to list_Ilbert_Schechter_Correction_z_bin_2.5_3.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 240377.9575
+sum(SMF_SFR) = 10988.67536 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.04571415562 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 8598.557762 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.03577099103 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 6933.334742 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.0288434714 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 9217.4 # - The directly observed SFR
+rho(OBS_SFR) = 0.03834544605 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 2.720151515
+zLower = 2.25
+zUpper = 2.75
+aLower = 0.05969697
+aUpper = 0.94030303
+Outputing to list_Davidzon_Schechter_Correction_z_bin_2.5_3.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 240377.9575
+sum(SMF_SFR) = 11347.53608 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.04720705757 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 7696.364997 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.03201776518 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 6118.494439 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02545364185 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 9217.4 # - The directly observed SFR
+rho(OBS_SFR) = 0.03834544605 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Muzzin2013_SMF_SFG.txt
+zInput = 2.720151515
+zLower = 2.25
+zUpper = 2.75
+aLower = 0.05969697
+aUpper = 0.94030303
+Gaussian Toal        120.27290
+Lorentz Toal        95.350130
+Kernel Toal        88.986675
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Muzzin_Schechter_Convolved.dat
+Outputing to list_Muzzin_Schechter_Correction_z_bin_2.5_3.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 240377.9575
+sum(SMF_SFR) = 10477.19756 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.04358634905 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 10365.31635 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.04312091032 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 8698.830439 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.03618813692 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 9217.4 # - The directly observed SFR
+rho(OBS_SFR) = 0.03834544605 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Ilbert2013_SMF_SFG.txt
+zInput = 2.720151515
+zLower = 2.25
+zUpper = 2.75
+aLower = 0.05969697
+aUpper = 0.94030303
+Gaussian Toal        120.27290
+Lorentz Toal        95.350130
+Kernel Toal        88.986675
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Ilbert_Schechter_Convolved.dat
+Outputing to list_Ilbert_Schechter_Correction_z_bin_2.5_3.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 240377.9575
+sum(SMF_SFR) = 11573.51738 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.04814716582 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 9170.89218 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.03815196816 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 7495.270964 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.03118119083 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 9217.4 # - The directly observed SFR
+rho(OBS_SFR) = 0.03834544605 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 2.720151515
+zLower = 2.25
+zUpper = 2.75
+aLower = 0.05969697
+aUpper = 0.94030303
+Gaussian Toal        120.27290
+Lorentz Toal        95.350130
+Kernel Toal        88.986675
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Davidzon_Schechter_Convolved.dat
+Outputing to list_Davidzon_Schechter_Correction_z_bin_2.5_3.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 240377.9575
+sum(SMF_SFR) = 11959.97441 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.0497548716 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 8277.010483 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.0344333173 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 6619.249058 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02753683876 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 9217.4 # - The directly observed SFR
+rho(OBS_SFR) = 0.03834544605 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Muzzin2013_SMF_SFG.txt
+zInput = 3.352944444
+zLower = 2.75
+zUpper = 3.5
+aLower = 0.1960740747
+aUpper = 0.8039259253
+Outputing to list_Muzzin_Schechter_Correction_z_bin_3.0_4.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 459701.8564
+sum(SMF_SFR) = 7204.282865 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.01567164188 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 7242.344259 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.01575443771 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 6590.120896 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.01433564125 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 13220.1 # - The directly observed SFR
+rho(OBS_SFR) = 0.02875798698 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Ilbert2013_SMF_SFG.txt
+zInput = 3.352944444
+zLower = 2.75
+zUpper = 3.5
+aLower = 0.1960740747
+aUpper = 0.8039259253
+Outputing to list_Ilbert_Schechter_Correction_z_bin_3.0_4.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 459701.8564
+sum(SMF_SFR) = 15847.00865 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.03447236166 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 12179.25101 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.02649380428 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 10862.11893 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02362861663 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 13220.1 # - The directly observed SFR
+rho(OBS_SFR) = 0.02875798698 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 3.352944444
+zLower = 2.75
+zUpper = 3.25
+aLower = 0
+aUpper = 1
+Outputing to list_Davidzon_Schechter_Correction_z_bin_3.0_4.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 459701.8564
+sum(SMF_SFR) = 21817.60368 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.04746033409 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 13090.89551 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.02847692549 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 11597.07728 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02522738841 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 13220.1 # - The directly observed SFR
+rho(OBS_SFR) = 0.02875798698 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Muzzin2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Muzzin2013_SMF_SFG.txt
+zInput = 3.352944444
+zLower = 2.75
+zUpper = 3.5
+aLower = 0.1960740747
+aUpper = 0.8039259253
+Gaussian Toal        120.27290
+Lorentz Toal        88.933263
+Kernel Toal        76.494173
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Muzzin_Schechter_Convolved.dat
+Outputing to list_Muzzin_Schechter_Correction_z_bin_3.0_4.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 459701.8564
+sum(SMF_SFR) = 7969.213985 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.0173356141 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 8201.529459 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.01784097529 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 7739.057709 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.01683494987 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 13220.1 # - The directly observed SFR
+rho(OBS_SFR) = 0.02875798698 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Ilbert2013_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Ilbert2013_SMF_SFG.txt
+zInput = 3.352944444
+zLower = 2.75
+zUpper = 3.5
+aLower = 0.1960740747
+aUpper = 0.8039259253
+Gaussian Toal        120.27290
+Lorentz Toal        88.933263
+Kernel Toal        76.494173
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Ilbert_Schechter_Convolved.dat
+Outputing to list_Ilbert_Schechter_Correction_z_bin_3.0_4.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 459701.8564
+sum(SMF_SFR) = 17749.8576 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.03861167266 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 14121.99143 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.03071989211 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 12824.80649 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02789809593 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 13220.1 # - The directly observed SFR
+rho(OBS_SFR) = 0.02875798698 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 3.352944444
+zLower = 2.75
+zUpper = 3.25
+aLower = 0
+aUpper = 1
+Gaussian Toal        120.27290
+Lorentz Toal        88.933263
+Kernel Toal        76.494173
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Davidzon_Schechter_Convolved.dat
+Outputing to list_Davidzon_Schechter_Correction_z_bin_3.0_4.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 459701.8564
+sum(SMF_SFR) = 25023.61097 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.05443443532 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 15612.64761 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.03396255072 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 13886.86612 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.03020841863 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 13220.1 # - The directly observed SFR
+rho(OBS_SFR) = 0.02875798698 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Grazian2015_SMF.txt
+Read lines 4 to 4 from datatable_Grazian2015_SMF.txt
+Read lines 5 to 5 from datatable_Grazian2015_SMF.txt
+Read lines 6 to 6 from datatable_Grazian2015_SMF.txt
+zInput = 4.356272727
+zLower = 4
+zUpper = 5
+aLower = 0.643727273
+aUpper = 0.356272727
+Outputing to list_Grazian_Schechter_Correction_z_bin_4.0_5.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 418531.0557
+sum(SMF_SFR) = 11752.8581 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.02808120912 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 9107.486731 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.02176059962 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 9324.21623 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02227843335 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 9620 # - The directly observed SFR
+rho(OBS_SFR) = 0.02298515216 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 4.356272727
+zLower = 4
+zUpper = 5
+aLower = 0.643727273
+aUpper = 0.356272727
+Outputing to list_Davidzon_Schechter_Correction_z_bin_4.0_5.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 418531.0557
+sum(SMF_SFR) = 13507.76038 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.03227421286 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 8784.703682 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.02098937119 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 8995.022647 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02149188817 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 9620 # - The directly observed SFR
+rho(OBS_SFR) = 0.02298515216 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Grazian2015_SMF.txt
+Read lines 4 to 4 from datatable_Grazian2015_SMF.txt
+Read lines 5 to 5 from datatable_Grazian2015_SMF.txt
+Read lines 6 to 6 from datatable_Grazian2015_SMF.txt
+zInput = 4.356272727
+zLower = 4
+zUpper = 5
+aLower = 0.643727273
+aUpper = 0.356272727
+Gaussian Toal        120.27290
+Lorentz Toal        88.933263
+Kernel Toal        76.494173
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Grazian_Schechter_Convolved.dat
+Outputing to list_Grazian_Schechter_Correction_z_bin_4.0_5.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 418531.0557
+sum(SMF_SFR) = 13254.6844 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.03166953615 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 10788.34032 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.02577667815 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 11059.70694 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02642505686 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 9620 # - The directly observed SFR
+rho(OBS_SFR) = 0.02298515216 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Song2015_SMF_uncorrected.txt
+Read lines 4 to 4 from datatable_Song2015_SMF_uncorrected.txt
+Read lines 5 to 5 from datatable_Song2015_SMF_uncorrected.txt
+Read lines 6 to 6 from datatable_Song2015_SMF_uncorrected.txt
+Read lines 7 to 7 from datatable_Song2015_SMF_uncorrected.txt
+zInput = 4.356272727
+zLower = 4
+zUpper = 5
+aLower = 0.643727273
+aUpper = 0.356272727
+Outputing to list_Song_Schechter_Correction_z_bin_4.0_5.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 418531.0557
+sum(SMF_SFR) = 9891.3781 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.02363355829 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 7057.636311 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.01686287365 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 7225.474845 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.01726389176 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 9620 # - The directly observed SFR
+rho(OBS_SFR) = 0.02298515216 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 4.356272727
+zLower = 4
+zUpper = 5
+aLower = 0.643727273
+aUpper = 0.356272727
+Gaussian Toal        120.27290
+Lorentz Toal        88.933263
+Kernel Toal        76.494173
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Davidzon_Schechter_Convolved.dat
+Outputing to list_Davidzon_Schechter_Correction_z_bin_4.0_5.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 418531.0557
+sum(SMF_SFR) = 15980.0477 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.0381812711 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 10716.75344 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.02560563499 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 10987.0101 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02625136165 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 9620 # - The directly observed SFR
+rho(OBS_SFR) = 0.02298515216 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Grazian2015_SMF.txt
+Read lines 4 to 4 from datatable_Grazian2015_SMF.txt
+Read lines 5 to 5 from datatable_Grazian2015_SMF.txt
+Read lines 6 to 6 from datatable_Grazian2015_SMF.txt
+zInput = 5.5105
+zLower = 5
+zUpper = 6
+aLower = 0.4895
+aUpper = 0.5105
+Outputing to list_Grazian_Schechter_Correction_z_bin_5.0_6.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 375886.4417
+sum(SMF_SFR) = 3911.958253 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.01040728747 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 3786.033017 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.01007227875 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 4443.390098 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.01182109703 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 2382 # - The directly observed SFR
+rho(OBS_SFR) = 0.006337020269 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 5.5105
+zLower = 4
+zUpper = 5
+aLower = 0
+aUpper = 1
+Outputing to list_Davidzon_Schechter_Correction_z_bin_5.0_6.0_intrinsic.txt
+****************************************************************************************************
+calc_comoving_volume = 375886.4417
+sum(SMF_SFR) = 10057.68737 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.02675724967 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 7931.998371 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.02110211354 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 9310.263332 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.02476881925 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 2382 # - The directly observed SFR
+rho(OBS_SFR) = 0.006337020269 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_Histogram_v1.eps" 
+Read lines 3 to 3 from datatable_Grazian2015_SMF.txt
+Read lines 4 to 4 from datatable_Grazian2015_SMF.txt
+Read lines 5 to 5 from datatable_Grazian2015_SMF.txt
+Read lines 6 to 6 from datatable_Grazian2015_SMF.txt
+zInput = 5.5105
+zLower = 5
+zUpper = 6
+aLower = 0.4895
+aUpper = 0.5105
+Gaussian Toal        120.27290
+Lorentz Toal        88.933263
+Kernel Toal        76.494173
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Grazian_Schechter_Convolved.dat
+Outputing to list_Grazian_Schechter_Correction_z_bin_5.0_6.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 375886.4417
+sum(SMF_SFR) = 4416.416907 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.01174933814 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 4496.328819 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.01196193403 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 5277.534647 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.01404023679 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 2382 # - The directly observed SFR
+rho(OBS_SFR) = 0.006337020269 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Song2015_SMF_uncorrected.txt
+Read lines 4 to 4 from datatable_Song2015_SMF_uncorrected.txt
+Read lines 5 to 5 from datatable_Song2015_SMF_uncorrected.txt
+Read lines 6 to 6 from datatable_Song2015_SMF_uncorrected.txt
+Read lines 7 to 7 from datatable_Song2015_SMF_uncorrected.txt
+zInput = 5.5105
+zLower = 5
+zUpper = 6
+aLower = 0.4895
+aUpper = 0.5105
+Outputing to list_Song_Schechter_Correction_z_bin_5.0_6.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 375886.4417
+sum(SMF_SFR) = 4867.979583 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.01295066553 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 4636.052739 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.01233365247 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 5440.999564 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.01447511525 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 2382 # - The directly observed SFR
+rho(OBS_SFR) = 0.006337020269 # - The directly observed SFR density
+****************************************************************************************************
+Read lines 3 to 3 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 4 to 4 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 5 to 5 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 6 to 6 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 7 to 7 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 8 to 8 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 9 to 9 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 10 to 10 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 11 to 11 from datatable_Davidzon2017_SMF_SFG.txt
+Read lines 12 to 12 from datatable_Davidzon2017_SMF_SFG.txt
+zInput = 5.5105
+zLower = 4
+zUpper = 5
+aLower = 0
+aUpper = 1
+Gaussian Toal        120.27290
+Lorentz Toal        88.933263
+Kernel Toal        76.494173
+Kernel Toal        1.0000000
+Read lines 1 to 801 from list_Davidzon_Schechter_Convolved.dat
+Outputing to list_Davidzon_Schechter_Correction_z_bin_5.0_6.0_broadened.txt
+****************************************************************************************************
+calc_comoving_volume = 375886.4417
+sum(SMF_SFR) = 12456.28164 # - The Schechter Sargent2014 SFR
+rho(SMF_SFR) = 0.03313841697 # - The Schechter Sargent2014 SFR density
+sum(SMF_SFR) = 10005.1395 # - The Schechter Schreiber2015 SFR
+rho(SMF_SFR) = 0.02661745247 # - The Schechter Schreiber2015 SFR density
+sum(SMF_SFR) = 11754.85673 # - The Schechter Bethermin2015 SFR
+rho(SMF_SFR) = 0.03127236162 # - The Schechter Bethermin2015 SFR density
+sum(OBS_SFR) = 2382 # - The directly observed SFR
+rho(OBS_SFR) = 0.006337020269 # - The directly observed SFR density
+****************************************************************************************************
+crabPlotClosePS: Output to "Plot_Mstar_Histogram_v1.eps"! 
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_Contribution_v1.eps" 
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+Read column 1 as SMF_M (backuped existing SMF_M as SMF_M_rfile_backup)
+Read column 1 as SMF_M
+Read column 2 as SMF_N (backuped existing SMF_N as SMF_N_rfile_backup)
+Read column 2 as SMF_N
+Read column 3 as SMF_SFR (backuped existing SMF_SFR as SMF_SFR_rfile_backup)
+Read column 3 as SMF_SFR
+Read column 4 as SargentSFR (backuped existing SargentSFR as SargentSFR_rfile_backup)
+Read column 4 as SargentSFR
+Read column 5 as SchreiberSFR (backuped existing SchreiberSFR as SchreiberSFR_rfile_backup)
+Read column 5 as SchreiberSFR
+Read column 6 as BetherminSFR (backuped existing BetherminSFR as BetherminSFR_rfile_backup)
+Read column 6 as BetherminSFR
+Read column 7 as OBS_N (backuped existing OBS_N as OBS_N_rfile_backup)
+Read column 7 as OBS_N
+Read column 8 as OBS_SFR (backuped existing OBS_SFR as OBS_SFR_rfile_backup)
+Read column 8 as OBS_SFR
+Read column 9 as OBS_N_SB (backuped existing OBS_N_SB as OBS_N_SB_rfile_backup)
+Read column 9 as OBS_N_SB
+Read column 10 as OBS_SFR_SB (backuped existing OBS_SFR_SB as OBS_SFR_SB_rfile_backup)
+Read column 10 as OBS_SFR_SB
+crabPlotClosePS: Output to "Plot_Mstar_SFR_Contribution_v1.eps"! 

@@ -1,0 +1,180 @@
+The y-axis label will probably overlap the tick numbers;
+
+you may want to increase the starting x LOCATION by 500
+rm -rf Output.backup.backup
+mv Output.backup Output.backup.backup
+mv Output Output.backup
+Read lines 1 to 16 from Magdis/README_dliu
+
+z = 1, U = 5
+Read lines 1 to 2001 from Magdis/sed_z5_U5_radio.txt
+calc_ltir_daddi: L_IR_8_1000 = 0.9832629709 Lsun
+calc_ltir_daddi: L_IR_8_1000 = 1 Lsun
+go_Changing_qIR_with_z
+go_Changing_qIR_with_z u=5 z=1 qIR=2.5 (original from Magdis)
+go_Changing_qIR_with_z u=5 z=1 qIR=2.443474346 (for current redshift)
+go_Changing_qIR_with_z ok
+calc_ltir: L_IR_8_1000 = 50921616.79 Lsun
+calc_ltir: L_IR_8_1000 = 57999979.23 Lsun
+calc_ltir: L_IR_8_1000 = 2.005209697e+12 Lsun
+calc_ltir: L_IR_8_1000 = 3e+12 Lsun
+Read lines 1 to 1221 from BC03/base03_3_cost_z02_chab
+norm_star = 0
+Attempt to take lg of non-positive number
+calc_ltir: L_IR_8_1000 = 2.673271132e+12 Lsun
+
+** z = 1, L_TIR = 2.673271132e+12
+
+z = 1.5, U = 7
+Read lines 1 to 2001 from Magdis/sed_z7_U7_radio.txt
+calc_ltir_daddi: L_IR_8_1000 = 0.98091947 Lsun
+calc_ltir_daddi: L_IR_8_1000 = 1 Lsun
+go_Changing_qIR_with_z
+go_Changing_qIR_with_z u=7 z=1.5 qIR=2.5 (original from Magdis)
+go_Changing_qIR_with_z u=7 z=1.5 qIR=2.386338558 (for current redshift)
+go_Changing_qIR_with_z ok
+calc_ltir: L_IR_8_1000 = 117815541.3 Lsun
+calc_ltir: L_IR_8_1000 = 153060816.2 Lsun
+calc_ltir: L_IR_8_1000 = 4.414382613e+12 Lsun
+calc_ltir: L_IR_8_1000 = 3e+12 Lsun
+Read lines 1 to 1221 from BC03/base03_3_cost_z02_chab
+norm_star = 0
+Attempt to take lg of non-positive number
+calc_ltir: L_IR_8_1000 = 3.848887273e+12 Lsun
+
+** z = 1.5, L_TIR = 3.848887273e+12
+
+z = 2, U = 8
+Read lines 1 to 2001 from Magdis/sed_z8_U8_radio.txt
+calc_ltir_daddi: L_IR_8_1000 = 0.9809492451 Lsun
+calc_ltir_daddi: L_IR_8_1000 = 1 Lsun
+go_Changing_qIR_with_z
+go_Changing_qIR_with_z u=8 z=2 qIR=2.5 (original from Magdis)
+go_Changing_qIR_with_z u=8 z=2 qIR=2.340777677 (for current redshift)
+go_Changing_qIR_with_z ok
+calc_ltir: L_IR_8_1000 = 201785102.4 Lsun
+calc_ltir: L_IR_8_1000 = 291146398.9 Lsun
+calc_ltir: L_IR_8_1000 = 7.51348892e+12 Lsun
+calc_ltir: L_IR_8_1000 = 3e+12 Lsun
+Read lines 1 to 1221 from BC03/base03_3_cost_z02_chab
+norm_star = 0
+Attempt to take lg of non-positive number
+calc_ltir: L_IR_8_1000 = 4.45767753e+12 Lsun
+
+** z = 2, L_TIR = 4.45767753e+12
+
+z = 2.5, U = 9
+Read lines 1 to 2001 from Magdis/sed_z9_U9_radio.txt
+calc_ltir_daddi: L_IR_8_1000 = 0.9833472216 Lsun
+calc_ltir_daddi: L_IR_8_1000 = 1 Lsun
+go_Changing_qIR_with_z
+go_Changing_qIR_with_z u=9 z=2.5 qIR=2.5 (original from Magdis)
+go_Changing_qIR_with_z u=9 z=2.5 qIR=2.303026596 (for current redshift)
+go_Changing_qIR_with_z ok
+calc_ltir: L_IR_8_1000 = 285116332.7 Lsun
+calc_ltir: L_IR_8_1000 = 448740740.3 Lsun
+calc_ltir: L_IR_8_1000 = 1.115397759e+13 Lsun
+calc_ltir: L_IR_8_1000 = 3e+12 Lsun
+Read lines 1 to 1221 from BC03/base03_3_cost_z02_chab
+norm_star = 0
+Attempt to take lg of non-positive number
+calc_ltir: L_IR_8_1000 = 4.246180214e+12 Lsun
+
+** z = 2.5, L_TIR = 4.246180214e+12
+
+z = 3, U = 11
+Read lines 1 to 2001 from Magdis/sed_z11_U11_radio.txt
+calc_ltir_daddi: L_IR_8_1000 = 0.9835565637 Lsun
+calc_ltir_daddi: L_IR_8_1000 = 1 Lsun
+go_Changing_qIR_with_z
+go_Changing_qIR_with_z u=11 z=3 qIR=2.5 (original from Magdis)
+go_Changing_qIR_with_z u=11 z=3 qIR=2.270884851 (for current redshift)
+go_Changing_qIR_with_z ok
+calc_ltir: L_IR_8_1000 = 366872228.5 Lsun
+calc_ltir: L_IR_8_1000 = 621770318.8 Lsun
+calc_ltir: L_IR_8_1000 = 1.521550912e+13 Lsun
+calc_ltir: L_IR_8_1000 = 3e+12 Lsun
+Read lines 1 to 1221 from BC03/base03_3_cost_z02_chab
+norm_star = 0
+Attempt to take lg of non-positive number
+calc_ltir: L_IR_8_1000 = 4.955809878e+12 Lsun
+
+** z = 3, L_TIR = 4.955809878e+12
+
+z = 3.5, U = 12
+Read lines 1 to 2001 from Magdis/sed_z12_U12_radio.txt
+calc_ltir_daddi: L_IR_8_1000 = 0.9837566955 Lsun
+calc_ltir_daddi: L_IR_8_1000 = 1 Lsun
+go_Changing_qIR_with_z
+go_Changing_qIR_with_z u=12 z=3.5 qIR=2.5 (original from Magdis)
+go_Changing_qIR_with_z u=12 z=3.5 qIR=2.242958184 (for current redshift)
+go_Changing_qIR_with_z ok
+calc_ltir: L_IR_8_1000 = 444179189.7 Lsun
+calc_ltir: L_IR_8_1000 = 802786432.1 Lsun
+calc_ltir: L_IR_8_1000 = 1.962433716e+13 Lsun
+calc_ltir: L_IR_8_1000 = 3e+12 Lsun
+Read lines 1 to 1221 from BC03/base03_3_cost_z02_chab
+norm_star = 0
+Attempt to take lg of non-positive number
+calc_ltir: L_IR_8_1000 = 5.033050602e+12 Lsun
+
+** z = 3.5, L_TIR = 5.033050602e+12
+
+z = 4, U = 14
+Read lines 1 to 2001 from Magdis/sed_z14_U14_radio.txt
+calc_ltir_daddi: L_IR_8_1000 = 0.9816520645 Lsun
+calc_ltir_daddi: L_IR_8_1000 = 1 Lsun
+go_Changing_qIR_with_z
+go_Changing_qIR_with_z u=14 z=4 qIR=2.5 (original from Magdis)
+go_Changing_qIR_with_z u=14 z=4 qIR=2.218309205 (for current redshift)
+go_Changing_qIR_with_z ok
+calc_ltir: L_IR_8_1000 = 517005104.7 Lsun
+calc_ltir: L_IR_8_1000 = 988975713.5 Lsun
+calc_ltir: L_IR_8_1000 = 2.430772812e+13 Lsun
+calc_ltir: L_IR_8_1000 = 3e+12 Lsun
+Read lines 1 to 1221 from BC03/base03_3_cost_z02_chab
+norm_star = 0
+Attempt to take lg of non-positive number
+calc_ltir: L_IR_8_1000 = 5.417673156e+12 Lsun
+
+** z = 4, L_TIR = 5.417673156e+12
+
+z = 4.5, U = 14
+Read lines 1 to 2001 from Magdis/sed_z14_U14_radio.txt
+calc_ltir_daddi: L_IR_8_1000 = 0.9816520645 Lsun
+calc_ltir_daddi: L_IR_8_1000 = 1 Lsun
+go_Changing_qIR_with_z
+go_Changing_qIR_with_z u=14 z=4.5 qIR=2.5 (original from Magdis)
+go_Changing_qIR_with_z u=14 z=4.5 qIR=2.196278377 (for current redshift)
+go_Changing_qIR_with_z ok
+calc_ltir: L_IR_8_1000 = 622038296.7 Lsun
+calc_ltir: L_IR_8_1000 = 1251810950 Lsun
+calc_ltir: L_IR_8_1000 = 2.924607449e+13 Lsun
+calc_ltir: L_IR_8_1000 = 3e+12 Lsun
+Read lines 1 to 1221 from BC03/base03_3_cost_z02_chab
+norm_star = 0
+Attempt to take lg of non-positive number
+calc_ltir: L_IR_8_1000 = 5.012828435e+12 Lsun
+
+** z = 4.5, L_TIR = 5.012828435e+12
+
+z = 5, U = 14
+Read lines 1 to 2001 from Magdis/sed_z14_U14_radio.txt
+calc_ltir_daddi: L_IR_8_1000 = 0.9816520645 Lsun
+calc_ltir_daddi: L_IR_8_1000 = 1 Lsun
+go_Changing_qIR_with_z
+go_Changing_qIR_with_z u=14 z=5 qIR=2.5 (original from Magdis)
+go_Changing_qIR_with_z u=14 z=5 qIR=2.176384644 (for current redshift)
+go_Changing_qIR_with_z ok
+calc_ltir: L_IR_8_1000 = 731580141.8 Lsun
+calc_ltir: L_IR_8_1000 = 1541264815 Lsun
+calc_ltir: L_IR_8_1000 = 3.439641958e+13 Lsun
+calc_ltir: L_IR_8_1000 = 3e+12 Lsun
+Read lines 1 to 1221 from BC03/base03_3_cost_z02_chab
+norm_star = 0
+Attempt to take lg of non-positive number
+calc_ltir: L_IR_8_1000 = 4.714732785e+12 Lsun
+
+** z = 5, L_TIR = 4.714732785e+12
+PDFCROP 1.38, 2012/11/02 - Copyright (c) 2002-2012 by Heiko Oberdiek.
+==> 1 page written on `Plot_SED_Templates_v1.pdf'.

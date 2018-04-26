@@ -1,0 +1,303 @@
+Plot_SED_Templates_Optical_Colors
+    #  
+    #  echo "macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors" | sm
+    #  
+    # 
+    device postencap "Plot_SED_Templates_Optical_Colors_v1.eps"
+    define TeX_strings 1
+    xtcolours
+    xtcoloursRGB
+    location 5200 31000 5000 26000
+    limits $(lg(0.05)) $(lg(10)) -6.5 3
+    ticksize -1 10 -1 10
+    expand 1.5 lweight 3.0
+    ctype default box
+    ctype default xlabel wavelength [{\mu}m]
+    ctype default ylabel flux [mJy]
+    # 
+    load astroSfig.sm 
+    # 
+    print "Output_datatable_magcolor_versus_z_v1.txt" '\#        z   magcolor_B_V   magcolor_V_z\n' {}
+    # 
+    # Loop redshifts
+    set zlist = 1.0,6.0,0.25
+    foreach i zlist {
+        # 
+        set zvar = float($i)
+        set oneplusz = 1.0+zvar
+        echo ""
+        echo "z = "$(zvar)
+        # 
+        set wvar = -2,6.5,0.01
+        # 
+        # 
+        # load BC03 Stellar SED Templates
+        data "BC03/base03_3_cost_z02_chab" read {wave_chab 1 flux_chab 12} 
+        set wave_chab = wave_chab/10000 # [um]
+        set mass_star = 1e10 # [Msun] #<TODO>#
+        set ebv_star = 0.1 # 1.0 # E(B-V) #<TODO>#
+        set norm_star = 1e3 # normalization factor for stellar SED, converting Jy to mJy ? [TODO: WHAT UNIT???]
+        set m2l_star = 1.0 # rest-frame-K-band mass-to-light ratio
+        #set lum_star = calc_sint(lg(wave_chab), flux_chab) / lg(exp(1.0))
+        #echo "lum_star = "$(sprintf('%e',lum_star))" Lsun (rest-frame-K-band)"
+        if($i>0) {
+            #<TODO># compute stellar SED normalization factor using rest-frame-K-band mass-to-light ratio
+            set wave_log10 = lg(wave_chab)
+            set flux_log10 = lg(flux_chab)
+            set wave_Ks = 2.15 # rest-frame-K-band wavelength [um]
+            set flux_Ks = get_flux_splined(wave_Ks)
+            set lumi_Ks = flux_Ks * 1000.0 * (4*pi*(calc_lumdist($i))**2) # rest-frame-K-band luminosity [Lsun], 1.0 is the 
+            #echo "flux_Ks = "$(sprintf('%e',flux_Ks))" ???? (rest-frame-K-band)"
+            #echo "lumi_Ks = "$(sprintf('%e',lumi_Ks))" ???? (rest-frame-K-band)"
+            #echo "lumi_star = "$(sprintf('%e',lumi_star))" Lsun (rest-frame-K-band)"
+            set norm_star = (mass_star / m2l_star) / lumi_Ks
+        }
+        #set norm_star = 0.0
+        echo "norm_star = "$(norm_star)
+        set flux_chab = norm_star * flux_chab * 10**(-0.4*ebv_star*(-0.88+2.7/wave_chab)) # <TODO> the factor of stellar component
+        # 
+        set wvec = lg(wave_chab)
+        set fvec = lg(flux_chab)
+        spline wvec fvec wvar fvar
+        set flux_star = 10**fvar
+        set wave_star = 10**wvar
+        set flux_star = (wave_star>160.0) ? 1e-20 : flux_star
+        # 
+        # 
+        # 
+        # combine flux
+        set flux = (flux_star)
+        set wave = wave_star * oneplusz
+        # 
+        # 
+        # 
+        # calc log
+        set flux_log10 = lg(flux)
+        set wave_log10 = lg(wave)
+        # 
+        # 
+        # 
+        # normalize
+        set norm = 1.0
+        # 
+        # normalize to radio 2e5 um 7.5 uJy
+        #set wave_2e5um = 2e5
+        #spline wave flux wave_2e5um flux_2e5um
+        #set norm = flux_2e5um / 7.5e-3 # <TODO> normalize to f2e5um = 7.5 uJy
+        #set flux = flux / norm
+        #spline wave flux wave_2e5um flux_2e5um
+        # 
+        # normalize to 24 um 18 uJy
+        ##set wave_24um = 24
+        ##spline wave flux wave_24um flux_24um
+        ##set norm = flux_24um / 18e-3 # <TODO> normalize to f24 = 18 uJy
+        ##set flux = flux / norm
+        ##spline wave flux wave_24um flux_24um
+        # 
+        # normalize to 250 um 5.94 mJy
+        ##set wave_250um = 250
+        ##spline wave flux wave_250um flux_250um
+        ##set norm = flux_250um / 5.94 # <TODO> normalize to f250 = 5.94 mJy (3-sigma)
+        ##set flux = flux / norm
+        ##spline wave flux wave_250um flux_250um
+        # 
+        # normalize to 350 um 7.44 mJy
+        ##set wave_350um = 350
+        ##spline wave flux wave_350um flux_350um
+        ##set norm = flux_350um / 7.44 # <TODO> normalize to f350 = 7.44 mJy (3-sigma)
+        ##set flux = flux / norm
+        # 
+        # normalize to 350 um 6.22 mJy <20160524>
+        ##set wave_350um = 350
+        ##set flux_350um = get_flux_splined(wave_350um)
+        ##set norm = flux_350um / 6.22 # <TODO> normalize to f350 = 6.22 mJy (3-sigma)
+        ##set flux = flux / norm
+        # 
+        # normalize to 500 um 5 mJy
+        ##set wave_500um = 500
+        ##spline wave flux wave_500um flux_500um
+        ##set norm = flux_500um / 5.0 # <TODO> normalize to f500 = 5.0 mJy
+        ##set flux = flux / norm
+        ##set flux_500um = 5.0 # mJy
+        # 
+        # normalize to 870 um 4.4 mJy
+        ##set wave_870um = 870
+        ##spline wave flux wave_870um flux_870um
+        ##set norm = flux_870um / 4.4 # normalize to f870 = 4.4 mJy
+        ##set flux = flux / norm
+        ##set flux_870um = 4.4 # mJy
+        # 
+        # normalize to 1200 um 0.45 mJy
+        ##set wave_1200um = 1200
+        ##spline wave flux wave_1200um flux_1200um
+        ##set norm = flux_1200um / 0.045 # normalize to f1200 = 0.45 mJy
+        ##set flux = flux / norm
+        ##set flux_1200um = 0.045 # mJy
+        # 
+        # normalize to 1200 um 0.27 mJy -- 20160520 edaddi -- for GOODSN
+        ##set wave_1200um = 1200
+        ##spline wave flux wave_1200um flux_1200um
+        ##set norm = flux_1200um / 0.27 # normalize to f1200 = 0.27 mJy, the NIKA2 survey PI Lagache proposed goal
+        ##set flux = flux / norm
+        ##set flux_1200um = 0.27 # mJy
+        # 
+        # normalize to 1200 um 0.27 mJy -- 20160520 edaddi -- for COSMOS
+        ##set wave_1200um = 1200
+        ##spline wave flux wave_1200um flux_1200um
+        ##set norm = flux_1200um / 0.8 # normalize to f1200 = 0.8 mJy, the NIKA2 survey PI Lagache proposed goal
+        ##set flux = flux / norm
+        ##set flux_1200um = 0.8 # mJy
+        # 
+        # normalize to SFR = 150.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
+        ##set norm = 3e12/1e10/500.0
+        ##set flux = flux / norm
+        # 
+        # 
+        # 
+        # calc log after normalization
+        set flux_log10 = lg(flux)
+        set wave_log10 = lg(wave)
+        # 
+        # 
+        # 
+        # log wave flux
+        set wave_lg = lg(wave)
+        set flux_lg = lg(flux)
+        #<20170101># # 
+        #<20170101># # grid wave flux -- 20160930 email from Matthieu Bethermin - comments on goodsn-cat-v20160914a-main 
+        #<20170101># #                -- what is this weird little bump around 1 cm in the SED
+        #<20170101># #                -- dzliu: after regridding wave and flux, the weird little bump disappears! <20160930>
+        #<20170101># set wave_lg_ng = wave_lg
+        #<20170101># set flux_lg_ng = flux_lg
+        #<20170101># set wave_lg_grid = -1,6,.01
+        #<20170101># spline wave_lg flux_lg wave_lg_grid flux_lg_grid
+        #<20170101># set wave_lg = wave_lg_grid
+        #<20170101># set flux_lg = flux_lg_grid
+        # 
+        # smooth curve
+        set flux_sm = flux_lg
+        #smooth flux_lg flux_sm 13
+        #set filters = 0,dimen(flux_sm)-1
+        #set flux_sm = flux_sm if(filters>5)
+        #set wave_lg = wave_lg if(filters>5)
+        # 
+        # calculate flux at B, V, i, z
+        set wave_F435W = lg(0.435)
+        set wave_F606W = lg(0.606)
+        set wave_F775W = lg(0.775)
+        set wave_F850W = lg(0.850)
+        spline wave_lg flux_sm wave_F435W flux_F435W
+        spline wave_lg flux_sm wave_F606W flux_F606W
+        spline wave_lg flux_sm wave_F775W flux_F775W
+        spline wave_lg flux_sm wave_F850W flux_F850W
+        set magcolor_B_V = (25.0-2.5*(flux_F435W)) - (25.0-2.5*(flux_F606W))
+        set magcolor_V_i = (25.0-2.5*(flux_F606W)) - (25.0-2.5*(flux_F775W))
+        set magcolor_V_z = (25.0-2.5*(flux_F606W)) - (25.0-2.5*(flux_F850W))
+        # 
+        # plot the curve of the template SED
+        # <added> show curve in dahsed line when at z>=3.5, when 24 undetected but radio detected
+        if($i>=3.5) {ltype 2 lweight 2.5} else {ltype 0 lweight 1.5}
+        ctypeRGB $($i*38+35) connect wave_lg flux_sm
+        # 
+        # show the redshift text
+        if(!is_vector(legend_pos_y)) {
+            set legend_pos_y = $fy2-0.18*($fy2-$fy1)
+        } else {
+            set legend_pos_y = legend_pos_y-0.64/dimen(zlist)*($fy2-$fy1)
+        }
+        expand 0.75 lweight 2.5 relocate $($fx1+0.05*($fx2-$fx1)) $(legend_pos_y) 
+        puts "z="$(sprintf('%0.2f',float($i)))" B-V="$(sprintf('%0.2f',float(magcolor_B_V)))" V-z="$(sprintf('%0.2f',float(magcolor_V_z)))
+        expand 1.5 lweight 3.0
+        ltype 0
+        # 
+        # print flux at B, V, i, z
+        define print_noheader 1
+        print +"Output_datatable_magcolor_versus_z_v1.txt" '%10.2f%15.2f%15.2f\n' {zvar magcolor_B_V magcolor_V_z}
+        define print_noheader 0
+    }
+    # 
+    # 
+    # overplot B, V, i, z
+    ctype blue ltype 0 lweight 8.0
+    rel      $(lg(0.435)-0.03) $($fy1+0.06*($fy2-$fy1))
+    draw     $(lg(0.435)+0.03) $($fy1+0.06*($fy2-$fy1))
+    relocate $(lg(0.435))      $($fy1+0.069*($fy2-$fy1))
+    expand 1.05 lweight 3.0 putlabel 8 "B"
+    # 
+    ctype navyblue ltype 0 lweight 8.0
+    rel      $(lg(0.606)-0.03) $($fy1+0.06*($fy2-$fy1))
+    draw     $(lg(0.606)+0.03) $($fy1+0.06*($fy2-$fy1))
+    relocate $(lg(0.606))      $($fy1+0.069*($fy2-$fy1))
+    expand 1.05 lweight 3.0 putlabel 8 "V"
+    # 
+    ctype orangered ltype 0 lweight 8.0
+    rel      $(lg(0.775)-0.03) $($fy1+0.06*($fy2-$fy1))
+    draw     $(lg(0.775)+0.03) $($fy1+0.06*($fy2-$fy1))
+    relocate $(lg(0.775))      $($fy1+0.069*($fy2-$fy1))
+    expand 1.05 lweight 3.0 putlabel 8 "i"
+    # 
+    ctype firebrick ltype 0 lweight 8.0
+    rel      $(lg(0.850)-0.03) $($fy1+0.06*($fy2-$fy1))
+    draw     $(lg(0.850)+0.03) $($fy1+0.06*($fy2-$fy1))
+    relocate $(lg(0.850))      $($fy1+0.069*($fy2-$fy1))
+    expand 1.05 lweight 3.0 putlabel 8 "z"
+    # 
+    # 
+    ctype default 
+    expand 1.35 lweight 3.0 relocate $($fx1+0.05*($fx2-$fx1)) $($fy2-0.06*($fy2-$fy1)) puts "SED Templates"
+    expand 1.10 lweight 3.0 relocate $($fx1+0.05*($fx2-$fx1)) $($fy2-0.12*($fy2-$fy1)) puts "BC03"
+    expand 1.5  lweight 3.0
+    ctype default ltype 0
+    # 
+    ctype default
+    ticksize 0 0 0 0
+    device nodevice
+    !ps2pdf -dEPSCrop "Plot_SED_Templates_Optical_Colors_v1.eps"
+    !pdfcrop -margin 10 "Plot_SED_Templates_Optical_Colors_v1.pdf" "Plot_SED_Templates_Optical_Colors_v1.pdf"
+    # 
+    echo ""
+    !cat "Output_datatable_magcolor_versus_z_v1.txt"
+
+
+
+get_flux_splined 01
+    # input wavelength in linear space, spline in log space and output flux in linear space. 
+    if(is_vector(wave_log10) && is_vector(flux_log10)) {
+        set wwww_log10 = lg($1)
+        spline wave_log10 flux_log10 wwww_log10 ffff_log10
+        set $0 = 10**(ffff_log10)
+        return
+    }
+
+
+
+
+ctypeRGB 01
+    if($1>255) {
+        ctype Rainbow255
+    } else {
+        ctype Rainbow$(sprintf('%03d',$((int($1)-int($1)%15))))
+    }
+
+xtcoloursRGB
+    # 
+    add_ctype Rainbow255  248   12   18
+    add_ctype Rainbow240  238   17    0
+    add_ctype Rainbow225  255   51   17
+    add_ctype Rainbow210  255   68   34
+    add_ctype Rainbow195  255  102   68
+    add_ctype Rainbow180  255  153   51
+    add_ctype Rainbow165  254  174   45
+    add_ctype Rainbow150  204  187   51
+    add_ctype Rainbow135  208  195   16
+    add_ctype Rainbow120  170  204   34
+    add_ctype Rainbow105  105  208   37
+    add_ctype Rainbow090   34  204  170
+    add_ctype Rainbow075   18  189  185
+    add_ctype Rainbow060   17  170  187
+    add_ctype Rainbow045   68   68  221
+    add_ctype Rainbow030   51   17  187
+    add_ctype Rainbow015   59   12  189
+    add_ctype Rainbow000   68   34  153
+
+

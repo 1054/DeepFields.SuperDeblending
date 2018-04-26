@@ -1,0 +1,326 @@
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Cloud
+VisitDirPathVector: chdir Github
+VisitDirPathVector: chdir DeepFields.SuperDeblending
+VisitDirPathVector: chdir datarelease
+VisitDirPathVector: chdir 201609
+VisitDirPathVector: chdir catalog_daddi_dzliu_goodsn_20160909
+CatalogReader: 
+prepared data array: Mgas, Mgas_Scoville2015
+CatalogReader: done!
+
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Work
+VisitDirPathVector: chdir DeepFields
+VisitDirPathVector: chdir Paper_01_GOODSN_CAT
+VisitDirPathVector: chdir plots
+VisitDirPathVector: chdir Plot_z_SFR_Mstar_SFR_Cosmic_SFR
+VisitDirPathVector: chdir Plot_Mstar_SFR
+Number of goodArea detected sources is 133 between 0 and 0.5
+Number of goodArea detected sources without Mstar is 1 between 0 and 0.5
+plt_x_MEAN = 9.914293683
+plt_y_MEAN = 0.3479922358
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 126
+Number of SB 7
+Fraction of SB 0.05263157895
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Cloud
+VisitDirPathVector: chdir Github
+VisitDirPathVector: chdir DeepFields.SuperDeblending
+VisitDirPathVector: chdir datarelease
+VisitDirPathVector: chdir 201609
+VisitDirPathVector: chdir catalog_daddi_dzliu_goodsn_20160909
+CatalogReader: 
+prepared data array: Mgas, Mgas_Scoville2015
+CatalogReader: done!
+
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Work
+VisitDirPathVector: chdir DeepFields
+VisitDirPathVector: chdir Paper_01_GOODSN_CAT
+VisitDirPathVector: chdir plots
+VisitDirPathVector: chdir Plot_z_SFR_Mstar_SFR_Cosmic_SFR
+VisitDirPathVector: chdir Plot_Mstar_SFR
+Number of goodArea detected sources is 316 between 0.5 and 1
+Number of goodArea detected sources without Mstar is 1 between 0.5 and 1
+plt_x_MEAN = 10.22835625
+plt_y_MEAN = 1.015211567
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 293
+Number of SB 23
+Fraction of SB 0.07278481013
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Cloud
+VisitDirPathVector: chdir Github
+VisitDirPathVector: chdir DeepFields.SuperDeblending
+VisitDirPathVector: chdir datarelease
+VisitDirPathVector: chdir 201609
+VisitDirPathVector: chdir catalog_daddi_dzliu_goodsn_20160909
+CatalogReader: 
+prepared data array: Mgas, Mgas_Scoville2015
+CatalogReader: done!
+
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Work
+VisitDirPathVector: chdir DeepFields
+VisitDirPathVector: chdir Paper_01_GOODSN_CAT
+VisitDirPathVector: chdir plots
+VisitDirPathVector: chdir Plot_z_SFR_Mstar_SFR_Cosmic_SFR
+VisitDirPathVector: chdir Plot_Mstar_SFR
+Number of goodArea detected sources is 166 between 1 and 1.5
+Number of goodArea detected sources without Mstar is 0 between 1 and 1.5
+plt_x_MEAN = 10.48203499
+plt_y_MEAN = 1.537320969
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 155
+Number of SB 11
+Fraction of SB 0.06626506024
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Cloud
+VisitDirPathVector: chdir Github
+VisitDirPathVector: chdir DeepFields.SuperDeblending
+VisitDirPathVector: chdir datarelease
+VisitDirPathVector: chdir 201609
+VisitDirPathVector: chdir catalog_daddi_dzliu_goodsn_20160909
+CatalogReader: 
+prepared data array: Mgas, Mgas_Scoville2015
+CatalogReader: done!
+
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Work
+VisitDirPathVector: chdir DeepFields
+VisitDirPathVector: chdir Paper_01_GOODSN_CAT
+VisitDirPathVector: chdir plots
+VisitDirPathVector: chdir Plot_z_SFR_Mstar_SFR_Cosmic_SFR
+VisitDirPathVector: chdir Plot_Mstar_SFR
+Number of goodArea detected sources is 80 between 1.5 and 2
+Number of goodArea detected sources without Mstar is 0 between 1.5 and 2
+plt_x_MEAN = 10.58188095
+plt_y_MEAN = 1.880826995
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 76
+Number of SB 4
+Fraction of SB 0.05
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Cloud
+VisitDirPathVector: chdir Github
+VisitDirPathVector: chdir DeepFields.SuperDeblending
+VisitDirPathVector: chdir datarelease
+VisitDirPathVector: chdir 201609
+VisitDirPathVector: chdir catalog_daddi_dzliu_goodsn_20160909
+CatalogReader: 
+prepared data array: Mgas, Mgas_Scoville2015
+CatalogReader: done!
+
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Work
+VisitDirPathVector: chdir DeepFields
+VisitDirPathVector: chdir Paper_01_GOODSN_CAT
+VisitDirPathVector: chdir plots
+VisitDirPathVector: chdir Plot_z_SFR_Mstar_SFR_Cosmic_SFR
+VisitDirPathVector: chdir Plot_Mstar_SFR
+Number of goodArea detected sources is 75 between 2 and 2.5
+Number of goodArea detected sources without Mstar is 0 between 2 and 2.5
+plt_x_MEAN = 10.7304401
+plt_y_MEAN = 2.179038333
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 66
+Number of SB 9
+Fraction of SB 0.12
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Cloud
+VisitDirPathVector: chdir Github
+VisitDirPathVector: chdir DeepFields.SuperDeblending
+VisitDirPathVector: chdir datarelease
+VisitDirPathVector: chdir 201609
+VisitDirPathVector: chdir catalog_daddi_dzliu_goodsn_20160909
+CatalogReader: 
+prepared data array: Mgas, Mgas_Scoville2015
+CatalogReader: done!
+
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Work
+VisitDirPathVector: chdir DeepFields
+VisitDirPathVector: chdir Paper_01_GOODSN_CAT
+VisitDirPathVector: chdir plots
+VisitDirPathVector: chdir Plot_z_SFR_Mstar_SFR_Cosmic_SFR
+VisitDirPathVector: chdir Plot_Mstar_SFR
+Number of goodArea detected sources is 31 between 2.5 and 3
+Number of goodArea detected sources without Mstar is 1 between 2.5 and 3
+plt_x_MEAN = 10.73164039
+plt_y_MEAN = 2.375151042
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 27
+Number of SB 4
+Fraction of SB 0.1290322581
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Cloud
+VisitDirPathVector: chdir Github
+VisitDirPathVector: chdir DeepFields.SuperDeblending
+VisitDirPathVector: chdir datarelease
+VisitDirPathVector: chdir 201609
+VisitDirPathVector: chdir catalog_daddi_dzliu_goodsn_20160909
+CatalogReader: 
+prepared data array: Mgas, Mgas_Scoville2015
+CatalogReader: done!
+
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Work
+VisitDirPathVector: chdir DeepFields
+VisitDirPathVector: chdir Paper_01_GOODSN_CAT
+VisitDirPathVector: chdir plots
+VisitDirPathVector: chdir Plot_z_SFR_Mstar_SFR_Cosmic_SFR
+VisitDirPathVector: chdir Plot_Mstar_SFR
+Number of goodArea detected sources is 34 between 3 and 4
+Number of goodArea detected sources without Mstar is 3 between 3 and 4
+plt_x_MEAN = 10.88137527
+plt_y_MEAN = 2.58127962
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 27
+Number of SB 7
+Fraction of SB 0.2058823529
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Cloud
+VisitDirPathVector: chdir Github
+VisitDirPathVector: chdir DeepFields.SuperDeblending
+VisitDirPathVector: chdir datarelease
+VisitDirPathVector: chdir 201609
+VisitDirPathVector: chdir catalog_daddi_dzliu_goodsn_20160909
+CatalogReader: 
+prepared data array: Mgas, Mgas_Scoville2015
+CatalogReader: done!
+
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Work
+VisitDirPathVector: chdir DeepFields
+VisitDirPathVector: chdir Paper_01_GOODSN_CAT
+VisitDirPathVector: chdir plots
+VisitDirPathVector: chdir Plot_z_SFR_Mstar_SFR_Cosmic_SFR
+VisitDirPathVector: chdir Plot_Mstar_SFR
+Number of goodArea detected sources is 10 between 4 and 5
+Number of goodArea detected sources without Mstar is 0 between 4 and 5
+plt_x_MEAN = 11.34396023
+plt_y_MEAN = 2.913566835
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 8
+Number of SB 2
+Fraction of SB 0.2
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Cloud
+VisitDirPathVector: chdir Github
+VisitDirPathVector: chdir DeepFields.SuperDeblending
+VisitDirPathVector: chdir datarelease
+VisitDirPathVector: chdir 201609
+VisitDirPathVector: chdir catalog_daddi_dzliu_goodsn_20160909
+CatalogReader: 
+prepared data array: Mgas, Mgas_Scoville2015
+CatalogReader: done!
+
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Work
+VisitDirPathVector: chdir DeepFields
+VisitDirPathVector: chdir Paper_01_GOODSN_CAT
+VisitDirPathVector: chdir plots
+VisitDirPathVector: chdir Plot_z_SFR_Mstar_SFR_Cosmic_SFR
+VisitDirPathVector: chdir Plot_Mstar_SFR
+Number of goodArea detected sources is 2 between 5 and 6
+Number of goodArea detected sources without Mstar is 0 between 5 and 6
+plt_x_MEAN = 10.99600458
+plt_y_MEAN = 3.014148911
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 2
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Cloud
+VisitDirPathVector: chdir Github
+VisitDirPathVector: chdir DeepFields.SuperDeblending
+VisitDirPathVector: chdir datarelease
+VisitDirPathVector: chdir 201609
+VisitDirPathVector: chdir catalog_daddi_dzliu_goodsn_20160909
+CatalogReader: 
+prepared data array: Mgas, Mgas_Scoville2015
+CatalogReader: done!
+
+VisitDirPathVector: "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/datarelease/201609/catalog_daddi_dzliu_goodsn_20160909"
+VisitDirPathVector: "/Users/dzliu/Work/DeepFields/Paper_01_GOODSN_CAT/plots/Plot_z_SFR_Mstar_SFR_Cosmic_SFR/Plot_Mstar_SFR"
+VisitDirPathVector: chdir /Users
+VisitDirPathVector: chdir dzliu
+VisitDirPathVector: chdir Work
+VisitDirPathVector: chdir DeepFields
+VisitDirPathVector: chdir Paper_01_GOODSN_CAT
+VisitDirPathVector: chdir plots
+VisitDirPathVector: chdir Plot_z_SFR_Mstar_SFR_Cosmic_SFR
+VisitDirPathVector: chdir Plot_Mstar_SFR
+Number of goodArea detected sources is 1 between 6 and 7
+Number of goodArea detected sources without Mstar is 0 between 6 and 7
+Attempt to divide by zeroAttempt to divide by zeroAttempt to divide by zeroAttempt to divide by zeroAttempt to divide by zeroAttempt to divide by zeroplt_x_MEAN = 12
+plt_y_MEAN = 2.862191031
+crabPlotOpenPS: Opening "Plot_Mstar_SFR_v1.eps" 
+Number of MS 1
+crabPlotClosePS: Output to "Plot_Mstar_SFR_v1.eps"! 

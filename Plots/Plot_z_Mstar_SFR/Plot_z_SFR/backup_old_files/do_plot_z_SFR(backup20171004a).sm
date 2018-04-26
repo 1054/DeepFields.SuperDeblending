@@ -1,0 +1,286 @@
+plot_z_SFR
+    # 
+    #  macro read do_plot_z_SFR.sm plot_z_SFR
+    #  
+    # 
+    load astroSfig.sm
+    # 
+    # Read catalog_daddi_dzliu_goodsn_2016
+    read_Data
+    # 
+    # DoGoodArea
+    define DoGoodArea 1
+    # 
+    # 
+    plot_open z SFR
+    #  
+    #chdir "Plot_z_SFR"
+    # 
+    # set variables
+    #set SFR_Err = eSFR
+    #set snrIR = SNR
+    #print {Type_SED}
+    # 
+    # Do Plot
+    define Set_Plot_Bin_Average 0
+    plot_open z SFR
+    plot_x_y z SFR
+    # 
+    # <Added><20160401><dzliu> plot MS at z>3
+    ctype default 
+    ptype 4 1 
+    lweight 3.0
+    expand 1.5
+    load astroSfig.sm
+    set z_Sargent2014 = 0.1,7,0.2
+    set SFR_Sargent2014 = calc_Sargent2014_SFR(z_Sargent2014,10)
+    ctype orange connect z_Sargent2014 SFR_Sargent2014
+    relocate 6.75 1.45 expand 1.05 putlabel 4 "{M_*}=10^{10} Msun"
+    set SFR_Sargent2014 = calc_Sargent2014_SFR(z_Sargent2014,11)
+    ctype magenta connect z_Sargent2014 SFR_Sargent2014
+    relocate 6.75 2.25 expand 1.05 putlabel 4 "{M_*}=10^{11} Msun"
+    set SFR_Sargent2014 = calc_Sargent2014_SFR(z_Sargent2014,12)
+    ctype red connect z_Sargent2014 SFR_Sargent2014
+    relocate 6.75 3.35 expand 1.05 putlabel 4 "Sargent et al. (2014) SFR_{MS} for {M_*}=10^{12} Msun"
+    ctype default expand 1.5
+    #ltype 1 relocate 2.9 3 draw 2.9 $fy1
+    # 
+    #set z_Malmquist = 0.1,7.1,0.1
+    #set dL_Malmquist = calc_lumdist(z_Malmquist)
+    #set SFR_Malmquist = lg((1e-10*40.31970)*4*pi*dL_Malmquist**2) # in lg
+    #ctype darkgray connect z_Malmquist SFR_Malmquist
+    # 
+    ltype 0
+    #print {z_Sargent2014 SFR_Sargent2014}
+    # 
+    # 
+    plot_close
+
+
+
+
+
+
+
+
+
+read_Data
+    # 
+    load crabDir.sm
+    set dir0 = GetCurrentPath()
+    set dir1 = GetDirPathVector("/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/")
+    set dir1 = dir1 concat 'datarelease'
+    set dir1 = dir1 concat '201612'
+    VisitDirPathVector dir1
+    macro read CatalogReader.sm go
+    VisitDirPathVector dir0
+
+read_Data_20160909
+    # 
+    load crabDir.sm
+    set dir0 = GetCurrentPath()
+    set dir1 = GetDirPathVector("/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/")
+    set dir1 = dir1 concat 'datarelease'
+    set dir1 = dir1 concat '201609'
+    set dir1 = dir1 concat 'catalog_daddi_dzliu_goodsn_20160909'
+    VisitDirPathVector dir1
+    macro read CatalogReader.sm go
+    VisitDirPathVector dir0
+
+
+
+
+
+
+
+
+plot_open 02
+    # 
+    # $1 $2 is xvar yvar
+    # 
+    if($DoGoodArea) {
+        define epsname "Plot_"$1"_"$2"_v1_goodArea"
+    } else {
+        define epsname "Plot_"$1"_"$2"_v1"
+    }
+    if($?Set_Plot_Pure_MS) { define epsname "Plot_"$1"_"$2"_pure_MS" }
+    if($?Set_Plot_Pure_SB) { define epsname "Plot_"$1"_"$2"_pure_SB" }
+    # 
+    load crabPlot.sm
+    crabPlotOpenPS $epsname.eps
+    expand 2.4 lweight 4.0
+    #limits 0 4 8 12
+    #ticksize 0.1 1 -1 10
+    define has_ticksize 0
+    define has_limits 0
+    define has_xlabel 0
+    define has_ylabel 0
+    define has_xformat 0
+    define has_yformat 0
+    if(!$has_ticksize && '$1'=='z' && '$2'=='SFR')     {define has_ticksize 1 ticksize 0.1 1 -1 10}
+    if(!$has_ticksize && '$1'=='SFR' && '$2'=='Mstar') {define has_ticksize 1 ticksize -1 10 -1 10}
+    if(!$has_ticksize && '$1'=='Mstar' && '$2'=='SFR') {define has_ticksize 1 ticksize -1 10 -1 10}
+    if(!$has_ticksize)                                 {define has_ticksize 1 ticksize -1 10 -1 10}
+    if(!$has_limits && '$1'=='z' && '$2'=='SFR')       {define has_limits 1   limits 0 7.2 $(lg(0.3)) 5}
+    if(!$has_limits && '$1'=='SFR' && '$2'=='Mstar')   {define has_limits 1   limits $(lg(3)) $(lg(2e4)) 9 $(lg(3e12))}
+    if(!$has_limits && '$1'=='Mstar' && '$2'=='SFR')   {define has_limits 1   limits 9 $(lg(2e12)) $(lg(3)) $(lg(2e4))}
+    if(!$has_limits)                                   {define has_limits 1   limits 0 0 0 0}
+    if(!$has_xlabel && '$1'=='SFR')                    {define has_xlabel 1   xlabel "SFR \ [M_{\odot} yr^{-1}]"}
+    if(!$has_xlabel && '$1'=='Mstar')                  {define has_xlabel 1   xlabel "M_{*} \ [M_{\odot}]"}
+    if(!$has_xlabel)                                   {define has_xlabel 1   xlabel $1}
+    if(!$has_ylabel && '$2'=='SFR')                    {define has_ylabel 1   ylabel "SFR \ [M_{\odot} yr^{-1}]"}
+    if(!$has_ylabel && '$2'=='Mstar')                  {define has_ylabel 1   ylabel "M_{*} \ [M_{\odot}]"}
+    if(!$has_ylabel)                                   {define has_ylabel 1   ylabel $2}
+    if('$2'=='SFR')                                    {notation 0 0 -2 2}
+    #if(!$has_xformat && '$1'=='z' && '$2'=='SFR')     {define has_xformat 1  format "10^{%d}" 0}
+    expand 1.9 lweight 4.0
+    location 6600 31000 10000 31000 box
+
+
+
+plot_close 00
+    if($?epsname) {
+        device nodevice
+        !ps2pdf -dEPSCrop $epsname.eps
+        !pdfcrop -margin 5 $epsname.pdf $epsname.pdf
+        #!open $epsname.pdf
+        echo "Output to "$epsname.eps
+    }
+    undef has_ticksize
+    undef has_limits
+    undef has_xlabel
+    undef has_ylabel
+    undef has_xformat
+    undef has_yformat
+
+
+plot_x_y 02
+    # 
+    # Usage:
+    #        macro read plot_SFR_versus_z.sm plot_open z SFR plot_x_y z SFR
+    # Aim:
+    #     do the plot 
+    # 
+    # filter sources by MS SB
+    set Xar = $1
+    set Var = $2
+    set Vid = id
+    if(is_vector($2""_Err)) {
+        set Err = $2""_Err
+    } else { 
+        if(is_vector(Err)) {unset Err}
+    }
+    set flag_filter_MS_SB = int(Xar*0)+1
+    if($?Set_Plot_Pure_MS) { set flag_filter_MS_SB = (Type_SED==-1) }
+    if($?Set_Plot_Pure_SB) { set flag_filter_MS_SB = (Type_SED==1) }
+    # 
+    # filter sources by S/N <TODO> 5.0 10.0 15.0
+    set carray = int(Xar*0)
+    #<20151125><commented># set carray = (              snrIR>=15.0 && flag_filter_MS_SB && Xar>-99 && Var>-99) ? 1 : carray
+    #<20151125><commented># set carray = (snrIR<15.0 && snrIR>=10.0 && flag_filter_MS_SB && Xar>-99 && Var>-99) ? 2 : carray
+    #<20151125><commented># set carray = (snrIR<10.0 && snrIR>=5.0  && flag_filter_MS_SB && Xar>-99 && Var>-99) ? 3 : carray
+    set carray = (              snrIR>=10.0 && flag_filter_MS_SB && Xar>-99 && Var>-99) ? 1 : carray
+    set carray = (snrIR<10.0 && snrIR>=5.0  && flag_filter_MS_SB && Xar>-99 && Var>-99) ? 2 : carray
+    set carray = (snrIR>=3.0 && snrIR<5.0   && flag_filter_MS_SB && Xar>-99 && Var>-99) ? 3 : carray
+    set carray = (snrIR>=0.0 && snrIR<3.0   && flag_filter_MS_SB && Xar>-99 && Var>-99) ? 3.5 : carray
+    if($DoGoodArea) {set carray = (goodArea==0) ? 0 : carray}
+    set Car = carray
+    set Xar = Xar if(carray>0)
+    set Var = Var if(carray>0)
+    set Vid = Vid if(carray>0)
+    set Car = Car if(carray>0)
+    set Snr = snrIR if(carray>0)
+    if(is_vector(Err)) {
+        set Err = Err if(carray>0)
+        #set Var = Var+2*Err
+    }
+    if('$1'=='z') {
+        set Xar = Xar
+    } else {
+        set Xar = lg(Xar)
+    }
+    echo 
+    echo dimen(Var)=$(dimen(Var))
+    echo 
+    # 
+    # now define legend text
+    define Set_Plot_ALL_Sources 1
+    if($?Set_Plot_Pure_MS) { undef Set_Plot_ALL_Sources }
+    if($?Set_Plot_Pure_SB) { undef Set_Plot_ALL_Sources }
+    # 
+    # now plot three color plot
+    load crabPlotThreeColorPlot.sm
+    if($?Set_Plot_ALL_Sources) {
+        crabPlotThreeColorPlot Xar Var Car "high S/N (\ge \,10)" "mid S/N (5-10)" "low S/N (< 5)" "in total"
+    }
+    if($?Set_Plot_Pure_MS) {
+        crabPlotThreeColorPlot Xar Var Car "high S/N (\ge 10)" "mid S/N (5-10)" "low S/N (<5)" "MS galaxies"
+    }
+    if($?Set_Plot_Pure_SB) {
+        crabPlotThreeColorPlot Xar Var Car "high S/N (\ge 10)" "mid S/N (5-10)" "low S/N (<5)" "SB galaxies"
+    }
+    
+    # 
+    # now plot our z bin averaged Var
+    vecminmax Var Var_MIN Var_MAX
+    echo 
+    echo DEBUG: Var: $2
+    echo DEBUG: Var_MIN = $Var_MIN
+    echo DEBUG: Var_MAX = $Var_MAX
+    echo 
+    if($?Set_Plot_Bin_Average) {
+      if($Set_Plot_Bin_Average>0) {
+        load crabArrayDivBin.sm
+        crabArrayDivBinBySize Xar 0.5 zBin #<TODO># 
+        # 
+        define pref_lw $lweight
+        define pref_ep $expand
+        ptype 4 0
+        do i = 1, dimen(zBin)-1 {
+            if(dimen($(zBin[$i]))>0) {
+                set zBin_Xar = zBin_0[$i-1]
+                set zBin_Vid = Vid[$(zBin[$i])]
+                set zBin_Var = Var[$(zBin[$i])]
+                if(is_vector(Err)) { set zBin_Err = Err[$(zBin[$i])] } else { if(is_vector(zBin_Err)) {unset zBin_Err} }
+                # 
+                set zBin_Coo = (zBin_Var>0.0)
+                set zBin_Vid = zBin_Vid if(zBin_Coo)
+                set zBin_Var = zBin_Var if(zBin_Coo)
+                if(is_vector(zBin_Err)) {set zBin_Err = zBin_Err if(zBin_Coo)}
+                ##print {zBin_Vid zBin_Var zBin_Err}
+                # 
+                if(dimen(zBin_Var)==1) {
+                    #<TODO> do nothing if this bin only contains one data point
+                    #points zBin_Xar (lg(zBin_Var))
+                } else {
+                    if(is_vector(zBin_Err)) { # added: weighted mean
+                    set zBin_Weight = 1.0/(zBin_Err/zBin_Var)
+                    set zBin_VarWeigthed = lg(zBin_Var)*zBin_Weight
+                    stats zBin_VarWeigthed zBin_Mean zBin_Sig zBin_Kur
+                    define zBin_Mean $($zBin_Mean/sum(zBin_Weight)*dimen(zBin_Weight))
+                    stats (lg(zBin_Var)) zBin_Mean2 zBin_Sig zBin_Kur
+                    } else {
+                    stats (lg(zBin_Var)) zBin_Mean zBin_Sig zBin_Kur
+                    }
+                    set zBin_Mean = $zBin_Mean
+                    set zBin_Sig = $zBin_Sig
+                    undef zBin_Mean undef zBin_Sig undef zBin_Kur
+                    ctype default expand 4.0 lweight 4.0
+                    points zBin_Xar zBin_Mean
+                    error_y zBin_Xar zBin_Mean zBin_Sig
+                    # <TODO> bin averaged data point in black color / blue color
+                }
+            }
+            # define aaa ?
+        }
+        ptype 4 1
+        ctype default expand $pref_ep lweight $pref_lw
+      }
+    }
+    # 
+    ctype default
+
+
+
+
+

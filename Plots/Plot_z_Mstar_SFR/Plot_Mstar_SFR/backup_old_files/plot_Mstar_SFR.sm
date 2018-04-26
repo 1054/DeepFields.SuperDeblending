@@ -1,0 +1,472 @@
+plot_Mstar_SFR_z_0p0_0p5
+    define zMIN 0.0
+    define zMAX 0.5
+    define M_incomplete 9.7
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_0p0_0p5.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_0p0_0p5.pdf"
+plot_Mstar_SFR_z_0p5_1p0
+    define zMIN 0.5
+    define zMAX 1.0
+    define M_incomplete 10.1
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_0p5_1p0.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_0p5_1p0.pdf"
+plot_Mstar_SFR_z_1p0_1p5
+    define zMIN 1.0
+    define zMAX 1.5
+    define M_incomplete 10.5
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_1p0_1p5.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_1p0_1p5.pdf"
+plot_Mstar_SFR_z_1p5_2p0
+    define zMIN 1.5
+    define zMAX 2.0
+    define M_incomplete 10.7
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_1p5_2p0.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_1p5_2p0.pdf"
+plot_Mstar_SFR_z_2p0_2p5
+    define zMIN 2.0
+    define zMAX 2.5
+    define M_incomplete 10.7
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_2p0_2p5.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_2p0_2p5.pdf"
+plot_Mstar_SFR_z_2p5_3p0
+    define zMIN 2.5
+    define zMAX 3.0
+    define M_incomplete 10.9
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_2p5_3p0.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_2p5_3p0.pdf"
+plot_Mstar_SFR_z_3p0_4p0
+    define zMIN 3.0
+    define zMAX 4.0
+    define M_incomplete 10.9
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_3p0_4p0.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_3p0_4p0.pdf"
+plot_Mstar_SFR_z_4p0_5p0
+    define zMIN 4.0
+    define zMAX 5.0
+    define M_incomplete 10.9
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_4p0_5p0.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_4p0_5p0.pdf"
+plot_Mstar_SFR_z_4p0_6p0
+    define zMIN 4.0
+    define zMAX 6.0
+    define M_incomplete 10.9
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_4p0_6p0.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_4p0_6p0.pdf"
+plot_Mstar_SFR_z_4p0_7p0
+    define zMIN 4.0
+    define zMAX 7.0
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_4p0_7p0.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_4p0_7p0.pdf"
+plot_Mstar_SFR_z_5p0_6p0
+    define zMIN 5.0
+    define zMAX 6.0
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_5p0_6p0.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_5p0_6p0.pdf"
+plot_Mstar_SFR_z_6p0_7p0
+    define zMIN 6.0
+    define zMAX 7.0
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_6p0_7p0.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_6p0_7p0.pdf"
+
+
+
+plot_Mstar_SFR_z_2
+    # 
+    #  macro read plot_Mstar_SFR.sm plot_Mstar_SFR_z_2
+    #  
+    # Define zMIN zMAX
+    define zMIN 1.5
+    define zMAX 2.5
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_1.5_2.5.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_1.5_2.5.pdf"
+    
+plot_Mstar_SFR_z_2_25
+    # 
+    #  macro read plot_Mstar_SFR.sm plot_Mstar_SFR_z_2_25
+    #  
+    # Define zMIN zMAX
+    define zMIN 2.0
+    define zMAX 2.5
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_2.0_2.5.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_2.0_2.5.pdf"
+    
+plot_Mstar_SFR_z_2_75
+    # 
+    #  macro read plot_Mstar_SFR.sm plot_Mstar_SFR_z_2_75
+    #  
+    # Define zMIN zMAX
+    define zMIN 2.5
+    define zMAX 3.0
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_2.5_3.0.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_2.5_3.0.pdf"
+    
+plot_Mstar_SFR_z_3
+    # 
+    #  macro read plot_Mstar_SFR.sm plot_Mstar_SFR_z_3
+    #  
+    # Define zMIN zMAX
+    define zMIN 2.5
+    define zMAX 4.0
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_2.5_4.0.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_2.5_4.0.pdf"
+    
+plot_Mstar_SFR_z_3_50
+    # 
+    #  macro read plot_Mstar_SFR.sm plot_Mstar_SFR_z_3_50
+    #  
+    # Define zMIN zMAX
+    define zMIN 3.0
+    define zMAX 4.0
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_3.0_4.0.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_3.0_4.0.pdf"
+    
+plot_Mstar_SFR_z_5
+    # 
+    #  macro read plot_Mstar_SFR.sm plot_Mstar_SFR_z_5
+    #  
+    # Define zMIN zMAX
+    define zMIN 4.0
+    define zMAX 6.0
+    plot_Mstar_SFR
+    !cp "Plot_Mstar_SFR_v1.eps" "Plot_Mstar_SFR_z_bin_4.0_6.0.eps"
+    !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_4.0_6.0.pdf"
+    
+plot_Mstar_SFR
+    # 
+    # Check input
+    if(!$?zMIN || !$?zMAX) {return}
+    # 
+    # DEFINE parameters
+    define setDoHistogram 0
+    #define hasReadData 0
+    # 
+    # Read Catalog
+    #chdir "../catalog_daddi_dzliu_goodsn_2016/"
+    #macro read CatalogReader.sm go
+    #chdir "../Plot_Mstar_SFR/"
+    #if(!$?hasReadData) {
+    #load crabDir.sm
+    #set CurDir = GetDirPathVector()
+    #set CatDir = GetDirPathVector("/home/dzliu/Cloud/Github/DeepFields.SuperDeblending/")
+    #set CatDir = CatDir concat 'datarelease'
+    #set CatDir = CatDir concat '201601'
+    #set CatDir = CatDir concat 'CatalogRelease'
+    #set CatDir = CatDir concat 'catalog_daddi_dzliu_goodsn_2016'
+    #VisitDirPathVector CatDir
+    #macro read CatalogReader.sm go
+    #VisitDirPathVector CurDir
+    #define hasReadData 1
+    # 
+    #load crabDir.sm
+    #set CurDir = GetDirPathVector()
+    #set CatDir = GetDirPathVector("/home/dzliu/Cloud/Github/DeepFields.SuperDeblending/")
+    #set CatDir = CatDir concat 'datarelease'
+    #set CatDir = CatDir concat '201608'
+    #set CatDir = CatDir concat 'catalog_daddi_dzliu_goodsn_2016C_850um'
+    #VisitDirPathVector CatDir
+    #macro read CatalogReader.sm go
+    #VisitDirPathVector CurDir
+    #define hasReadData 1
+    # 
+    load crabDir.sm
+    set CurDir = GetDirPathVector()
+    set CatDir = GetDirPathVector("/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/")
+    set CatDir = CatDir concat 'datarelease'
+    set CatDir = CatDir concat '201609'
+    set CatDir = CatDir concat 'catalog_daddi_dzliu_goodsn_20160909'
+    VisitDirPathVector CatDir
+    macro read CatalogReader.sm go
+    VisitDirPathVector CurDir
+    define hasReadData 1
+    #}
+    # 
+    # PlotXY
+    set coo = Mstar>1e-99 && SFR>1e-99 && snrIR>=5.0 && zphot>=$zMIN && zphot<$zMAX && goodArea
+    echo "Number of goodArea detected sources is "$(sum(coo))" between "$zMIN" and "$zMAX
+    set plt_x = Mstar if(coo) # Mstar is Chabrier IMF
+    set plt_y = SFR if(coo) # SFR is Chabrier IMF
+    set plt_SB = flag_SB if(coo) # flag_SB_MS if(coo)
+    set plt_id = id if(coo)
+    set plt_x = lg(plt_x)
+    set plt_y = lg(plt_y)
+    # 
+    # How many do not have Mstar
+    set coo_x = Mstar<=1e-99 && SFR>1e-99 && snrIR>=5.0 && zphot>=$zMIN && zphot<$zMAX && goodArea
+    echo "Number of goodArea detected sources without Mstar is "$(sum(coo_x))" between "$zMIN" and "$zMAX
+    # 
+    # CalcXYRange
+    stats plt_x plt_x_MEAN plt_x_SIGMA plt_x_KURT
+    stats plt_y plt_y_MEAN plt_y_SIGMA plt_y_KURT
+    echo plt_x_MEAN = $plt_x_MEAN
+    echo plt_y_MEAN = $plt_y_MEAN
+    set plt_xlo = $plt_x_MEAN - 1.25
+    set plt_xhi = $plt_x_MEAN + 1.25
+    set plt_ylo = $plt_y_MEAN - 1.05
+    set plt_yhi = $plt_y_MEAN + 1.45
+    #<20160826># if($plt_x_MEAN<7) {
+    #<20160826>#     print '%15.0f %15g %15g\n' {plt_id plt_x plt_y}
+    #<20160826># }
+    # 
+    # Do Plot
+    load crabPlot.sm
+    crabPlotOpenPS "Plot_Mstar_SFR_v1.eps"
+    
+    location 6500 23500 10500 27500
+    notation 0 0 -1 1
+    limits $(plt_xlo) $(plt_xhi) $(plt_ylo) $(plt_yhi)
+    #<20160826># if($zMIN==0.0) { limits 9.5 12.0 $(lg(0.5)) $(lg(1e2)) }
+    #<20160826># if($zMIN==0.5) { limits 9.5 12.0 $(lg(1.0)) $(lg(5e2)) }
+    #<20160826># if($zMIN==1.0) { limits 9.5 12.0 $(lg(10)) $(lg(10e2)) }
+    #<20160826># if($zMIN==1.5) { limits 9.5 12.0 $(lg(20)) $(lg(20e2)) }
+    #<20160826># if($zMIN==2.0) { limits 9.5 12.0 $(lg(40)) $(lg(40e2)) }
+    #<20160826># if($zMIN==2.5) { limits 9.5 12.0 $(lg(50)) $(lg(50e2)) }
+    #<20160826># if($zMIN==3.0) { limits 9.5 12.0 $(lg(80)) $(lg(80e2)) }
+    #<20160826># if($zMIN==4.0) { limits 9.8 12.3 $(lg(200)) $(lg(200e2)) }
+    
+    #<added><20161101><dzliu> for Bethermin's comments
+    # -- indicating incompleteness
+    if($?M_incomplete) {
+        set shade_x = <$fx1 $fx1 $M_incomplete $M_incomplete $fx1>
+        set shade_y = <$fy1 $(0.5*$fy2+0.5*$fy1) $(0.5*$fy2+0.5*$fy1) $fy1 $fy1>
+        set shade_y = <$fy1 $fy2 $fy2 $fy1 $fy1>
+        add_ctype darkgray 56 56 56
+        angle 60 lweight 2.0 ctype darkgray shade 200 shade_x shade_y
+        angle 0
+        undef M_incomplete
+    }
+    
+    ticksize 0.1 0.5 -1 0
+    if($setDoHistogram) {
+        crabPlotDefaultPenForBox
+        box 0 2 0 0
+        crabPlotDefaultPenForTitle
+        ylabel "SFR [M_{\odot} yr^{-1}]"
+    } else {
+        crabPlotDefaultPenForBox
+        box 1 2 0 0
+        crabPlotDefaultPenForTitle
+        xlabel "log M_{*} [M_{\odot}]"
+        ylabel "SFR [M_{\odot} yr^{-1}]"
+    }
+    
+    crabPlotDefaultPenForPoints
+    set coo_1 = (plt_SB!='SB')
+    set plt_x1 = plt_x if(coo_1)
+    set plt_y1 = plt_y if(coo_1)
+    expand 2.5
+    ctype blue ptype 4 1 points plt_x1 plt_y1
+    expand 1.5
+    echo "Number of MS "$(sum(coo_1))
+    
+    #set coo_1 = (plt_SB=='MS')
+    #set plt_x1 = plt_x if(coo_1)
+    #set plt_y1 = plt_y if(coo_1)
+    #ctype blue ptype 4 1 points plt_x1 plt_y1
+    #
+    #set coo_1 = (plt_SB=='unknown')
+    #set plt_x1 = plt_x if(coo_1)
+    #set plt_y1 = plt_y if(coo_1)
+    #ctype orange ptype 4 1 points plt_x1 plt_y1
+    
+    set coo_2 = (plt_SB=='SB')
+    if(sum(coo_2)>0) {
+        set plt_x2 = plt_x if(coo_2)
+        set plt_y2 = plt_y if(coo_2)
+        expand 2.5
+        ctype red ptype 4 1 points plt_x2 plt_y2
+        expand 1.5
+        echo "Number of SB "$(sum(coo_2))
+        echo "Fraction of SB "$(1.0*sum(coo_2)/dimen(coo_2))
+    }
+    
+    overplot_mainsequences
+    
+    if($setDoHistogram) {
+        overplot_histograms
+    }
+    
+    #<TODO># overplot_specificSFR
+    
+    crabPlotClosePS
+
+
+overplot_specificSFR
+    # compute the MS sSFR
+    set MSSSFR = plt_y2-plt_x2+9
+
+
+
+overplot_histograms
+    # save location and limits
+    load crabPlot.sm crabPlotSaveBox
+    # get_hist
+    get_hist plt_x1 his_x1 his_y1 $crabPlot_fx1 $crabPlot_fx2 0.1
+    get_hist plt_x2 his_x2 his_y2 $crabPlot_fx1 $crabPlot_fx2 0.1
+    # 
+    ticksize 0 0 0 0
+    location $crabPlot_gx1 $crabPlot_gx2 6500 10500
+    limits $crabPlot_fx1 $crabPlot_fx2 his_y1
+    crabPlotDefaultPenForBox box 1 2 0 0
+    crabPlotDefaultPenForTitle
+    xlabel "log M_{*} [M_{\odot}]"
+    ylabel "N"
+    ctype blue histogram his_x1 his_y1
+    angle 75 shade histogram 300 his_x1 his_y1
+    angle 0
+    crabPlotRestoreBox
+    ticksize 0 0 -1 10
+
+
+overplot_mainsequences 00
+    # 
+    # 
+    lweight 4.0 relocate (8000 25700) 
+    #<before 20161101><dzliu># expand 1.2 ctype red puts $zMIN"<z<"$zMAX S/N>5 SB
+    #<before 20161101><dzliu># expand 0.3 puts ""
+    #<before 20161101><dzliu># expand 1.2 ctype blue puts $zMIN"<z<"$zMAX S/N>5 MS
+    expand 1.35 ctype black puts $zMIN"<z<"$zMAX 
+    expand 0.3 puts ""
+    expand 1.2 ctype red label "SB "
+               ctype blue label "MS "
+    # 
+    # Prepare plotting legend
+    #<before 20161101><dzliu># set legend_x = 0.09
+    #<before 20161101><dzliu># set legend_y = 0.78
+    #<before 20161101><dzliu># set legend_dy = 0.05
+    set legend_x = 0.38
+    set legend_y = 0.94
+    set legend_dy = 0.05
+    # 
+    # Overplot MainSequence
+    if(1) {
+        load astroSfig.sm
+        set z_MS = ($zMIN+$zMAX)/2.0
+        ####
+        ####set lg_SFR_MS = lg_SFR_MS + lg(6) # SF MS x6
+        ####lweight 1.0
+        ####connect lg_Msr_MS lg_SFR_MS
+        
+        
+        # ####
+        if($zMIN==1.5) {
+            set lg_Msr_MS = $fx1,$fx2,0.1
+            set lg_SFR_MS = lg(200)+0.9*(lg_Msr_MS+lg(1.73)-11)-lg(1.73) # Daddi 2007 -- Salpeter IMF -- but here we show Chabrier IMF -1.73?
+            set lg_coo_MS = lg_SFR_MS>=$fy1
+            set lg_Msr_MS = lg_Msr_MS if(lg_coo_MS)
+            set lg_SFR_MS = lg_SFR_MS if(lg_coo_MS)
+            lweight 3.0 ltype 1 ltype expand 1.5 ctype blue
+            connect lg_Msr_MS lg_SFR_MS
+            ltype expand 1.0
+            # <20160505> legend
+            # <20161101> legend only for $zMAX==6
+            #### if($zMAX==6) {
+            ####     rel $((legend_x-0.035)*($fx2-$fx1)+$fx1) $((legend_y-0.00)*($fy2-$fy1)+$fy1) draw $((legend_x+0.015)*($fx2-$fx1)+$fx1) $((legend_y)*($fy2-$fy1)+$fy1)
+            ####     relocate $((legend_x+0.010)*($fx2-$fx1)+$fx1) $((legend_y-0.01)*($fy2-$fy1)+$fy1) expand 0.95 puts " Daddi et al. (2007) MS"
+            ####     set legend_y = legend_y - legend_dy
+            #### }
+            # relocate $(lg_Msr_MS[dimen(lg_SFR_MS)-1]) $(lg_SFR_MS[dimen(lg_SFR_MS)-1]+0.15) 
+            # angle $(atan((lg_SFR_MS[5]-lg_SFR_MS[0])/(lg_Msr_MS[5]-lg_Msr_MS[0])*0.875)/pi*180)
+            # expand 0.85 putlabel 7 "Daddi et al."
+            # puts ""
+            # puts ""
+            # putlabel 7 "(2007)"
+            # angle 0
+            ltype expand 1.0
+        }
+        
+        
+        ####
+        set lg_Msr_MS = $fx1,$fx2,0.1
+        set lg_SFR_MS = calc_Bethermin2014_SFR(z_MS,lg_Msr_MS)
+        set lg_coo_MS = lg_SFR_MS>=$fy1
+        set lg_Msr_MS = lg_Msr_MS if(lg_coo_MS)
+        set lg_SFR_MS = lg_SFR_MS if(lg_coo_MS)
+        lweight 3.0 ltype 3 ltype expand 0.5 ctype orange
+        connect lg_Msr_MS lg_SFR_MS
+        ltype expand 0.3
+        # <20160505> legend
+        # <20161101> legend only for $zMAX==6
+        if($zMIN==5) {
+            rel $((legend_x-0.035)*($fx2-$fx1)+$fx1) $((legend_y-0.00)*($fy2-$fy1)+$fy1) draw $((legend_x+0.015)*($fx2-$fx1)+$fx1) $((legend_y)*($fy2-$fy1)+$fy1)
+            relocate $((legend_x+0.010)*($fx2-$fx1)+$fx1) $((legend_y-0.01)*($fy2-$fy1)+$fy1) expand 0.95 puts " Bethermin et al. (2015) MS"
+            set legend_y = legend_y - legend_dy
+        }
+        #relocate $(lg_Msr_MS[0]) $(lg_SFR_MS[0]) 
+        #angle $(atan((lg_SFR_MS[5]-lg_SFR_MS[0])/(lg_Msr_MS[5]-lg_Msr_MS[0])*0.875)/pi*180)
+        #expand 0.85 puts "Bethermin et al. (2015)"
+        #angle 0
+        ltype expand 1.0
+        
+        
+        ####
+        set lg_Msr_MS = $fx1,$fx2,0.1
+        set lg_SFR_MS = calc_Schreiber2014_SFR(z_MS,lg_Msr_MS)
+        set lg_coo_MS = lg_SFR_MS>=$fy1
+        set lg_Msr_MS = lg_Msr_MS if(lg_coo_MS)
+        set lg_SFR_MS = lg_SFR_MS if(lg_coo_MS)
+        lweight 3.0 ltype 3 ltype expand 1.5 ctype darkgreen
+        connect lg_Msr_MS lg_SFR_MS
+        ltype expand 0.6
+        # <20160505> legend
+        # <20161101> legend only for $zMAX==6
+        if($zMIN==5) {
+            rel $((legend_x-0.035)*($fx2-$fx1)+$fx1) $((legend_y-0.00)*($fy2-$fy1)+$fy1) draw $((legend_x+0.015)*($fx2-$fx1)+$fx1) $((legend_y)*($fy2-$fy1)+$fy1)
+            relocate $((legend_x+0.010)*($fx2-$fx1)+$fx1) $((legend_y-0.01)*($fy2-$fy1)+$fy1) expand 0.95 puts " Schreiber et al. (2015) MS"
+            set legend_y = legend_y - legend_dy
+        }
+        #relocate $(lg_Msr_MS[0]) $(lg_SFR_MS[0]) 
+        #angle $(atan((lg_SFR_MS[5]-lg_SFR_MS[0])/(lg_Msr_MS[5]-lg_Msr_MS[0])*0.875)/pi*180)
+        #expand 0.85 puts "Schreiber et al. (2015)"
+        #angle 0
+        ltype expand 1.0
+        
+        
+        ####
+        set lg_Msr_MS = $fx1,$fx2,0.1
+        set lg_SFR_MS = calc_Sargent2014_SFR(z_MS,lg_Msr_MS)
+        set lg_coo_MS = lg_SFR_MS>=$fy1
+        set lg_Msr_MS = lg_Msr_MS if(lg_coo_MS)
+        set lg_SFR_MS = lg_SFR_MS if(lg_coo_MS)
+        lweight 3.0 ltype 0 ctype blue
+        connect lg_Msr_MS lg_SFR_MS
+        # <20160505> legend
+        # <20161101> legend only for $zMAX==6
+        if($zMIN==5) {
+            rel $((legend_x-0.035)*($fx2-$fx1)+$fx1) $((legend_y-0.00)*($fy2-$fy1)+$fy1) draw $((legend_x+0.015)*($fx2-$fx1)+$fx1) $((legend_y)*($fy2-$fy1)+$fy1)
+            relocate $((legend_x+0.010)*($fx2-$fx1)+$fx1) $((legend_y-0.01)*($fy2-$fy1)+$fy1) expand 0.95 puts " Sargent et al. (2014) MS"
+            set legend_y = legend_y - legend_dy
+        }
+        #relocate $(lg_Msr_MS[0]) $(lg_SFR_MS[0]) 
+        #angle $(atan((lg_SFR_MS[5]-lg_SFR_MS[0])/(lg_Msr_MS[5]-lg_Msr_MS[0])*0.875)/pi*180)
+        #expand 0.95 puts "  Sargent et al. (2014)"
+        #angle 0
+        
+        
+    }
+    
+
+
+
+
+
+
+
+
+

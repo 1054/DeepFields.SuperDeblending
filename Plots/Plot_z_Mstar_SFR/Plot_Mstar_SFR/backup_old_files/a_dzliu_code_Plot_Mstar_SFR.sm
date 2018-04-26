@@ -1,0 +1,344 @@
+plot_Mstar_SFR_all
+    # 
+    # Usage: 
+    #   echo "macro read a_dzliu_code_Plot_Mstar_SFR.sm plot_Mstar_SFR_all" | sm
+    # 
+    #set zMinList = {0.0 0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 4.0 5.0}
+    #set zMaxList = {0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0}
+    #set zMinList = {0.2 0.5 1.0 1.5 2.0 2.5 3.0 4.0 5.0}
+    #set zMaxList = {0.5 1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0}
+    #set M_incomplete_list = {9.7 10.1 10.5 10.7 10.7 10.9 10.9}
+    data "datatable__M_incomplete__v20170119.txt" read {zMinList 1 zMaxList 2 M_incomplete_list 3}
+    # 
+    do i=0,dimen(zMinList)-1 {
+        define zMIN $(zMinList[$i])
+        define zMAX $(zMaxList[$i])
+        define M_incomplete $(M_incomplete_list[$i])
+        set zMinStr = sprintf('%0.1f',float($zMIN))
+        set zMaxStr = sprintf('%0.1f',float($zMAX))
+        plot_Mstar_SFR
+        !cp "Plot_Mstar_SFR_v1.pdf" "Plot_Mstar_SFR_z_bin_"$(zMinStr)"_"$(zMaxStr)".pdf"
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+read_Data
+    # 
+    load crabDir.sm
+    set dir0 = GetCurrentPath()
+    set dir1 = GetDirPathVector("/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/")
+    set dir1 = dir1 concat 'datarelease'
+    set dir1 = dir1 concat '201612'
+    VisitDirPathVector dir1
+    macro read CatalogReader.sm go
+    VisitDirPathVector dir0
+
+read_Data_20160909
+    # 
+    load crabDir.sm
+    set dir0 = GetCurrentPath()
+    set dir1 = GetDirPathVector("/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/")
+    set dir1 = dir1 concat 'datarelease'
+    set dir1 = dir1 concat '201609'
+    set dir1 = dir1 concat 'catalog_daddi_dzliu_goodsn_20160909'
+    VisitDirPathVector dir1
+    macro read CatalogReader.sm go
+    VisitDirPathVector dir0
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+plot_Mstar_SFR
+    # 
+    # Check input
+    if(!$?zMIN || !$?zMAX) {return}
+    # 
+    # Read Catalog
+    if(!$?hasReadData) {
+        read_Data
+        define hasReadData 1
+    }
+    # 
+    # Redifine SB/MS
+    set flag_SB = (Mstar>1e-99 && SFR>1e-99) ? 'TBD' : 'unknown'
+    set flag_SB = (Mstar>1e-99 && SFR>1e-99 && dis_to_MS>=0.6)                  ? 'SB'    : flag_SB
+    set flag_SB = (Mstar>1e-99 && SFR>1e-99 && dis_to_MS>0.4 && dis_to_MS<0.6)  ? 'mixed' : flag_SB
+    set flag_SB = (Mstar>1e-99 && SFR>1e-99 && dis_to_MS<=0.4)                  ? 'MS'    : flag_SB
+    # 
+    # PlotXY
+    set coo = Mstar>1e-99 && SFR>1e-99 && snrIR>=5.0 && zphot>=$zMIN && zphot<$zMAX && goodArea
+    echo "Number of goodArea detected sources is "$(sum(coo))" between "$zMIN" and "$zMAX
+    set plt_x = Mstar if(coo) # Mstar is Chabrier IMF
+    set plt_y = SFR if(coo) # SFR is Chabrier IMF
+    set plt_SB = flag_SB if(coo) # flag_SB_MS if(coo)
+    set plt_id = id if(coo)
+    set plt_x = lg(plt_x)
+    set plt_y = lg(plt_y)
+    # 
+    # How many do not have Mstar
+    set coo_x = Mstar<=1e-99 && SFR>1e-99 && snrIR>=5.0 && zphot>=$zMIN && zphot<$zMAX && goodArea
+    echo "Number of goodArea detected sources without Mstar is "$(sum(coo_x))" between "$zMIN" and "$zMAX
+    # 
+    # CalcXYRange
+    stats plt_x plt_x_MEAN plt_x_SIGMA plt_x_KURT
+    stats plt_y plt_y_MEAN plt_y_SIGMA plt_y_KURT
+    echo plt_x_MEAN = $plt_x_MEAN
+    echo plt_y_MEAN = $plt_y_MEAN
+    set plt_xlo = $plt_x_MEAN - 1.25
+    set plt_xhi = $plt_x_MEAN + 1.25
+    set plt_ylo = $plt_y_MEAN - 1.05
+    set plt_yhi = $plt_y_MEAN + 1.45
+    #<20160826># if($plt_x_MEAN<7) {
+    #<20160826>#     print '%15.0f %15g %15g\n' {plt_id plt_x plt_y}
+    #<20160826># }
+    # 
+    # Do Plot
+    load crabPlot.sm
+    crabPlotOpenPS "Plot_Mstar_SFR_v1.eps"
+    
+    location 12500 30000 12500 30000
+    notation 0 0 -1 1
+    limits $(plt_xlo) $(plt_xhi) $(plt_ylo) $(plt_yhi)
+    #<20160826># if($zMIN==0.0) { limits 9.5 12.0 $(lg(0.5)) $(lg(1e2)) }
+    #<20160826># if($zMIN==0.5) { limits 9.5 12.0 $(lg(1.0)) $(lg(5e2)) }
+    #<20160826># if($zMIN==1.0) { limits 9.5 12.0 $(lg(10)) $(lg(10e2)) }
+    #<20160826># if($zMIN==1.5) { limits 9.5 12.0 $(lg(20)) $(lg(20e2)) }
+    #<20160826># if($zMIN==2.0) { limits 9.5 12.0 $(lg(40)) $(lg(40e2)) }
+    #<20160826># if($zMIN==2.5) { limits 9.5 12.0 $(lg(50)) $(lg(50e2)) }
+    #<20160826># if($zMIN==3.0) { limits 9.5 12.0 $(lg(80)) $(lg(80e2)) }
+    #<20160826># if($zMIN==4.0) { limits 9.8 12.3 $(lg(200)) $(lg(200e2)) }
+    
+    #<added><20161101><dzliu> for Bethermin's comments
+    # -- indicating incompleteness
+    if($?M_incomplete) {
+        set shade_x = <$fx1 $fx1 $M_incomplete $M_incomplete $fx1>
+        set shade_y = <$fy1 $(0.5*$fy2+0.5*$fy1) $(0.5*$fy2+0.5*$fy1) $fy1 $fy1>
+        set shade_y = <$fy1 $fy2 $fy2 $fy1 $fy1>
+        add_ctype darkgray 56 56 56
+        angle 60 lweight 2.0 ctype darkgray shade 200 shade_x shade_y
+        angle 0
+        undef M_incomplete
+    }
+    
+    ticksize 0.1 0.5 -1 0
+    crabPlotDefaultPenForBox
+    box 1 2 0 0
+    crabPlotDefaultPenForTitle
+    xlabel "log M_{*} [M_{\odot}]"
+    ylabel "SFR [M_{\odot} yr^{-1}]"
+    
+    crabPlotDefaultPenForPoints
+    set coo_1 = (plt_SB!='SB')
+    set plt_x1 = plt_x if(coo_1)
+    set plt_y1 = plt_y if(coo_1)
+    expand 2.5
+    ctype blue ptype 4 1 points plt_x1 plt_y1
+    expand 1.5
+    echo "Number of MS "$(sum(coo_1))
+    
+    #set coo_1 = (plt_SB=='MS')
+    #set plt_x1 = plt_x if(coo_1)
+    #set plt_y1 = plt_y if(coo_1)
+    #ctype blue ptype 4 1 points plt_x1 plt_y1
+    #
+    #set coo_1 = (plt_SB=='unknown')
+    #set plt_x1 = plt_x if(coo_1)
+    #set plt_y1 = plt_y if(coo_1)
+    #ctype orange ptype 4 1 points plt_x1 plt_y1
+    
+    set coo_2 = (plt_SB=='SB')
+    if(sum(coo_2)>0) {
+        set plt_x2 = plt_x if(coo_2)
+        set plt_y2 = plt_y if(coo_2)
+        expand 2.5
+        ctype red ptype 4 1 points plt_x2 plt_y2
+        expand 1.5
+        echo "Number of SB "$(sum(coo_2))
+        echo "Fraction of SB "$(1.0*sum(coo_2)/dimen(coo_2))
+    }
+    
+    overplot_mainsequences
+    
+    #<TODO># overplot_specificSFR
+    
+    crabPlotClosePS
+
+
+
+overplot_specificSFR
+    # compute the MS sSFR
+    set MSSSFR = plt_y2-plt_x2+9
+
+
+
+overplot_mainsequences 00
+    # 
+    # 
+    lweight 4.0 relocate $($fx1+(0.08)*($fx2-$fx1)) $($fy1+(0.90)*($fy2-$fy1))
+    #<before 20161101><dzliu># expand 1.2 ctype red puts $zMIN"<z<"$zMAX S/N>5 SB
+    #<before 20161101><dzliu># expand 0.3 puts ""
+    #<before 20161101><dzliu># expand 1.2 ctype blue puts $zMIN"<z<"$zMAX S/N>5 MS
+    expand 1.35 ctype black puts $(sprintf('%0.1f',float($zMIN)))"{\le}z<"$(sprintf('%0.1f',float($zMAX)))
+    expand 0.3 puts ""
+    expand 1.2 ctype red label "SB "
+               ctype blue label "MS "
+    # 
+    # Prepare M_incomplete legend
+    if(1) {
+        # <20170119> legend
+        # <20170119> legend only for $zMIN==0.2
+        if($zMIN==0.2) {
+            relocate $($fx1+(0.08)*($fx2-$fx1)) $($fy1+(0.75)*($fy2-$fy1))
+            ctype darkgray 
+            expand 1.25 puts "(shaded: "
+            expand 0.25 puts ""
+            expand 1.25 puts "    N\le{}N_{SMF})"
+        }
+    }
+    # 
+    # Prepare plotting legend
+    #<before 20161101><dzliu># set legend_x = 0.09
+    #<before 20161101><dzliu># set legend_y = 0.78
+    #<before 20161101><dzliu># set legend_dy = 0.05
+    set legend_x = 0.38
+    set legend_y = 0.94
+    set legend_dy = 0.05
+    # 
+    # Overplot MainSequence
+    if(1) {
+        load astroSfig.sm
+        set z_MS = ($zMIN+$zMAX)/2.0
+        ####
+        ####set lg_SFR_MS = lg_SFR_MS + lg(6) # SF MS x6
+        ####lweight 1.0
+        ####connect lg_Msr_MS lg_SFR_MS
+        
+        
+        # ####
+        if($zMIN==1.5) {
+            set lg_Msr_MS = $fx1,$fx2,0.1
+            set lg_SFR_MS = lg(200)+0.9*(lg_Msr_MS+lg(1.73)-11)-lg(1.73) # Daddi 2007 -- Salpeter IMF -- but here we show Chabrier IMF -1.73?
+            set lg_coo_MS = lg_SFR_MS>=$fy1
+            set lg_Msr_MS = lg_Msr_MS if(lg_coo_MS)
+            set lg_SFR_MS = lg_SFR_MS if(lg_coo_MS)
+            lweight 3.0 ltype 1 ltype expand 1.5 ctype blue
+            connect lg_Msr_MS lg_SFR_MS
+            ltype expand 1.0
+            # <20160505> legend
+            # <20161101> legend only for $zMAX==6
+            #### if($zMAX==6) {
+            ####     rel $((legend_x-0.035)*($fx2-$fx1)+$fx1) $((legend_y-0.00)*($fy2-$fy1)+$fy1) draw $((legend_x+0.015)*($fx2-$fx1)+$fx1) $((legend_y)*($fy2-$fy1)+$fy1)
+            ####     relocate $((legend_x+0.010)*($fx2-$fx1)+$fx1) $((legend_y-0.01)*($fy2-$fy1)+$fy1) expand 0.95 puts " Daddi et al. (2007) MS"
+            ####     set legend_y = legend_y - legend_dy
+            #### }
+            # relocate $(lg_Msr_MS[dimen(lg_SFR_MS)-1]) $(lg_SFR_MS[dimen(lg_SFR_MS)-1]+0.15) 
+            # angle $(atan((lg_SFR_MS[5]-lg_SFR_MS[0])/(lg_Msr_MS[5]-lg_Msr_MS[0])*0.875)/pi*180)
+            # expand 0.85 putlabel 7 "Daddi et al."
+            # puts ""
+            # puts ""
+            # putlabel 7 "(2007)"
+            # angle 0
+            ltype expand 1.0
+        }
+        
+        
+        ####
+        set lg_Msr_MS = $fx1,$fx2,0.1
+        set lg_SFR_MS = calc_Bethermin2014_SFR(z_MS,lg_Msr_MS)
+        set lg_coo_MS = lg_SFR_MS>=$fy1
+        set lg_Msr_MS = lg_Msr_MS if(lg_coo_MS)
+        set lg_SFR_MS = lg_SFR_MS if(lg_coo_MS)
+        lweight 3.0 ltype 3 ltype expand 0.5 ctype orange
+        connect lg_Msr_MS lg_SFR_MS
+        ltype expand 0.3
+        # <20160505> legend
+        # <20161101> legend only for $zMAX==6
+        if($zMIN==5) {
+            rel $((legend_x-0.035)*($fx2-$fx1)+$fx1) $((legend_y-0.00)*($fy2-$fy1)+$fy1) draw $((legend_x+0.015)*($fx2-$fx1)+$fx1) $((legend_y)*($fy2-$fy1)+$fy1)
+            relocate $((legend_x+0.010)*($fx2-$fx1)+$fx1) $((legend_y-0.01)*($fy2-$fy1)+$fy1) expand 0.95 puts " Bethermin et al. (2015) MS"
+            set legend_y = legend_y - legend_dy
+        }
+        #relocate $(lg_Msr_MS[0]) $(lg_SFR_MS[0]) 
+        #angle $(atan((lg_SFR_MS[5]-lg_SFR_MS[0])/(lg_Msr_MS[5]-lg_Msr_MS[0])*0.875)/pi*180)
+        #expand 0.85 puts "Bethermin et al. (2015)"
+        #angle 0
+        ltype expand 1.0
+        
+        
+        ####
+        set lg_Msr_MS = $fx1,$fx2,0.1
+        set lg_SFR_MS = calc_Schreiber2014_SFR(z_MS,lg_Msr_MS)
+        set lg_coo_MS = lg_SFR_MS>=$fy1
+        set lg_Msr_MS = lg_Msr_MS if(lg_coo_MS)
+        set lg_SFR_MS = lg_SFR_MS if(lg_coo_MS)
+        lweight 3.0 ltype 3 ltype expand 1.5 ctype darkgreen
+        connect lg_Msr_MS lg_SFR_MS
+        ltype expand 0.6
+        # <20160505> legend
+        # <20161101> legend only for $zMAX==6
+        if($zMIN==5) {
+            rel $((legend_x-0.035)*($fx2-$fx1)+$fx1) $((legend_y-0.00)*($fy2-$fy1)+$fy1) draw $((legend_x+0.015)*($fx2-$fx1)+$fx1) $((legend_y)*($fy2-$fy1)+$fy1)
+            relocate $((legend_x+0.010)*($fx2-$fx1)+$fx1) $((legend_y-0.01)*($fy2-$fy1)+$fy1) expand 0.95 puts " Schreiber et al. (2015) MS"
+            set legend_y = legend_y - legend_dy
+        }
+        #relocate $(lg_Msr_MS[0]) $(lg_SFR_MS[0]) 
+        #angle $(atan((lg_SFR_MS[5]-lg_SFR_MS[0])/(lg_Msr_MS[5]-lg_Msr_MS[0])*0.875)/pi*180)
+        #expand 0.85 puts "Schreiber et al. (2015)"
+        #angle 0
+        ltype expand 1.0
+        
+        
+        ####
+        set lg_Msr_MS = $fx1,$fx2,0.1
+        set lg_SFR_MS = calc_Sargent2014_SFR(z_MS,lg_Msr_MS)
+        set lg_coo_MS = lg_SFR_MS>=$fy1
+        set lg_Msr_MS = lg_Msr_MS if(lg_coo_MS)
+        set lg_SFR_MS = lg_SFR_MS if(lg_coo_MS)
+        lweight 3.0 ltype 0 ctype blue
+        connect lg_Msr_MS lg_SFR_MS
+        # <20160505> legend
+        # <20161101> legend only for $zMAX==6
+        if($zMIN==5) {
+            rel $((legend_x-0.035)*($fx2-$fx1)+$fx1) $((legend_y-0.00)*($fy2-$fy1)+$fy1) draw $((legend_x+0.015)*($fx2-$fx1)+$fx1) $((legend_y)*($fy2-$fy1)+$fy1)
+            relocate $((legend_x+0.010)*($fx2-$fx1)+$fx1) $((legend_y-0.01)*($fy2-$fy1)+$fy1) expand 0.95 puts " Sargent et al. (2014) MS"
+            set legend_y = legend_y - legend_dy
+        }
+        #relocate $(lg_Msr_MS[0]) $(lg_SFR_MS[0]) 
+        #angle $(atan((lg_SFR_MS[5]-lg_SFR_MS[0])/(lg_Msr_MS[5]-lg_Msr_MS[0])*0.875)/pi*180)
+        #expand 0.95 puts "  Sargent et al. (2014)"
+        #angle 0
+        
+        
+        
+        
+    }
+    
+
+
+
+
+
+
+
+
+

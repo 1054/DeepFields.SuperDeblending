@@ -1,0 +1,69 @@
+calc_SMF_SFR
+    # 
+    # aim:
+    #  use SF-MS to calculate SFR for each bin of SMF, 
+    #  then sum the full SMF bins from logMstar=8 to 13
+    #  to get the total cosmic SFR
+    # 
+    # usage:
+    #  macro read calc_SMF_SFR.sm calc_SMF_SFR
+    # 
+    define zMIN 3.0
+    define zMAX 4.0
+    # 
+    load astroSfig.sm
+    set lgMstar_1 = 12.0
+    set lgSFR_1 = calc_Schreiber2014_SFR($(($zMIN+$zMAX)/2.0),lgMstar_1)
+    set SFR_1 = 10**lgSFR_1
+    # 
+    # What if we have 0.3 dex broadening in SF-MS?
+    set iMstar_1 = 1.0
+    set eMstar_1 = 0.3
+    print "tmp_SF_MS_scattering.txt" '%15g%15g%15g\n' {iMstar_1 lgMstar_1 eMstar_1}
+    # 
+    # Run MonteCarlo to make 100 fake sources
+    !rm -rf tmp_SF_MS_scattering
+    !CrabPhotMonteCarlo tmp_SF_MS_scattering.txt 100
+    # 
+    # Compute the mean SFR of the 100 fake sources
+    declare lgSFR_list 0.f
+    do i=0,100-1 {
+        data "tmp_SF_MS_scattering/"$(sprintf('%03i',$i))"/tmp_SF_MS_scattering.txt"
+        read {lgMstar_i 2}
+        set lgSFR_i = calc_Schreiber2014_SFR($(($zMIN+$zMAX)/2.0),lgMstar_i)
+        set lgSFR_list = lgSFR_list concat lgSFR_i
+    }
+    set SFR_list = 10**lgSFR_list
+    set SFR_2 = sum(SFR_list)/100
+    set lgSFR_2 = lg(SFR_2)
+    echo lgMstar = $(lgMstar_1) "Msun"
+    echo SFR = $(SFR_1) "(ignoring the scatter in SF-MS)"
+    echo SFR = $(SFR_2) "(with 0.3 dex scatter in SF-MS)"
+    echo deltaSFR = $(lgSFR_2-lgSFR_1) "dex"
+
+    # 
+    # lgMstar = 9.0 Msun
+    # SFR = 3.01869177 (ignoring the scatter in SF-MS)
+    # SFR = 3.855329094 (with 0.3 dex scatter in SF-MS)
+    # deltaSFR = 0.1062426851 dex
+    # 
+    # lgMstar = 10.0 Msun
+    # SFR = 30.1869177 (ignoring the scatter in SF-MS)
+    # SFR = 35.6840182 (with 0.3 dex scatter in SF-MS)
+    # deltaSFR = 0.07265498151 dex
+    # 
+    # lgMstar = 11 Msun
+    # SFR = 301.869177 (ignoring the scatter in SF-MS)
+    # SFR = 391.3927013 (with 0.3 dex scatter in SF-MS)
+    # deltaSFR = 0.112793952 dex
+    # 
+    # lgMstar = 12 Msun
+    # SFR = 2006.532394 (ignoring the scatter in SF-MS)
+    # SFR = 1962.504784 (with 0.3 dex scatter in SF-MS)
+    # deltaSFR = -0.009635451289 dex
+
+
+
+
+
+

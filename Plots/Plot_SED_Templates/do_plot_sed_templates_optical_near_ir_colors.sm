@@ -1,0 +1,519 @@
+Plot_SED_Templates_Opt_NIR_Colors
+    #  
+    #  echo "macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors" | sm
+    # 
+    # <TODO> smooth flux_lg flux_sm 13
+    #  
+    # 
+    device postencap "Plot_SED_Templates_Opt_NIR_Colors_v1.eps"
+    define TeX_strings 1
+    xtcolours
+    xtcoloursRGB
+    location 5200 31000 5000 26000
+    limits $(lg(0.05)) $(lg(10)) -6.5 3
+    ticksize -1 10 -1 10
+    expand 1.5 lweight 3.0
+    ctype default box
+    ctype default xlabel wavelength [{\mu}m]
+    ctype default ylabel flux [mJy]
+    # 
+    load astroSfig.sm 
+    # 
+    # 
+    # Read Magdis u,z 
+    data "Magdis/README_dliu" read {narr 2 zarr 6}
+    # 
+    # 
+    # Loop redshifts
+    set zlist = 1.0,6.0,0.25
+    foreach i zlist {
+        # 
+        set zvar = float($i)
+        spline zarr narr zvar nvar
+        set oneplusz = 1.0+zvar
+        set nvar = (nvar>14) ?  14 : int(nvar)
+        set nvar = (nvar<=0) ?   1 : int(nvar)
+        echo ""
+        echo "z = "$(zvar)", U = "$(nvar)
+        ### set nvar = (nvar>=0) ? 101 : int(nvar) # <TODO> uncomment this to plot SB SED
+        # 
+        set wvar = -2,6.5,0.01
+        # 
+        # 
+        # load FIR-to-Radio SED Templates
+        #<TODO><DEBUG># set nvar = 1
+        data "Magdis/sed_z"$(nvar)"_U"$(nvar)"_radio.txt" read {wave_mfir 1 flux_mfir 2}
+        set flux_mfir = flux_mfir * wave_mfir # flux_mfir / (2.99792458e14/wave_mfir) # convert from vfv to fv
+        set lumi_mfir = calc_ltir_daddi(wave_mfir, flux_mfir)
+        set flux_mfir = flux_mfir / lumi_mfir # normalize to LIR = 1 Lsun
+        set lumi_mfir = calc_ltir_daddi(wave_mfir, flux_mfir) # check that the above flux is normalized to LIR = 1 Lsun.
+        #<20161229><dzliu># ---- redshift-evolving qIR
+        macro read fit_engine.sm
+        define xname $(nvar)
+        set xxWS = lg(wave_mfir)
+        set wsfr$xname = wave_mfir if(xxWS>-1 && xxWS<5.6)
+        set fsfr$xname = flux_mfir if(xxWS>-1 && xxWS<5.6)
+        echo "go_Changing_qIR_with_z"
+        go_Changing_qIR_with_z $i
+        set xxDX = 0,dimen(flux_mfir)-1 
+        set xxDX = xxDX if(xxWS>-1 && xxWS<5.6)
+        set flux_mfir[xxDX] = fsfr$xname""_for_qIR_with_z
+        set xxLX = calc_ltir(wsfr$xname * oneplusz, original_fIR, $i)
+        set xxLX = calc_ltir(wsfr$xname * oneplusz, changeto_fIR, $i)
+        #<20161229><dzliu># ----
+        set lumi_mfir = calc_ltir(wave_mfir * oneplusz, flux_mfir, $i)
+        set flux_mfir = flux_mfir / lumi_mfir * 3e12 # <TODO> normalize to LIR = 3e12 Lsun
+        set lumi_mfir = calc_ltir(wave_mfir * oneplusz, flux_mfir, $i)
+        set wave_mfir = wave_mfir
+        # 
+        set wvec = lg(wave_mfir)
+        set fvec = lg(flux_mfir)
+        spline wvec fvec wvar fvar
+        set wave_mfir = 10**wvar
+        set flux_mfir = 10**fvar
+        set flux_mfir = (wave_mfir<1.0) ? 1e-20 : flux_mfir
+        # 
+        # 
+        # load BC03 Stellar SED Templates
+        data "BC03/base03_3_cost_z02_chab" read {wave_chab 1 flux_chab 12} 
+        set wave_chab = wave_chab/10000 # [um]
+        set mass_star = 1e10 # [Msun] #<TODO>#
+        set ebv_star = 0.2 # 0.3 # E(B-V) #<TODO>#
+        set norm_star = 1e3 # normalization factor for stellar SED, converting Jy to mJy ? [TODO: WHAT UNIT???]
+        set m2l_star = 1.0 # rest-frame-K-band mass-to-light ratio
+        #set lum_star = calc_sint(lg(wave_chab), flux_chab) / lg(exp(1.0))
+        #echo "lum_star = "$(sprintf('%e',lum_star))" Lsun (rest-frame-K-band)"
+        # 
+        # print B, V, i, z, J, H, IRAC2
+        if($i == zlist[0]) {
+            print "Output_datatable_magcolor_versus_z_EBV_"$(ebv_star)".txt" \
+                '\#        z   magcolor_B_V   magcolor_V_z   magcolor_V_i   magcolor_i_z   magcolor_J_H   magcolor_H_IRAC2\n' {}
+        }
+        # 
+        if($i>0) {
+            #<TODO># compute stellar SED normalization factor using rest-frame-K-band mass-to-light ratio
+            set wave_log10 = lg(wave_chab)
+            set flux_log10 = lg(flux_chab)
+            set wave_Ks = 2.15 # rest-frame-K-band wavelength [um]
+            set flux_Ks = get_flux_splined(wave_Ks)
+            set lumi_Ks = flux_Ks * 1000.0 * (4*pi*(calc_lumdist($i))**2) # rest-frame-K-band luminosity [Lsun], 1.0 is the 
+            #echo "flux_Ks = "$(sprintf('%e',flux_Ks))" ???? (rest-frame-K-band)"
+            #echo "lumi_Ks = "$(sprintf('%e',lumi_Ks))" ???? (rest-frame-K-band)"
+            #echo "lumi_star = "$(sprintf('%e',lumi_star))" Lsun (rest-frame-K-band)"
+            set norm_star = (mass_star / m2l_star) / lumi_Ks
+        }
+        #set norm_star = 0.0
+        echo "norm_star = "$(norm_star)
+        set flux_chab = norm_star * flux_chab * 10**(-0.4*ebv_star*(-0.88+2.7/wave_chab)) # <TODO> the factor of stellar component
+        # 
+        set wvec = lg(wave_chab)
+        set fvec = lg(flux_chab)
+        spline wvec fvec wvar fvar
+        set flux_star = 10**fvar
+        set wave_star = 10**wvar
+        set flux_star = (wave_star>160.0) ? 1e-20 : flux_star
+        # 
+        # 
+        # 
+        # combine flux
+        set flux = (flux_mfir + flux_star)
+        set wave = wave_mfir * oneplusz
+        # 
+        # 
+        # 
+        # calc log
+        set flux_log10 = lg(flux)
+        set wave_log10 = lg(wave)
+        # 
+        # 
+        # 
+        # normalize
+        set norm = 1.0
+        # 
+        # normalize to radio 2e5 um 7.5 uJy
+        #set wave_2e5um = 2e5
+        #spline wave flux wave_2e5um flux_2e5um
+        #set norm = flux_2e5um / 7.5e-3 # <TODO> normalize to f2e5um = 7.5 uJy
+        #set flux = flux / norm
+        #spline wave flux wave_2e5um flux_2e5um
+        # 
+        # normalize to 24 um 18 uJy
+        ##set wave_24um = 24
+        ##spline wave flux wave_24um flux_24um
+        ##set norm = flux_24um / 18e-3 # <TODO> normalize to f24 = 18 uJy
+        ##set flux = flux / norm
+        ##spline wave flux wave_24um flux_24um
+        # 
+        # normalize to 250 um 5.94 mJy
+        ##set wave_250um = 250
+        ##spline wave flux wave_250um flux_250um
+        ##set norm = flux_250um / 5.94 # <TODO> normalize to f250 = 5.94 mJy (3-sigma)
+        ##set flux = flux / norm
+        ##spline wave flux wave_250um flux_250um
+        # 
+        # normalize to 350 um 7.44 mJy
+        ##set wave_350um = 350
+        ##spline wave flux wave_350um flux_350um
+        ##set norm = flux_350um / 7.44 # <TODO> normalize to f350 = 7.44 mJy (3-sigma)
+        ##set flux = flux / norm
+        # 
+        # normalize to 350 um 6.22 mJy <20160524>
+        #set wave_350um = 350
+        #set flux_350um = get_flux_splined(wave_350um)
+        #set norm = flux_350um / 6.22 # <TODO> normalize to f350 = 6.22 mJy (3-sigma)
+        #set flux = flux / norm
+        # 
+        # normalize to 500 um 5 mJy
+        ##set wave_500um = 500
+        ##spline wave flux wave_500um flux_500um
+        ##set norm = flux_500um / 5.0 # <TODO> normalize to f500 = 5.0 mJy
+        ##set flux = flux / norm
+        ##set flux_500um = 5.0 # mJy
+        # 
+        # normalize to 870 um 4.4 mJy
+        ##set wave_870um = 870
+        ##spline wave flux wave_870um flux_870um
+        ##set norm = flux_870um / 4.4 # normalize to f870 = 4.4 mJy
+        ##set flux = flux / norm
+        ##set flux_870um = 4.4 # mJy
+        # 
+        # normalize to 1200 um 0.45 mJy
+        ##set wave_1200um = 1200
+        ##spline wave flux wave_1200um flux_1200um
+        ##set norm = flux_1200um / 0.045 # normalize to f1200 = 0.45 mJy
+        ##set flux = flux / norm
+        ##set flux_1200um = 0.045 # mJy
+        # 
+        # normalize to 1200 um 0.27 mJy -- 20160520 edaddi -- for GOODSN
+        ##set wave_1200um = 1200
+        ##spline wave flux wave_1200um flux_1200um
+        ##set norm = flux_1200um / 0.27 # normalize to f1200 = 0.27 mJy, the NIKA2 survey PI Lagache proposed goal
+        ##set flux = flux / norm
+        ##set flux_1200um = 0.27 # mJy
+        # 
+        # normalize to 1200 um 0.27 mJy -- 20160520 edaddi -- for COSMOS
+        ##set wave_1200um = 1200
+        ##spline wave flux wave_1200um flux_1200um
+        ##set norm = flux_1200um / 0.8 # normalize to f1200 = 0.8 mJy, the NIKA2 survey PI Lagache proposed goal
+        ##set flux = flux / norm
+        ##set flux_1200um = 0.8 # mJy
+        # 
+        # normalize to SFR = 150.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
+        ##set norm = 3e12/1e10/500.0
+        ##set flux = flux / norm
+        # 
+        # 
+        # 
+        # 
+        # 
+        # calc log after normalization
+        set flux_log10 = lg(flux)
+        set wave_log10 = lg(wave)
+        # 
+        # log wave flux
+        set wave_lg = lg(wave)
+        set flux_lg = lg(flux)
+        #<20170101># # 
+        #<20170101># # grid wave flux -- 20160930 email from Matthieu Bethermin - comments on goodsn-cat-v20160914a-main 
+        #<20170101># #                -- what is this weird little bump around 1 cm in the SED
+        #<20170101># #                -- dzliu: after regridding wave and flux, the weird little bump disappears! <20160930>
+        #<20170101># set wave_lg_ng = wave_lg
+        #<20170101># set flux_lg_ng = flux_lg
+        #<20170101># set wave_lg_grid = -1,6,.01
+        #<20170101># spline wave_lg flux_lg wave_lg_grid flux_lg_grid
+        #<20170101># set wave_lg = wave_lg_grid
+        #<20170101># set flux_lg = flux_lg_grid
+        # 
+        # smooth curve
+        set flux_sm = flux_lg
+        smooth flux_lg flux_sm 13
+        #set filters = 0,dimen(flux_sm)-1
+        #set flux_sm = flux_sm if(filters>5)
+        #set wave_lg = wave_lg if(filters>5)
+        # 
+        # calculate flux at B, V, i, z, J, H, IRAC2
+        set wave_F435W = lg(0.43179) # Skelton2014 Table 6
+        set wave_F606W = lg(0.59194) # Skelton2014 Table 6
+        set wave_F775W = lg(0.76933) # Skelton2014 Table 6
+        set wave_F850W = lg(0.90364) # Skelton2014 Table 6
+        set wave_F125W = lg(1.24710) # Skelton2014 Table 6
+        set wave_F160W = lg(1.53960) # Skelton2014 Table 6
+        set wave_IRAC2 = lg(4.50200) # Skelton2014 Table 6
+        spline wave_lg flux_sm wave_F435W flux_F435W
+        spline wave_lg flux_sm wave_F606W flux_F606W
+        spline wave_lg flux_sm wave_F775W flux_F775W
+        spline wave_lg flux_sm wave_F850W flux_F850W
+        spline wave_lg flux_sm wave_F125W flux_F125W
+        spline wave_lg flux_sm wave_F160W flux_F160W
+        spline wave_lg flux_sm wave_IRAC2 flux_IRAC2
+        set magcolor_B_V     = (25.0-2.5*(flux_F435W)) - (25.0-2.5*(flux_F606W))
+        set magcolor_V_z     = (25.0-2.5*(flux_F606W)) - (25.0-2.5*(flux_F850W))
+        set magcolor_V_i     = (25.0-2.5*(flux_F606W)) - (25.0-2.5*(flux_F775W))
+        set magcolor_i_z     = (25.0-2.5*(flux_F775W)) - (25.0-2.5*(flux_F850W))
+        set magcolor_J_H     = (25.0-2.5*(flux_F125W)) - (25.0-2.5*(flux_F160W))
+        set magcolor_H_IRAC2 = (25.0-2.5*(flux_F160W)) - (25.0-2.5*(flux_IRAC2))
+        # 
+        # plot the curve of the template SED
+        # <added> show curve in dahsed line when at z>=3.5, when 24 undetected but radio detected
+        if($i>=3.5) {ltype 2 lweight 2.5} else {ltype 0 lweight 1.5}
+        ctypeRGB $($i*38+35) connect wave_lg flux_sm
+        # 
+        # show the redshift text
+        if(!is_vector(legend_pos_y)) {
+            set legend_pos_y = $fy2-0.18*($fy2-$fy1)
+        } else {
+            set legend_pos_y = legend_pos_y-0.64/dimen(zlist)*($fy2-$fy1)
+        }
+        expand 0.75 lweight 2.5 relocate $($fx1+0.05*($fx2-$fx1)) $(legend_pos_y) 
+        puts "z="$(sprintf('%0.2f',float($i)))" J-H="$(sprintf('%0.2f',float(magcolor_J_H)))" H-[4.5]="$(sprintf('%0.2f',float(magcolor_H_IRAC2)))
+        expand 1.5 lweight 3.0
+        ltype 0
+        # 
+        # print flux at B, V, i, z, J, H, IRAC2
+        define print_noheader 1
+        print +"Output_datatable_magcolor_versus_z_EBV_"$(ebv_star)".txt" '%10.2f%15.2f%15.2f%15.2f%15.2f%15.2f%15.2f\n' \
+                {zvar magcolor_B_V magcolor_V_z magcolor_V_i magcolor_i_z magcolor_J_H magcolor_H_IRAC2}
+        define print_noheader 0
+    }
+    # 
+    # overplot VLA 1.4GHz detection limit
+    set f1sig = 0.030  # 20160520 -- for COSMOS NIKA2 survey PI Lagache -- edaddi 
+    set f1sig = 0.0025 # 20160520 -- for GOODSN NIKA2 survey PI Lagache -- edaddi dzliu works
+    ##(long vertical dashed line style)
+    ##ctype firebrick ltype 1 rel      5.1   $(lg(f1sig))   #draw 5.5 $(lg(f1sig))
+    ##ctype firebrick ltype 4 rel      5.1   $(lg(f1sig*3)) draw 5.5 $(lg(f1sig*3))
+    ##ctype firebrick ltype 1 rel $(lg(2e5)) $(lg(f1sig*3)) draw $(lg(2e5)) $fy1
+    ##ctype firebrick ltype 4 rel $(lg(2e5)) $(lg(f1sig*3)) draw $(lg(2e5)) $(lg(f1sig*10))
+    ##expand 0.95 relocate        $(lg(2e5)) $(lg(f1sig)-0.05) #putlabel 2 1\sigma_{20cm}=$(f1sig) mJy
+    ##expand 1.5
+    ##(short vertical dashed line style)
+    ltype 0 lweight 10
+    ctype firebrick rel $(lg(2e5)-0.08) $(lg(f1sig*3)) draw $(lg(2e5)+0.08) $(lg(f1sig*3))
+    expand 1.05 relocate $(lg(2e5)-0.01) $(lg(f1sig*3)) angle 90 lweight 3.0 putlabel 4 3\sigma_{20cm}=$(sprintf('%0.2f',f1sig*3*1000)) {\mu}Jy ""
+    expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
+    # overplot NIKA2 1.2mm detection limit
+    ##set f1sig = 0.8/3.0 # 20160520 -- edaddi -- for COSMOS NIKA2 survey PI Lagache -- proposed goal
+    ##set f1sig = 0.09    # 20160520 -- edaddi -- for GOODSN NIKA2 survey PI Lagache -- proposed goal
+    ##(long vertical dashed line style)
+    #<20160520>#set shade_x = < $(lg(1200)-0.05) $(lg(1200)-0.05) $(lg(1200)+0.05) $(lg(1200)+0.05) >
+    #<20160520>#set shade_y = < $(lg(f1sig*3)) $(lg(f1sig*10)) $(lg(f1sig*10)) $(lg(f1sig*3)) >
+    #<20160520>#ctype magenta ltype 0 lweight 1.2 
+    #<20160520>#connect shade_x shade_y
+    #<20160520>#angle 70 shade 100 shade_x shade_y angle 0
+    #<20160520>#ltype 0
+    #<20160520>#lweight 3.0
+    #<20160520>#set shade_x = < $(lg(1200)-0.05) $(lg(1200)-0.05) $(lg(1200)+0.05) $(lg(1200)+0.05) >
+    #<20160520>#set shade_y = < $(lg(f1sig*3)) $(lg(f1sig*1)) $(lg(f1sig*1)) $(lg(f1sig*3)) >
+    #<20160520>#ctype magenta ltype 1 lweight 1.2 
+    #<20160520>#connect shade_x shade_y
+    #<20160520>#angle 70 shade 100 shade_x shade_y angle 0
+    #<20160520>#ltype 0
+    #<20160520>#lweight 3.0
+    ##ctype magenta ltype 1 rel      2.88   $(lg(f1sig))   draw 3.27 $(lg(f1sig))
+    ##ctype magenta ltype 4 rel      2.88   $(lg(f1sig*3)) draw 3.27 $(lg(f1sig*3))
+    ##ctype magenta ltype 1 rel $(lg(1200)) $(lg(f1sig*3)) draw $(lg(1200)) $fy1
+    ##ctype magenta ltype 4 rel $(lg(1200)) $(lg(f1sig*3)) draw $(lg(1200)) $(lg(1.0))
+    ##expand 0.95 relocate      $(lg(1200)) $(lg(f1sig)-0.05) putlabel 2 1\sigma_{1.2mm}=$(f1sig) mJy
+    ##expand 1.5
+    ##(short vertical dashed line style) (20160520)
+    ##ltype 0 lweight 10
+    ##ctype magenta rel $(lg(1200)-0.08) $(lg(f1sig*3)) draw $(lg(1200)+0.08) $(lg(f1sig*3))
+    ##expand 1.05 relocate $(lg(1200)-0.01) $(lg(f1sig*3)-0.1) angle 0 lweight 3.0 putlabel 2 3\sigma_{1.2mm}=$(f1sig*3) mJy ""
+    ##expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
+    # overplot AZTEC+MAMBO 1.16mm detection limit
+    ##(long vertical dashed line style)
+    ##ctype magenta ltype 1 rel      2.88   $(lg(0.5))   #draw 3.27 $(lg(0.5))
+    ##ctype magenta ltype 4 rel      2.88   $(lg(0.5*3)) draw 3.27 $(lg(0.5*3))
+    ##ctype magenta ltype 1 rel $(lg(1160)) $(lg(0.5*3)) draw $(lg(1160)) $fy1
+    ##ctype magenta ltype 4 rel $(lg(1160)) $(lg(0.5*3)) draw $(lg(1160)) $(lg(0.5*10))
+    ##expand 0.95 relocate      $(lg(1160)) $(lg(0.5)-0.05) #putlabel 2 1\sigma_{1.16mm}=0.5 mJy
+    ##expand 1.5
+    ##(short vertical dashed line style))
+    ##ltype 0 lweight 10
+    ##ctype orangered rel $(lg(1160)-0.08) $(lg(0.5*3)) draw $(lg(1160)+0.08) $(lg(0.5*3))
+    ##expand 1.05 relocate $(lg(1160)-0.01) $(lg(0.5*3)) angle 90 lweight 3.0 putlabel 4 3\sigma_{1mm}=$(0.5*3) mJy  ""
+    ##expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
+    # overplot SPIRE 350um detection limit
+    set f1sig = 2.072 # <20160524> -- dzliu -- update goodsn-cat paper figure
+    ##(long vertical dashed line style)
+    ##ctype orangered ltype 1 rel     2.34   $(lg(f1sig))   #draw 2.74 $(lg(f1sig))
+    ##ctype orangered ltype 4 rel     2.34   $(lg(f1sig*3)) draw 2.74 $(lg(f1sig*3))
+    ##ctype orangered ltype 1 rel $(lg(350)) $(lg(f1sig*3)) draw $(lg(350)) $fy1
+    ##ctype orangered ltype 4 rel $(lg(350)) $(lg(f1sig*3)) draw $(lg(350)) $(lg(f1sig*10))
+    ##expand 0.95 relocate        $(lg(350)) $(lg(f1sig)-0.05) #putlabel 2 1\sigma_{350{\mu}m}=$(f1sig) mJy
+    ##expand 1.5
+    ##(short vertical dashed line style) # <20160524>
+    ltype 0 lweight 10
+    ctype magenta rel $(lg(350)-0.08) $(lg(f1sig*3)) draw $(lg(350)+0.08) $(lg(f1sig*3))
+    expand 1.05 relocate $(lg(350)-0.01) $(lg(f1sig*3)) angle 90 lweight 3.0 putlabel 4 3\sigma_{350{\mu}m}=$(sprintf('%0.2f',f1sig*3)) mJy  ""
+    expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
+    # overplot PACS 100um detection limit
+    ##(long vertical dashed line style)
+    ##ctype royalblue ltype 1 rel      1.8   $(lg(0.18))   #draw 2.2 $(lg(0.18))
+    ##ctype royalblue ltype 4 rel      1.8   $(lg(0.18*3)) draw 2.2 $(lg(0.18*3))
+    ##ctype royalblue ltype 1 rel $(lg(100)) $(lg(0.18*3)) draw $(lg(100)) $fy1
+    ##ctype royalblue ltype 4 rel $(lg(100)) $(lg(0.18*3)) draw $(lg(100)) $(lg(0.18*10))
+    ##expand 0.95 relocate        $(lg(100)) $(lg(0.18)-0.05) #putlabel 2 1\sigma_{100{\mu}m}=0.18 mJy
+    ##expand 1.5
+    ##(short vertical dashed line style) 
+    ##ltype 0 lweight 10
+    ##ctype royalblue rel $(lg(100)-0.08) $(lg(0.18*3)) draw $(lg(100)+0.08) $(lg(0.18*3))
+    ##expand 0.95 # relocate $(lg(100)) $(lg(0.18)-0.05) # putlabel 2 1\sigma_{100{\mu}m}=0.18 mJy
+    ##expand 1.5 ltype 0 lweight 3.0
+    # 
+    # overplot MIPS 24um detection limit
+    set f1sig = 0.030 # 20160520 -- for COSMOS NIKA2 survey PI Lagache -- edaddi -- COSMOS 24um literature data
+    set f1sig = 0.006 # 20160520 -- for GOODSN NIKA2 survey PI Lagache -- edaddi dzliu works
+    ##(long vertical dashed line style)
+    ##ctype navyblue ltype 1 rel    1.18   $(lg(f1sig))   #draw 1.58 $(lg(f1sig))
+    ##ctype navyblue ltype 4 rel    1.18   $(lg(f1sig*3)) draw 1.58 $(lg(f1sig*3))
+    ##ctype navyblue ltype 1 rel $(lg(24)) $(lg(f1sig*3)) draw $(lg(24)) $fy1
+    ##ctype navyblue ltype 4 rel $(lg(24)) $(lg(f1sig*3)) draw $(lg(24)) $(lg(f1sig*10))
+    ##expand 0.95 relocate       $(lg(24)) $(lg(f1sig)-0.05) #putlabel 2 1\sigma_{24{\mu}m}=$(f1sig) mJy
+    ##expand 1.5
+    ##(short vertical dashed line style)
+    ltype 0 lweight 10
+    ctype royalblue rel $(lg(24)-0.08) $(lg(f1sig*3)) draw $(lg(24)+0.08) $(lg(f1sig*3))
+    expand 1.05 relocate $(lg(24)-0.01) $(lg(f1sig*3)) angle 90 lweight 3.0 putlabel 4 3\sigma_{24{\mu}m}=$(sprintf('%0.0f',f1sig*3*1000)) {\mu}Jy  ""
+    expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
+    # 
+    # overplot B, V, i, z, J, H, IRAC2
+    ctype blue ltype 0 lweight 8.0
+    rel      $(lg(0.435)-0.03) $($fy1+0.06*($fy2-$fy1))
+    draw     $(lg(0.435)+0.03) $($fy1+0.06*($fy2-$fy1))
+    relocate $(lg(0.435))      $($fy1+0.069*($fy2-$fy1))
+    expand 1.05 lweight 3.0 putlabel 8 "B"
+    # 
+    ctype navyblue ltype 0 lweight 8.0
+    rel      $(lg(0.606)-0.03) $($fy1+0.06*($fy2-$fy1))
+    draw     $(lg(0.606)+0.03) $($fy1+0.06*($fy2-$fy1))
+    relocate $(lg(0.606))      $($fy1+0.069*($fy2-$fy1))
+    expand 1.05 lweight 3.0 putlabel 8 "V"
+    # 
+    ctype orangered ltype 0 lweight 8.0
+    rel      $(lg(0.775)-0.03) $($fy1+0.06*($fy2-$fy1))
+    draw     $(lg(0.775)+0.03) $($fy1+0.06*($fy2-$fy1))
+    relocate $(lg(0.775))      $($fy1+0.069*($fy2-$fy1))
+    expand 1.05 lweight 3.0 putlabel 8 "i"
+    # 
+    ctype firebrick ltype 0 lweight 8.0
+    rel      $(lg(0.850)-0.03) $($fy1+0.06*($fy2-$fy1))
+    draw     $(lg(0.850)+0.03) $($fy1+0.06*($fy2-$fy1))
+    relocate $(lg(0.850))      $($fy1+0.069*($fy2-$fy1))
+    expand 1.05 lweight 3.0 putlabel 8 "z"
+    # 
+    ctype firebrick ltype 0 lweight 8.0
+    rel      $(lg(1.250)-0.03) $($fy1+0.06*($fy2-$fy1))
+    draw     $(lg(1.250)+0.03) $($fy1+0.06*($fy2-$fy1))
+    relocate $(lg(1.250))      $($fy1+0.069*($fy2-$fy1))
+    expand 1.05 lweight 3.0 putlabel 8 "J"
+    # 
+    ctype firebrick ltype 0 lweight 8.0
+    rel      $(lg(1.600)-0.03) $($fy1+0.06*($fy2-$fy1))
+    draw     $(lg(1.600)+0.03) $($fy1+0.06*($fy2-$fy1))
+    relocate $(lg(1.600))      $($fy1+0.069*($fy2-$fy1))
+    expand 1.05 lweight 3.0 putlabel 8 "H"
+    # 
+    ctype firebrick ltype 0 lweight 8.0
+    rel      $(lg(4.500)-0.03) $($fy1+0.06*($fy2-$fy1))
+    draw     $(lg(4.500)+0.03) $($fy1+0.06*($fy2-$fy1))
+    relocate $(lg(4.500))      $($fy1+0.069*($fy2-$fy1))
+    expand 1.05 lweight 3.0 putlabel 8 "[4.5]"
+    # 
+    # 
+    ctype default
+    expand 1.35 lweight 3.0 relocate $($fx1+0.05*($fx2-$fx1)) $($fy2-0.06*($fy2-$fy1)) puts "SED Templates"
+    expand 1.10 lweight 3.0 relocate $($fx1+0.05*($fx2-$fx1)) $($fy2-0.12*($fy2-$fy1)) puts "BC03 + Magdis et al. (2012) + radio (evolving qIR)"
+    expand 1.5  lweight 3.0
+    ctype default ltype 0
+    # 
+    ctype default
+    ticksize 0 0 0 0
+    device nodevice
+    !ps2pdf -dEPSCrop "Plot_SED_Templates_Opt_NIR_Colors_v1.eps"
+    !pdfcrop -margin 10 "Plot_SED_Templates_Opt_NIR_Colors_v1.pdf" "Plot_SED_Templates_Opt_NIR_Colors_v1.pdf"
+    # 
+    echo ""
+    !cat "Output_datatable_magcolor_versus_z_EBV_"$(ebv_star)".txt"
+    
+
+
+
+calc_ltir_daddi 02
+    if(!$?2) {return}
+    set www0 = lg($1) # lg($1) must be in uniform grid
+    set fff0 = ($2)
+    set fff0 = (fff0)/10**(www0) # make it vLv
+    set fff0 = fff0 if((www0)>lg(8)&&(www0)<lg(1000))
+    define Lbol $(sum(fff0)*(www0[1]-www0[0])/lg(exp(1)))
+    echo "calc_ltir_daddi: L_IR_8_1000 = "$Lbol" Lsun"
+    set $0 = $Lbol
+
+
+
+backup_Output 00
+    !test -d "Output"
+    if(0==$exit_status) {
+        !test -d "Output.backup"
+        if(0==$exit_status) {
+            !test -d "Output.backup.backup"
+            if(0==$exit_status) {
+                !rm -rf "Output.backup.backup"
+                echo "rm -rf Output.backup.backup"
+            }
+            !mv "Output.backup" "Output.backup.backup"
+            echo mv "Output.backup" "Output.backup.backup"
+        }
+        !mv "Output" "Output.backup"
+        echo mv "Output" "Output.backup"
+    }
+    !mkdir "Output" 2>/dev/null
+
+
+
+get_flux_splined 01
+    # input wavelength in linear space, spline in log space and output flux in linear space. 
+    if(is_vector(wave_log10) && is_vector(flux_log10)) {
+        set wwww_log10 = lg($1)
+        spline wave_log10 flux_log10 wwww_log10 ffff_log10
+        set $0 = 10**(ffff_log10)
+        return
+    }
+
+
+
+
+ctypeRGB 01
+    if($1>255) {
+        ctype Rainbow255
+    } else {
+        ctype Rainbow$(sprintf('%03d',$((int($1)-int($1)%15))))
+    }
+
+xtcoloursRGB
+    # 
+    add_ctype Rainbow255  248   12   18
+    add_ctype Rainbow240  238   17    0
+    add_ctype Rainbow225  255   51   17
+    add_ctype Rainbow210  255   68   34
+    add_ctype Rainbow195  255  102   68
+    add_ctype Rainbow180  255  153   51
+    add_ctype Rainbow165  254  174   45
+    add_ctype Rainbow150  204  187   51
+    add_ctype Rainbow135  208  195   16
+    add_ctype Rainbow120  170  204   34
+    add_ctype Rainbow105  105  208   37
+    add_ctype Rainbow090   34  204  170
+    add_ctype Rainbow075   18  189  185
+    add_ctype Rainbow060   17  170  187
+    add_ctype Rainbow045   68   68  221
+    add_ctype Rainbow030   51   17  187
+    add_ctype Rainbow015   59   12  189
+    add_ctype Rainbow000   68   34  153
+
+
