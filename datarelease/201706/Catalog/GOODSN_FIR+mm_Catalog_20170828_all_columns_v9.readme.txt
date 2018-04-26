@@ -1,6 +1,0 @@
-
-comparing to v8, 
-this v9 contains only final columns
-and now we set e_z_IR = 0 if z_z_IR < 0 (i.e., has spec-z), 
-and column descriptions are slightly revised, 
-and the last column has reformatted with 'formatDecimal($,"0.000")'. 
