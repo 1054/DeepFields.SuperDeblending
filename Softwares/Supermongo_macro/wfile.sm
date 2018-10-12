@@ -12,6 +12,9 @@ wfile 01
     if(!$?1 || !is_vector(wfile_vectors)) {
         print 'usage: \n' {}
         print '       set wfile_vectors = {id ra dec name a b c}\n' {}
+        print '       set wfile_fmt_id = \'%16.0f\'\n' {}
+        print '       set wfile_fmt_ra = \'%16.8f\'\n' {}
+        print '       set wfile_fmt_dec = \'%16.8f\'\n' {}
         print '       wfile output.txt\n' {}
         return
     }

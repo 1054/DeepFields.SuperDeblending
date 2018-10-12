@@ -1,0 +1,27 @@
+convert_datatable_for_sed_fitting
+    # 
+    # 
+    # 
+    if(!is_file("datatable_id_ra_dec_zphot.txt") && !is_file("datatable_id_ra_dec_zspec.txt")) {
+        echo "Error! datatable_id_ra_dec_zphot.txt and datatable_id_ra_dec_zspec.txt was not found!"
+        return
+    }
+    
+    if(is_vector(id)) {unset id}
+    if(is_vector(zphot)) {unset zphot}
+    if(is_vector(zspec)) {unset zspec}
+    if(is_file("datatable_id_ra_dec_zphot.txt")) {data "datatable_id_ra_dec_zphot.txt" read {id 1 ra 2 dec 3 zphot 4}}
+    if(is_file("datatable_id_ra_dec_zspec.txt")) {data "datatable_id_ra_dec_zspec.txt" read {id 1 ra 2 dec 3 zspec 4}}
+    if(is_vector(zphot) && !is_vector(zspec)) {set zspec = zphot*0.0-99}
+    if(is_vector(zspec) && !is_vector(zphot)) {set zphot = zspec}
+    
+    if(!is_file("fit_matrix_HDFN/fit_sed_"$(id)".txt")) {
+        echo "Error! fit_matrix_HDFN/fit_sed_"$(id)".txt was not found!"
+        return
+    }
+    
+    data "fit_matrix_HDFN/fit_sed_"$(id)".txt"
+    read {w 1.f f 2.f df 3.f}
+    
+
+

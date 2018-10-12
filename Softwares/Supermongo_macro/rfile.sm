@@ -17,9 +17,9 @@ rfile 03
         # check verbose
         define rfile_verbose $verbose verbose 0
         # 
-        # determine column header line <20170909>
-        define rfile_head_line 0
-        define rfile_data_line 0
+        # determine column header line <20170909><20180920>
+        if(!$?rfile_head_line)  {define rfile_head_line 0}
+        if(!$?rfile_data_line)  {define rfile_data_line 0}
         define rfile_curr_line 1
         define rfile_total_line 0
         while { ($rfile_data_line==0 && $rfile_curr_line>=0) } {
@@ -88,6 +88,7 @@ rfile 03
                 if($rfile_verbose){!echo Read lines from $($rfile_data_line-1+$2) to $($rfile_data_line-1+$3) \(data array elements $2 to $3\)}
             }
         } else {
+            lines $rfile_data_line 0 #<20180920>#
             define rfli $rfile_head_line
         }
         #if($?2 && !$?3) { lines $2 0 define rfli $2 }
@@ -134,5 +135,9 @@ rfile 03
             }
         } # read the 1st row 1st column
         verbose $rfile_verbose
+        undef rfile_head_line
+        undef rfile_data_line
+        undef rfile_curr_line
+        undef rfile_total_line
         return
 

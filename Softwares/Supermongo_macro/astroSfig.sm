@@ -1057,9 +1057,9 @@ calc_FIR_line_fluxes 08
             set _Liu2015_LumFIR = _IR_luminosity[gid] / 1.3 # convert IR (8-1000um) to FIR (~50-500um)
             set _Liu2015_N = _line_redshift[gid]*0.0-99
             set _Liu2015_A = _line_redshift[gid]*0.0-99
-            set _Liu2015_N = (_Liu2015_Jupper==1)  ? 1.06 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==1)  ? 1.49 : _Liu2015_A #<TODO># using non-linear slope #<TODO># using CO(4-3) as a lower limit for now
-            set _Liu2015_N = (_Liu2015_Jupper==2)  ? 1.06 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==2)  ? 1.49 : _Liu2015_A #<TODO># using non-linear slope #<TODO># using CO(4-3) as a lower limit for now
-            set _Liu2015_N = (_Liu2015_Jupper==3)  ? 1.06 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==3)  ? 1.49 : _Liu2015_A #<TODO># using non-linear slope #<TODO># using CO(4-3) as a lower limit for now
+            set _Liu2015_N = (_Liu2015_Jupper==1)  ? 1.06 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==1)  ? 1.49-lg(1.2*1.2*1.2) : _Liu2015_A #<TODO># using non-linear slope #<TODO># using CO(4-3) as a lower limit for now
+            set _Liu2015_N = (_Liu2015_Jupper==2)  ? 1.06 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==2)  ? 1.49-lg(1.2*1.2) : _Liu2015_A #<TODO># using non-linear slope #<TODO># using CO(4-3) as a lower limit for now
+            set _Liu2015_N = (_Liu2015_Jupper==3)  ? 1.06 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==3)  ? 1.49-lg(1.2) : _Liu2015_A #<TODO># using non-linear slope #<TODO># using CO(4-3) as a lower limit for now
             set _Liu2015_N = (_Liu2015_Jupper==4)  ? 1.06 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==4)  ? 1.49 : _Liu2015_A #<TODO># using non-linear slope
             set _Liu2015_N = (_Liu2015_Jupper==5)  ? 1.07 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==5)  ? 1.71 : _Liu2015_A #<TODO># using non-linear slope
             set _Liu2015_N = (_Liu2015_Jupper==6)  ? 1.10 : _Liu2015_N set _Liu2015_A = (_Liu2015_Jupper==6)  ? 1.79 : _Liu2015_A #<TODO># using non-linear slope
@@ -1598,7 +1598,7 @@ calc_sint 06
 
 calc_ltir 06
     # calc Luminosity TIR
-    if($?1==0||$?2==0) {print 'usage: set ltir = calc_ltir(wave_um,flux_mJy,z[,w1_um,w2_um,step_GHz])' {} return}
+    if($?1==0||$?2==0) {print 'usage: set ltir = calc_ltir(wave_um,flux_mJy,z[,w1_um,w2_um,step_GHz]) # [Lsun Mpc-2]' {} return}
     # wave flux z
     set _clir_w = $1 # um -- obs wave
     set _clir_f = $2 # mJy -- obs flux 
@@ -1620,15 +1620,51 @@ calc_ltir 06
     ##echo $(sum(_clir_itf*_clir_itv))
     spline _clir_rsw _clir_vfv _clir_rsw_int _clir_vfv_int
     set _clir_int_lumin = sum(_clir_vfv_int)*_clir_itu/lg(exp(1.0)) # integrated mJy GHz
+    # echo calc_ltir: L_IR_8_1000 = $(_clir_int_lumin) mJy GHz
     set _clir_int_lumin = _clir_int_lumin / 40.31970 # integrated Lsun Mpc-2
     if(_clir_dL>0) {
         set _clir_int_lumin = _clir_int_lumin * 4*pi*_clir_dL**2
-        if($verbose) {echo calc_ltir: L_IR_8_1000 = $(_clir_int_lumin) Lsun}
+        if($verbose) {echo calc_ltir: L_IR_$(_clir_ww1)_$(_clir_ww2) = $(_clir_int_lumin) Lsun}
     } else {
-        # echo calc_ltir: L_IR_8_1000 = $(_clir_int_lumin) mJy GHz
-        if($verbose) {echo calc_ltir: L_IR_8_1000 = 4*pi*dL**2 * $(_clir_int_lumin) Lsun}
+        if($verbose) {echo calc_ltir: L_IR_$(_clir_ww1)_$(_clir_ww2) = 4*pi*dL**2 * $(_clir_int_lumin) Lsun}
     }
     set $0 = _clir_int_lumin
+
+calc_L_IR 07
+    # calc Luminosity TIR
+    if($?1==0||$?2==0) {print 'usage: set L_IR_w1_w2 = calc_L_IR(wave_um,flux_mJy,z[,dL[,w1_um,w2_um[,step_GHz]]])' {} return}
+    # wave flux z
+    set _calc_L_IR_w = $1 # um -- obs wave
+    set _calc_L_IR_f = $2 # mJy -- obs flux 
+    if($?3){set _calc_L_IR_z = $3} else {set _calc_L_IR_z=0.0 set _calc_L_IR_dL=0.0}
+    if($?4){set _calc_L_IR_dL = $4} else {set _calc_L_IR_dL = calc_lumdist(_calc_L_IR_z)}
+    if(_calc_L_IR_dL<0) {set _calc_L_IR_dL = calc_lumdist(_calc_L_IR_z)}
+    set _calc_L_IR_opz = 1.0+_calc_L_IR_z # 
+    set _calc_L_IR_vfv = _calc_L_IR_f * 2.99792458e5 / _calc_L_IR_w # mJy GHz -- monochromatic luminosity
+    set _calc_L_IR_rsw = _calc_L_IR_w / _calc_L_IR_opz                # um -- restframe wavelength
+    set _calc_L_IR_rsf = _calc_L_IR_vfv / 2.99792458e5 * _calc_L_IR_rsw # mJy -- restframe flux density
+    if($?5){set _calc_L_IR_ww1 = $5} else {set _calc_L_IR_ww1 = 8.0} # where to begin integration
+    if($?6){set _calc_L_IR_ww2 = $6} else {set _calc_L_IR_ww2 = 1000.0} # where to begin integration
+    if($?7){set _calc_L_IR_itu = $7} else {set _calc_L_IR_itu = 0.005} # -_calc_L_IR_itu GHz interval [GHz]
+    set _calc_L_IR_itv = lg(2.99792458e5/_calc_L_IR_ww1),lg(2.99792458e5/_calc_L_IR_ww2),-(_calc_L_IR_itu) # -_calc_L_IR_itu GHz interval
+    set _calc_L_IR_itv = 10**_calc_L_IR_itv # GHz
+    set _calc_L_IR_itw = 2.99792458e5/_calc_L_IR_itv # um
+    set _calc_L_IR_rsw_int = 2.99792458e5/_calc_L_IR_itv # um
+    ##spline _calc_L_IR_rsw _calc_L_IR_rsf _calc_L_IR_itw _calc_L_IR_itf
+    ##spline _calc_L_IR_rsw _calc_L_IR_vfv _calc_L_IR_rsw_int _calc_L_IR_vfv_int
+    ##echo $(sum(_calc_L_IR_vfv_int))
+    ##echo $(sum(_calc_L_IR_itf*_calc_L_IR_itv))
+    spline _calc_L_IR_rsw _calc_L_IR_vfv _calc_L_IR_rsw_int _calc_L_IR_vfv_int
+    set _calc_L_IR_int_lumin = sum(_calc_L_IR_vfv_int)*_calc_L_IR_itu/lg(exp(1.0)) # integrated mJy GHz
+    set _calc_L_IR_int_lumin = _calc_L_IR_int_lumin / 40.31970 # integrated Lsun Mpc-2
+    if(_calc_L_IR_dL>0) {
+        set _calc_L_IR_int_lumin = _calc_L_IR_int_lumin * 4*pi*_calc_L_IR_dL**2
+        if($verbose) {echo "calc_L_IR:" L_IR_$(_calc_L_IR_ww1)_$(_calc_L_IR_ww2) = $(_calc_L_IR_int_lumin) Lsun}
+    } else {
+        # echo calc_ltir: L_IR_8_1000 = $(_calc_L_IR_int_lumin) mJy GHz
+        if($verbose) {echo "calc_L_IR:" L_IR_$(_calc_L_IR_ww1)_$(_calc_L_IR_ww2) = 4*pi*dL**2 * $(_calc_L_IR_int_lumin) Lsun}
+    }
+    set $0 = _calc_L_IR_int_lumin
 
 calc_line_z 07
     # calc line redshift
@@ -2307,14 +2343,14 @@ calc_MH2 07
             if($?5) {
                 set _calc_MH2_beta = _calc_MH2_Snu*0.0 + $5
             } else {
-                define _calc_MH2_beta 1.8
+                define _calc_MH2_beta 1.8 # see Scoville2016 Sect. A.3.
                 define _calc_MH2_beta ? <"Dust emissivity [um]?">
                 set _calc_MH2_beta = _calc_MH2_Snu*0.0 + $_calc_MH2_beta
             }
             if($?6) {
                 set _calc_MH2_alpha850 = _calc_MH2_Snu*0.0 + $6
             } else {
-                define _calc_MH2_alpha850 6.7e19
+                define _calc_MH2_alpha850 6.7e19 # Lν850 / Mmol according to Hughes+17 (their MH2 is already Mmol = 1.36 * M(pure H2))
                 define _calc_MH2_alpha850 ? <"850um monochromatic luminosity to gas mass ratio?">
                 set _calc_MH2_alpha850 = _calc_MH2_Snu*0.0 + $_calc_MH2_alpha850
             }
@@ -2347,10 +2383,13 @@ calc_MH2 07
             set _calc_MH2_z = (_calc_MH2_z<=0.0) ? 1e-99 : _calc_MH2_z
             set _calc_MH2_dL = calc_lumdist(_calc_MH2_z)
             set _calc_MH2_Lnu = 1.19e27 * _calc_MH2_Snu_rest850um / (1+_calc_MH2_z) * _calc_MH2_dL**2 # erg s-1 Hz-1, see Hughes 2017 - 1702.07350.pdf (page 3 right)
-            set _calc_MH2_lgMH2_Scoville2016 = lg(1.78 * _calc_MH2_Snu_rest850um*1e3 / (1+_calc_MH2_z) * (_calc_MH2_dL/1e3)**2 * (6.7e19/_calc_MH2_alpha850) * 1e10) # Scoville et al. 2016ApJ...820...83S (appendix and also page 16 equation 16)
+            set _calc_MH2_lgMH2_Scoville2016 = lg(1.78 * _calc_MH2_Snu_rest850um*1e3 / (1+_calc_MH2_z) * (_calc_MH2_dL/1e3)**2 * (6.7e19/_calc_MH2_alpha850) * 1e10) # Scoville et al. 2016ApJ...820...83S (appendix and also page 16 equation 16) -- molecular gas including Helium
         }
         set _calc_MH2_Lnu = (_calc_MH2_Lnu<=0.0) ? 1e-99 : _calc_MH2_Lnu
         set _calc_MH2_lgMH2 = lg(_calc_MH2_Lnu) * 0.93 - 17.74 # Hughes 2017 - 1702.07350.pdf (page 4, equation 5)
+        if(_calc_MH2_method=='SCOVILLE2016' || _calc_MH2_method=='Scoville2016' || _calc_MH2_method=='scoville2016') {
+            set _calc_MH2_lgMH2 = _calc_MH2_lgMH2_Scoville2016
+        }
     }
     # 
     if(_calc_MH2_method=='SCHINNERER2016' || _calc_MH2_method=='Schinnerer2016' || _calc_MH2_method=='schinnerer2016' || \

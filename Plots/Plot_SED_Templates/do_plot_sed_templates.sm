@@ -39,7 +39,7 @@ Plot_SED_Templates
     #set ilist = {1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0}
     #set ilist = {0.2 0.5 1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0 7.0}
     #set ilist = {1.0 1.2 1.5 1.7 2.0 2.5 3.0 4.0 5.0 6.0 7.0}
-    set ilist = 0.5,7.5,0.25
+    set ilist = 0.5,10.5,0.5
     foreach i ilist {
         # 
         set zvar = float($i)
@@ -208,11 +208,11 @@ Plot_SED_Templates
         ##set flux_500um = 5.0 # mJy
         # 
         # normalize to 870 um XXX mJy
-        set wave_870um = 870
-        spline wave flux wave_870um flux_870um
-        set norm = flux_870um / 8.0 # 3.748 # normalize to f870 = XXX mJy
-        set flux = flux / norm
-        set flux_870um = 8.0 # 3.748 # mJy
+        #set wave_870um = 870
+        #spline wave flux wave_870um flux_870um
+        #set norm = flux_870um / 8.0 # 3.748 # normalize to f870 = XXX mJy
+        #set flux = flux / norm
+        #set flux_870um = 8.0 # 3.748 # mJy
         # 
         # normalize to 1160 um 1.12 mJy
         #set wave_1160um = 1160
@@ -288,6 +288,11 @@ Plot_SED_Templates
         #set norm_to_SFR = 300.0
         #set norm = 3e12/1e10/norm_to_SFR
         #set flux = flux / norm
+        # 
+        # normalize to SFR = 100.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
+        set norm_to_SFR = 50.0
+        set norm = 3e12/1e10/norm_to_SFR
+        set flux = flux / norm
         # 
         # normalize to SFR = 50.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
         #set norm_to_SFR = 50.0
@@ -530,7 +535,15 @@ Plot_SED_Templates
     set nsig = 5.0
     ltype 0 lweight 10
     ctype magenta rel $(lg(870)-0.08) $(lg(f1sig*nsig)) draw $(lg(870)+0.08) $(lg(f1sig*nsig))
-    expand 1.05 relocate $(lg(870)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{ALMA 870um}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
+    #expand 1.05 relocate $(lg(870)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{ALMA 870um}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
+    #expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
+    # overplot ALMA 870um (345GHz, band 7) detection limit
+    set f1sig = 0.024 # <20170417> -- dzliu -- ALMA 1-sigma 0.06 mJy
+    set nsig = 5.0
+    ltype 0 lweight 10
+    ctype magenta rel $(lg(870)-0.08) $(lg(f1sig*nsig)) draw $(lg(870)+0.08) $(lg(f1sig*nsig))
+    expand 1.05 relocate $(lg(870)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{870um}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
     expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot ALMA 1204um (249GHz) detection limit

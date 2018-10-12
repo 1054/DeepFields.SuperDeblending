@@ -1,0 +1,52 @@
+convert_datatable_for_sed_fitting_for_redshift_scan
+    # 
+    # Usage:
+    #   echo "macro read convert_datatable_for_sed_fitting_for_redshift_scan.sm convert_datatable_for_sed_fitting_for_redshift_scan" | sm
+    # 
+    if(!is_file("datatable_for_sed_fitting.txt")) {
+        echo "Error! datatable_for_sed_fitting.txt was not found!"
+        return
+    }
+    if(is_file("datatable_for_sed_fitting.original.txt")) {
+        #echo "Error! datatable_for_sed_fitting.original.txt exists!"
+        #return
+    } else {
+        !cp datatable_for_sed_fitting.txt datatable_for_sed_fitting.original.txt
+    }
+    
+    load rfile.sm
+    rfile datatable_for_sed_fitting.original.txt
+    do zscan = 1.1,7.1,0.1 {
+        foreach var rfile_vectors {
+            if(index('$var','id')==0) {
+                set id = id concat $(id[0]*10000.0 + $zscan*100.0)
+            } else {
+                if('$var'=='zphot' || '$var'=='z_op') {
+                    set $var = $var concat $zscan
+                } else {
+                    if('$var'=='zspec' || '$var'=='z_sp') {
+                        set $var = $var concat $zscan
+                    } else {
+                        set $var = $var concat $var[0]
+                    }
+                }
+            }
+        }
+    }
+    foreach var rfile_vectors {
+        if('$var'=='zspec' || '$var'=='z_sp') {
+           set $var[0] = 1.0
+        }
+        if('$var'=='id') {
+            set id[0] = id[0]*10000.0 + 1.0*100.0
+        }
+    }
+    
+    load wfile.sm
+    set wfile_vectors = rfile_vectors
+    #set wfile_fmt_id = '%16.0f'
+    #set wfile_fmt_ra = '%16.8f'
+    #set wfile_fmt_dec = '%16.8f'
+    wfile "datatable_for_sed_fitting.txt"
+
+
