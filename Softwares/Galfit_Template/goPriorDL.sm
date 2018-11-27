@@ -1,0 +1,421 @@
+gPriors 00
+	# 
+    # In this function we convert prior source coordinates, correct coordinate misalignments, and set prior magnitudes if available
+    # 
+    # Inputs: 
+    #   raF, deF, $imax, $imax_name
+    # Outputs: 
+    #   x$imax, y$imax, 
+    # 
+    gPriors_read_catalogs
+    gPriors_read_prior_mags
+    gPriors_read_prior_sizes
+    gPriors_convert_sky2xy
+    gPriors_fix_astrometry
+    gPriors_get_image_size
+
+
+gPriors_read_catalogs 00
+    # 
+    # Check variables
+    # 
+    if(!$?catalog_file) {
+        print 'Error! \$catalog_file was not defined! Exit!\n' {}
+        exit
+    }
+    if('$catalog_file'=='NONE') {
+        print 'Error! \$catalog_file was defined as NONE! Exit!\n' {}
+        exit
+    }
+    # 
+    # Read catalog, output idF, raF, deF
+    # 
+    if($?catalog_file) {
+        if('$catalog_file'!='NONE' && is_file($catalog_file)) {
+            data $catalog_file
+            if(index('$catalog_file','irac_mips_fluxes')>=0 && index('$catalog_file','id_ra_dec')<0) {
+                read  {idF 3 raF 1 deF 2}
+                echo " "
+            } else {
+                read  {idF 1 raF 2 deF 3}
+                echo " "
+            }
+            echo "We are using "$catalog_file" as the source catalog."
+            echo " "
+        } else {
+            echo "********************************************"
+            echo "Error! "$catalog_file" was not found!"
+            echo " "
+            define doFit -1
+        }
+    }
+    if($?exclude_file) {
+        if('$exclude_file'!='NONE' && is_file($exclude_file)) {
+            data $exclude_file
+            read {idS 1 raS 2 deS 3 flagExclude 4}
+            set  idIncl = idF if(flagExclude==0)
+            set  raIncl = raF if(flagExclude==0)
+            set  deIncl = deF if(flagExclude==0)
+            set idExcl = idS if(flagExclude==1)
+            set raExcl = raS if(flagExclude==1)
+            set deExcl = deS if(flagExclude==1)
+            set idF = idIncl
+            set raF = raIncl
+            set deF = deIncl
+            echo "We exclude "$(sum(flagExclude))" faint sources during the fitting, and only fit "$(dimen(flagExclude)-sum(flagExclude))" sources."
+            echo " "
+        } else {
+            echo "We do not exclude faint sources here."
+            echo " "
+        }
+    }
+    if($?include_file) {
+        if('$include_file'!='NONE' && is_file($include_file)) {
+            data $include_file
+            read  {idN 1 raN 2 deN 3}
+            set idAdds = idN
+            set raAdds = raN
+            set deAdds = deN
+            set idF = idF concat idN
+            set raF = raF concat raN
+            set deF = deF concat deN
+            echo "We include "\$(dimen(idN))" additional sources selected from the residual maps. "
+            echo "Coordinates are stored in ${DG_CATB}"
+            echo "Now we are fitting "\$(dimen(idF))" sources."
+            echo " "
+        } else {
+            echo "We do not include additional sources here."
+            echo " "
+        }
+    }
+    if($?doFit) {
+        if(2==$doFit && is_vector(idExcl) && is_vector(raExcl) && is_vector(deExcl)) {
+            # if doFit=2, then we fit excluded sources only
+            set idF = idExcl
+            set raF = raExcl
+            set deF = deExcl
+            echo "TODO: Now we do not fit included sources on faint-source-subtracted map, instead we fit excluded sources on fitted-sources-subtracted map!"
+            echo " "
+        }
+    }
+    echo "We have read "$(dimen(idF))" sources from the input catalogs."
+    echo " "
+
+
+gPriors_read_prior_mags 00
+    # 
+    # read prior mags into 'xm' from "spdb_prior_mags_"$imax"_"$xdate
+    # 
+    if(!$?use_prior_mags) {
+        print 'Error! \$use_prior_mags was not defined! Exit!\n' {}
+        exit
+    }
+    if(1==$use_prior_mags) {
+        data "spdb_prior_mags_"$imax"_"$xdate read < xm 4 >
+        !echo "We are setting prior magnitudes according to the xm values in the results_"$imax"_"$xdate"."
+        !echo " "
+    } else {
+        !echo "We do not set prior mags in this fit."
+        !echo " "
+    }
+
+
+gPriors_read_prior_sizes 00
+    # 
+    # read prior sizes into 'xmaj' 'xmin' 'xpa' from "spdb_prior_sizes_"$imax"_"$xdate
+    # 
+    if(!$?use_prior_size) {
+        print 'Error! \$use_prior_size was not defined! Exit!\n' {}
+        exit
+    }
+    if(1==$use_prior_mags) {
+        data "spdb_prior_sizes_"$imax"_"$xdate read < xmaj 2 xmin 3 xpa 4 >
+        !echo "We are setting prior sizes according to the xmaj, xmin, xpa values in the results_"$imax"_"$xdate"."
+        !echo " "
+    } else {
+        !echo "We do not set prior sizes in this fit."
+        !echo " "
+    }
+
+
+gPriors_convert_sky2xy 00
+    # 
+    # Convert sky2xy, output x$imax, y$imax
+    # 
+    if(!$?imax) {
+        print 'Error! \$imax was not defined! Exit!\n' {}
+        exit
+    }
+    if(!$?imax_name) {
+        print 'Error! \$imax_name was not defined! Exit!\n' {}
+        exit
+    }
+    if(!is_file($imax_name.fits)) {
+        print 'Error! $imax_name.fits was not found! Exit!\n' {}
+        exit
+    }
+    if(!is_vector(raF) || !is_vector(deF)) {
+        print 'Error! raF or deF was not set! Exit!\n' {}
+        exit
+    }
+    !rm aaa_gPriors_sky2xy_input  >> /dev/null 2>&1
+    !rm aaa_gPriors_sky2xy_output >> /dev/null 2>&1
+    if($?print_noheader==1) {define prev_noheader $print_noheader} else {define prev_noheader 0} define print_noheader 1
+    print aaa_gPriors_sky2xy_input '%17.7f %17.7f\n' {raF deF}
+    if($?prev_noheader==1) {define print_noheader $prev_noheader}
+    echo "Doing sky2xy for "$(dimen(raF))" sources in gPriors ..."
+    !sky2xy -j $imax_name.fits  @aaa_gPriors_sky2xy_input > aaa_gPriors_sky2xy_output
+    if($?verbose==1) {define prev_verbose $verbose} else {define prev_verbose 1} verbose 0
+    data aaa_gPriors_sky2xy_output read <x$imax 5 y$imax 6>
+    if($?prev_verbose==1) {verbose $prev_verbose}
+    echo "Done  sky2xy"
+    # 
+    if(dimen(x$imax)!=dimen(raF)) {
+        echo "CRASHED !!!!!!!"
+        define aaa ?
+        exit
+    }
+
+
+gPriors_test_local_var 00
+    define tmp_verbose LOCAL 
+    define tmp_verbose 100
+    echo tmp_verbose = $tmp_verbose
+
+
+gPriors_get_image_size 00
+    # 
+    # get image size: imax_xsize and imax_ysize
+    # 
+    if(!$?imax_name) {
+        print 'Error! \$imax_name was not defined! Exit!\n' {}
+        exit
+    }
+    if(!is_file($imax_name.fits)) {
+        print 'Error! $imax_name.fits was not found! Exit!\n' {}
+        exit
+    }
+    define tmp_verbose LOCAL
+    define tmp_verbose $verbose
+    verbose 0
+    define tmp_file_name LOCAL
+    define tmp_file_name tmp_gPriors_get_image_size_$(RANDOM(pi)*1e6)
+    !gethead $imax_name.fits NAXIS1 NAXIS2 > $tmp_file_name
+    data $tmp_file_name
+    define imax_xsize read 1 1
+    define imax_ysize read 1 2
+    !rm $tmp_file_name
+    verbose $tmp_verbose
+    
+
+
+gPriors_fix_astrometry 00
+    # 
+    # HDFN field
+    # 
+    if( '$imax_name' == 'HTfinal_coadd20101016_ima_grn' && $fix_astrometry) {
+    set x100 = x100-0.000917146157*x100+0.5255420208
+    set y100 = y100-0.001511578914*y100+0.6674745679
+    }
+    if( '$imax_name' == 'HTfinal_coadd20101016_ima_red' && $fix_astrometry) {
+    set x160 = x160-3.47800451e-05*x160+0.5444692373
+    set y160 = y160-0.00185266044*y160+0.4123865664
+    set x160 = x160+1.588864507e-05+0.1443387568
+    set x160 = x160+0.0009392235661*y160-0.2041141391
+    }
+    if( '$imax_name' == 'pacs160_ima_2p4_v0_100615_ED' && $fix_astrometry) {
+    set x160 = x160-0.11
+    set y160 = y160-9.887011402e-06*y160+0.387675494
+    }
+    ###<Added><DZLIU>### For PGH new PACS160 map, we do not need to fix astromety now!
+    if ( '$imax_name' == 'goods_south_wdriz_frac0pt6_norm_19dec06_cut_ima' && $fix_astrometry) {
+    set x16 = x16-0.05
+    set y16 = y16-.21
+    }
+    if ( '$imax_name' == 'goods_north_wdriz_frac0pt6_norm_19dec06_minbackJM' && $fix_astrometry) {
+    set x16 = x16+x16*0.0002672541013-0.2452505082
+    set y16 = y16+.1073
+    print +$imax_name.fixastrometry.log 'imax=$imax\nimax_name=$imax_name.fits\nxdate=$xdate\n' {}###<Added><DZLIU>###
+    }
+    ###<Added><DZLIU>### our new IRSX 16 Map
+    if ( '$imax_name' == 'goods_north_wdriz_frac0pt6_norm_19dec06_subbackDL' && $fix_astrometry) {
+    set x16 = x16+x16*0.0002672541013-0.2452505082
+    set y16 = y16+.1073
+    print +$imax_name.fixastrometry.log 'imax=$imax\nimax_name=$imax_name.fits\nxdate=$xdate\n' {}###<Added><DZLIU>###
+    }
+    if ( '$imax_name_rms' == 'n_mips_1_s1_v0_37_rms_ED' && $fix_astrometry) {
+    #set x24  = x24 -0.0002197765716*x24 +0.03349415213
+    #set y24  = y24 +0.0002208997321*y24 -0.09302435815
+    #set x24  = x24 +0.0003390817146*y24 -0.19971483953
+    #set y24  = y24 +0.0002345961693*x24 -0.13415789615
+
+    set x24 =x24 -x24*0.000218459022+0.0507825188     # change all signs here wrt the Move160 macro
+    set y24 =y24 +y24*0.0001888914055-0.0941359848
+    set x24 =x24 +y24*0.0003340516216-0.2101281967   # YX
+    set y24 =y24 +x24*0.0002073335871-0.1008526574   # XY
+    }
+
+    if( '$imax_name' == 'spire250_ima_3p6_v0_100615' && $fix_astrometry) {
+    #set x250 = x250+.12   # changed the header, kept same name
+    }
+
+    if( '$imax_name' == 'combined_maw0_4_azw0_5_sig' && $fix_astrometry) {
+    #set x1160 = x1160+.05     # for Penner files, my 'astro' file is corrected in the header
+    #set y1160 = y1160-.89
+    }
+
+    if( '$imax_name' == 'VLA_20cm_Glenn_May09' && $fix_astrometry) {
+    set y20cm=y20cm+y20cm*0.0002401342936-0.6948485975
+    set x20cm=x20cm-y20cm*0.0002626516216+0.8761281967
+    set y20cm=y20cm+x20cm*0.0003082074691-0.7643211484
+    echo 20cm astrometry fixed
+    }
+    
+    if( '$imax_name' == 'VLA_Owen_2arcsec_NOPBC' && $fix_astrometry) {
+    set x20cm=x20cm+x20cm*0.0001380607703+0.4105169177
+    set y20cm=y20cm+y20cm*0.0002927727061+0.5311308503
+    set x20cm=x20cm-y20cm*9.378555114e-05+0.1738602072   # YX
+    set y20cm=y20cm+x20cm*0.0002324701782-0.4149723053   # XY
+    echo 20cm Owen astrometry fixed
+    #define aaa ?
+    }
+    
+    if( '$imax_name' == 'VLA_Owen_2arcsec_big_NOPBC' && $fix_astrometry) {
+    set x20cm=x20cm+x20cm*0.0001143673362+0.3045236176
+    set y20cm=y20cm+y20cm*0.0003095426073+0.14953011275
+    set x20cm=x20cm-y20cm*6.067988215e-05+0.2183290869   # YX
+    set y20cm=y20cm+x20cm*0.0002068205358-1.03707981145  # XY
+    echo 20cm Owen astrometry fixed BIG MAPS
+    #define aaa ?
+    }
+
+    if( ('$imax' == 'ch1N' || '$imax' == 'ch2N' || '$imax' == 'ch3N' || '$imax' == 'ch4N') && $fix_astrometry) {
+    set x$imax=x$imax+x$imax*0.000146749022+0.3915825188
+    set y$imax=y$imax+y$imax*0.0001650914055+0.2772359848
+    set y$imax=y$imax-x$imax*0.0001263335871+0.1138526574
+    echo IRAC HDFN Astrometry fixed
+    }
+    
+    # 
+    # CDFS below 
+    # 
+    if( '$imax_name' == 'ecdfs_spire250_naive36_first_reduction_sci' && $fix_astrometry) {
+    set x$imax = x$imax-0.72  
+    set y$imax = y$imax-0.39  
+    }
+    
+    if( '$imax_name_rms' == 's_mips_1_s1_v0_30_rms_ED' && $fix_astrometry) {
+    #set x$imax=x$imax+x$imax*0.0002401855309-0.03187650442
+    #set x$imax=x$imax-y$imax*7.638338138e-05 +0.03554521874 # YX
+    #set y$imax=y$imax-x$imax*0.0001534190524 +0.08358967304 # XY
+    #set y$imax=y$imax+y$imax*5.154597238e-05+0.007481802255
+    set x$imax=x$imax+0.05
+    set y$imax=y$imax+0.03
+    echo "Astrometry fixed for the GOODS-South Spitzer MIPS 24um image!" 
+    }
+    
+	# 
+    # Daddi Field below
+    # 
+    if ( ( '$imax_name' == 'DaddiF_IRAC_ch1_cut' || '$imax_name' == 'DaddiF_IRAC_ch2_cut' || '$imax_name' == 'DaddiF_IRAC_ch3_cut' || '$imax_name' == 'DaddiF_IRAC_ch4_cut' ) && $fix_astrometry) {
+    set x$imax = x$imax +.22
+    set y$imax = y$imax -.45
+    }
+    
+    if ( '$imax_name' == 'DaddiF_IRAC_ch1_140cut_wcs' && $fix_astrometry) {
+    set x$imax = x$imax +0.002715624403*x$imax-0.02680298686
+    set x$imax = x$imax -0.001861029072*y$imax+0.2884926498
+    set y$imax = y$imax +.51
+    set y$imax = y$imax+x$imax*0.002464421326-0.2463779151
+    set y$imax = y$imax-0.001622305834*y$imax+0.2524737418
+    }
+    
+    if ( '$imax_name' == 'DaddiF_IRAC_ch2_140cut_wcs' && $fix_astrometry) {
+    set x$imax = x$imax +0.002354499185*x$imax-0.1950650364
+    set y$imax = y$imax +.71
+    set y$imax = y$imax -y$imax*0.002457780996+0.6575413942
+    set y$imax = y$imax -x$imax*0.001179208979+0.1909260452
+    }
+    
+    if ( '$imax_name' == 'DaddiF_IRAC_ch3_140cut_wcs' && $fix_astrometry) {
+    set x$imax = x$imax +.75
+    set y$imax = y$imax +.81
+    }
+    
+    if ( '$imax_name' == 'DaddiF_IRAC_ch4_140cut_wcs' && $fix_astrometry) {
+    set x$imax = x$imax +.20
+    set y$imax = y$imax +.80
+    }
+    
+    if ( '$imax_name' == 'Daddi-B_Kong_140cut_wcs' && $fix_astrometry ) {
+    set x$imax = x$imax -0.05
+    set y$imax = y$imax +.06
+    }
+    
+    if ( '$imax_name' == 'Daddi-I_Kong_140cut_wcs' && $fix_astrometry ) {
+    set x$imax = x$imax -0.16
+    set y$imax = y$imax +.31
+    }
+    
+    if ( '$imax_name' == 'Daddi-z_Kong_140cut_wcs' && $fix_astrometry ) {
+    set x$imax = x$imax -0.17
+    set y$imax = y$imax +.40
+    }
+    
+    if ( '$imax_name' == 'Kampone_R_140cut_rewcsd_wcs' && $fix_astrometry ) {
+    set x$imax = x$imax -0.13
+    set y$imax = y$imax +.10
+    }
+    
+    if ( '$imax_name' == 'Clu_Daddi_TOT_Ks_140cut_wcs' && $fix_astrometry ) {
+    set x$imax = x$imax +0.34
+    set y$imax = y$imax +0.35
+    set x$imax = x$imax -x$imax*0.0009116989677+0.8645442128
+    set y$imax = y$imax -y$imax*0.0005042551784+0.6030564308
+    set x$imax = x$imax -y$imax*0.000742044358+0.61405223610 
+    set y$imax = y$imax -x$imax*0.0003603264922+0.3345334232
+    }
+    
+    if ( '$imax_name' == 'Clu_Daddi_TOT_H_140cut_wcs' && $fix_astrometry ) {
+    set x$imax = x$imax -x$imax*0.001762206433+1.769846201  
+    set y$imax = y$imax -y$imax*0.0006132633425+0.3469879925
+    set x$imax = x$imax -y$imax*0.000279902597+0.2256904244  
+    set y$imax = y$imax -x$imax*0.0003727326402+0.2970974147
+    set x$imax = x$imax -x$imax*0.0004733886453+0.4716832638
+    set x$imax = x$imax -y$imax*0.0002297334868+0.1930025816 
+    }
+    
+    if ( '$imax_name' == 'Clu_Daddi_TOT_Js_140cut_wcs' && $fix_astrometry ) {
+    set x$imax = x$imax -x$imax*0.0003916706482+0.6712532043
+    set y$imax = y$imax -y$imax*0.0007378464215+0.4314256907
+    set x$imax = x$imax -y$imax*0.0003044059849+0.2557511628 
+    set y$imax = y$imax -x$imax*0.0002335259924+0.1862765402
+    }
+    
+    if ( '$imax_name' == 'Clu_Daddi_TOT_Y_140cut_wcs' && $fix_astrometry ) {
+    set x$imax = x$imax -x$imax*0.0004029393313+0.7617089748
+    set y$imax = y$imax -y$imax*0.0003235304321+0.6199549437
+    }
+    
+    if ( '$imax_name' == 'daddi_F160W_nic3_drz_sci_140wcs' && $fix_astrometry ) {
+    set y$imax = y$imax +y$imax*0.0002901107946-0.4368240833
+    set x$imax = x$imax +y$imax*0.0003235195181-0.4386820495 
+    set y$imax = y$imax +x$imax*0.0006020937581-0.2403138429
+    }
+    
+    if ( '$imax_name' == 'f140w_006_sci' && $fix_astrometry ) {
+    set x$imax = x$imax +.41
+    set y$imax = y$imax +.82
+    set x$imax = x$imax -x$imax*0.0002420013916+0.1412426829
+    }
+    
+    if ( ('$imax_name' == 'wfc3_bkgsubED_may12_sci' || '$imax' == 'HW_DF' ) && $fix_astrometry ) {
+    set x$imax = x$imax +.41
+    set y$imax = y$imax +.82
+    set x$imax = x$imax -x$imax*0.0002420013916+0.1412426829
+    set x$imax=x$imax+y$imax*0.001073658001-1.37574172  
+    set y$imax=y$imax-x$imax*0.001517634606+2.467997074
+    }
+
+
+

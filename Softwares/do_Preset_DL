@@ -1,27 +1,25 @@
 #!/bin/bash
 # 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
+# Aim: This code is called by other do_* codes to parse the user input from the command line and preset the system variables.
 # 
 # 
 # Check Superdeblending Softwares
+# 
 if [[ x"$SUPERDEBLENDDIR" == x"" ]]; then
     echo "Error! Supderdeblending Softwares were not prepared well!"
-    echo "Please make sure you have Supderdeblending/Softwares/SETUP"
-    echo "and have ran \"source /path/to/Supderdeblending/Softwares/SETUP\""
+    echo "Please make sure you have \"DeepFields.Supderdeblending\" from \"https://github.com/1054/DeepFields.Supderdeblending\""
+    echo "and have run \"source DeepFields.Supderdeblending/Softwares/SETUP\" in BASH shell!"
 fi
 # 
+# Print usage if has no user input
 # 
-if [ $# -lt 3 ]; then 
+if [ $# -lt 1 ]; then 
     echo "Aim: This code is called by other do_* codes to preset the system variables."
+    echo "Usage: do_Preset_DL Step Band Date -options"
+    echo "Example: do_Preset_DL Galfit 24 201412 -sci XXX.fits -rms XXX.fits -psf XXX.fits -cat XXX.dat -parallel"
+    exit
+fi
+if [ $# -lt 3 ]; then 
     echo "Usage: $1 16 201407"
     echo "       $1 100 201412 -vary -catalog RadioOwenMIPS24_priors_April18_2014.txt"
     echo "       $1 100 201412 -vary -catalog RadioOwenMIPS24_priors_April18_2014.txt -catalog-add Residual_priors_Band160.txt"
@@ -49,9 +47,10 @@ if [ $# -lt 3 ]; then
     exit
 fi
 # 
-export DG_IMAX=$2
-export DG_DATE=$3
-export DG_FIEL="default" # field
+export DG_STEP="NONE"
+export DG_FIEL="NONE" # field
+export DG_IMAX="NONE"
+export DG_DATE="NONE"
 export DG_VARY=0
 export DG_GAUS=0 # Gaussian fitting
 export DG_SERS=0 # Sersic fitting
@@ -67,8 +66,8 @@ export DG_FMSK="NONE" # Mask image, usually is 24um rms image
 export DG_FSCI="NONE"
 export DG_FRMS="NONE"
 export DG_FPSF="NONE"
-export DG_FLOG=$(pwd -P)'/log_'$1'_'$2'_'$3
-export DG_FPWD=`pwd -P` # Current Path
+export DG_FPWD=$(pwd -P) # Current Path
+export DG_FLOG="log"
 export DG_BOXSIZE=0
 # 
 # Print Date
@@ -91,7 +90,7 @@ date +"%F %T %Z"
 echo ""
 echo "Checking softwares:"
 type galfit
-type cl
+#type cl
 type sm
 type sky2xy
 type xy2sky
@@ -112,14 +111,14 @@ while [[ $# -gt 0 ]]; do
                         DG_VARY=1
                         DG_PRIM=1 #<Fixed><201700507><dzliu># 
                         DG_FLOG=$DG_FLOG"_Vary"
-                        echo ; echo We are varying prior positions!
+                        echo ; echo "We are varying prior positions!"
                         ;;
                         
       "-vary-position") shift
                         DG_VARY=1
                         DG_PRIM=1 #<Fixed><201700507><dzliu># 
                         DG_FLOG=$DG_FLOG"_Vary"
-                        echo ; echo We are varying prior positions!
+                        echo ; echo "We are varying prior positions!"
                         ;;
                         
            "-gaussian") shift
@@ -127,7 +126,7 @@ while [[ $# -gt 0 ]]; do
                         DG_PRIM=1 #<Fixed><201700507><dzliu># 
                         DG_VARY=1 # must vary position as well
                         DG_FLOG=$DG_FLOG"_Gaussian"
-                        echo ; echo We are fitting Gaussian models!
+                        echo ; echo "We are fitting Gaussian models!"
                         ;;
                         
              "-sersic") shift
@@ -135,7 +134,7 @@ while [[ $# -gt 0 ]]; do
                         DG_PRIM=1 #<Fixed><201700507><dzliu># 
                         DG_VARY=1 # must vary position as well
                         DG_FLOG=$DG_FLOG"_Sersic"
-                        echo ; echo We are fitting Sersic models!
+                        echo ; echo "We are fitting Sersic models!"
                         ;;
                         
            "-priormag") shift
@@ -146,25 +145,61 @@ while [[ $# -gt 0 ]]; do
            "-parallel") shift
                         DG_PARA=1
                         DG_FLOG=$DG_FLOG"_Parallel"
-                        echo ; echo We are doing parallel!
+                        echo ; echo "We are doing parallel!"
                         ;;
                         
        "-postparallel") shift
                         DG_PARA=2
                         DG_FLOG=$DG_FLOG"_PostParallel"
-                        echo ; echo We are doing post parallel!
+                        echo ; echo "We are doing post parallel!"
                         ;;
                         
       "-post-parallel") shift
                         DG_PARA=2
                         DG_FLOG=$DG_FLOG"_PostParallel"
-                        echo ; echo We are doing post parallel!
+                        echo ; echo "We are doing post parallel!"
+                        ;;
+                       
+               "-step") shift
+                        while [[ $# -gt 0 ]]; do
+                            if [[ "$1" != "-"* ]]; then
+                                DG_STEP="$1"
+                                DG_FLOG="${DG_FLOG}_${DG_STEP}"
+                            else break; fi; shift
+                        done
                         ;;
                        
               "-field") shift
                         while [[ $# -gt 0 ]]; do
                             if [[ "$1" != "-"* ]]; then
                                 DG_FIEL=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+                                DG_FLOG="${DG_FLOG}_${DG_FIEL}"
+                            else break; fi; shift
+                        done
+                        ;;
+                       
+               "-band") shift
+                        while [[ $# -gt 0 ]]; do
+                            if [[ "$1" != "-"* ]]; then
+                                DG_IMAX="$1"
+                                DG_FLOG="${DG_FLOG}_${DG_IMAX}"
+                            else break; fi; shift
+                        done
+                        ;;
+                       
+               "-date") shift
+                        while [[ $# -gt 0 ]]; do
+                            if [[ "$1" != "-"* ]]; then
+                                DG_DATE="$1"
+                                DG_FLOG="${DG_FLOG}_${DG_DATE}"
+                            else break; fi; shift
+                        done
+                        ;;
+                       
+                "-cat") shift
+                        while [[ $# -gt 0 ]]; do
+                            if [[ "$1" != "-"* ]]; then
+                                DG_CATA="$1"
                             else break; fi; shift
                         done
                         ;;
@@ -188,6 +223,7 @@ while [[ $# -gt 0 ]]; do
         "-catalog-out") shift
                         while [[ $# -gt 0 ]]; do
                             if [[ "$1" != "-"* ]]; then
+                                DG_CATO="$1"
                                 GALFIT_CATALOG_OUT="$1"
                             else break; fi; shift
                         done
@@ -201,10 +237,26 @@ while [[ $# -gt 0 ]]; do
                         done
                         ;;
                        
+        "-catalog-sed") shift
+                        while [[ $# -gt 0 ]]; do
+                            if [[ "$1" != "-"* ]]; then
+                                DG_FSED="$1"
+                            else break; fi; shift
+                        done
+                        ;;
+                       
+       "-catalog-mask") shift
+                        while [[ $# -gt 0 ]]; do
+                            if [[ "$1" != "-"* ]]; then
+                                DG_FSED="$1"
+                            else break; fi; shift
+                        done
+                        ;;
+                       
         "-sedpredict"*) shift
                         while [[ $# -gt 0 ]]; do
                             if [[ "$1" != "-"* ]]; then
-                                DG_FSED="$(echo $1 | sed 's/\.txt$//g')"
+                                DG_FSED="$1"
                             else break; fi; shift
                         done
                         ;;
@@ -212,7 +264,7 @@ while [[ $# -gt 0 ]]; do
        "-sed-predict"*) shift
                         while [[ $# -gt 0 ]]; do
                             if [[ "$1" != "-"* ]]; then
-                                DG_FSED="$(echo $1 | sed 's/\.txt$//g')"
+                                DG_FSED="$1"
                             else break; fi; shift
                         done
                         ;;
@@ -242,6 +294,30 @@ while [[ $# -gt 0 ]]; do
                         ;;
                        
        "-fitsname-psf") shift
+                        while [[ $# -gt 0 ]]; do
+                            if [[ "$1" != "-"* ]]; then
+                                DG_FPSF="$(echo $1 | sed 's/\.fits$//g')"
+                            else break; fi; shift
+                        done
+                        ;;
+                       
+                "-sci") shift
+                        while [[ $# -gt 0 ]]; do
+                            if [[ "$1" != "-"* ]]; then
+                                DG_FSCI="$(echo $1 | sed 's/\.fits$//g')"
+                            else break; fi; shift
+                        done
+                        ;;
+                       
+                "-rms") shift
+                        while [[ $# -gt 0 ]]; do
+                            if [[ "$1" != "-"* ]]; then
+                                DG_FRMS="$(echo $1 | sed 's/\.fits$//g')"
+                            else break; fi; shift
+                        done
+                        ;;
+                       
+                "-psf") shift
                         while [[ $# -gt 0 ]]; do
                             if [[ "$1" != "-"* ]]; then
                                 DG_FPSF="$(echo $1 | sed 's/\.fits$//g')"
@@ -293,6 +369,7 @@ done
 if [[ x"$DG_CATA" != x"NONE" ]]; then
     if [ -f $DG_CATA ]; then
         echo ; echo "We are using catalog $DG_CATA"
+        if echo $DG_CATA | grep -q -E '/'; then ln -fs $DG_CATA; export DG_CATA=$(basename "$DG_CATA"); fi
         if echo $DG_CATA | grep -q -E '[^a-zA-Z0-9_.]'; then echo ; echo "Sorry! The filename contains non a-zA-Z0-9_ characters! Supermongo could not deal with this!" ; echo ; exit 1; fi
     else
         echo ; echo "Error! Catalog file $DG_CATA does not exist! Abort!"; exit 1
@@ -303,7 +380,8 @@ fi
 # 
 if [[ x"$DG_FSCI" != x"NONE" ]]; then
     if [ -f $DG_FSCI.fits ]; then
-        echo ; echo "We are using map $DG_FSCI.fits instead of the map in goFine.sm"
+        echo ; echo "We are using map $DG_FSCI.fits!"
+        if echo $DG_FSCI | grep -q -E '/'; then ln -fs $DG_FSCI.fits; export DG_FSCI=$(basename "$DG_FSCI"); fi
         if echo $DG_FSCI | grep -q -E '[^a-zA-Z0-9_.]'; then echo ; echo "Sorry! The filename contains non a-zA-Z0-9_ characters! Supermongo could not deal with this!" ; echo ; exit 1; fi
     else
         echo ; echo "Error! Fits file $DG_FSCI.fits does not exist! Abort!"; exit 1
@@ -314,7 +392,8 @@ fi
 # 
 if [[ x"$DG_FRMS" != x"NONE" ]]; then
     if [ -f $DG_FRMS.fits ]; then
-        echo ; echo "We are using map $DG_FRMS.fits instead of the map in goFine.sm"
+        echo ; echo "We are using map $DG_FRMS.fits!"
+        if echo $DG_FRMS | grep -q -E '/'; then ln -fs $DG_FRMS.fits; export DG_FRMS=$(basename "$DG_FRMS"); fi
         if echo $DG_FRMS | grep -q -E '[^a-zA-Z0-9_.]'; then echo ; echo "Sorry! The filename contains non a-zA-Z0-9_ characters! Supermongo could not deal with this!" ; echo ; exit 1; fi
     else
         echo ; echo "Error! Fits file $DG_FRMS.fits does not exist! Abort!"; exit 1
@@ -325,7 +404,8 @@ fi
 # 
 if [[ x"$DG_FPSF" != x"NONE" ]]; then
     if [ -f $DG_FPSF.fits ]; then
-        echo ; echo "We are using map $DG_FPSF.fits instead of the map in goFine.sm"
+        echo ; echo "We are using map $DG_FPSF.fits!"
+        if echo $DG_FPSF | grep -q -E '/'; then ln -fs $DG_FPSF.fits; export DG_FPSF=$(basename "$DG_FPSF"); fi
         if echo $DG_FPSF | grep -q -E '[^a-zA-Z0-9_.]'; then echo ; echo "Sorry! The filename contains non a-zA-Z0-9_ characters! Supermongo could not deal with this!" ; echo ; exit 1; fi
     else
         echo ; echo "Error! Fits file $DG_FPSF.fits does not exist! Abort!"; exit 1
@@ -337,6 +417,7 @@ fi
 if [[ x"$DG_FMSK" != x"NONE" ]]; then
     if [ -f $DG_FMSK.fits ]; then
         echo ; echo "We are using map $DG_FMSK.fits as the goodArea mask map! The default threshold for goodarea is $DG_VMSK if is not set by -threshold-goodarea <TODO>."
+        if echo $DG_FMSK | grep -q -E '/'; then ln -fs $DG_FMSK.fits; export DG_FMSK=$(basename "$DG_FMSK"); fi
         if echo $DG_FMSK | grep -q -E '[^a-zA-Z0-9_.]'; then echo ; echo "Sorry! The filename contains non a-zA-Z0-9_ characters! Supermongo could not deal with this!" ; echo ; exit 1; fi
     else
         echo ; echo "Error! Fits file $DG_FMSK.fits does not exist! Abort!"; exit 1
@@ -348,6 +429,7 @@ fi
 if [[ x"$DG_CATB" != x"NONE" ]]; then
     if [[ -f $DG_CATB ]]; then
         echo ; echo "We will fit additional objects in $DG_CATB!"
+        if echo $DG_CATB | grep -q -E '/'; then ln -fs $DG_CATB; export DG_CATB=$(basename "$DG_CATB"); fi
         if echo $DG_CATB | grep -q -E '[^a-zA-Z0-9_.]'; then echo ; echo "Sorry! The filename contains non a-zA-Z0-9_ characters! Supermongo could not deal with this!" ; echo ; exit 1; fi
     else
         echo ; echo "Error! Additonal catalog $DG_CATB does not exist! Abort!"; exit 1
@@ -357,28 +439,79 @@ else
 fi
 # 
 if [[ $DG_PFIT -gt 0 ]]; then
-    if [[ -f $DG_FSED.txt ]]; then
-        echo ; echo "We are using SED prediction $DG_FSED.txt"
-        if [[ $DG_PFIT -eq 1 && x"$DG_CATB" == x ]]; then echo ; echo We are fitting included objects only!; fi
-        if [[ $DG_PFIT -eq 1 && x"$DG_CATB" != x ]]; then echo ; echo We are fitting included objects and additional objects only!; fi
-        if [[ $DG_PFIT -eq 2 && x"$DG_CATB" == x ]]; then echo ; echo We are fitting excluded objects only!; fi
-        if [[ $DG_PFIT -eq 2 && x"$DG_CATB" != x ]]; then echo ; echo We are fitting excluded objects only!; fi #<TODO># adds
+    if [[ -f $DG_FSED ]]; then
+        echo ; echo "We are using SED prediction $DG_FSED"
+        if [[ $DG_PFIT -eq 1 && x"$DG_CATB" == x"NONE" ]]; then echo ; echo We are fitting included objects only!; fi
+        if [[ $DG_PFIT -eq 1 && x"$DG_CATB" != x"NONE" ]]; then echo ; echo We are fitting included objects and additional objects only!; fi
+        if [[ $DG_PFIT -eq 2 && x"$DG_CATB" == x"NONE" ]]; then echo ; echo We are fitting excluded objects only!; fi
+        if [[ $DG_PFIT -eq 2 && x"$DG_CATB" != x"NONE" ]]; then echo ; echo We are fitting excluded objects only!; fi #<TODO># adds
     else
-        echo ; echo "Error! SED prediction file $DG_FSED.txt does not exist! Abort!"; exit 1
+        echo ; echo "Error! SED prediction file $DG_FSED does not exist! Abort!"; exit 1
     fi
 else 
     echo ; echo "We will fit all catalog objects!"
 fi
 # 
-echo ; echo "We will log into $DG_FLOG.smlog"
+if [[ "$DG_FLOG" != "log" ]]; then
+    DG_FLOG="$DG_FLOG.log"
+    echo ; echo "We will log into $DG_FLOG"
+else
+    DG_FLOG="NONE"
+    echo ; echo "We will not logging the output."
+fi
 # 
 # more -- checking files
-if [[ ! -f "goFine.sm" && -f "../goFine.sm" ]]; then ln -fs "../goFine.sm"; fi
-if [[ ! -f "goSimu.sm" && -f "../goSimu.sm" ]]; then ln -fs "../goSimu.sm"; fi
+#if [[ ! -f "goFine.sm" && -f "../goFine.sm" ]]; then ln -fs "../goFine.sm"; fi
+#if [[ ! -f "goSimu.sm" && -f "../goSimu.sm" ]]; then ln -fs "../goSimu.sm"; fi
+
+if [[ ! -f "goFineDL.sm" ]] && [[ ! -L "goFineDL.sm" ]]; then 
+    echo "Warning! \"goFineDL.sm\" was not found! Linking from \"$(dirname ${BASH_SOURCE[0]})/Galfit_Template/goFineDL.sm\"!"
+    ln -fs "$(dirname ${BASH_SOURCE[0]})/Galfit_Template/goFineDL.sm"
+fi
+
+if [[ ! -f "goSimuDL.sm" ]] && [[ ! -L "goSimuDL.sm" ]]; then 
+    echo "Warning! \"goSimuDL.sm\" was not found! Linking from \"$(dirname ${BASH_SOURCE[0]})/Galfit_Template/goSimuDL.sm\"!"
+    ln -fs "$(dirname ${BASH_SOURCE[0]})/Galfit_Template/goSimuDL.sm"
+fi
+
+if [[ ! -f "goPriorDL.sm" ]] && [[ ! -L "goPriorDL.sm" ]]; then 
+    echo "Warning! \"goPriorDL.sm\" was not found! Linking from \"$(dirname ${BASH_SOURCE[0]})/Galfit_Template/goPriorDL.sm\"!"
+    ln -fs "$(dirname ${BASH_SOURCE[0]})/Galfit_Template/goPriorDL.sm"
+fi
+
 # if [[ ! -f "run_image_util.sm" ]]; then ln -fs "../run_image_util.sm"; fi
 # if [[ ! -f "run_update_catalog.sm" ]]; then ln -fs "../run_update_catalog.sm"; fi
-# 
 
+echo "print '\# do_Preset_DL $*\n' {}"                                      >  "spdb_preset_$DG_IMAX.sm"
+echo "macro read goFineDL.sm"                                               >> "spdb_preset_$DG_IMAX.sm"
+echo "if(whatis(xSet_$DG_IMAX)==3) {xSet_$DG_IMAX} else {xSet_default}"     >> "spdb_preset_$DG_IMAX.sm"
+if [[ x"$DG_FIEL" != x"NONE" ]]; then echo "define field          $DG_FIEL" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_IMAX" != x"NONE" ]]; then echo "define band           $DG_IMAX" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_IMAX" != x"NONE" ]]; then echo "define imax           $DG_IMAX" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_DATE" != x"NONE" ]]; then echo "define xdate          $DG_DATE" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_CATA" != x"NONE" ]]; then echo "define catalog_file   $DG_CATA" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_CATB" != x"NONE" ]]; then echo "define include_file   $DG_CATB" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_FSED" != x"NONE" ]]; then echo "define exclude_file   $DG_FSED" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_FLOG" != x"NONE" ]]; then echo "define logging_file   $DG_FLOG" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_FSCI" != x"NONE" ]]; then echo "define imax_name      $DG_FSCI" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_FRMS" != x"NONE" ]]; then echo "define imax_name_rms  $DG_FRMS" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_FPSF" != x"NONE" ]]; then echo "define imax_name_psf  $DG_FPSF" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_PRIM" != x"NONE" ]]; then echo "define use_prior_mags $DG_PRIM" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_VARY" != x"NONE" ]]; then echo "define vary_positions $DG_VARY" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_GAUS" != x"NONE" ]]; then echo "define fit_gaussian   $DG_GAUS" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_SERS" != x"NONE" ]]; then echo "define fit_sersic     $DG_SERS" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_PFIT" != x"NONE" ]]; then echo "define doFit          $DG_PFIT" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_PARA" != x"NONE" ]]; then echo "define doPara         $DG_PARA" >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_PARA" == x"0"    ]]; then echo "define doParallel     1"        >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_PARA" == x"0"    ]]; then echo "define doPostParallel 1"        >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_PARA" == x"1"    ]]; then echo "define doParallel     1"        >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_PARA" == x"1"    ]]; then echo "define doPostParallel 0"        >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_PARA" == x"2"    ]]; then echo "define doParallel     0"        >> "spdb_preset_$DG_IMAX.sm"; fi
+if [[ x"$DG_PARA" == x"2"    ]]; then echo "define doPostParallel 1"        >> "spdb_preset_$DG_IMAX.sm"; fi
+echo ""                                                                     >> "spdb_preset_$DG_IMAX.sm"
+
+echo ""
+echo "Prepared \"spdb_preset_$DG_IMAX.sm\"!"
 
 
 

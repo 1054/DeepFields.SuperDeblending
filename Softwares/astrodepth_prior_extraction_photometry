@@ -439,6 +439,38 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
     fi
     # 
     # 
+    # Set fit_galfit_prior_vary_position_threshold_magerr by the input arugment "galfit-prior-vary-position-threshold-magerr"
+    #     fit_galfit_prior_vary_position_threshold_totrms by the input arugment "galfit-prior-vary-position-threshold-totrms"
+    # Set fit_galfit_prior_fit_gaussian_threshold_magerr by the input arugment "galfit-prior-fit-gaussian-threshold-magerr"
+    #     fit_galfit_prior_fit_gaussian_threshold_totrms by the input arugment "galfit-prior-fit-gaussian-threshold-totrms"
+    # Set fit_galfit_prior_fit_sersic_threshold_magerr by the input arugment "galfit-prior-fit-sersic-threshold-magerr"
+    #     fit_galfit_prior_fit_sersic_threshold_totrms by the input arugment "galfit-prior-fit-sersic-threshold-totrms"
+    if [[ ${#AstroDepth_INP_galfit_prior_vary_position_threshold_magerr[@]} -gt 0 ]]; then
+        echo "Fit galfit priors with varied position with the threshold: magerr > ${AstroDepth_INP_galfit_prior_vary_position_threshold_magerr}!"
+        echo "${AstroDepth_INP_galfit_prior_vary_position_threshold_magerr}" > "fit_galfit_prior_vary_position_threshold_magerr"
+    fi
+    if [[ ${#AstroDepth_INP_galfit_prior_vary_position_threshold_totrms[@]} -gt 0 ]]; then
+        echo "Fit galfit priors with varied position with the threshold: totrms > ${AstroDepth_INP_galfit_prior_vary_position_threshold_totrms}!"
+        echo "${AstroDepth_INP_galfit_prior_vary_position_threshold_totrms}" > "fit_galfit_prior_vary_position_threshold_totrms"
+    fi
+    if [[ ${#AstroDepth_INP_galfit_prior_fit_gaussian_threshold_magerr[@]} -gt 0 ]]; then
+        echo "Fit galfit priors with Gaussian models with the threshold: magerr > ${AstroDepth_INP_galfit_prior_fit_gaussian_threshold_magerr}!"
+        echo "${AstroDepth_INP_galfit_prior_fit_gaussian_threshold_magerr}" > "fit_galfit_prior_fit_gaussian_threshold_magerr"
+    fi
+    if [[ ${#AstroDepth_INP_galfit_prior_fit_gaussian_threshold_totrms[@]} -gt 0 ]]; then
+        echo "Fit galfit priors with Gaussian models with the threshold: totrms > ${AstroDepth_INP_galfit_prior_fit_gaussian_threshold_totrms}!"
+        echo "${AstroDepth_INP_galfit_prior_fit_gaussian_threshold_totrms}" > "fit_galfit_prior_fit_gaussian_threshold_totrms"
+    fi
+    if [[ ${#AstroDepth_INP_galfit_prior_fit_sersic_threshold_magerr[@]} -gt 0 ]]; then
+        echo "Fit galfit priors with Sersic models with the threshold: magerr > ${AstroDepth_INP_galfit_prior_fit_sersic_threshold_magerr}!"
+        echo "${AstroDepth_INP_galfit_prior_fit_sersic_threshold_magerr}" > "fit_galfit_prior_fit_sersic_threshold_magerr"
+    fi
+    if [[ ${#AstroDepth_INP_galfit_prior_fit_sersic_threshold_totrms[@]} -gt 0 ]]; then
+        echo "Fit galfit priors with Sersic models with the threshold: totrms > ${AstroDepth_INP_galfit_prior_fit_sersic_threshold_totrms}!"
+        echo "${AstroDepth_INP_galfit_prior_fit_sersic_threshold_totrms}" > "fit_galfit_prior_fit_sersic_threshold_totrms"
+    fi
+    # 
+    # 
     # 
     # 
     # 

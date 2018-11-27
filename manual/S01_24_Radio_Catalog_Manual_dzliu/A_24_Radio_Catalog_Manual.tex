@@ -65,9 +65,11 @@
 %*************************************************************************************
 \section{Abstract}
 
-This is the manual for the 24+radio catalog. We select sources from the GOODS-Spitzer IRAC catalog in GOODS-North field using 24 and radio images. 
+This is the manual for making the 24\,$\mu$m and radio photometry catalogs. We use the GOODS-Spitzer IRAC catalog as our prior catalog and fit sources with \textsc{galfit} in the 24\,$\mu$m and radio images. 
 
-We use Monte-Carlo simulation to validate and correct measurements. The output is a catalog contains IRAC, Ks, 24 and radio band flux and uncertainties. Additional, we measure 16um based on this catalog, and append 16um flux and uncertainty to our final 24+radio catalog. 
+We use Monte-Carlo simulation to validate and correct the photometry measurements at each band. 
+
+The final output is a catalog contains IRAC, Ks, 24 and radio band flux and uncertainties. Additional, we measure 16um based on this catalog, and append 16um flux and uncertainty to our final 24+radio catalog. 
 
 With the final 24+radio catalog, we do a panchromatic SED fitting to derive SFR, dust mass, and to predict the far-infrared band fluxes, which will be used for the next step ''super-deblending'' photometry. 
 
@@ -86,14 +88,18 @@ Hints: black text are our method and procedures, \textcolor{blue}{blue text are 
 We use these commands to run the galfit photometry at band 24:
 
 \begin{lstlisting}[language=bash]
+# source our code
+source ~/Cloud/Github/DeepFields.SuperDeblending/SETUP.bash
 # run first-pass without varying source position
 ./do_Galfit 24 201500 -catalog irac_mips_fluxes_hdfn.dat
 ssh planer; cd boxgalfit; do_GalfitRunqsub; cd ..; exit
 ./do_Galfit 24 201500 -catalog irac_mips_fluxes_hdfn.dat -postparallel
-# then second-pass varying source position
+# then second-pass varying bright source position
 ./do_Galfit 24 201500 -catalog irac_mips_fluxes_hdfn.dat -vary
 ssh planer; cd boxgalfit_vary; do_GalfitRunqsub; cd ..; exit
 ./do_Galfit 24 201500 -catalog irac_mips_fluxes_hdfn.dat -vary -postparallel
+# then third-pass fitting bright Sersic source profile
+./do_Galfit 24 201500 -catalog irac_mips_fluxes_hdfn.dat -vary -sersic
 \end{lstlisting}
 
 Before running this please make sure that the computer meets the software dependencies in Section \ref{Appendix_Software_Dependencies}. 

@@ -1,0 +1,45 @@
+#!/bin/bash
+# 
+
+set -e
+
+if [[ -z "$SUPERDEBLENDDIR" ]]; then
+    source $(dirname "${BASH_SOURCE[0]}")/Softwares/SETUP
+fi
+
+. $(dirname "${BASH_SOURCE[0]}")/Softwares/do_Preset Galfit $*
+# --> this outputs spdb_preset.sm
+
+
+sm << EOF | tee "$DG_FLOG.smlog"
+    
+    ####################################
+    #      PREPARE FITTING PARAMS      #
+    ####################################
+    input spdb_preset.sm
+    
+    #####################
+    #      GALFIT       #
+    #####################
+    macro read goFineDL.sm
+    if(dimen(idF)>0) {
+        Fit_XXX
+    }
+    if(dimen(idF)>0 && \$doPostParallel>0) {
+        Rebuild_XXX
+    }
+    
+    ####################
+    #      FINISH      #
+    ####################
+    if(dimen(idF)>0) {
+        echo SM Galfit Finished!
+    } else {
+        echo SM Galfit Failed!
+    }
+    
+    quit
+EOF
+
+
+

@@ -5,7 +5,10 @@ set -e
 
 . do_Preset Galfit $*
 
-if [[ ! -f "goFine.sm" ]]; then echo "Error! \"goFine.sm\" was not found!"; exit; fi
+if [[ ! -f "goFine.sm" ]]; then 
+    echo "Warning! \"goFine.sm\" was not found! Copying from \"$(dirname ${BASH_SOURCE[0]})/Galfit_Template/goFine.sm\"!"; 
+    exit; 
+fi
 
 sm << EOF | tee "$DG_FLOG.smlog"
     
