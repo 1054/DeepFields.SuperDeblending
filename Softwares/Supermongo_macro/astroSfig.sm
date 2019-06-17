@@ -1270,6 +1270,119 @@ convert_lprm2flux 04
     set $0 = LineFlux
     return
 
+convert_flux2lumi 03
+    # convert flux [mJy] to luminosity [Lsun]
+    if($?1==0||$?2==0){print 'Usage: set lumi = convert_flux2lumi(z,flux_mJy[,lumdist])' {}
+                       print ' => output: Luminosity in unit of Lsun\n' {} return}
+    set _lprm2flux_z = $1
+    set _lprm2flux_fff = $2
+    if(sum(_lprm2flux_z<=0)>0) {print 'Error! Input redshift is non-positive!\n' {} return}
+    declare _lprm2flux_dL 0
+    if($?4) { if(is_vector($3)) {if(dimen($3)==dimen(_lprm2flux_z)) {set _lprm2flux_dL = $3}} \
+              else {if($3>0) {set _lprm2flux_dL = _lprm2flux_z*0.0+$3}} }
+    if(dimen(_lprm2flux_dL)==0) { 
+        define _lprm2flux_verbose $verbose verbose 0
+        !echo "\# lumdist " > ".lprm2flux.lumdist.tmp"
+        do _lprm2flux_i=0,dimen(_lprm2flux_z)-1 {
+        !lumdist -simple $(_lprm2flux_z[$_lprm2flux_i]) >> ".lprm2flux.lumdist.tmp"
+        }
+        data ".lprm2flux.lumdist.tmp" read {_lprm2flux_dL 1} verbose $_lprm2flux_verbose
+        !rm ".lprm2flux.lumdist.tmp"
+    }
+    set _lprm2flux_LLL = _lprm2flux_fff * 1e-26 * 4 * pi * (_lprm2flux_dL*1e6*3.085677e18)**2 / (1.0+_lprm2flux_z) # erg s-1 Hz-1
+    set _lprm2flux_LLLsun = _lprm2flux_LLL / 3.839e33 # Lsun Hz-1
+    if($verbose){
+        if($?print_noheader) {
+            define prev_print_noheader $print_noheader
+        } else {
+            define prev_print_noheader 0
+        }
+        define print_noheader 1
+        print 'flux = %e [mJy]' {_lprm2flux_fff}
+        print 'lumdist = %e [Mpc]' {_lprm2flux_dL}
+        print 'luminosity = %e [erg s-1 Hz-1]' {_lprm2flux_LLL}
+        print 'luminosity = %e [Lsun]' {_lprm2flux_LLLsun}
+        define print_noheader $prev_print_noheader
+    }
+    set $0 = _lprm2flux_LLLsun
+    return
+
+convert_MAB2mAB 02
+    # convert MAB to mAB 
+    # mAB - MAB = 5 * lg(dL_pc/10)
+    if($?1==0||$?2==0){print 'Usage: set mAB = convert_MAB2mAB(z,MAB[,lumdist])' {}
+                       print ' => input: absolute AB magnitude; output: apparent AB magnitude\n' {} return}
+    set _MAB2mAB_z = float($1)
+    set _MAB2mAB_absmag = float($2)
+    if(sum(_MAB2mAB_z<=0)>0) {print 'Error! Input redshift is non-positive!\n' {} return}
+    declare _MAB2mAB_dL 0
+    if($?4) { if(is_vector($3)) {if(dimen($3)==dimen(_MAB2mAB_z)) {set _MAB2mAB_dL = $3}} \
+              else {if($3>0) {set _MAB2mAB_dL = _MAB2mAB_z*0.0+$3}} }
+    if(dimen(_MAB2mAB_dL)==0) { 
+        define _MAB2mAB_verbose $verbose verbose 0
+        !echo "\# lumdist " > ".MAB2mAB.lumdist.tmp"
+        do _MAB2mAB_i=0,dimen(_MAB2mAB_z)-1 {
+        !lumdist -simple $(_MAB2mAB_z[$_MAB2mAB_i]) >> ".MAB2mAB.lumdist.tmp"
+        }
+        data ".MAB2mAB.lumdist.tmp" read {_MAB2mAB_dL 1} verbose $_MAB2mAB_verbose
+        !rm ".MAB2mAB.lumdist.tmp"
+    }
+    set _MAB2mAB_appmag = _MAB2mAB_absmag + 5.0 * lg(_MAB2mAB_dL*1e6 / 10) # 1e6 converts Mpc to pc
+    if($verbose){
+        if($?print_noheader) {
+            define prev_print_noheader $print_noheader
+        } else {
+            define prev_print_noheader 0
+        }
+        define print_noheader 1
+        print 'MAB = %g [absolute magnitude]' {_MAB2mAB_absmag}
+        print 'mAB = %g [apparent magnitude]' {_MAB2mAB_appmag}
+        print 'dL = %e [Mpc]' {_MAB2mAB_dL}
+        define print_noheader $prev_print_noheader
+    }
+    set $0 = _MAB2mAB_appmag
+    return
+
+convert_MAB2mJy 02
+    # convert MAB to mJy 
+    # mAB - MAB = 5 * lg(dL_pc/10)
+    if($?1==0||$?2==0){print 'Usage: set flux_mJy = convert_MAB2mJy(z,MAB[,lumdist])' {}
+                       print ' => input: absolute AB magnitude; output: flux in units of mJy.\n' {} return}
+    set _MAB2mJy_z = float($1)
+    set _MAB2mJy_absmag = float($2)
+    if(sum(_MAB2mJy_z<=0)>0) {print 'Error! Input redshift is non-positive!\n' {} return}
+    declare _MAB2mJy_dL 0
+    if($?4) { if(is_vector($3)) {if(dimen($3)==dimen(_MAB2mJy_z)) {set _MAB2mJy_dL = $3}} \
+              else {if($3>0) {set _MAB2mJy_dL = _MAB2mJy_z*0.0+$3}} }
+    if(dimen(_MAB2mJy_dL)==0) { 
+        define _MAB2mJy_verbose $verbose verbose 0
+        !echo "\# lumdist " > ".MAB2mJy.lumdist.tmp"
+        do _MAB2mJy_i=0,dimen(_MAB2mJy_z)-1 {
+        !lumdist -simple $(_MAB2mJy_z[$_MAB2mJy_i]) >> ".MAB2mJy.lumdist.tmp"
+        }
+        data ".MAB2mJy.lumdist.tmp" read {_MAB2mJy_dL 1} verbose $_MAB2mJy_verbose
+        !rm ".MAB2mJy.lumdist.tmp"
+    }
+    set _MAB2mJy_appmag = _MAB2mJy_absmag + 5.0 * lg(_MAB2mJy_dL*1e6 / 10) # 1e6 converts Mpc to pc
+    set _MAB2mJy_flux = 10**(_MAB2mJy_appmag / (-2.5)) * 3630.780548 * 1e3 # mJy
+    if($verbose){
+        if($?print_noheader) {
+            define prev_print_noheader $print_noheader
+        } else {
+            define prev_print_noheader 0
+        }
+        define print_noheader 1
+        print 'MAB = %g [absolute magnitude]' {_MAB2mJy_absmag}
+        print 'mAB = %g [apparent magnitude]' {_MAB2mJy_appmag}
+        print 'flux = %g [mJy]' {_MAB2mJy_flux}
+        print 'dL = %e [Mpc]' {_MAB2mJy_dL}
+        define print_noheader $prev_print_noheader
+    }
+    set $0 = _MAB2mJy_appmag
+    return
+    
+    
+
 convert_GHz2kms 02
     # 
     if($?1==0||$?2==0){print 'Usage: convert_GHz2kms GHz0 GHz => output: kms\n' {} return}

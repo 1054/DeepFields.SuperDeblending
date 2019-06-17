@@ -26,52 +26,6 @@ macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Co
 QUIT
 macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
 QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
 macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
 QUIT
 macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
@@ -484,4 +438,89 @@ macro read do_plot_sed_templates.sm Plot_SED_Templates
 QUIT
 calc 500./3e5*100.
 calc 8/0.16
+quit
+load astroPhot2.sm
+QUIT
+load astroSfig.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+convert_mag2flux cosmos AB 25.5 01
+convert_mag2flux cosmos AB 25.5 0.1
+quit
+load astroPhot2.sm
+QUIT
+load astroSfig.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+convert_mag2flux cosmos AB 25.0 0.1
+quit
+load astroPhot2.sm
+QUIT
+load astroSfig.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+load astroPhot2.sm
+QUIT
+load astroSfig.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+load astroPhot2.sm
+QUIT
+load astroSfig.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+load astroPhot2.sm
+QUIT
+load astroSfig.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+load astroPhot2.sm
+QUIT
+load astroSfig.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+load astroPhot2.sm
+QUIT
+load astroSfig.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+load astroPhot2.sm
+QUIT
+load astroSfig.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+load astroPhot2.sm
+QUIT
+load astroSfig.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+load astroPhot2.sm
+QUIT
+load astroSfig.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+load astroPhot2.sm
+QUIT
+load astroSfig.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+load astroSfig.sm
+calc_FIR_lines 2.553
+calc_FIR_lines 5.0
+calc_FIR_lines 6.0
+calc 3.55*24.
 quit

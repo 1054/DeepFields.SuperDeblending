@@ -1,0 +1,272 @@
+#!/bin/bash
+# 
+# Read results
+# 
+
+
+# 
+# Check Mac System
+# 
+xargs_command="xargs"
+if [[ $(uname) == "Darwin" ]]; then
+    if [[ $(type gxargs 2>/dev/null | wc -l) -eq 1 ]]; then
+        xargs_command="gxargs"
+    else
+        echo "Error! Please install GNU findutils under Mac system! (e.g. sudo port install findutils)"
+        exit 1
+    fi
+fi
+
+
+# 
+# check input dir
+# 
+if [[ $# -lt 1 ]]; then
+    echo "Usage: "
+    echo "astrodepth_prior_extraction_photometry_read_results <Output_dir>"
+    exit
+fi
+
+Output_dir="$1"
+echo "Working directory \"$(pwd)/${Output_dir}\""
+echo ""
+
+if [[ "$Output_dir" == *"/" ]]; then
+    Output_dir=$(echo "$Output_dir" | sed -e 's%/$%%g')
+fi
+
+if [[ ! -d "$Output_dir" ]]; then
+    echo "Error! The input directory \"$Output_dir\" does not exist!"
+    exit 255
+fi
+
+
+# 
+# set parameters
+# 
+Set_output_screenshots=0
+
+
+# 
+# change dir
+# 
+cd "$Output_dir"
+
+
+
+# 
+# check necessary files
+# 
+List_of_Necessary_Files=(\
+"astrodepth_catalog_0.txt"
+"astrodepth_catalog_0_ra_dec.txt"
+"astrodepth_catalog_0_id_mask.txt"
+)
+Check_OK=1
+for Check_File_Name in "${List_of_Necessary_Files[@]}"; do
+    if [[ ! -f "${Check_File_Name}" ]]; then
+        echo "Error! The data file \"$(pwd)/${Check_File_Name}\" does not exist!"
+        Check_OK=0
+    fi
+done
+if [[ $Check_OK -eq 0 ]]; then
+    exit 255
+fi
+
+
+# 
+# list subdirectories
+# 
+List_of_Subdirectories=($(find . -type d -maxdepth 1 -mindepth 1 -name "[0-9a-zA-Z]*" | sed -e 's%^\./%%g' | sort -V))
+
+if [[ ${#List_of_Subdirectories[@]} -eq 0 ]]; then
+    echo "Error! No subdirectoriy found! Exit!"
+    exit 1
+fi
+
+
+# 
+# prepare output subdir
+# 
+Output_subdir="_RESULTS_"
+
+# 
+# backup 
+# 
+if [[ -d "${Output_subdir}" ]]; then
+    Current_datetime=$(date +"%Y%m%d.%Hh%Mm%Ss")
+    mv "${Output_subdir}" "${Output_subdir}_BACKUP_${Current_datetime}"
+    if [[ -f "${Output_subdir}.README.TXT" ]]; then
+        mv "${Output_subdir}.README.TXT" "${Output_subdir}_BACKUP_${Current_datetime}.README.TXT"
+    fi
+    if [[ -f "${Output_subdir}.WARNING.TXT" ]]; then
+        mv "${Output_subdir}.WARNING.TXT" "${Output_subdir}_BACKUP_${Current_datetime}.WARNING.TXT"
+    fi
+    echo "Found existing results! Backed-up \"${Output_subdir}\" as \"${Output_subdir}_BACKUP_${Current_datetime}\"!"
+    echo ""
+fi
+
+if [[ ! -d "${Output_subdir}" ]]; then
+    mkdir -p "${Output_subdir}"
+fi
+
+if [[ ! -d "${Output_subdir}" ]]; then
+    echo "Error! Failed to make output subdirectory \"$(pwd)/${Output_subdir}\"!"
+    exit 255
+fi
+
+
+# 
+# list result files
+# 
+List_of_Result_Files=(\
+"getpix.mask" \
+"getpix.txt" \
+"getpix.result" \
+"getpix_on_negative_image.mask" \
+"getpix_on_negative_image.txt" \
+"getpix_on_negative_image.result" \
+"fit_2.result.all.txt" \
+"fit_2.result.flux_origin.txt" \
+"fit_2.result.source_area.txt" \
+"fit_2.result.source_peak.txt" \
+"fit_2.result.source_err.txt" \
+"fit_3.result.all.txt" \
+"fit_3.result.flux_origin.txt" \
+"fit_3.result.source_area.txt" \
+"fit_3.result.source_peak.txt" \
+"fit_3.result.source_err.txt" \
+"fit_n2.result.all.txt" \
+"fit_n2.result.flux_origin.txt" \
+"fit_n2.result.source_area.txt" \
+"fit_n2.result.source_peak.txt" \
+"fit_n2.result.source_err.txt" \
+"fit_n3.result.all.txt" \
+"fit_n3.result.flux_origin.txt" \
+"fit_n3.result.source_area.txt" \
+"fit_n3.result.source_peak.txt" \
+"fit_n3.result.source_err.txt" \
+)
+
+# 
+# backup 
+# 
+#for Output_Item in "${List_of_Result_Files[@]}"; do
+#    if [[ -f "${Output_subdir}/Read_Results_all_final_${Output_Item}.backup" ]]; then
+#        mv "${Output_subdir}/Read_Results_all_final_${Output_Item}.backup" \
+#            "${Output_subdir}/Read_Results_all_final_${Output_Item}.backup.backup"
+#    fi
+#    if [[ -f "${Output_subdir}/Read_Results_all_final_${Output_Item}" ]]; then
+#        mv "${Output_subdir}/Read_Results_all_final_${Output_Item}" \
+#            "${Output_subdir}/Read_Results_all_final_${Output_Item}.backup"
+#    fi
+#done
+
+
+# 
+# loop subdirectories
+# 
+for (( i = 0; i < ${#List_of_Subdirectories[@]}; i++ )); do
+    
+    SubDirName="${List_of_Subdirectories[i]}"
+    
+    # combine result tables
+    echo "***************************************************************"
+    echo "Processing \"$SubDirName\" ($(($i+1))/${#List_of_Subdirectories[@]}) ($(date +'%Y%m%d %Hh%Mm%Ss %Z'))"
+    echo "***************************************************************"
+    
+    for Output_Item in "${List_of_Result_Files[@]}"; do
+        if [[ -f "${SubDirName}/${Output_Item}" ]]; then
+            if [[ ! -f "${Output_subdir}/Read_Results_all_final_${Output_Item}" ]]; then
+                head -n 1 "${SubDirName}/${Output_Item}" | $xargs_command -d '\n' -I % echo "%    image_file" > "${Output_subdir}/Read_Results_all_final_${Output_Item}"
+            fi
+            cat "${SubDirName}/${Output_Item}" | tail -n +3 | $xargs_command -d '\n' -I % echo "%    $SubDirName" >> "${Output_subdir}/Read_Results_all_final_${Output_Item}"
+        else
+            echo "***************************************************************"
+            echo "Warning! \"$(pwd)/${SubDirName}/${Output_Item}\" was not found!"
+            echo "***************************************************************"
+            date +"%Y-%m-%d %H:%M:%S %Z"                                           >> "${Output_subdir}.WARNING.TXT"
+            echo "Warning! \"$(pwd)/${SubDirName}/${Output_Item}\" was not found!" >> "${Output_subdir}.WARNING.TXT"
+        fi
+    done
+    
+    # make screenshots
+    if [[ $Set_output_screenshots -gt 0 ]]; then
+        Current_dir=$(pwd)
+        cd "${SubDirName}"
+        for Output_Item in "fit_2" "fit_n2" "fit_3" "fit_n3"; do
+            if [[ ! -f $Output_Item.screenshot.png ]]; then
+                if [[ -f $Output_Item.fits ]]; then
+                    Screenshot_title=$(date +"DS9GALFIT%Y%m%d%H%M%S")
+                    ds9galfit -title "$Screenshot_title" -geometry 1400x420 -fits $Output_Item.fits -output $Output_Item.screenshot.png -quit
+                else
+                    echo "***************************************************************"
+                    echo "Warning! \"$(pwd)/$Output_Item.fits\" was not found!"
+                    echo "***************************************************************"
+                    date +"%Y-%m-%d %H:%M:%S %Z"                                                                  >> "${Output_subdir}.WARNING.TXT"
+                    echo "Warning! \"$(pwd)/$Output_Item.fits\" was not found! Could not make screenshot for it!" >> "${Output_subdir}.WARNING.TXT"
+                fi
+            fi
+        done
+        cd "${Current_dir}"
+    fi
+    
+    echo ""
+    
+done
+
+
+# 
+# print final message
+# 
+echo "Output to directory \"$(pwd)/${Output_subdir}/\"."
+echo "See the README file \"$(pwd)/${Output_subdir}.README.TXT\"."
+
+
+date +"%Y-%m-%d %H:%M:%S %Z" > "${Output_subdir}.README.TXT"
+cat << EOT >> "${Output_subdir}.README.TXT"
+
+# Output_file_name                     Description
+"getpix.mask"                          "Aperture photometry, source mask for GALFIT fitting."
+"getpix.txt"                           "Aperture photometry, flux table."
+"getpix.result"                        "Aperture photometry, position and NaN pixel table."
+"getpix_on_negative_image.mask"        "Inverted image, aperture photometry, source mask for GALFIT fitting."
+"getpix_on_negative_image.txt"         "Inverted image, aperture photometry, flux table."
+"getpix_on_negative_image.result"      "Inverted image, aperture photometry, position and NaN pixel table."
+"fit_2.result.all.txt"                 "GALFIT, Gaussian+Point models, big combined table (flux, position, size, rms, pbcorr, flag_buffer)."
+"fit_2.result.flux_origin.txt"         "GALFIT, Gaussian+Point models, pixel value at the original position for identifying NaN pixels."
+"fit_2.result.source_area.txt"         "GALFIT, Gaussian+Point models, fitted source area convolved with the beam."
+"fit_2.result.source_peak.txt"         "GALFIT, Gaussian+Point models, more detailed peak flux, total flux and convolved size."
+"fit_2.result.source_err.txt"          "GALFIT, Gaussian+Point models, more detailed error calculation items based on Condon 1997. (Directly use the big combined table.)"
+"fit_3.result.all.txt"                 "GALFIT, Sersic+Gaussian+Point models, big combined table (flux, position, size, rms, pbcorr, flag_buffer)."
+"fit_3.result.flux_origin.txt"         "GALFIT, Sersic+Gaussian+Point models, pixel value at the original position for identifying NaN pixels."
+"fit_3.result.source_area.txt"         "GALFIT, Sersic+Gaussian+Point models, fitted source area convolved with the beam."
+"fit_3.result.source_peak.txt"         "GALFIT, Sersic+Gaussian+Point models, more detailed peak flux, total flux and convolved size."
+"fit_3.result.source_err.txt"          "GALFIT, Sersic+Gaussian+Point models, more detailed error calculation items based on Condon 1997. (Directly use the big combined table.)"
+"fit_n2.result.all.txt"                "Inverted image, GALFIT, Gaussian+Point models, big combined table (flux, position, size, rms, pbcorr, flag_buffer)."
+"fit_n2.result.flux_origin.txt"        "Inverted image, GALFIT, Gaussian+Point models, pixel value at the original position for identifying NaN pixels."
+"fit_n2.result.source_area.txt"        "Inverted image, GALFIT, Gaussian+Point models, fitted source area convolved with the beam."
+"fit_n2.result.source_peak.txt"        "Inverted image, GALFIT, Gaussian+Point models, more detailed peak flux, total flux and convolved size."
+"fit_n2.result.source_err.txt"         "Inverted image, GALFIT, Gaussian+Point models, more detailed error calculation items based on Condon 1997. (Directly use the big combined table.)"
+"fit_n3.result.all.txt"                "Inverted image, GALFIT, Sersic+Gaussian+Point models, big combined table (flux, position, size, rms, pbcorr, flag_buffer)."
+"fit_n3.result.flux_origin.txt"        "Inverted image, GALFIT, Sersic+Gaussian+Point models, pixel value at the original position for identifying NaN pixels."
+"fit_n3.result.source_area.txt"        "Inverted image, GALFIT, Sersic+Gaussian+Point models, fitted source area convolved with the beam."
+"fit_n3.result.source_peak.txt"        "Inverted image, GALFIT, Sersic+Gaussian+Point models, more detailed peak flux, total flux and convolved size."
+"fit_n3.result.source_err.txt"         "Inverted image, GALFIT, Sersic+Gaussian+Point models, more detailed error calculation items based on Condon 1997. (Directly use the big combined table.)"
+
+# 
+# Please select fitting results with \"flag_buffer == 0\".
+# 
+# Please note that \"cid_fit_XXX\" is the 0-based row number in the input prior catalog.
+#     and \"id_fit_XXX\" is the corresponding string value of the id column in the input prior catalog.
+# 
+
+EOT
+
+
+
+
+
+
+
+

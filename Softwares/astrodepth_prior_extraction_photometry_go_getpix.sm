@@ -434,6 +434,42 @@ read_primary_beam_correction_from_pb_image 00
     }
 
 
+read_rms_noise_from_rms_image 00
+    if(is_file("image_rms_noise.txt")) {
+        !mv "image_rms_noise.txt" "image_rms_noise.txt.backup"
+    }
+    if(is_file("image_rms_noise.warning.txt")) {
+        !rm "image_rms_noise.warning.txt"
+    }
+    if(is_vector(rms_noise_from_rms_image)) {unset rms_noise_from_rms_image}
+    if(is_file("image_rms.fits")) {
+        if(!is_vector(px) || !is_vector(py)) { read_data }
+        define print_noheader 1
+        set px_round = int(px+0.5)
+        set py_round = int(py+0.5)
+        print "image_rms_noise.getpix.input.txt" '%d %d\n' {px_round py_round}
+        define print_noheader 0
+        !getpix -n 1 "%.15g" "image_rms.fits" @"image_rms_noise.getpix.input.txt" > "image_rms_noise.getpix.output.txt"
+        if(is_vector(rms_noise_from_rms_image_str)) {unset rms_noise_from_rms_image_str}
+        data "image_rms_noise.getpix.output.txt" read {rms_noise_from_rms_image_str 1.s}
+        #if(is_vector(rms_noise_from_rms_image_str)) {
+        #    !rm "image_rms_noise.getpix.input.txt"
+        #    !rm "image_rms_noise.getpix.output.txt"
+        #}
+        set rms_noise_from_rms_image_str2 = (rms_noise_from_rms_image_str=='nan') ? '1e10' : rms_noise_from_rms_image_str
+        set rms_noise_from_rms_image = float(rms_noise_from_rms_image_str2)
+        set rms_noise_from_rms_image = (rms_noise_from_rms_image==0) ? 1e10 : rms_noise_from_rms_image #<20180109>#
+        unset rms_noise_from_rms_image_str2
+        set rms_noise_from_rms_image = (rms_noise_from_rms_image_str=='nan') ? 1e10 : rms_noise_from_rms_image
+        print "image_rms_noise.txt" '%26g\n' {rms_noise_from_rms_image}
+    } else {
+        if(!is_vector(px) || !is_vector(py)) { read_data }
+        set rms_noise_from_rms_image = px*0 + 1e10
+        print "image_rms_noise.txt" '%26g\n' {rms_noise_from_rms_image}
+        print "image_rms_noise.warning.txt" 'Error! No \"image_rms.fits\" was found!\n' {}
+    }
+
+
 
 
 
@@ -614,9 +650,13 @@ print_result
         calc_buffer_size_limit
         calc_fluxconv
         # 
-        # <TODO><20170613> fixing bug <TODO>
-        calc_primary_beam_correction
+        # prepare pb corr
+        if(!is_file("image_sci_primary_beam_correction.txt") || !is_file("image_pba_primary_beam_correction.txt")) { calc_primary_beam_correction }
         # 
+        # prepare rms noise
+        if(!is_file("image_rms_noise.txt")) { read_rms_noise_from_rms_image }
+        # 
+        # check previous result
         if(is_file("getpix.result")) {
             !mv "getpix.result" "getpix.result.backup"
         }
@@ -626,8 +666,11 @@ print_result
             data "getpix.txt" read {pix_max 2.f pix_sum 3.f pix_num 4.f cat_index 10.f cat_id 11.s} #<20180222># added pix_nan in getpix.txt
             # 
             # read pb_corr
-            if(!is_file("image_sci_primary_beam_correction.txt")) { calc_primary_beam_correction }
             data "image_sci_primary_beam_correction.txt" read {pb_corr 1.f}
+            #data "image_pba_primary_beam_correction.txt" read {pb_corr 1.f}
+            # 
+            # read rms_noise or pixnoise from rms image
+            data "image_rms_noise.txt" read {pixnoise 1.f}
             # 
             # print further results with flux unit Jy/beam (f_peak) or Jy (f_int)
             if(is_vector(pixscale) && is_vector(fluxconv)) {
@@ -662,6 +705,13 @@ print_result_on_negative_image
         calc_buffer_size_limit
         calc_fluxconv
         # 
+        # prepare pb corr
+        if(!is_file("image_sci_primary_beam_correction.txt") || !is_file("image_pba_primary_beam_correction.txt")) { calc_primary_beam_correction }
+        # 
+        # prepare rms noise
+        if(!is_file("image_rms_noise.txt")) { read_rms_noise_from_rms_image }
+        # 
+        # check previous result
         if(is_file("getpix_on_negative_image.result")) {
             !mv "getpix_on_negative_image.result" "getpix_on_negative_image.result.backup"
         }
@@ -674,6 +724,10 @@ print_result_on_negative_image
             if(!is_file("image_sci_primary_beam_correction.txt")) { calc_primary_beam_correction }
             data "image_sci_primary_beam_correction.txt" read {pb_corr 1.f}
             # 
+            # read rms_noise or pixnoise from rms image
+            if(!is_file("image_rms_noise.txt")) { read_rms_noise_from_rms_image }
+            data "image_rms_noise.txt" read {pixnoise 1.f}
+            # 
             # print further results with flux unit Jy/beam (f_peak) or Jy (f_int)
             if(is_vector(pixscale) && is_vector(fluxconv)) {
                 if(pixscale>0 && fluxconv>0) {
@@ -685,7 +739,7 @@ print_result_on_negative_image
                     set err_int = (f_int>0) ? err_int : 1e30 #<20180225># prevent from dividing zero
                     set snr_peak = (f_peak>0) ? (f_peak / err_peak) : 0.0
                     set snr_int = (f_int>0) ? (f_int / err_int) : 0.0
-                    set rms_noise = f_peak*0.0 + pixnoise
+                    set rms_noise = rms_noise_from_rms_image # f_peak*0.0 + pixnoise
                     print "getpix_on_negative_image.result" '%15g %15g %15g %15g %15g %15g %15.0f %15s\n' {f_peak f_int snr_peak snr_int rms_noise pb_corr cat_index cat_id}
                 } else {
                     print 'Error! Negative pixscale or fluxconv value! Failed to run \"go_getpix.sm\" subroutine \"print_result_on_negative_image\"!\n' {}

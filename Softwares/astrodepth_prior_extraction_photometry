@@ -40,8 +40,14 @@ usage() {
 #     2018-02-22 now also create "image_negative_input.fits"
 # 
 
-# Check current directory
+# Check script directory
 AstroDepth_ScriptDir=$(dirname ${BASH_SOURCE[0]})
+if [[ "$AstroDepth_ScriptDir" == "../"* ]]; then
+    AstroDepth_ScriptDir=$(cd "$AstroDepth_ScriptDir"; pwd)
+fi
+
+
+# Check current directory
 if [[ $(uname) == "Darwin" ]]; then
 AstroDepth_CurrrentDir=$(pwd)
 else

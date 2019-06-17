@@ -1,5 +1,8 @@
 #!/bin/bash
 # 
+# Last update:
+#   20190614: allow output
+# 
 # Usage: ds9galfit fit789.fits
 if [ $# -eq 0 ] ; then
     echo "Usage: "
@@ -25,33 +28,78 @@ DS9GALFIT_TITLE=""
 DS9GALFIT_FILEP=()
 DS9GALFIT_COMMP=()
 DS9GALFIT_SCALES=()
+DS9GALFIT_OUTPUT=""
+DS9GALFIT_GEOMETRY=""
 DS9GALFIT_HAS_TITLE=0
 DS9GALFIT_HAS_SCALE=0
 DS9GALFIT_HAS_CMAP=0
+DS9GALFIT_SET_QUIT=0
 while [[ $# -gt 0 ]]; do
     TempStr=$(echo "$1" | tr '[:upper:]' '[:lower:]')
     if [[ "$TempStr" == *"-title" ]]; then
         DS9GALFIT_HAS_TITLE=1
-    fi
-    if [[ "$TempStr" == *"-scale" ]]; then
+        shift
+        continue
+    
+    elif [[ "$TempStr" == *"-scale" ]]; then
         DS9GALFIT_HAS_SCALE=1
-    fi
-    if [[ "$TempStr" == *"-cmap" ]]; then
+        shift
+        continue
+    
+    elif [[ "$TempStr" == *"-cmap" ]]; then
         DS9GALFIT_HAS_CMAP=1
-    fi
-    if [[ "$TempStr" == *"-title" ]]; then
+        shift
+        continue
+    
+    elif [[ "$TempStr" == *"-title" ]]; then
         if [[ $# -gt 1 ]]; then
             shift
             DS9GALFIT_TITLE="$1"
         fi
         shift
         continue
-    fi
-    if [[ "$TempStr" == *".fits" ]]; then
+    
+    elif [[ "$TempStr" == *"-geometry" ]]; then
+        if [[ $# -gt 1 ]]; then
+            shift
+            DS9GALFIT_GEOMETRY="$1"
+        fi
+        shift
+        continue
+    
+    elif [[ "$TempStr" == *"-output" ]]; then
+        if [[ $# -gt 1 ]]; then
+            shift
+            DS9GALFIT_OUTPUT="$1"
+        fi
+        shift
+        continue
+    
+    elif [[ "$TempStr" == *"-quit" ]]; then
+        DS9GALFIT_SET_QUIT=1
+        shift
+        continue
+    
+    elif [[ "$TempStr" == *"-fits" ]]; then
+        if [[ $# -gt 1 ]]; then
+            shift
+            DS9GALFIT_FILEP+=("$1")
+            DS9GALFIT_COMMP+=("$1")
+        fi
+        shift
+        continue
+    
+    elif [[ "$TempStr" == *".fits" ]]; then
         DS9GALFIT_FILEP+=("$1")
+        DS9GALFIT_COMMP+=("$1")
+        shift
+        continue
+    
+    else
+        DS9GALFIT_COMMP+=("$1")
+        shift
+        continue
     fi
-    DS9GALFIT_COMMP+=("$1")
-    shift
 done
 # 
 # 
@@ -67,8 +115,8 @@ if [[ "$DS9GALFIT_TITLE"x == ""x ]]; then
 fi
 # 
 # 
-echo ds9 -title $DS9GALFIT_TITLE -geometry 1300x600 -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no ${DS9GALFIT_COMMP[@]}
-     ds9 -title $DS9GALFIT_TITLE -geometry 1300x600 -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no ${DS9GALFIT_COMMP[@]} &
+echo ds9 -title $DS9GALFIT_TITLE -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no ${DS9GALFIT_COMMP[@]}
+     ds9 -title $DS9GALFIT_TITLE -multiframe -tile mode column -lock frame image -lock scale yes -lock colorbar yes -region showtext no ${DS9GALFIT_COMMP[@]} &
 # 
 # 
 #DS9GALFIT_FILEP=$(echo " $* " | sed -E 's#.* +([a-z.]*fits) +.*#\1#g')
@@ -177,6 +225,8 @@ xpaset -p $DS9GALFIT_TITLE frame 3
 
 if [[ $DS9GALFIT_HAS_CMAP -eq 0 ]]; then
     xpaset -p $DS9GALFIT_TITLE cmap aips0
+    xpaset -p $DS9GALFIT_TITLE colorbar fontsize 15
+    xpaset -p $DS9GALFIT_TITLE colorbar space value
 fi
 
 if [[ $DS9GALFIT_HAS_SCALE -eq 0 ]]; then
@@ -298,9 +348,58 @@ for (( i=1; i<=$FITNUMB; i++ )); do
 done
 
 
+# 
+# set geometry
+# 
+if [[ ! -z "$DS9GALFIT_GEOMETRY" ]]; then
+    # the input geometry is like "1280x720" with an "x" separating width and height.
+    DS9GALFIT_PLOTWIDTH=$(echo $DS9GALFIT_GEOMETRY | perl -p -e 's/([0-9]+)x([0-9]+)/\1/g')
+    DS9GALFIT_PLOTHEIGHT=$(echo $DS9GALFIT_GEOMETRY | perl -p -e 's/([0-9]+)x([0-9]+)/\2/g')
+    xpaset -p $DS9GALFIT_TITLE width $DS9GALFIT_PLOTWIDTH
+    xpaset -p $DS9GALFIT_TITLE height $DS9GALFIT_PLOTHEIGHT
+    xpaset -p $DS9GALFIT_TITLE zoom to fit
+    echo "Set geometry as $DS9GALFIT_GEOMETRY"
+fi
 
 
+# 
+# output screenshot
+# 
+if [[ ! -z "$DS9GALFIT_OUTPUT" ]]; then
+    DS9GALFIT_OUTPUT_PATH="$DS9GALFIT_OUTPUT" # full output path
+    DS9GALFIT_OUTPUT_NAME="$DS9GALFIT_OUTPUT" # without suffix
+    DS9GALFIT_OUTPUT_SUFFIX="png" # suffix
+    if [[ "$DS9GALFIT_OUTPUT" == *".eps" ]] || [[ "$DS9GALFIT_OUTPUT" == *".EPS" ]] || \
+       [[ "$DS9GALFIT_OUTPUT" == *".jpg" ]] || [[ "$DS9GALFIT_OUTPUT" == *".JPG" ]] || \
+       [[ "$DS9GALFIT_OUTPUT" == *".png" ]] || [[ "$DS9GALFIT_OUTPUT" == *".PNG" ]] || \
+       [[ "$DS9GALFIT_OUTPUT" == *".gif" ]] || [[ "$DS9GALFIT_OUTPUT" == *".GIF" ]] || \
+       [[ "$DS9GALFIT_OUTPUT" == *".tiff" ]] || [[ "$DS9GALFIT_OUTPUT" == *".TIFF" ]]; then
+        DS9GALFIT_OUTPUT_NAME=$(echo "$DS9GALFIT_OUTPUT" | perl -p -e 's/^(.*)\.([a-zA-Z]+)$/\1/g')
+        DS9GALFIT_OUTPUT_SUFFIX=$(echo "$DS9GALFIT_OUTPUT" | perl -p -e 's/^(.*)\.([a-zA-Z]+)$/\2/g' | tr '[:upper:]' '[:lower:]')
+    else
+        # default output suffix is "png"
+        DS9GALFIT_OUTPUT_PATH="$DS9GALFIT_OUTPUT.png"
+        DS9GALFIT_OUTPUT_NAME="$DS9GALFIT_OUTPUT"
+        DS9GALFIT_OUTPUT_SUFFIX="png"
+    fi
+    xpaset -p $DS9GALFIT_TITLE saveimage $DS9GALFIT_OUTPUT_SUFFIX "$DS9GALFIT_OUTPUT_PATH"
+    if [[ "$DS9GALFIT_OUTPUT_PATH" == *"/"* ]]; then echo "Output to \"$DS9GALFIT_OUTPUT_PATH\""; 
+    else echo "Output to \"$(pwd)/$DS9GALFIT_OUTPUT_PATH\""; fi
+    # 
+    # also copy ds9 region file as the output
+    cp ".ds9galfit.ds9.reg" "$DS9GALFIT_OUTPUT_NAME.ds9.reg"
+    if [[ "$DS9GALFIT_OUTPUT_PATH" == *"/"* ]]; then echo "Output to \"$DS9GALFIT_OUTPUT_NAME.ds9.reg\""; 
+    else echo "Output to \"$(pwd)/$DS9GALFIT_OUTPUT_NAME.ds9.reg\""; fi
+fi
 
+
+# 
+# quit
+# 
+if [[ $DS9GALFIT_SET_QUIT -gt 0 ]]; then
+    xpaset -p $DS9GALFIT_TITLE quit
+    echo "Quit DS9"
+fi
 
 
 

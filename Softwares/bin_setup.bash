@@ -13,6 +13,7 @@
 # 
 # Note:
 #    2017-12-06 copied from ~/Cloud/Github/Crab.Toolkit.PdBI/bin/bin_setup.bash
+#    2019-06-14 fix source ../../SETUP issue
 # 
 
 
@@ -58,16 +59,23 @@ fi
 
 # 
 # set dzreadlink to get full path but does not follow/resolve symbol links
+# 20171208: use 'pwd' instead of 'pwd -P'. 'pwd -P' will resolve symbolic links!
 # 
-
 function dzreadlink() {
     if [[ $# -gt 1 ]]; then if [[ "$1" == "-f" ]]; then shift; fi; fi
-    DIR="$1"; if [[ "$DIR" != *"/"* ]]; then DIR="./$DIR"; fi # 20170228: fixed bug: path without "/"
-    DIR=$(echo "${DIR%/*}") # 20160410: fixed bug: source SETUP just under the Softwares dir
-    # if [[ -d "$DIR" ]]; then cd "$DIR" && echo "$(pwd -P)/$(basename ${1})";  # 20171208: 'pwd -P' will resolve symbolic links!
-    # else echo "$(pwd -P)/$(basename ${1})"; fi # 20171208: 'pwd -P' will resolve symbolic links!
-    if [[ -d "$DIR" ]]; then cd "$DIR" && echo "$(pwd)/$(basename ${1})"; 
-    else echo "$(pwd)/$(basename ${1})"; fi
+    INP="$1"; if [[ "$INP" != *"/"* ]]; then INP="./$INP"; fi # 20170228: fixed bug: if input path without "/"
+    DIR="$(dirname $INP)" # $(echo "${DIR%/*}") # 20160410: fixed bug: source SETUP just under the Softwares dir
+    NOM="$(basename $INP)" # 20190414: fixed bug: if source ../../SETUP
+    if [[ -d "$DIR" ]]; then 
+        if [[ "$NOM" == ".." ]]; then
+            cd "$DIR/.." && echo "$(pwd)"
+        else
+            cd "$DIR" && echo "$(pwd)/$NOM"
+        fi
+    else
+        # if input path is invalid, return current dir <TODO>
+        echo "$(pwd)/$NOM"
+    fi
 }
 
 

@@ -1,0 +1,809 @@
+#!/bin/bash
+# 
+# 
+# Last update:
+#     2017-12-06 dzliu: rename functions
+#     2018-11-27 dzliu: added more options: -galfit-prior-*
+# 
+# 
+# Description:
+#     THe aim of this code is to perform prior-based source fitting photometry in a big image. 
+#     This code will automatically cut the big image into small boxes and do the photometry in each box. Boxes are extended to have buffer area. 
+#     This code will call galfit iteratively to fit prior sources to the cutout data. 
+# 
+
+
+# 
+# Usage
+# 
+print_usage() {
+    echo "Aim: "
+    echo "    This pipeline performs prior source fitting photometry"
+    echo "    for an input far-infrared/sub-millimeter/millimeter image."
+    echo ""
+    echo "Usage: "
+    echo "    $(basename ${BASH_SOURCE[0]}) \\"
+    echo "        -cat prior_source_catalog.txt \\"
+    echo "        -sci sci_image_1.fits|sci_image_2.fits|...|sci_image_list.txt \\"
+    echo "        -rms rms_image_1.fits|rms_image_2.fits|...|rms_image_list.txt \\"
+    echo "        -psf psf_image_1.fits|psf_image_2.fits|...|psf_image_list.txt \\"
+    echo "        [-out Output_Dir] \\"
+    echo "        [-start 1] \\"
+    echo "        [-end 1] \\"
+    echo ""
+    echo "Options:"
+    echo "    -fit-sky"
+    echo "    -fit-sky"
+    echo "    -galfit-prior-peak-snr 0.5 -galfit-prior-total-snr 1.5"
+    echo ""
+}
+
+
+# 
+# Check user input
+# 
+if [[ $# -eq 0 ]]; then
+    print_usage
+    exit
+fi
+
+
+
+# 
+# Check software dependancies
+# 
+if [[ -f $(dirname "${BASH_SOURCE[0]}")/../SETUP.bash ]]; then
+    source $(dirname "${BASH_SOURCE[0]}")/../SETUP.bash
+    DeepFields_SuperDeblending_Setup_Script=$(astrodepth_abs_path $(dirname "${BASH_SOURCE[0]}")/../SETUP.bash)
+else
+    echo "Error! \"$(dirname ${BASH_SOURCE[0]})/../SETUP.bash\" was not found! Please clone the entire package from \"https://github.com/1054/DeepFields.SuperDeblending\" then re-run this pipeline!"
+    exit 255
+fi
+
+
+
+# 
+# Check software dependancies
+# 
+if [[ $(type sm 2>/dev/null | wc -l) -eq 0 ]]; then
+    echo "Error! \"sm\" is not in the \$PATH! Sorry that we need supermongo... Please contact us..."
+    exit 255
+fi
+if [[ $(echo "load astroSfig.sm" | sm | wc -l) -ne 0 ]]; then
+    echo "Error! Some necessary Supermongo macro scripts are not found. They are provided in \"https://github.com/1054/DeepFields.SuperDeblending/Softwares/Supermongo_macro/\". Please copy them into Supermongo macro directory, e.g., /usr/lib/sm/macro/."
+    exit 255
+fi
+if [[ $(type sky2xy 2>/dev/null | wc -l) -eq 0 ]]; then
+    echo "Error! \"sky2xy\" is not in the \$PATH! Please make sure you have completely downloaded \"https://github.com/1054/DeepFields.SuperDeblending\"!"
+    exit 255
+fi
+if [[ $(type galfit 2>/dev/null | wc -l) -eq 0 ]]; then
+    echo "Error! \"galfit\" is not in the \$PATH! Please make sure you have completely downloaded \"https://github.com/1054/DeepFields.SuperDeblending\"!"
+    exit 255
+fi
+if [[ $(type bin_parse_cmd_args.bash 2>/dev/null | wc -l) -eq 0 ]]; then
+    echo "Error! \"bin_parse_cmd_args.bash\" is not in the \$PATH! Please make sure you have completely downloaded \"https://github.com/1054/DeepFields.SuperDeblending\"!"
+    exit 255
+fi
+if [[ $(type CrabTableReadInfo 2>/dev/null | wc -l) -eq 0 ]]; then
+    echo "Error! \"CrabTableReadInfo\" is not in the \$PATH! Please make sure you have completely downloaded \"https://github.com/1054/DeepFields.SuperDeblending\"!"
+    exit 255
+fi
+if [[ $(type CrabTableReadColumn 2>/dev/null | wc -l) -eq 0 ]]; then
+    echo "Error! \"CrabTableReadColumn\" is not in the \$PATH! Please make sure you have completely downloaded \"https://github.com/1054/DeepFields.SuperDeblending\"!"
+    exit 255
+fi
+if [[ $(type astrodepth_abs_path 2>/dev/null | wc -l) -eq 0 ]]; then
+    echo "Error! \"astrodepth_abs_path\" is not in the \$PATH! Please make sure you have completely downloaded \"https://github.com/1054/DeepFields.SuperDeblending\"!"
+    exit 255
+fi
+if [[ $(type astrodepth_prior_extraction_photometry 2>/dev/null | wc -l) -eq 0 ]]; then
+    echo "Error! \"astrodepth_prior_extraction_photometry\" is not in the \$PATH! Please make sure you have completely downloaded \"https://github.com/1054/DeepFields.SuperDeblending\"!"
+    exit 255
+fi
+
+
+# 
+# Define utility functions
+# 
+function expand_image_list() {
+    SciImages=()
+    for (( i=1; i<=$#; i++ )); do
+        # if the input is a "txt" file, then read in as a list
+        if [[ "${!i}" == *".txt" ]] || [[ "${!i}" == *".TXT" ]]; then
+            Old_IFS=$IFS
+            IFS=$'\n' read -d '' -r -a SciImage1 < "${!i}"
+            IFS="$Old_IFS"
+            for (( j=0; j<${#SciImage1[@]}; j++ )); do
+                if [[ "${SciImage1[j]}" != "/"* ]]; then
+                    SciImage1[j]=$(dirname "${!i}")"/${SciImage1[j]}"
+                fi
+                if [[ -f "${SciImage1[j]}" ]]; then
+                    SciImages+=($(astrodepth_abs_path "${SciImage1[j]}"))
+                else
+                    echo "Error! The input file \"${SciImage1[j]}\" does not exist!" >&2; exit 1
+                fi
+            done
+        elif [[ "${!i}" == *".fits" ]] || [[ "${!i}" == *".FITS" ]]; then
+            if [[ -f "${!i}" ]]; then
+                SciImages+=($(astrodepth_abs_path "${!i}"))
+            else
+                echo "Error! The input file \"${!i}\" does not exist!" >&2; exit 1
+            fi
+        else
+            echo "Error! The input file \"${!i}\" is not a FITS image?!" >&2; exit 1
+        fi
+    done
+    for (( i=0; i<=${#SciImages[@]}; i++ )); do
+        echo "${SciImages[i]}"
+    done
+}
+
+function check_and_print_positive_number() {
+    if [[ $# -eq 0 ]]; then
+        echo "Error! Please input a positive number!" >&2; exit 1
+    else
+        for (( i = 1; i <= $#; i++ )); do
+            if [[ $(echo "${!i}" | perl -p -e "s/^([0-9]+)$/yes/g") != "yes" ]]; then
+                echo "Error! The input \"${!i}\" is not a number!" >&2; exit 1
+            else
+                if [[ ${!i} -le 0 ]]; then
+                    echo "Error! The input number ${!i} is not a positive number!" >&2; exit 1
+                else
+                    echo "${!i}"
+                fi
+            fi
+        done
+    fi
+}
+
+function check_and_print_output_directory() {
+    if [[ $# -eq 0 ]]; then
+        echo "Error! Please input the output directory!" >&2; exit 1
+    else
+        if [[ ! -d "$1" ]]; then
+            mkdir -p "$1"
+        fi
+        if [[ ! -d "$1" ]]; then
+            echo "Error! Failed to create the output directory \"$1\"! Abort!"; exit 1
+        fi
+        echo "$1"
+    fi
+}
+
+function find_and_print_psf_image() {
+    if [[ $# -eq 0 ]]; then
+        echo "Error! Please input the sci image file path so as to find the corresponding psf image!" >&2; exit 1
+    else
+        TryFileName=$(echo "$1" | perl -p -e 's/^(.*)\.(fits|FITS)$/\1\.psf.\2/g');                if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+        TryFileName=$(echo "$1" | perl -p -e 's/^(.*)\.(fits|FITS)$/\1\.PSF.\2/g');                if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+        TryFileName=$(echo "$1" | perl -p -e 's/^(.*)\.(fits|FITS)$/\1\_psf.\2/g');                if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+        TryFileName=$(echo "$1" | perl -p -e 's/^(.*)\.(fits|FITS)$/\1\_PSF.\2/g');                if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+        TryFileName=$(echo "$1" | perl -p -e 's/^(.*)\.(image|IMAGE)\.(fits|FITS)$/\1\.psf.\3/g'); if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+        TryFileName=$(echo "$1" | perl -p -e 's/^(.*)\.(image|IMAGE)\.(fits|FITS)$/\1\.PSF.\3/g'); if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+        TryFileName=$(echo "$1" | perl -p -e 's/^(.*)\.(image|IMAGE)\.(fits|FITS)$/\1\_psf.\3/g'); if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+        TryFileName=$(echo "$1" | perl -p -e 's/^(.*)\.(image|IMAGE)\.(fits|FITS)$/\1\_PSF.\3/g'); if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+    fi
+}
+
+function find_and_print_rms_image() {
+    if [[ $# -eq 0 ]]; then
+        echo "Error! Please input the sci image file path so as to find the corresponding rms image!" >&2; exit 1
+    else
+        TryFileName=$(echo "$1" | perl -p -e 's/(.*)\.(fits|FITS)$/\1\.rms.\2/g');                  if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+        TryFileName=$(echo "$1" | perl -p -e 's/(.*)\.(fits|FITS)$/\1\.RMS.\2/g');                  if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+        TryFileName=$(echo "$1" | perl -p -e 's/(.*)\.(fits|FITS)$/\1\_rms.\2/g');                  if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+        TryFileName=$(echo "$1" | perl -p -e 's/(.*)\.(fits|FITS)$/\1\_RMS.\2/g');                  if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+        TryFileName=$(echo "$1" | perl -p -e 's/(.*)\.(image|IMAGE)\.(fits|FITS)$/\1.rms.\3/g');    if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+        TryFileName=$(echo "$1" | perl -p -e 's/(.*)\.(image|IMAGE)\.(fits|FITS)$/\1.RMS.\3/g');    if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+        TryFileName=$(echo "$1" | perl -p -e 's/(.*)\.(image|IMAGE)\.(fits|FITS)$/\1\_rms.\3/g');   if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+        TryFileName=$(echo "$1" | perl -p -e 's/(.*)\.(image|IMAGE)\.(fits|FITS)$/\1\_RMS.\3/g');   if [[ "$TryFileName" != "$1" ]] && [[ -f "$TryFileName" ]]; then echo "$TryFileName"; return; fi
+    fi
+}
+
+function print_progress_percentage() {
+    # input: current processing id, total processing number, and number of percentages
+    if [[ $# -lt 2 ]]; then 
+        return
+    else
+        if [[ $# -ge 3 ]]; then nperc=$3; else nperc=10; fi
+        kprec=$(awk "BEGIN {print int($2/$nperc)}")
+        if [[ $kprec -eq 0 ]]; then kprec=1; fi
+        if [[ $1 -lt $2 ]] && [[ $(awk "BEGIN {print (($1)%($kprec))}") -eq 0 ]]; then
+            echo -n " "$(awk "BEGIN {print (100.0*($1)/($2))}")"%"
+        elif [[ $1 -eq $2 ]]; then
+            echo -n " 100%"
+            echo ""
+        fi
+    fi
+}
+
+function print_progress_line() {
+    # input: current processing id, total processing number, and additional message
+    if [[ $# -lt 3 ]]; then 
+        return
+    else
+        if [[ $(awk "BEGIN {print (($1)%(int($2/10)))}") -eq 0 ]]; then
+            printf "\r %-100s [%5.1f%%]" "$3" $(awk "BEGIN {print (100.0*($1)/($2))}")
+            #echo -n $(awk "BEGIN {print (100.0*($1)/($2))}")"% "
+        fi
+        if [[ $1 -eq $2 ]]; then
+            printf "\r %-100s [%5.1f%%]" "$3" 100
+            printf "\r %-100s %20s"
+            printf "\r"
+            #echo -n "100%"
+        fi
+    fi
+}
+
+
+
+# 
+# Read user input
+# 
+# - parse cmd command
+source bin_parse_cmd_args.bash "$@"
+# 
+# - set exit on error
+set -e
+# 
+# - read catalog
+if [[ ! -z "$bin_parsed_cmd_cat" ]]; then
+    InputCat=("$bin_parsed_cmd_cat") # only allow one input catalog
+fi
+if [[ ! -z "$bin_parsed_cmd_catalog" ]]; then
+    InputCat=("$bin_parsed_cmd_catalog") # only allow one input catalog
+fi
+# 
+# - read images
+if [[ ! -z "$bin_parsed_cmd_sci" ]]; then
+    InputSci=($(expand_image_list "${bin_parsed_cmd_sci[@]}"))
+fi
+if [[ ! -z "$bin_parsed_cmd_psf" ]]; then
+    InputPsf=($(expand_image_list "${bin_parsed_cmd_psf[@]}"))
+fi
+if [[ ! -z "$bin_parsed_cmd_rms" ]]; then
+    InputRms=($(expand_image_list "${bin_parsed_cmd_rms[@]}"))
+fi
+# 
+# - print message
+echo "InputCat = ${InputCat[@]} (${#InputCat[@]})"
+echo "InputSci = ${InputSci[@]} (${#InputSci[@]})"
+echo "InputPsf = ${InputPsf[@]} (${#InputPsf[@]})"
+echo "InputRms = ${InputRms[@]} (${#InputRms[@]})"
+# 
+# - read fitting control arguments
+if [[ ! -z "$bin_parsed_cmd_start" ]]; then
+    FittingStart=($(check_and_print_positive_number "${bin_parsed_cmd_start[@]}"))
+else
+    FittingStart=(1)
+fi
+if [[ ! -z "$bin_parsed_cmd_end" ]]; then
+    FittingEnd=($(check_and_print_positive_number "${bin_parsed_cmd_end[@]}"))
+else
+    FittingEnd=(0)
+fi
+if [[ ${#FittingStart[@]} != ${#FittingEnd[@]} ]]; then
+    echo "Error! It seems the user has input multiple starting and ending numbers and they do not pair each other!"
+    exit 255
+fi
+# 
+# - print message
+echo "FittingStart = ${FittingStart[@]} (${#FittingStart[@]})"
+echo "FittingEnd = ${FittingEnd[@]} (${#FittingEnd[@]})"
+# 
+# - read output dir
+if [[ ! -z "$bin_parsed_cmd_out" ]]; then
+    OutputDir=$(check_and_print_output_directory "$bin_parsed_cmd_out")
+else
+    OutputDir=$(check_and_print_output_directory "Prior_Extraction_Photometry_v"$(date +"%Y%m%d"))
+fi
+echo "OutputDir = \"$OutputDir\""
+# 
+# - read cutout buffer
+if [[ ! -z "$bin_parsed_cmd_buffer" ]]; then
+    BufferSizeForSegmentation=$bin_parsed_cmd_buffer
+else
+    BufferSizeForSegmentation=0
+fi
+# 
+# - read others
+# ...
+# ...
+# ...
+# ...
+# 
+# - turn off exit on error
+set +e
+
+
+
+# 
+# Write input catalog and image list to output directory
+# 
+if [[ ! -f "$OutputDir/List_of_Input_Catalog.txt" ]]; then
+    # 
+    # report error if user has no catalog input and there is no list file in output directory
+    if [[ ${#InputCat[@]} -eq 0 ]]; then
+        print_usage; exit 255
+    fi
+    # 
+    astrodepth_abs_path "$InputCat" > "$OutputDir/List_of_Input_Catalog.txt"
+fi
+if [[ ! -f "$OutputDir/List_of_Input_Sci_Images.txt" ]] || \
+   [[ ! -f "$OutputDir/List_of_Input_Psf_Images.txt" ]] || \
+   [[ ! -f "$OutputDir/List_of_Input_Rms_Images.txt" ]]; then
+    # 
+    # report error if user has no sci image input and there is no list file in output directory
+    if [[ ${#InputSci[@]} -eq 0 ]]; then
+        print_usage; exit 255
+    fi
+    # 
+    # check existing files and do backup
+    if [[ -f "$OutputDir/List_of_Input_Sci_Images.txt" ]]; then mv "$OutputDir/List_of_Input_Sci_Images.txt" "$OutputDir/List_of_Input_Sci_Images.txt.backup"; fi
+    if [[ -f "$OutputDir/List_of_Input_Psf_Images.txt" ]]; then mv "$OutputDir/List_of_Input_Psf_Images.txt" "$OutputDir/List_of_Input_Psf_Images.txt.backup"; fi
+    if [[ -f "$OutputDir/List_of_Input_Rms_Images.txt" ]]; then mv "$OutputDir/List_of_Input_Rms_Images.txt" "$OutputDir/List_of_Input_Rms_Images.txt.backup"; fi
+    if [[ -f "$OutputDir/List_of_Segmented_Sci_Images.txt" ]]; then mv "$OutputDir/List_of_Segmented_Sci_Images.txt" "$OutputDir/List_of_Segmented_Sci_Images.txt.backup"; fi
+    if [[ -f "$OutputDir/List_of_Segmented_Psf_Images.txt" ]]; then mv "$OutputDir/List_of_Segmented_Psf_Images.txt" "$OutputDir/List_of_Segmented_Psf_Images.txt.backup"; fi
+    if [[ -f "$OutputDir/List_of_Segmented_Rms_Images.txt" ]]; then mv "$OutputDir/List_of_Segmented_Rms_Images.txt" "$OutputDir/List_of_Segmented_Rms_Images.txt.backup"; fi
+    #if [[ -f "$OutputDir/List_of_Segmented_Buffer_Sizes.txt" ]]; then mv "$OutputDir/List_of_Segmented_Buffer_Sizes.txt" "$OutputDir/List_of_Segmented_Buffer_Sizes.txt.backup"; fi
+    # 
+    # loop sci image, determine the corresponding rms and psf images
+    for (( i = 0; i < ${#InputSci[@]}; i++ )); do
+        # 
+        # write sci image file path
+        astrodepth_abs_path "${InputSci[i]}" >> "$OutputDir/List_of_Input_Sci_Images.txt"
+        # 
+        # determine the corresponding psf image
+        PsfImage=""
+        if [[ $i -lt ${#InputPsf[@]} ]]; then
+            # if the user has input an psf image, then use it
+            PsfImage="${InputPsf[i]}"
+        else
+            # otherwise try to find the corresponding psf image according to the input sci image file path
+            PsfImage=$(find_and_print_psf_image "${InputSci[i]}")
+            if [[ -z "$PsfImage" ]]; then
+                echo "Error! The user has not input the psf image, and we could not find corresponding psf image for each of the input sci image \"${InputSci[i]}\"! Abort!"
+                exit 255
+            fi
+        fi
+        # 
+        # write psf image file path
+        astrodepth_abs_path "$PsfImage" >> "$OutputDir/List_of_Input_Psf_Images.txt"
+        # 
+        # determine the corresponding psf image
+        RmsImage=""
+        if [[ $i -lt ${#InputRms[@]} ]]; then
+            # if the user has input an rms image, then use it
+            RmsImage="${InputRms[i]}"
+        else
+            # otherwise try to find the corresponding rms image according to the input sci image file path
+            RmsImage=$(find_and_print_rms_image "${InputSci[i]}")
+            if [[ -z "$RmsImage" ]]; then
+                echo "Error! The user has not input the rms image, and we could not find corresponding rms image for each of the input sci image \"${InputSci[i]}\"! Abort!"
+                exit 255
+            fi
+        fi
+        # 
+        # write rms image file path
+        astrodepth_abs_path "$RmsImage" >> "$OutputDir/List_of_Input_Rms_Images.txt"
+    done
+fi
+
+
+# 
+# change dir
+# 
+cd "$OutputDir"
+
+
+
+# 
+# Load input images
+# 
+IFS=$'\n' InputCatFile=($(<"List_of_Input_Catalog.txt"))
+IFS=$'\n' InputSciImages=($(<"List_of_Input_Sci_Images.txt"))
+IFS=$'\n' InputPsfImages=($(<"List_of_Input_Psf_Images.txt"))
+IFS=$'\n' InputRmsImages=($(<"List_of_Input_Rms_Images.txt"))
+
+
+
+# 
+# Prepare output sub-directories and copy input images into output directory
+# 
+CopiedCatDir=$(check_and_print_output_directory "Input_Catalog")
+CopiedSciDir=$(check_and_print_output_directory "Input_Sci_Images")
+CopiedPsfDir=$(check_and_print_output_directory "Input_Psf_Images")
+CopiedRmsDir=$(check_and_print_output_directory "Input_Rms_Images")
+# 
+echo "Copying input catalog to output directory .."
+if [[ ! -f "$CopiedCatDir/$(basename $InputCatFile)" ]]; then
+    cp "$InputCatFile" "$CopiedCatDir/"
+fi
+CatFile="$CopiedCatDir/$(basename $InputCatFile)"
+# 
+echo -n "Copying input images to output directory .."
+for (( i = 0; i < ${#InputSciImages[@]}; i++ )); do
+    if [[ ! -d "$CopiedSciDir/$((i+1))" ]]; then mkdir "$CopiedSciDir/$((i+1))/"; cp "${InputSciImages[i]}" "$CopiedSciDir/$((i+1))/"; fi
+    if [[ ! -d "$CopiedPsfDir/$((i+1))" ]]; then mkdir "$CopiedPsfDir/$((i+1))/"; cp "${InputPsfImages[i]}" "$CopiedPsfDir/$((i+1))/"; fi
+    if [[ ! -d "$CopiedRmsDir/$((i+1))" ]]; then mkdir "$CopiedRmsDir/$((i+1))/"; cp "${InputRmsImages[i]}" "$CopiedRmsDir/$((i+1))/"; fi
+    print_progress_percentage $((i+1)) ${#InputSciImages[@]}
+done
+
+
+
+# 
+# Write segmented image list into output directory
+# 
+if [[ ! -f "List_of_Segmented_Sci_Images.txt" ]] || \
+   [[ ! -f "List_of_Segmented_Psf_Images.txt" ]] || \
+   [[ ! -f "List_of_Segmented_Rms_Images.txt" ]]; then
+    # 
+    # prepare to perform segmentation
+    for (( i = 0; i < ${#InputSciImages[@]}; i++ )); do
+        # 
+        # get image file name
+        SciImageName=$(basename "${InputSciImages[i]}" | perl -p -e 's/^(.*)\.(fits|FITS)/\1/g')
+        PsfImageName=$(basename "${InputPsfImages[i]}" | perl -p -e 's/^(.*)\.(fits|FITS)/\1/g')
+        RmsImageName=$(basename "${InputRmsImages[i]}" | perl -p -e 's/^(.*)\.(fits|FITS)/\1/g')
+        SciImageSuffix=$(basename "${InputSciImages[i]}" | perl -p -e 's/^(.*)\.(fits|FITS)/\2/g')
+        PsfImageSuffix=$(basename "${InputPsfImages[i]}" | perl -p -e 's/^(.*)\.(fits|FITS)/\2/g')
+        RmsImageSuffix=$(basename "${InputRmsImages[i]}" | perl -p -e 's/^(.*)\.(fits|FITS)/\2/g')
+        ProcId=$((i+1))
+        SciImage="$CopiedSciDir/$ProcId/$SciImageName.$SciImageSuffix"
+        PsfImage="$CopiedPsfDir/$ProcId/$PsfImageName.$PsfImageSuffix"
+        RmsImage="$CopiedRmsDir/$ProcId/$RmsImageName.$RmsImageSuffix"
+        # 
+        # determine psf size
+        PsfImageSizeF=$(psfsize "$PsfImage")
+        if [[ $(awk "BEGIN {if($PsfImageSizeF<10) print 1; else print 0;}") -eq 1 ]]; then
+            PsfImageSizeI=5
+        else
+            PsfImageSizeI=$(awk "BEGIN {print round($PsfImageSizeF);}")
+        fi
+        # 
+        # get sci image size
+        IFS=' ' SciImageSize=($(gethead "$SciImage" NAXIS1 NAXIS2))
+        if [[ ${#SciImageSize[@]} != 2 ]]; then
+            echo "Error! Failed to run gethead \"$SciImage\" NAXIS1 NAXIS2!"
+            exit 255
+        fi
+        SciImageSize1=${SciImageSize[0]}
+        SciImageSize2=${SciImageSize[1]}
+        # 
+        # determine box size
+        # --  if the image is smaller than 10 times the psf size, then we do not do segmentation
+        SizeForNoSegmentation=$(awk "BEGIN {print (${PsfImageSizeI} * 15);}")
+        SizeForSegmentation=$(awk "BEGIN {print (${PsfImageSizeI} * 10);}")
+        BufferSizeForSegmentation=$(awk "BEGIN {print (${PsfImageSizeI} * 2);}")
+        echo "SizeForNoSegmentation = $SizeForNoSegmentation"
+        echo "SizeForSegmentation = $SizeForSegmentation"
+        echo "BufferSizeForSegmentation = $BufferSizeForSegmentation"
+        # 
+        # determine whether we need segmentation for current image
+        if [[ $(awk "BEGIN {if(($SciImageSize1<$SizeForNoSegmentation)&&($SciImageSize2<$SizeForNoSegmentation)) print 1; else print 0;}") -eq 1 ]]; then
+            # 
+            #mkdir -p "$CopiedSciDir/$((i+1)).0/"
+            #mkdir -p "$CopiedPsfDir/$((i+1)).0/"
+            #mkdir -p "$CopiedRmsDir/$((i+1)).0/"
+            # 
+            #ln -fsT "../Input_Sci_Images/$SciImageName.$SciImageSuffix" "$CopiedSciDir/$((i+1)).0/$SciImageName.fits"
+            #ln -fsT "../Input_Psf_Images/$PsfImageName.$PsfImageSuffix" "$CopiedPsfDir/$((i+1)).0/$SciImageName.fits"
+            #ln -fsT "../Input_Rms_Images/$RmsImageName.$RmsImageSuffix" "$CopiedRmsDir/$((i+1)).0/$SciImageName.fits"
+            # 
+            echo "$SciImage" >> "List_of_Segmented_Sci_Images.txt"
+            echo "$PsfImage" >> "List_of_Segmented_Psf_Images.txt"
+            echo "$RmsImage" >> "List_of_Segmented_Rms_Images.txt"
+            #echo "0" >> "List_of_Segmented_Buffer_Sizes.txt"
+        else
+            # 
+            # perform segmentation
+            echo "Running astrodepth_fits_image_segmentation \"$SciImage\" $SizeForSegmentation $SizeForSegmentation $BufferSizeForSegmentation $BufferSizeForSegmentation"
+            astrodepth_fits_image_segmentation "$SciImage" $SizeForSegmentation $SizeForSegmentation $BufferSizeForSegmentation $BufferSizeForSegmentation
+            # 
+            # check cutout images
+            if [[ ! -f "$CopiedSciDir/$ProcId/$SciImageName.cut.rect.txt" ]] || \
+               [[ ! -f "$CopiedSciDir/$ProcId/$SciImageName.cut.file.txt" ]]; then
+                echo "Error! Failed to run 'astrodepth_fits_image_segmentation' and make the cutouts?!"
+                exit 255
+            fi
+            # 
+            # perform segmentation
+            echo "Running astrodepth_fits_image_segmentation \"$RmsImage\" $SizeForSegmentation $SizeForSegmentation $BufferSizeForSegmentation $BufferSizeForSegmentation"
+            astrodepth_fits_image_segmentation "$RmsImage" $SizeForSegmentation $SizeForSegmentation $BufferSizeForSegmentation $BufferSizeForSegmentation
+            # 
+            # check cutout images
+            if [[ ! -f "$CopiedRmsDir/$ProcId/$RmsImageName.cut.rect.txt" ]] || \
+               [[ ! -f "$CopiedRmsDir/$ProcId/$RmsImageName.cut.file.txt" ]]; then
+                echo "Error! Failed to run 'astrodepth_fits_image_segmentation' and make the cutouts?!"
+                exit 255
+            fi
+            # 
+            # output buffer size, which is important for later photometry
+            echo "$BufferSizeForSegmentation" > "$CopiedSciDir/$ProcId/$SciImageName.cut.buffer.txt"
+            echo "$BufferSizeForSegmentation" > "$CopiedRmsDir/$ProcId/$RmsImageName.cut.buffer.txt"
+            # 
+            # write to "List_of_Segmented_*_Images.txt"" file
+            IFS=$'\n' SciCutFileList=($(<"$CopiedSciDir/$ProcId/$SciImageName.cut.file.txt"))
+            IFS=$'\n' RmsCutFileList=($(<"$CopiedRmsDir/$ProcId/$RmsImageName.cut.file.txt"))
+            for (( icut = 0; icut < ${#SciCutFileList[@]}; icut++ )); do
+                echo "$CopiedSciDir/$ProcId/${SciCutFileList[icut]}" >> "List_of_Segmented_Sci_Images.txt"
+                echo "$PsfImage" >> "List_of_Segmented_Psf_Images.txt"
+                echo "$CopiedRmsDir/$ProcId/${RmsCutFileList[icut]}" >> "List_of_Segmented_Rms_Images.txt"
+                #echo "$BufferSizeForSegmentation" >> "List_of_Segmented_Buffer_Sizes.txt"
+            done
+        fi
+    done
+fi
+
+
+
+# 
+# load segmented images
+# 
+#IFS=$'\n' InputCatFile=($(<"List_of_Input_Catalog.txt"))
+IFS=$'\n' SegmentedSciImages=($(<"List_of_Segmented_Sci_Images.txt"))
+IFS=$'\n' SegmentedPsfImages=($(<"List_of_Segmented_Psf_Images.txt"))
+IFS=$'\n' SegmentedRmsImages=($(<"List_of_Segmented_Rms_Images.txt"))
+#IFS=$'\n' SegmentedBufferSizes=($(<"List_of_Segmented_Buffer_Sizes.txt"))
+
+# 
+# prepare working directory
+# 
+if [[ ! -d "Working_Dir" ]]; then
+    mkdir "Working_Dir"
+fi
+if [[ ! -d "Working_Dir" ]]; then
+    echo "Error! Could not create working directory \"$(pwd)/Working_Dir\"! Abort!"
+    exit 255
+fi
+
+# 
+# loop each segmented image and perform photometry
+# 
+for (( j = 0; j < ${#FittingStart[@]}; j++ )); do
+    # 
+    # control starting and ending number (1-based)
+    iStart=$(bc <<< "${FittingStart[j]}-1")
+    iEnd=$(bc <<< "${FittingEnd[j]}-1")
+    if [[ $(awk "BEGIN {if($iEnd<iStart) print 1; else print 0;}") -eq 1 ]]; then
+        FittingEnd[j]=${#SegmentedSciImages[@]}
+        iEnd=$(bc <<< "${#SegmentedSciImages[@]}-1")
+    fi
+    # 
+    # loop between starting and ending number
+    for (( i = iStart; i <= iEnd ; i++ )); do
+        # 
+        # get catalog file name
+        #Catalog=$(basename "${InputCat}")
+        # 
+        # get image file name
+        SciImage="${SegmentedSciImages[i]}"
+        PsfImage="${SegmentedPsfImages[i]}"
+        RmsImage="${SegmentedRmsImages[i]}"
+        # 
+        # get image id (the index number of all input images, not segmented)
+        ImageId=$(echo $SciImage | perl -p -e "s%^Input_Sci_Images/([0-9]+)/.*%\1%g")
+        # 
+        # get buffer size and segmentation id and count for current sci image
+        SegmentRectFile=$(find "Input_Sci_Images/$ImageId" -maxdepth 1 -name "*.cut.rect.txt")
+        SegmentBufferFile=$(find "Input_Sci_Images/$ImageId" -maxdepth 1 -name "*.cut.buffer.txt")
+        #BufferSize="${SegmentedBufferSizes[i]}"
+        if [[ ! -z "$SegmentRectFile" ]] && [[ ! -z "$SegmentBufferFile" ]]; then
+            BufferSize=$(cat $SegmentBufferFile | grep -v '^#' | head -n 1)
+            # 
+            # get segmentation id and count for current sci image
+            SegmentId=$(echo $SciImage | perl -p -e "s%^Input_Sci_Images/$ImageId/cut_([0-9]+)_rect_.*%\1%g")
+            SegmentName=$(echo $SciImage | perl -p -e "s%^Input_Sci_Images/$ImageId/(cut_[0-9]+_rect_[^/]*)/.*%\1%g")
+            SegmentCount=$(cat $SegmentRectFile | grep -v '^#' | wc -l | sed -e 's/^ *//g')
+        else
+            SegmentId=-1 # no segmentation
+            SegmentName="full_image"
+            SegmentCount=0
+        fi
+        # 
+        # get the progress id
+        ProcId=$((i+1))
+        # 
+        # print progress
+        echo ""
+        echo ""
+        echo "************"
+        echo "Processing $ProcId (${FittingStart[j]} - ${FittingEnd[j]}) ($(date +'%Y%m%d %Hh%Mm%Ss %Z'))"
+        echo "ImageId = $ImageId (total ${#InputSciImages[@]})"
+        echo "SegmentId = $SegmentId (total $SegmentCount)"
+        echo "Catalog = \"$(pwd)/$CatFile\""
+        echo "SciImage = \"$(pwd)/$SciImage\""
+        echo "PsfImage = \"$(pwd)/$PsfImage\""
+        echo "RmsImage = \"$(pwd)/$RmsImage\""
+        echo "WorkingDir = \"$(pwd)/Working_Dir/\""
+        echo "***********"
+        # 
+        # prepare processing script name
+        if [[ $SegmentCount -gt 0 ]]; then
+            ProcName="run_${ImageId}.${SegmentId}"
+        else
+            ProcName="run_${ImageId}"
+            if [[ ${ImageId} != ${ProcId} ]]; then
+                echo "Error! \${ImageId} != \${ProcId}! This should not happen! What happened?"
+                exit 255
+            fi
+        fi
+        # 
+        # prepare photometry caller script
+        echo  "#!/bin/bash"                                                          >  "Working_Dir/$ProcName.bash"
+        echo  "# "                                                                   >> "Working_Dir/$ProcName.bash"
+        echo  "source $DeepFields_SuperDeblending_Setup_Script"                      >> "Working_Dir/$ProcName.bash"
+        echo  "cd \$(dirname \"\${BASH_SOURCE[0]}\")"                                >> "Working_Dir/$ProcName.bash"
+        echo  ""                                                                     >> "Working_Dir/$ProcName.bash"
+        echo  "# photometry"                                                         >> "Working_Dir/$ProcName.bash"
+        echo  "astrodepth_prior_extraction_photometry \\"                            >> "Working_Dir/$ProcName.bash"
+        echo  "    -cat \"../$CatFile\" \\"                                          >> "Working_Dir/$ProcName.bash"
+        echo  "    -sci \"../$SciImage\" \\"                                         >> "Working_Dir/$ProcName.bash"
+        echo  "    -psf \"../$PsfImage\" \\"                                         >> "Working_Dir/$ProcName.bash"
+        echo  "    -rms \"../$RmsImage\" \\"                                         >> "Working_Dir/$ProcName.bash"
+        echo  "    -buffer $BufferSize \\"                                           >> "Working_Dir/$ProcName.bash"
+        echo  "    -output-dir \"$ImageId\" \\"                                      >> "Working_Dir/$ProcName.bash"
+        echo  "    -output-name \"$SegmentName\" \\"                                 >> "Working_Dir/$ProcName.bash"
+        echo  "    -steps getpix galfit gaussian sersic ${UserSteps[@]} final \\"    >> "Working_Dir/$ProcName.bash"
+        echo  "    "                                                                 >> "Working_Dir/$ProcName.bash"
+        echo  ""                                                                     >> "Working_Dir/$ProcName.bash"
+        echo  "# cleaning"                                                           >> "Working_Dir/$ProcName.bash"
+        echo  "if [[ -d \"$ImageId/$SegmentName/\" ]]; then"                         >> "Working_Dir/$ProcName.bash"
+        echo  "   cd \"$ImageId/$SegmentName/\""                                     >> "Working_Dir/$ProcName.bash"
+        echo  "   rm galfit.* aaa_* aaa.* *.sky2xy.* *.tmp *.backup 2>/dev/null"     >> "Working_Dir/$ProcName.bash"
+        #if [[ $UserClean -ge 1 ]]; then
+        #echo  "   rm prior_id.txt prior_x_y.txt 2>/dev/null"                        >> "Working_Dir/$ProcName.bash"
+        #echo  "   rm *.log *.sm .smhist 2>/dev/null"                                >> "Working_Dir/$ProcName.bash"
+        #echo  "   rm getpix.radius.* fit_0.* fit_1.* image_*.fits 2>/dev/null"      >> "Working_Dir/$ProcName.bash"
+        #echo  "   rm ../*.txt ../*.sm ../.smhist 2>/dev/null"                       >> "Working_Dir/$ProcName.bash"
+        #fi
+        echo  "fi"                                                                   >> "Working_Dir/$ProcName.bash"
+        echo  ""                                                                     >> "Working_Dir/$ProcName.bash"
+        echo  ""                                                                     >> "Working_Dir/$ProcName.bash"
+        # 
+        chmod +x "Working_Dir/$ProcName.bash"
+        # 
+        "Working_Dir/$ProcName.bash"
+        # 
+        #rm "$SourceDir/astrodepth_image_0_catalog_0_sky2xy.txt" 2>/dev/null
+        #rm "$SourceDir/astrodepth_image_0_catalog_0_x_y.txt"    2>/dev/null
+        # 
+        # check output
+        if [[ ! -f "Working_Dir/$ImageId/$SegmentName/astrodepth_done_final" ]]; then
+            echo "Error! Failed to run \"Working_Dir/$ProcName.bash\"!"
+            exit 255
+        fi
+        # 
+        # mosaic segmented cutouts if current run is the end of the queue or ImageId changed.
+        # (or we can check $SegmentId == $SegmentCount)
+        # and output to "Output_Fit_Images/$ImageId/"
+        if [[ $SegmentId -gt 0 ]]; then
+            # 
+            # check if we want to do mosaic now
+            Set_Output_Mosaic_Image=0
+            if [[ $i == $(bc <<< "${#SegmentedSciImages[@]}-1") ]]; then
+                Set_Output_Mosaic_Image=1
+            else
+                NextSciImage="${SegmentedSciImages[i+1]}"
+                NextImageId=$(echo $NextSciImage | perl -p -e "s%^Input_Sci_Images/([0-9]+)/.*%\1%g")
+                if [[ $NextImageId != $ImageId ]]; then
+                    Set_Output_Mosaic_Image=1
+                fi
+            fi
+            # 
+            # do mosaic
+            if [[ $Set_Output_Mosaic_Image -ge 1 ]]; then
+                # 
+                # print infoe
+                echo ""
+                echo "Making mosaic ..."
+                # 
+                # create output directory
+                if [[ ! -d "Output_Fit_Images/$ImageId" ]]; then 
+                    mkdir -p "Output_Fit_Images/$ImageId"
+                fi
+                # 
+                # set output fits image name as "*.mosaic.fits"
+                # we will also output a "*.mosaic.file.txt"
+                SciImageDir=$(dirname $(dirname "$SciImage"))
+                SciImageBaseName=$(basename "$SciImage" | perl -p -e 's/.cut_[0-9_+-]+.fits$//g')
+                OutputResidualImage="Output_Fit_Images/$ImageId/$SciImageBaseName.residual.mosaic.fits"
+                OutputResidualMosaicList="Output_Fit_Images/$ImageId/$SciImageBaseName.residual.mosaic.file.txt"
+                OutputResidualMosaicRect="Output_Fit_Images/$ImageId/$SciImageBaseName.residual.mosaic.rect.txt"
+                OutputResidualMosaicBuffer="Output_Fit_Images/$ImageId/$SciImageBaseName.residual.mosaic.buffer.txt"
+                if [[ -f "$OutputResidualMosaicList" ]]; then mv "$OutputResidualMosaicList" "$OutputResidualMosaicList.backup"; fi
+                if [[ -f "$OutputResidualMosaicRect" ]]; then mv "$OutputResidualMosaicRect" "$OutputResidualMosaicRect.backup"; fi
+                if [[ -f "$OutputResidualMosaicBuffer" ]]; then mv "$OutputResidualMosaicBuffer" "$OutputResidualMosaicBuffer.backup"; fi
+                OutputModelImage="Output_Fit_Images/$ImageId/$SciImageBaseName.model.mosaic.fits"
+                OutputModelMosaicList="Output_Fit_Images/$ImageId/$SciImageBaseName.model.mosaic.file.txt"
+                OutputModelMosaicRect="Output_Fit_Images/$ImageId/$SciImageBaseName.model.mosaic.rect.txt"
+                OutputModelMosaicBuffer="Output_Fit_Images/$ImageId/$SciImageBaseName.model.mosaic.buffer.txt"
+                if [[ -f "$OutputModelMosaicList" ]]; then mv "$OutputModelMosaicList" "$OutputModelMosaicList.backup"; fi
+                if [[ -f "$OutputModelMosaicRect" ]]; then mv "$OutputModelMosaicRect" "$OutputModelMosaicRect.backup"; fi
+                if [[ -f "$OutputModelMosaicBuffer" ]]; then mv "$OutputModelMosaicBuffer" "$OutputModelMosaicBuffer.backup"; fi
+                OutputDS9RegionFile="Output_Fit_Images/$ImageId/$SciImageBaseName.mosaic.ds9.reg"
+                if [[ -f "$OutputDS9RegionFile" ]]; then mv "$OutputDS9RegionFile" "$OutputDS9RegionFile.backup"; fi
+                # 
+                # read cutout info files
+                #CutFileListFile="Input_Sci_Images/$ImageId/$SciImageBaseName.cut.file.txt")
+                CutRectListFile="Input_Sci_Images/$ImageId/$SciImageBaseName.cut.rect.txt"
+                CutBufferListFile="Input_Sci_Images/$ImageId/$SciImageBaseName.cut.buffer.txt"
+                # 
+                # read cutout rects into a list
+                IFS=$'\n' CutRectList=($(<"$CutRectListFile"))
+                IFS=$'\n' CutBufferList=($(<"$CutBufferListFile"))
+                # 
+                # loop cutout rects and check fitting files
+                for (( icut = 0; icut < ${#CutRectList[@]}; icut++ )); do
+                    # 
+                    # split cut rect into 4 values: x1, y1, x2, y2
+                    IFS=' ' CutRect=($(echo "${CutRectList[$icut]}"))
+                    #echo "CutRect = ${CutRect[@]} (${#CutRect[@]})"
+                    # 
+                    # get buffer size
+                    if [[ $icut -lt ${#CutBufferList[@]} ]]; then
+                        CutBuffer=${CutBufferList[icut]}
+                    else
+                        CutBuffer=${CutBufferList[${#CutBufferList[@]}-1]}
+                    fi
+                    # 
+                    # prepare cutout fitting directory
+                    CutDir="cut_$((icut+1))_rect_${CutRect[0]}_${CutRect[1]}_${CutRect[2]}_${CutRect[3]}"
+                    # 
+                    # check fiting result
+                    if [[ -f "Working_Dir/$ImageId/$CutDir/fit_3.model.fits" ]] && \
+                       [[ -f "Working_Dir/$ImageId/$CutDir/fit_3.residual.fits" ]]; then
+                        echo "../../Working_Dir/$ImageId/$CutDir/fit_3.model.fits" >> "$OutputModelMosaicList"
+                        echo "../../Working_Dir/$ImageId/$CutDir/fit_3.residual.fits" >> "$OutputResidualMosaicList"
+                        echo "$CutBuffer" >> "$OutputModelMosaicBuffer"
+                        echo "$CutBuffer" >> "$OutputResidualMosaicBuffer"
+                        echo "${CutRect[@]}" >> "$OutputModelMosaicRect"
+                        echo "${CutRect[@]}" >> "$OutputResidualMosaicRect"
+                        boxcenterx=$(awk "BEGIN {print (${CutRect[0]}+${CutRect[2]})/2.0+1.0;}")
+                        boxcentery=$(awk "BEGIN {print (${CutRect[1]}+${CutRect[3]})/2.0+1.0;}")
+                        boxwidth=$(awk "BEGIN {print (${CutRect[2]}-${CutRect[0]})+1.0-$CutBuffer*2.0;}")
+                        boxheight=$(awk "BEGIN {print (${CutRect[3]}-${CutRect[1]})+1.0-$CutBuffer*2.0;}")
+                        echo "image; box($boxcenterx,$boxcentery,$boxwidth,$boxheight) # text={$((icut+1))}" >> "$OutputDS9RegionFile"
+                    fi
+                done
+                
+                if [[ -f "$OutputResidualMosaicList" ]]; then
+                    astrodepth_fits_image_mosaicing.py \
+                        "$SciImageDir/$SciImageBaseName.fits" \
+                        "$OutputResidualMosaicList" \
+                        "$OutputResidualMosaicRect" \
+                        "$OutputResidualMosaicBuffer" \
+                        "$OutputResidualImage"
+                fi
+                
+                if [[ -f "$OutputModelMosaicList" ]]; then
+                    astrodepth_fits_image_mosaicing.py \
+                        "$SciImageDir/$SciImageBaseName.fits" \
+                        "$OutputModelMosaicList" \
+                        "$OutputModelMosaicRect" \
+                        "$OutputModelMosaicBuffer" \
+                        "$OutputModelImage"
+                fi
+            fi
+        fi
+        # 
+        #break
+    done
+    
+done
+
+
+
+
+echo "All Done!"
+
+
+
+
+
+
+
+
+
+

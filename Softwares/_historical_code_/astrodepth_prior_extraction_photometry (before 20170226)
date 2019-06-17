@@ -1,0 +1,403 @@
+#!/bin/bash
+# 
+
+# Prepare usage
+usage() {
+    echo "Usage: "
+    echo "    astrodepth_prior_extraction_photometry -sci 1.cont.fits 2.cont.fits -psf 1.psf.fits 2.psf.fits -cat 1.fits"
+    echo "    # if input multiple catalogs, then we will fit each catalog in each image."
+    echo ""
+}
+
+# Check current directory
+AstroDepth_ScriptDir=$(dirname ${BASH_SOURCE[0]})
+AstroDepth_CurrrentDir=$(pwd -P)
+
+# Check necessary scripts
+if [[ ! -f "$AstroDepth_ScriptDir/sm" || ! -f "$AstroDepth_ScriptDir/astrodepth_command_line_arguments" ]]; then
+    echo "Error! $AstroDepth_ScriptDir/ does not contain necessary scripts! Please contact dzliu@mpia-hd.mpg.de for the complete code!"
+    exit 1
+fi
+
+# Check input arguments
+. "$AstroDepth_ScriptDir/astrodepth_command_line_arguments" "$@"
+
+# Print usage if input arguments are not enough 
+if [[ ${#AstroDepth_INP_CATALOG[@]} -eq 0 ]]; then
+    usage
+    exit
+fi
+if [[ ${#AstroDepth_INP_IMAGE_SCI[@]} -eq 0 || ${#AstroDepth_INP_CATALOG[@]} -eq 0 ]]; then
+    usage
+    exit
+fi
+#if [[ ${#AstroDepth_INP_IMAGE_SCI[@]} -eq 0 || ${#AstroDepth_INP_IMAGE_PSF[@]} -eq 0 || ${#AstroDepth_INP_CATALOG[@]} -eq 0 ]]; then
+#    usage
+#    exit
+#fi
+
+# Check output directory
+AstroDepth_OutputDir=""
+if [[ ${#AstroDepth_INP_OUTPUT[@]} -eq 0 ]]; then
+    AstroDepth_OutputDir="astrodepth_prior_extraction_photometry"
+else
+    AstroDepth_OutputDir=${AstroDepth_INP_OUTPUT[0]}
+fi
+
+# Backup output directory
+AstroDepth_DoBackup=0
+if [[ $AstroDepth_DoBackup -eq 1 ]]; then
+    if [[ -d "$AstroDepth_OutputDir" ]]; then
+        if [[ -d "$AstroDepth_OutputDir.backup" ]]; then
+            if [[ -d "$AstroDepth_OutputDir.backup.backup" ]]; then
+                rm -rf "$AstroDepth_OutputDir.backup.backup"
+            fi
+            mv "$AstroDepth_OutputDir.backup" "$AstroDepth_OutputDir.backup.backup"
+        fi
+        mv "$AstroDepth_OutputDir" "$AstroDepth_OutputDir.backup"
+    fi
+fi
+
+# Prepare output directory
+mkdir -p "$AstroDepth_OutputDir" 2>/dev/null
+if [[ ! -d "$AstroDepth_OutputDir" ]]; then 
+    echo "Error! Failed to create output directory \"$AstroDepth_OutputDir\"!"
+    exit 1
+fi
+
+# Loop input catalogs and extract ID RA Dec
+for (( i=0; i<${#AstroDepth_INP_CATALOG[@]}; i++ )); do
+    if [[ ! -f "$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" || \
+          ! -f "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_mask.txt" ]]; then 
+        if [[ $i -lt ${#AstroDepth_INP_CATALOG_ID[@]} ]]; then
+            AstroDepth_Catalog_ID_Column=${AstroDepth_INP_CATALOG_ID[i]}
+        else
+            AstroDepth_Catalog_ID_Column=1
+        fi
+        if [[ $i -lt ${#AstroDepth_INP_CATALOG_RA[@]} ]]; then
+            AstroDepth_Catalog_RA_Column=${AstroDepth_INP_CATALOG_RA[i]}
+        else
+            AstroDepth_Catalog_RA_Column=2
+        fi
+        if [[ $i -lt ${#AstroDepth_INP_CATALOG_DEC[@]} ]]; then
+            AstroDepth_Catalog_DEC_Column=${AstroDepth_INP_CATALOG_DEC[i]}
+        else
+            AstroDepth_Catalog_DEC_Column=3
+        fi
+        if [[ $i -lt ${#AstroDepth_INP_CATALOG_MASK[@]} ]]; then
+            AstroDepth_Catalog_MASK_Column=${AstroDepth_INP_CATALOG_MASK[i]}
+        else
+            AstroDepth_Catalog_MASK_Column=""
+        fi
+        if [[ $(echo "${AstroDepth_INP_CATALOG[i]}" | tr '[:upper:]' '[:lower:]') == *".fits" ]]; then
+            # if FITS data table, then we need python to read them. 
+            echo "#!/usr/bin/env python2.7"                                       >  "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "#"                                                              >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "import os, sys"                                                 >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "sys.path.append('$AstroDepth_ScriptDir')"                       >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "os.chdir('$(pwd -P)')"                                          >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "from CrabFitsTable import CrabFitsTable"                        >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "Cat = CrabFitsTable('${AstroDepth_INP_CATALOG[i]}')"            >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "if Cat:"                                                        >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "    Cat_ID = Cat.getColumn($AstroDepth_Catalog_ID_Column)"      >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "    Cat_RA = Cat.getColumn($AstroDepth_Catalog_RA_Column)"      >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "    Cat_DEC = Cat.getColumn($AstroDepth_Catalog_DEC_Column)"    >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "    if len(Cat_ID)>0 and len(Cat_RA)>0 and len(Cat_DEC)>0:"     >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "        Cat_ID = Cat_ID.astype(str)"                            >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "        Cat_RA = Cat_RA.astype(float)"                          >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "        Cat_DEC = Cat_DEC.astype(float)"                        >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            # <TODO> what if RA DEC are sexagesimal?
+            
+            # process mask column
+            # the mask indicates whether a source in the catalog is masked (not fit) or not. Sources with Mask=0 will be fit. 
+            if [[ ! -z "$AstroDepth_Catalog_MASK_Column" ]]; then
+            echo "        Cat_MASK = Cat.getColumn($AstroDepth_Catalog_MASK_Column)"                                    >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            else
+            echo "        Cat_MASK = [0 for x in Cat_DEC]"                                                              >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            fi
+            
+            echo "        with open('$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt', 'w') as fp:"            >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "            #fp.write('# %16s %18s\n'%('RA', 'Dec'))"                                                 >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "            print('Writing %d rows to \"%s\"'%("                                                      >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "                   len(Cat_ID), '$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt'))"         >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "            for i in range(len(Cat_ID)):"                                                             >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "                fp.write('%18.7f %18.7f\n'%(Cat_RA[i], Cat_DEC[i]))"                                  >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "            fp.close()"                                                                               >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo ""                                                                                                     >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "        with open('$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_mask.txt', 'w') as fp:"           >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "            #fp.write('# %28s %18s\n'%('ID', 'Mask'))"                                                >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "            print('Writing %d rows to \"%s\"'%("                                                      >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "                   len(Cat_ID), '$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_mask.txt'))"        >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "            for i in range(len(Cat_ID)):"                                                             >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "                fp.write('%30s %18d\n'%(Cat_ID[i], Cat_MASK[i]))"                                     >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo "            fp.close()"                                                                               >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            echo ""                                                                                                     >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            
+            echo "Extracting ID RA Dec from the input catalog \"${AstroDepth_INP_CATALOG[i]}\""
+            chmod +x "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            #cat "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.py"
+            
+        else
+            # if ASCII data table, then we need supermongo to read them. 
+            cp "${AstroDepth_INP_CATALOG[i]}" "$AstroDepth_OutputDir/astrodepth_catalog_${i}.txt"
+            echo "# Supermongo input code"                      >  "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
+            echo "data \"astrodepth_catalog_${i}.txt\""         >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
+            echo "read id $AstroDepth_Catalog_ID_Column.s"      >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
+            echo "read ra $AstroDepth_Catalog_RA_Column.f"      >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
+            echo "read dec $AstroDepth_Catalog_DEC_Column.f"    >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
+            
+            # process mask column
+            # the mask indicates whether a source in the catalog is masked (not fit) or not. Sources with Mask=0 will be fit. 
+            if [[ ! -z "$AstroDepth_Catalog_MASK_Column" ]]; then
+            echo "read mask $AstroDepth_Catalog_MASK_Column.d"                                                              >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
+            else
+            echo "set mask = int(ra) * 0"                                                                                   >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
+            fi
+            
+            echo "define print_noheader 1"                                                                                  >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
+            echo "echo Writing \$(dimen(id)) rows to \\\"$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt\\\""      >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
+            echo "print \"astrodepth_catalog_${i}_ra_dec.txt\" '%18.7f %18.7f\n' {ra dec}"                                  >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
+            echo "echo Writing \$(dimen(id)) rows to \\\"$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_mask.txt\\\""     >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
+            echo "print \"astrodepth_catalog_${i}_id_mask.txt\" '%30s %18d\n' {id mask}"                                    >> "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
+            
+            echo "Extracting ID RA Dec from the input catalog \"${AstroDepth_INP_CATALOG[i]}\""
+            cat "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_ra_dec_extraction.sm"
+            cd "$AstroDepth_OutputDir"
+            echo "input astrodepth_catalog_${i}_id_ra_dec_extraction.sm" | "$AstroDepth_ScriptDir/sm"
+            cd "$AstroDepth_CurrrentDir"
+            
+        fi
+        if [[ ! -f "$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" || \
+              ! -f "$AstroDepth_OutputDir/astrodepth_catalog_${i}_id_mask.txt" ]]; then 
+            echo "Error! Failed to extract ID RA Dec from the input catalog \"${AstroDepth_INP_CATALOG[i]}\"?!"
+            exit 1
+        fi
+    fi
+done
+
+
+# Loop input images
+for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
+    # prepare output sub-directory
+    mkdir "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/" 2>/dev/null
+    # check whether catalog sources at within the image area, convert RA Dec to X Y
+    echo "${AstroDepth_INP_IMAGE_SCI[j]}"
+    if [[ ! -f "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/prior_x_y.txt" ]]; then
+        for (( i=0; i<${#AstroDepth_INP_CATALOG[@]}; i++ )); do
+            if [[ ! -f "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" ]]; then
+                echo sky2xy -n 3 "${AstroDepth_INP_IMAGE_SCI[j]}" @"$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt"
+                sky2xy -n 3 "${AstroDepth_INP_IMAGE_SCI[j]}" @"$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" > "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt"
+                # check the output line count
+                if [[ $(cat "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" | wc -l) -ne $(cat "$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" | wc -l) ]]; then 
+                    echo "Error! Seems failed to run sky2xy and convert RA Dec to X Y? Please check and re-try!"
+                    mv "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt.failed"
+                    exit 1
+                fi
+            fi
+            # extract x y from the output of sky2xy (x,y start from 1, not 0)
+            if [[ ! -f "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt" ]]; then
+                cat "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_sky2xy.txt" | sed -e 's/^ *//g' | grep -v "^#" \
+                    | perl -p -e 's/^([0-9.+-]+)[ ]+([0-9.+-]+)[ ]+J2000 ->[ ]*([0-9.+-]+)[ ]+([0-9.+-]+)[ ]+(\(off[a-z A-Z]*\))$/-99 -99/g' \
+                    | perl -p -e 's/^([0-9.+-]+)[ ]+([0-9.+-]+)[ ]+J2000 ->[ ]*([0-9.+-]+)[ ]+([0-9.+-]+)$/${3} ${4}/g' \
+                    > "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt"
+                # check the output line count
+                if [[ $(cat "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt" | wc -l) -ne $(cat "$AstroDepth_OutputDir/astrodepth_catalog_${i}_ra_dec.txt" | wc -l) ]]; then 
+                    echo "Error! Seems failed to extract x y from sky2xy output? Maybe the RA Dec is not J2000? Please check and re-try!"
+                    mv "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt" "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt.failed"
+                    exit 1
+                fi
+            fi
+            # merge into prior_x_y.txt
+            cat "$AstroDepth_OutputDir/astrodepth_image_${j}_catalog_${i}_x_y.txt" >> "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/prior_x_y.txt"
+        done
+    fi
+    # check SCI, PSF, RMS images, get full link by readlink command, and make links by ln command
+    if [[ $j -lt ${#AstroDepth_INP_IMAGE_SCI[@]} ]]; then 
+        ln -fs $(readlink -f "${AstroDepth_INP_IMAGE_SCI[j]}") "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/image_sci.fits"
+    fi
+    if [[ $j -lt ${#AstroDepth_INP_IMAGE_PSF[@]} ]]; then 
+        ln -fs $(readlink -f "${AstroDepth_INP_IMAGE_PSF[j]}") "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/image_psf.fits"
+    else 
+        echo "Error! No PSF image was given for the SCI image \"${AstroDepth_INP_IMAGE_SCI[j]}\"!"
+        exit 1
+    fi
+    if [[ $j -lt ${#AstroDepth_INP_IMAGE_RMS[@]} ]]; then 
+        ln -fs $(readlink -f "${AstroDepth_INP_IMAGE_RMS[j]}") "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/image_rms.fits"
+    else 
+        echo -n "Warning! No RMS image was given for the SCI image \"${AstroDepth_INP_IMAGE_SCI[j]}\"! "
+        if [[ $j -lt ${#AstroDepth_INP_VALUE_RMS[@]} ]]; then 
+            if [[ $(awk "BEGIN { if(${AstroDepth_INP_VALUE_RMS[j]}>0) print 1; else print 0;}") -eq 1 ]]; then
+                echo "We will generate an uniform RMS image with value ${AstroDepth_INP_VALUE_RMS[j]}!"
+                echo "${AstroDepth_INP_VALUE_RMS[j]}" > "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/image_rms.txt"
+            else
+                echo "We will generate an uniform RMS image with value 1.0!"
+                echo "1.0" > "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/image_rms.txt"
+            fi
+        else
+            echo "We will generate an uniform RMS image with value 1.0!"
+            echo "1.0" > "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/image_rms.txt"
+        fi
+    fi
+    # now prepare supermongo code to run galfit
+    if [[ 1 == 1 ]]; then
+        # 
+        cd "$AstroDepth_OutputDir/astrodepth_image_${j}_galfit/"
+        # 
+        if [[ ! -f "image_rms.fits" ]]; then
+            # produce negative image, and
+            # if no RMS image is given, we generate an uniform RMS image from the SCI image using IRAF <TODO> Make sure user have IRAF
+            #echo "images"                                               >  "image_rms.cl"
+            #echo "imarith image_sci.fits * (-1.0) image_negative.fits"  >> "image_rms.cl"
+            #echo "imarith image_sci.fits *  0.0   image_zero.fits"      >> "image_rms.cl"
+            #echo "imarith image_zero.fits + 1.0   image_rms.fits"       >> "image_rms.cl"
+            #echo "logout"                                               >> "image_rms.cl"
+            #echo ""                                                     >> "image_rms.cl"
+            #cl < "image_rms.cl" > "image_rms.cl.log"
+            # -- <20170226><dzliu> -- use CrabFitsImageArithmetic
+            echo "#!/bin/bash"                                                                                                                     >   "image_rms.sh"
+            echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_sci.fits  '*'"               "-1.0" "image_negative.fits" "-remove-nan"  >> "image_rms.sh"
+            echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_sci.fits  '*'"                "0.0" "image_zero.fits"     "-remove-nan"  >> "image_rms.sh"
+            echo "\"$AstroDepth_ScriptDir\"/CrabFitsImageArithmetic image_zero.fits '+'" $(cat image_rms.txt) "image_rms.fits"      "-remove-nan"  >> "image_rms.sh"
+            echo ""                                                                                                                                >> "image_rms.sh"
+            chmod +x image_rms.sh; ./image_rms.sh > image_rms.log
+            # 
+            if [[ ! -f "image_rms.fits" ]]; then
+                echo "******************************************************************"
+                echo "Error! Failed to run IRAF and create \"image_rms.fits\"!"
+                echo "******************************************************************"
+                sleep 60
+                exit 1
+            fi
+        fi
+        if [[ ! -f "astrodepth_go_galfit.sm" ]]; then
+            echo "Preparing Supermongo script \"astrodepth_go_galfit.sm\" and necessary files for running galfit"
+            echo "read_data"                                                                                                >  "astrodepth_go_galfit.sm"
+            echo "    load astroGalfit.sm"                                                                                  >> "astrodepth_go_galfit.sm"
+            echo "    data \"prior_x_y.txt\" read {_px 1 _py 2}"                                                            >> "astrodepth_go_galfit.sm"
+            echo "    set _id = 0,dimen(_px)-1"                                                                             >> "astrodepth_go_galfit.sm"
+            echo "    set _se = (_px>0 && _py>0)"                                                                           >> "astrodepth_go_galfit.sm"
+            echo "    if(sum(_se) > 0) {"                                                                                   >> "astrodepth_go_galfit.sm"
+            echo "        set id = _id if(_se)"                                                                             >> "astrodepth_go_galfit.sm"
+            echo "        set px = _px if(_se)"                                                                             >> "astrodepth_go_galfit.sm"
+            echo "        set py = _py if(_se)"                                                                             >> "astrodepth_go_galfit.sm"
+            echo "    } else {"                                                                                             >> "astrodepth_go_galfit.sm"
+            echo "        print \"No_catalog_source_within_image\" 'No catalog source within image.\n' {}"                  >> "astrodepth_go_galfit.sm"
+            echo "    }"                                                                                                    >> "astrodepth_go_galfit.sm"
+            echo ""                                                                                                         >> "astrodepth_go_galfit.sm"
+            echo "go_galfit_n1"                                                                                                 >> "astrodepth_go_galfit.sm"
+            echo "    # negative image"                                                                                         >> "astrodepth_go_galfit.sm"
+            echo "    read_data"                                                                                                >> "astrodepth_go_galfit.sm"
+            echo "    initGalfitParam px py"                                                                                    >> "astrodepth_go_galfit.sm"
+            echo "    set Note = id"                                                                                            >> "astrodepth_go_galfit.sm"
+            echo "    writeGalfitParam fit_n1.param"                                                                            >> "astrodepth_go_galfit.sm"
+            echo "    writeGalfitLimit fit_n1.limit"                                                                            >> "astrodepth_go_galfit.sm"
+            echo "    writeGalfitInput fit_n1.input image_negative.fits fit_n1.fits image_rms.fits image_psf.fits fit_n1.limit" >> "astrodepth_go_galfit.sm"
+            echo "    !'$AstroDepth_ScriptDir/galfit' fit_n1.input > fit_n1.out"                                                >> "astrodepth_go_galfit.sm"
+            echo "    !mv fit.log fit_n1.log 2>/dev/null"                                                                       >> "astrodepth_go_galfit.sm"
+            echo "    "                                                                                                         >> "astrodepth_go_galfit.sm"
+            echo ""                                                                                                             >> "astrodepth_go_galfit.sm"
+            echo "go_galfit_0"                                                                                              >> "astrodepth_go_galfit.sm"
+            echo "    read_data"                                                                                            >> "astrodepth_go_galfit.sm"
+            echo "    initGalfitParam px py"                                                                                >> "astrodepth_go_galfit.sm"
+            echo "    set Note = id"                                                                                        >> "astrodepth_go_galfit.sm"
+            echo "    writeGalfitParam fit_0.param"                                                                         >> "astrodepth_go_galfit.sm"
+            echo "    writeGalfitLimit fit_0.limit"                                                                         >> "astrodepth_go_galfit.sm"
+            echo "    writeGalfitInput fit_0.input image_sci.fits fit_0.fits image_rms.fits image_psf.fits fit_0.limit"     >> "astrodepth_go_galfit.sm"
+            echo "    !'$AstroDepth_ScriptDir/galfit' fit_0.input > fit_0.out"                                              >> "astrodepth_go_galfit.sm"
+            echo "    !mv fit.log fit_0.log 2>/dev/null"                                                                    >> "astrodepth_go_galfit.sm"
+            echo "    "                                                                                                     >> "astrodepth_go_galfit.sm"
+            echo ""                                                                                                         >> "astrodepth_go_galfit.sm"
+            echo "go_galfit_1"                                                                                              >> "astrodepth_go_galfit.sm"
+            echo "    read_data"                                                                                            >> "astrodepth_go_galfit.sm"
+            echo "    readGalfitResult fit_0.fits"                                                                          >> "astrodepth_go_galfit.sm"
+            echo "    set Vary_X = (ResultMagsErr<0.5) ? 1.5 : 0"                                                           >> "astrodepth_go_galfit.sm"
+            echo "    set Vary_Y = (ResultMagsErr<0.5) ? 1.5 : 0"                                                           >> "astrodepth_go_galfit.sm"
+            echo "    initGalfitParam px py Vary_X Vary_Y"                                                                  >> "astrodepth_go_galfit.sm"
+            echo "    set Note = id"                                                                                        >> "astrodepth_go_galfit.sm"
+            echo "    set Mags = ResultMags # (ResultMagsErr<0.5) ? ResultMags : Mags"                                      >> "astrodepth_go_galfit.sm"
+            echo "    writeGalfitParam fit_1.param"                                                                         >> "astrodepth_go_galfit.sm"
+            echo "    writeGalfitLimit fit_1.limit"                                                                         >> "astrodepth_go_galfit.sm"
+            echo "    writeGalfitInput fit_1.input image_sci.fits fit_1.fits image_rms.fits image_psf.fits fit_1.limit"     >> "astrodepth_go_galfit.sm"
+            echo "    !'$AstroDepth_ScriptDir/galfit' fit_1.input > fit_1.out"                                              >> "astrodepth_go_galfit.sm"
+            echo "    !mv fit.log fit_1.log 2>/dev/null"                                                                    >> "astrodepth_go_galfit.sm"
+            echo "    "                                                                                                     >> "astrodepth_go_galfit.sm"
+            echo ""                                                                                                         >> "astrodepth_go_galfit.sm"
+            echo "go_galfit_2"                                                                                              >> "astrodepth_go_galfit.sm"
+            echo "    read_data"                                                                                            >> "astrodepth_go_galfit.sm"
+            echo "    readGalfitResult fit_1.fits"                                                                          >> "astrodepth_go_galfit.sm"
+            echo "    set Pos_X = (ResultMagsErr<0.25) ? ResultPosX : px"                                                   >> "astrodepth_go_galfit.sm"
+            echo "    set Pos_Y = (ResultMagsErr<0.25) ? ResultPosY : py"                                                   >> "astrodepth_go_galfit.sm"
+            echo "    set Vary_X = (ResultMagsErr<0.25) ? 1.5 : 0"                                                          >> "astrodepth_go_galfit.sm"
+            echo "    set Vary_Y = (ResultMagsErr<0.25) ? 1.5 : 0"                                                          >> "astrodepth_go_galfit.sm"
+            echo "    initGalfitParam Pos_X Pos_Y Vary_X Vary_Y"                                                            >> "astrodepth_go_galfit.sm"
+            echo "    set Note = id"                                                                                        >> "astrodepth_go_galfit.sm"
+            echo "    set Mags = ResultMags # (ResultMagsErr<0.25) ? ResultMags : Mags"                                     >> "astrodepth_go_galfit.sm"
+            echo "    set Type = (ResultMagsErr<0.25) ? 'gaussian' : Type"                                                  >> "astrodepth_go_galfit.sm"
+            echo "    set Rads = (ResultMagsErr<0.25) ?  1.0       : Rads"                                                  >> "astrodepth_go_galfit.sm"
+            echo "    set ParamFitRads = (ResultMagsErr<0.25) ? 1     : ParamFitRads"                                       >> "astrodepth_go_galfit.sm"
+            echo "    set ParamMinRads = (ResultMagsErr<0.25) ? 0.25  : ParamMinRads"                                       >> "astrodepth_go_galfit.sm"
+            echo "    set ParamMaxRads = (ResultMagsErr<0.25) ? 10.0  : ParamMaxRads"                                       >> "astrodepth_go_galfit.sm"
+            echo "    set ParamFitElli = (ResultMagsErr<0.25) ? 1     : ParamFitElli"                                       >> "astrodepth_go_galfit.sm"
+            echo "    set ParamMinElli = (ResultMagsErr<0.25) ? 0.10  : ParamMinElli"                                       >> "astrodepth_go_galfit.sm"
+            echo "    set ParamMaxElli = (ResultMagsErr<0.25) ? 10.0  : ParamMaxElli"                                       >> "astrodepth_go_galfit.sm"
+            echo "    set ParamFitRoti = (ResultMagsErr<0.25) ? 1     : ParamFitRoti"                                       >> "astrodepth_go_galfit.sm"
+            echo "    set ParamMinRoti = (ResultMagsErr<0.25) ? 0     : ParamMinRoti"                                       >> "astrodepth_go_galfit.sm"
+            echo "    set ParamMaxRoti = (ResultMagsErr<0.25) ? 360.0 : ParamMaxRoti"                                       >> "astrodepth_go_galfit.sm"
+            echo "    writeGalfitParam fit_2.param"                                                                         >> "astrodepth_go_galfit.sm"
+            echo "    writeGalfitLimit fit_2.limit"                                                                         >> "astrodepth_go_galfit.sm"
+            echo "    writeGalfitInput fit_2.input image_sci.fits fit_2.fits image_rms.fits image_psf.fits fit_2.limit"     >> "astrodepth_go_galfit.sm"
+            echo "    !'$AstroDepth_ScriptDir/galfit' fit_2.input > fit_2.out"                                              >> "astrodepth_go_galfit.sm"
+            echo "    !mv fit.log fit_2.log 2>/dev/null"                                                                    >> "astrodepth_go_galfit.sm"
+            echo "    "                                                                                                     >> "astrodepth_go_galfit.sm"
+            echo ""                                                                                                         >> "astrodepth_go_galfit.sm"
+            echo "" >> "astrodepth_go_galfit.sm"
+            echo "" >> "astrodepth_go_galfit.sm"
+        fi
+        # 
+        if [[ ! -f "No_catalog_source_within_image" ]]; then
+            if [[ ! -f "fit_n1.fits" ]]; then
+                echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_n1"
+                echo "macro read astrodepth_go_galfit.sm go_galfit_n1" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_n1.log"
+                # check output successful or not
+                if [[ ! -f "fit_n1.fits" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_n1! Sorry!"; exit 1; fi
+            fi
+            if [[ ! -f "fit_0.fits" ]]; then
+                echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_0"
+                echo "macro read astrodepth_go_galfit.sm go_galfit_0" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_0.log"
+                # check output successful or not
+                if [[ ! -f "fit_0.fits" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_0! Sorry!"; exit 1; fi
+            fi
+            if [[ ! -f "fit_1.fits" ]]; then
+                echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_1"
+                echo "macro read astrodepth_go_galfit.sm go_galfit_1" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_1.log"
+                # check output successful or not
+                if [[ ! -f "fit_1.fits" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_1! Sorry!"; exit 1; fi
+            fi
+            if [[ ! -f "fit_2.fits" ]]; then
+                echo "Running Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_2"
+                echo "macro read astrodepth_go_galfit.sm go_galfit_2" | "$AstroDepth_ScriptDir/sm" > "astrodepth_go_galfit_2.log"
+                # check output successful or not
+                if [[ ! -f "fit_2.fits" ]]; then echo "Error! Failed to run Supermongo script \"astrodepth_go_galfit.sm\" subroutine go_galfit_2! Sorry!"; exit 1; fi
+            fi
+        else
+            echo "No catalog source within image! Skip and continue!"
+        fi
+        # 
+        cd "$AstroDepth_CurrrentDir"
+    fi
+    
+done
+
+
+
+
+
+
+
+
+
+
+
+
+

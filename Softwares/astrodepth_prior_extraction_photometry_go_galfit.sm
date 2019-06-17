@@ -15,6 +15,7 @@ read_data 00
 
 
 read_pixscale 00
+    echo "Running read_pixscale"
     if(is_file("image_sci_pixscale.txt")) {
         if(is_vector(pixscale)) {unset pixscale}
         data "image_sci_pixscale.txt" read {pixscale 1}
@@ -31,6 +32,17 @@ read_pixscale 00
 
 
 read_pixnoise 00
+    echo "Running read_pixnoise"
+    # firstly try to read "image_rms_noise.txt", if not found then try to read "image_sci_pixnoise.txt". 
+    # the latter one is computed from pixel statistics
+    if(is_file("image_rms_noise.txt")) {
+        if(is_vector(pixnoise)) {unset pixnoise}
+        data "image_rms_noise.txt" read {pixnoise 1}
+        if(is_vector(pixnoise)) {return} # directly return if read succesfully
+            # but note that this is for all getpix sources, 
+            # we need to apply the mask before use it for galfit sources.
+    }
+    # 
     if(is_file("image_sci_pixnoise.txt")) {
         if(is_vector(pixnoise)) {unset pixnoise}
         data "image_sci_pixnoise.txt" read {pixnoise 1}
@@ -276,6 +288,7 @@ calc_peak2total
 
 
 calc_Condon1997_errors 02
+    echo "Running calc_Condon1997_errors"
     # Condon 1997 - Errors of Gaussian Fitting - 1997PASP..109..166C.pdf
     # see also '/Users/dzliu/Cloud/Github/AlmaCosmos/Softwares/3rd_pybdsf/PyBDSF/bdsf/functions.py' def get_errors()
     # 20180309: fixed the bug when maj==0 or min==0
@@ -461,6 +474,7 @@ mask_prior_sources 01
     # for example, 
     # mask_prior_sources _on_negative_images
     # 
+    echo "Running mask_prior_sources"
     if($?1) {
         define output_file No_catalog_source_with_enough_getpix_SNR$1
         define input_file getpix$1
@@ -468,80 +482,109 @@ mask_prior_sources 01
         define output_file No_catalog_source_with_enough_getpix_SNR
         define input_file getpix
     }
-    if(is_file($output_file)) { !rm $output_file }
-    if(is_file($input_file.txt) && is_file($input_file.result) && is_vector(px) && is_vector(py)) {
-        data $input_file.txt read {f_000 1.f}
-        data $input_file.result read {f_peak 1.f f_total 2.f snr_peak 3.f snr_total 4.f cat_index 7.f cat_id 8.s}
-        #set mask = (snr_total>=1.0 && snr_peak>=2.0) #<before><20170403><dzliu>#
+    # 
+    if(!is_vector(px) || !is_vector(py)) { read_data }
+    # 
+    # check existing mask file
+    if(is_file($input_file.mask)) {
         # 
-        #<20170923># allow to set the threshold by files "fit_galfit_prior_peak_snr" and "fit_galfit_prior_total_snr"
-        #<20170923># set threshold_total = 2.0
-        #<20170923># set threshold_peak = 3.6
-        if(is_file("fit_galfit_prior_peak_snr")) {
-            data "fit_galfit_prior_peak_snr" read {threshold_peak 1.f}
-        } else {
-            set threshold_peak = 3.6 * 0.7
-            print "fit_galfit_prior_peak_snr" {threshold_peak}
-        }
-        if(is_file("fit_galfit_prior_total_snr")) {
-            data "fit_galfit_prior_total_snr" read {threshold_total 1.f}
-        } else {
-            set threshold_total = 2.0 * 0.7
-            print "fit_galfit_prior_total_snr" {threshold_total}
-        }
-        if(is_file("fit_galfit_prior_combined_peak_and_total_snr")) {
-            data "fit_galfit_prior_combined_peak_and_total_snr" read {threshold_comb_peak 1.f threshold_comb_total 2.f}
-        } else {
-            set threshold_comb_peak = 3.6 * 0.45
-            set threshold_comb_total = 2.0 * 0.45
-            print "fit_galfit_prior_combined_peak_and_total_snr" {threshold_comb_peak threshold_comb_total}
-        }
+        # if mask file exists, read it
+        data $input_file.mask read {mask 1.d id 2.f cat_index 3.f cat_id 4.s}
+        echo "Read "$(dimen(cat_id))" lines as getpix to galfit fitting mask from "$input_file.mask
         # 
-        #set mask = ((snr_total/threshold_total>=0.35 && snr_peak/threshold_peak>=0.35) || (snr_total/threshold_total>=0.75) || (snr_peak/threshold_peak>=0.75)) #<before><20170607><dzliu>#
-        #set mask = ((snr_total/threshold_total>=0.30 && snr_peak/threshold_peak>=0.30) || (snr_total/threshold_total>=0.70) || (snr_peak/threshold_peak>=0.70)) #<before><20170923><dzliu>#
-        set mask = ((snr_total>=threshold_comb_total && snr_peak>=threshold_comb_peak) || \
-                    (snr_total>=threshold_total) || \
-                    (snr_peak>=threshold_peak))
-        set mask = (mask && f_000!=0) #<20170719># this excludes sources at invalid pixel position
-        set mask = int(mask)
-        set id = float(id)
-        print $input_file.mask '%15d %15.0f %15.0f %20s\n' {mask id cat_index cat_id} # TODO Check: id == cat_index = cat_id-1
-        echo "Writing "$(dimen(cat_id))" lines to "$input_file.mask
-        # 
-        if(sum(mask)>0) {
-            set px = px if(mask)
-            set py = py if(mask)
-            set id = id if(mask) # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
-            # 
-            set cat_index = cat_index if(mask)
-            set cat_id = cat_id if(mask)
-            # 
-            if(is_file("image_sci_primary_beam_correction.txt")) {
-                data "image_sci_primary_beam_correction.txt" read {pb_corr 1.f}
-                set pb_corr = pb_corr if(mask)
-            } else {
-                set pb_corr = px*0.0 + 1.0
-            }
-            # 
-            if(is_file("image_pba_primary_beam_correction.txt")) {
-                data "image_pba_primary_beam_correction.txt" read {pb_corr_from_pb_image 1.f}
-                set pb_corr_from_pb_image = pb_corr_from_pb_image if(mask)
-            } else {
-                set pb_corr_from_pb_image = px*0.0 + 1.0
-            }
-            # 
-        } else {
-            declare px 0.f
-            declare py 0.f
-            declare id 0.f
-            declare pb_corr 0.f
-            declare pb_corr_from_pb_image 0.f
-            print $output_file 'No catalog source with enough getpix SNR.\n' {}
-            echo "Warning! No catalog source with enough getpix SNR."
-            return # exit
-        }
     } else {
-        print 'Warning! \"$input_file.txt\" or \"$input_file.result\" was not found! We will not mask the prior sources based on that!\n' {}
+        # 
+        # if no existing mask file, mask the getpix sources
+        # and check whether there are any source meet our criterion
+        if(is_file($input_file.txt) && is_file($input_file.result)) {
+            data $input_file.txt read {f_000 1.f}
+            data $input_file.result read {f_peak 1.f f_total 2.f snr_peak 3.f snr_total 4.f cat_index 7.f cat_id 8.s}
+            #set mask = (snr_total>=1.0 && snr_peak>=2.0) #<before><20170403><dzliu>#
+            # 
+            #<20170923># allow to set the threshold by files "fit_galfit_prior_peak_snr" and "fit_galfit_prior_total_snr"
+            #<20170923># set threshold_total = 2.0
+            #<20170923># set threshold_peak = 3.6
+            if(is_file("fit_galfit_prior_peak_snr")) {
+                data "fit_galfit_prior_peak_snr" read {threshold_peak 1.f}
+            } else {
+                set threshold_peak = 3.6 * 0.7
+                print "fit_galfit_prior_peak_snr" {threshold_peak}
+            }
+            if(is_file("fit_galfit_prior_total_snr")) {
+                data "fit_galfit_prior_total_snr" read {threshold_total 1.f}
+            } else {
+                set threshold_total = 2.0 * 0.7
+                print "fit_galfit_prior_total_snr" {threshold_total}
+            }
+            if(is_file("fit_galfit_prior_combined_peak_and_total_snr")) {
+                data "fit_galfit_prior_combined_peak_and_total_snr" read {threshold_comb_peak 1.f threshold_comb_total 2.f}
+            } else {
+                set threshold_comb_peak = 3.6 * 0.45
+                set threshold_comb_total = 2.0 * 0.45
+                print "fit_galfit_prior_combined_peak_and_total_snr" {threshold_comb_peak threshold_comb_total}
+            }
+            # 
+            #set mask = ((snr_total/threshold_total>=0.35 && snr_peak/threshold_peak>=0.35) || (snr_total/threshold_total>=0.75) || (snr_peak/threshold_peak>=0.75)) #<before><20170607><dzliu>#
+            #set mask = ((snr_total/threshold_total>=0.30 && snr_peak/threshold_peak>=0.30) || (snr_total/threshold_total>=0.70) || (snr_peak/threshold_peak>=0.70)) #<before><20170923><dzliu>#
+            set mask = ((snr_total>=threshold_comb_total && snr_peak>=threshold_comb_peak) || \
+                        (snr_total>=threshold_total) || \
+                        (snr_peak>=threshold_peak))
+            set mask = (mask && f_000!=0) #<20170719># this excludes sources at invalid pixel position
+            set mask = int(mask)
+            set id = float(id)
+            print $input_file.mask '%15d %15.0f %15.0f %20s\n' {mask id cat_index cat_id} # TODO Check: id == cat_index = cat_id-1
+            echo "Writing "$(dimen(cat_id))" lines to "$input_file.mask
+            # 
+        } else {
+            # 
+            print 'Warning! \"$input_file.txt\" or \"$input_file.result\" was not found! We will not mask the prior sources based on that!\n' {}
+            return
+            # 
+        }
+    }
+    # 
+    # check mask array
+    if(sum(mask)>0) {
+        # 
+        # we have some sources with mask=1, meaning that they passed the getpix->galfit criterion
+        # now remove any previous setup file saying no catalog source with enough getpix SNR.
+        if(is_file($output_file)) { !rm $output_file }
+        # 
+        # mask data arrays
+        set px = px if(mask)
+        set py = py if(mask)
+        set id = id if(mask) # this is the catalog index from 0 to dimen(catalog)-1, not catalog object id itself
+        # 
+        set cat_index = cat_index if(mask)
+        set cat_id = cat_id if(mask)
+        # 
+        if(is_file("image_sci_primary_beam_correction.txt")) {
+            data "image_sci_primary_beam_correction.txt" read {pb_corr 1.f}
+            set pb_corr = pb_corr if(mask)
+        } else {
+            set pb_corr = px*0.0 + 1.0
+        }
+        # 
+        if(is_file("image_pba_primary_beam_correction.txt")) {
+            data "image_pba_primary_beam_correction.txt" read {pb_corr_from_pb_image 1.f}
+            set pb_corr_from_pb_image = pb_corr_from_pb_image if(mask)
+        } else {
+            set pb_corr_from_pb_image = px*0.0 + 1.0
+        }
+        # 
+        if(is_vector(pixnoise) && dimen(pixnoise)==dimen(mask)) {
+            set pixnoise = pixnoise if(mask)
+        }
+        # 
+    } else {
+        declare px 0.f
+        declare py 0.f
+        declare id 0.f
+        declare pb_corr 0.f
+        declare pb_corr_from_pb_image 0.f
+        print $output_file 'No catalog source with enough getpix SNR.\n' {}
+        echo "Warning! No catalog source with enough getpix SNR."
+        return # exit
     }
 
 
@@ -598,6 +641,7 @@ go_galfit 01
         print 'Usage: go_galfit 0\n' {}
         return
     }
+    echo "Running go_galfit "$1
     read_data
     read_pixscale
     read_pixnoise
@@ -609,7 +653,7 @@ go_galfit 01
     } else {
         mask_prior_sources
     }
-    # --> px, py, id, cat_index, cat_id, pb_corr, pb_corr_from_pb_image
+    # --> px, py, id, cat_index, cat_id, pb_corr, pb_corr_from_pb_image, pixnoise
     # 
     #<20171221># print fit_$1.cat_index.txt '%15.0f %20s\n' {cat_index cat_id}
     #<20171221># print fit_$1.pbcorr.txt '%15g %15.0f %20s\n' {pb_corr cat_index cat_id}
@@ -864,11 +908,20 @@ print_result 02
     # 
     # input argument $1 -- fit_XXX
     # 
+    echo "Running print_result "$1
     read_pixscale
     read_pixnoise
     calc_beamarea
     #calc_peak2total
     calc_fluxconv
+    # 
+    # mask prior sources (20171221: fixed bug: mask_prior_sources_on_negative_image)
+    if(index('$1','fit_n')==0) {
+        mask_prior_sources_on_negative_image
+    } else {
+        mask_prior_sources
+    }
+    # --> px, py, id, cat_index, cat_id, pb_corr, pb_corr_from_pb_image, pixnoise
     # 
     if(is_file($1.result)) {
         !rm $1.result*
@@ -1114,10 +1167,12 @@ print_result_final 01
         set final_basename = 'final'
         set getpix_basename = 'getpix'
         set galfit_basenames = { fit_0 fit_1 fit_2 fit_3}
+        echo "Running print_result_final"
     } else { 
         set final_basename = 'final_on_negative_image'
         set getpix_basename = 'getpix_on_negative_image'
         set galfit_basenames = { fit_n0 fit_n1 fit_n2 fit_n3}
+        echo "Running print_result_final"$1
     }
     if(!is_file("No_catalog_source_within_image")) {
         if(is_file($(final_basename).result)) { !mv $(final_basename).result $(final_basename).result.backup }
@@ -1127,6 +1182,16 @@ print_result_final 01
         calc_fluxconv
         read_pixscale
         read_pixnoise
+        # 
+        # mask prior sources (20171221: fixed bug: mask_prior_sources_on_negative_image)
+        if(index('$1','on_negative_image')>=0) {
+            mask_prior_sources_on_negative_image
+        } else {
+            mask_prior_sources
+        }
+        # --> px, py, id, cat_index, cat_id, pb_corr, pb_corr_from_pb_image, pixnoise
+        # 
+        # set rms 
         set rms = pixnoise * fluxconv # (beamarea/(pixscale*pixscale)) # original pixel unit -> Jy (integrated over 1 pixel / TODO: OR the pixels corresponding to one beamarea?)
         # 
         # check whether Jy/beam, if so, convert rms to mJy/beam only if the original pixel unit is Jy/beam

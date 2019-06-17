@@ -666,7 +666,7 @@ goxfitAGN 01
 					declare dzliu_overplot_fF 0.f
 					declare dzliu_overplot_dfF 0.f
 					do dzliu_iI_ = 0,dimen(xNames)-1 {
-						if(index(xNames[$dzliu_iI_],'ALMA')>=0) {
+						if((index(xNames[$dzliu_iI_],'ALMA')>=0)||(index(xNames[$dzliu_iI_],'NOEMA')>=0)) {
 							set dzliu_overplot_sS = dzliu_overplot_sS concat ''
 							set dzliu_overplot_wW = dzliu_overplot_wW concat $(wW[$dzliu_iI_])
 							set dzliu_overplot_fF = dzliu_overplot_fF concat $(fF[$dzliu_iI_])

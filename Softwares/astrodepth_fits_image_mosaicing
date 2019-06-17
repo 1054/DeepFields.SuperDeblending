@@ -1,0 +1,249 @@
+#!/bin/bash
+# 
+# Perform fits image mosaicing
+# 
+
+
+# 
+# check user input
+# 
+if [[ $# -lt 5 ]]; then
+    echo "Usage: "
+    echo "    astrodepth_fits_image_mosaicing <Input_template_fits_image> <cut.file.txt> <cut.rect.txt> <cut.buffer.txt> <Output_fits_image_name>"
+    echo "Notes:"
+    echo "    cut.file.txt should contain one cutout file per line."
+    echo "    cut.rect.txt should contain the x1 y1 x2 y2 rectangle for each cutout file in cut.file.txt."
+    echo "    cut.buffer.txt should cotain the buffer size for each cutout file in cut.file.txt."
+    #echo "    Output_fits_image_name is optional, the default name is Input_template_fits_image.mosaic.fits"
+    exit
+fi
+
+
+# 
+# check software dependency
+# 
+if [[ $(type CrabFitsImageCrop 2>/dev/null | wc -l) -eq 0 ]]; then
+    source $(dirname $(dirname "${BASH_SOURCE[0]}"))/SETUP.bash
+fi
+
+
+# 
+# read user input
+# 
+InputTemplateImage="$1"
+CutFileListFile="$2"
+CutRectListFile="$3"
+CutBufferListFile="$4"
+OutputImage="$5"
+Overwrite=0
+
+
+# 
+# read cutout rectangles
+# 
+if [[ ! -f "$CutRectListFile" ]]; then
+    echo "Error! \"$CutRectListFile\" was not found! Could not do mosaicing without it! Abort!"
+    exit 255
+else
+    IFS=$'\n' CutRectList=($(<"$CutRectListFile"))
+    if [[ ${#CutRectList[@]} -lt 2 ]]; then
+        echo "Error! \"$CutRectListFile\" contains less than two lines! No need to do mosaicing!"
+        exit 255
+    fi
+fi
+
+
+
+# 
+# read "$CutFileListFile" and check consistency between rect list and file list.
+# 
+if [[ ! -f "$CutFileListFile" ]]; then
+    echo "Error! \"$CutFileListFile\" was not found! Could not do mosaicing without it! Abort!"
+    exit 255
+else
+    IFS=$'\n' CutFileList=($(<"$CutFileListFile"))
+    if [[ ${#CutFileList[@]} != ${#CutRectList[@]} ]]; then
+        echo "Error! The cutout file list from \"$CutFileListFile\" has a different dimension than the cutout rectangle list from \"$CutRectListFile\"! Could not do mosaicing properly! Abort!"
+        exit 255
+    fi
+    CutFileDirPath=$(astrodepth_abs_path $(dirname "$CutFileListFile"))
+fi
+
+
+
+# 
+# read buffer list
+# 
+if [[ ! -f "$CutBufferListFile" ]]; then
+    echo "Warning! \"$CutBufferListFile\" was not found! Assuming no buffer!"
+    CutBufferList=()
+    for (( i = 0; i < ${#CutRectList[@]}; i++ )); do
+        CutBufferList+=(0)
+    done
+else
+    # the buffer list file can contain one value for the whole image, or one value for each cutout. here we check the array dimension.
+    IFS=$'\n' CutBufferList=($(<"$CutBufferListFile"))
+    if [[ ${#CutBufferList[@]} -eq 1 ]]; then
+        CutBufferValue=${CutBufferList[0]}
+        CutBufferList=()
+        for (( i = 0; i < ${#CutRectList[@]}; i++ )); do
+            CutBufferList+=($CutBufferValue)
+        done
+    else
+        if [[ ${#CutBufferList[@]} -ne ${#CutRectList[@]} ]]; then
+            echo "Error! The cutout buffer list from \"$CutBufferListFile\" has a different dimension than the cutout rectangle list from \"$CutRectListFile\"! Could not do mosaicing properly! Abort!"
+            echo "\${#CutBufferList[@]} = ${#CutBufferList[@]}"
+            echo "\${#CutRectList[@]} = ${#CutRectList[@]}"
+            exit 255
+        fi
+    fi
+fi
+
+
+# 
+# check existing output image
+# 
+#if [[ -z "$OutputImage" ]]; then
+#    OutputImage=$(basename "$InputTemplateImage" | sed -e "s/\.fits$/.mosaic.fits/g")
+#fi
+if [[ "$OutputImage" != *".fits" ]]; then
+    echo "Error! The output fits image file name should end with *.fits!"
+    exit 255
+fi
+if [[ -f "$OutputImage" ]]; then
+    echo "Warning! Found existing output file \"$OutputImage\"! Backing it up as \"$OutputImage.backup\""
+    mv "$OutputImage" "$OutputImage.backup"
+fi
+# 
+# prepare output directory
+OutputDir=$(dirname "$OutputImage")
+if [[ OutputDir != "." ]]; then
+    if [[ ! -d "$OutputDir" ]]; then
+        mkdir "$OutputDir"
+    fi
+fi
+
+
+
+# 
+# calculate output image size from rect list and buffer list
+# 
+Set_Computing_Output_Image_Size=0
+if [[ $Set_Computing_Output_Image_Size -ge 1 ]]; then
+    OutputSizeX=0
+    OutputSizeY=0
+    for (( i=0; i<${#CutRectList[@]}; i++ )); do
+        # 
+        # split cut rect into 4 values: x1, y1, x2, y2
+        IFS=' ' CutRect=($(echo "${CutRectList[$i]}"))
+        #echo "CutRect = ${CutRect[@]} (${#CutRect[@]})"
+        # 
+        # read cut buffer
+        CutBuffer="${CutBufferList[i]}"
+        #echo "CutBuffer = $CutBuffer"
+        # 
+        # get upper right corner coordinates of the non-buffer area of each cutout in the template image
+        tx2=$(bc <<< "(${CutRect[2]})-($CutBuffer)")
+        ty2=$(bc <<< "(${CutRect[3]})-($CutBuffer)")
+        # 
+        # get maximum coordinate as output size
+        if [[ $OutputSizeX -lt $tx2 ]]; then OutputSizeX=$tx2; fi
+        if [[ $OutputSizeY -lt $ty2 ]]; then OutputSizeY=$ty2; fi
+    done
+    echo "OutputSizeX = $OutputSizeX"
+    echo "OutputSizeY = $OutputSizeY"
+fi
+
+
+
+# 
+# create blank output image
+# 
+TempImage=$(echo "$OutputImage" | sed -e 's/\.fits$/.temp.fits/g')
+TempLog=$(echo "$OutputImage" | sed -e 's/\.fits$/.temp.log/g')
+CrabFitsImageArithmetic "$InputTemplateImage" times 0.0 "$TempImage" -copy-wcs > "$TempLog"
+if [[ ! -f "$TempImage" ]]; then
+    echo "Error! Failed to run CrabFitsImageArithmetic and create blank output fits image! Sorry! Maybe the CrabFitsImageArithmetic code could not deal with the input fits image \"$InputTemplateImage\"?! Please submit issue to https://github.com/1054/DeepFields.SuperDeblending"
+    echo "Log file (\"$TempLog\"): "
+    cat "$TempLog"
+    exit 255
+else
+    touch "$OutputImage.lock"
+    cp "$TempImage" "$OutputImage"
+    rm "$TempImage"
+    rm "$OutputImage.lock"
+fi
+
+
+
+# 
+# make mosaic
+# 
+for (( i=0; i<${#CutRectList[@]}; i++ )); do
+    # 
+    # debug
+    #if [[ $i -lt 100 ]]; then
+    #    continue
+    #fi
+    # 
+    # read cut file
+    CutFile="${CutFileList[i]}"
+    echo "Processing \"$CutFile\" ($((i+1))/${#CutRectList[@]})"
+    # 
+    # append prefix file path if it is a relative path rather than an absolute path
+    # the file path in the cut.file.txt can be a relative path relative to the directory which stores cut.file.txt.
+    if [[ "$CutFile" != "/"* ]]; then
+        CutFile="$CutFileDirPath/$CutFile"
+    fi
+    # 
+    # split cut rect into 4 values: x1, y1, x2, y2
+    IFS=' ' CutRect=($(echo "${CutRectList[$i]}"))
+    #echo "CutRect = ${CutRect[@]} (${#CutRect[@]})"
+    # 
+    # read cut buffer
+    CutBuffer="${CutBufferList[i]}"
+    # 
+    # get the coordinates of the non-buffer area of each cutout in the template image
+    tx1=$(bc <<< "(${CutRect[0]})+($CutBuffer)") # 0-based coordinate
+    ty1=$(bc <<< "(${CutRect[1]})+($CutBuffer)") # 0-based coordinate
+    tx2=$(bc <<< "(${CutRect[2]})-($CutBuffer)") # 0-based coordinate
+    ty2=$(bc <<< "(${CutRect[3]})-($CutBuffer)") # 0-based coordinate
+    echo "Rectangle coordinates in the template image (0-based x1,y1 x2,y2): $tx1 $ty1 $tx2 $ty2"
+    # 
+    # get the coordinates of the non-buffer area of each cutout in the cutout image
+    cx1="$CutBuffer"
+    cy1="$CutBuffer"
+    cx2=$(bc <<< "($tx2)-($tx1)+($CutBuffer)")
+    cy2=$(bc <<< "($ty2)-($ty1)+($CutBuffer)")
+    echo "Rectangle coordinates in the cutout image (0-based x1,y1 x2,y2): $cx1 $cy1 $cx2 $cy2"
+    # 
+    # fill the mosaic image with current cutout fits image
+    echo CrabFitsImageArithmetic "$OutputImage" -rect $tx1 $ty1 $tx2 $ty2 adds "$CutFile" -rect $cx1 $cy1 $cx2 $cy2 "$TempImage" -copy-wcs
+    CrabFitsImageArithmetic "$OutputImage" -rect $tx1 $ty1 $tx2 $ty2 adds "$CutFile" -rect $cx1 $cy1 $cx2 $cy2 "$TempImage" -copy-wcs > "$TempLog"
+    if [[ ! -f "$TempImage" ]]; then
+        echo "Error! Failed to run CrabFitsImageArithmetic and fill in the cutout fits image \"$CutFile\"?! This should not happen! Please re-run the script!"
+        echo "Log file (\"$TempLog\"): "
+        cat "$TempLog"
+        exit 255
+    else
+        touch "$OutputImage.lock"
+        echo cp "$TempImage" "$OutputImage"
+        cp "$TempImage" "$OutputImage"
+        rm "$TempImage"
+        rm "$OutputImage.lock"
+    fi
+    # 
+    # 
+    #exit
+done
+
+echo "Output to \"$OutputImage\"!"
+
+
+echo "astrodepth_fits_image_mosaicing finished at "$(date +"%Y%m%d %Hh%Mm%Ss %Z")"."
+
+
+
+
+
+

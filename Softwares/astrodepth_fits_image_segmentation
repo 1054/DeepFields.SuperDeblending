@@ -1,0 +1,146 @@
+#!/bin/bash
+# 
+# Perform fits image segmentation
+# 
+
+
+# 
+# check user input
+# 
+if [[ $# -lt 5 ]]; then
+    echo "Usage: "
+    echo "    astrodepth_fits_image_segmentation <Input_fits_image> <Box_size_X> <Box_size_Y> <Buffer_size_X> <Buffer_size_Y>"
+    exit
+fi
+
+
+# 
+# check software dependency
+# 
+if [[ $(type CrabFitsImageCrop 2>/dev/null | wc -l) -eq 0 ]]; then
+    source $(dirname $(dirname "${BASH_SOURCE[0]}"))/SETUP.bash
+fi
+
+
+# 
+# read user input
+# 
+InputImage="$1"
+CutSize1=$2
+CutSize2=$3
+CutBuffer1=$4 # add a buffer region, with about 20 pixels
+CutBuffer2=$5 # add a buffer region, with about 20 pixels
+Overwrite=0
+
+
+# 
+# read input image size and prepare output cut rect and file list files
+# 
+InputImageSize1=$(gethead "$InputImage" NAXIS1)
+InputImageSize2=$(gethead "$InputImage" NAXIS2)
+CutRectListFile=$(echo "$InputImage" | sed -e "s/\.fits$/.cut.rect.txt/g")
+CutFileListFile=$(echo "$InputImage" | sed -e "s/\.fits$/.cut.file.txt/g")
+
+
+# 
+# determine cutout rectangles and write "$CutRectListFile"
+# 
+if [[ ! -f "$CutRectListFile" ]]; then
+    CutNumbX=$(awk "BEGIN {print int(($InputImageSize1)/$CutSize1/2.0)*2+1}") # cut into odd number of slices along X
+    CutNumbY=$(awk "BEGIN {print int(($InputImageSize2)/$CutSize2/2.0)*2+1}") # cut into odd number of slices along Y
+    if [[ $(awk "BEGIN {if($CutNumbX<3) print 1; else print 0;}") -eq 1 ]]; then
+        CutNumbX=3 # cut into at least ~3 slices along X
+    fi
+    if [[ $(awk "BEGIN {if($CutNumbY<3) print 1; else print 0;}") -eq 1 ]]; then
+        CutNumbY=3 # cut into at least ~3 slices along Y
+    fi
+    CutSizeX=$(awk "BEGIN {print int(($InputImageSize1)/$CutNumbX)}") # ~301
+    CutSizeY=$(awk "BEGIN {print int(($InputImageSize2)/$CutNumbY)}") # ~301
+    # 
+    for (( icut_y=0; icut_y<$CutNumbY; icut_y++ )); do
+        for (( icut_x=0; icut_x<$CutNumbX; icut_x++ )); do
+            # 
+            # define cut x1,y1 x2,y2
+            CutCorePos1X=$(awk "BEGIN {print ($CutSizeX)*($icut_x)}")
+            CutCorePos1Y=$(awk "BEGIN {print ($CutSizeY)*($icut_y)}")
+            CutCorePos2X=$(awk "BEGIN {print ($CutSizeX)*($icut_x+1)-1}")
+            CutCorePos2Y=$(awk "BEGIN {print ($CutSizeY)*($icut_y+1)-1}")
+            # 
+            CutPos1X=$(awk "BEGIN {print ($CutSizeX)*($icut_x)-($CutBuffer1)}")
+            CutPos1Y=$(awk "BEGIN {print ($CutSizeY)*($icut_y)-($CutBuffer2)}")
+            CutPos2X=$(awk "BEGIN {print ($CutSizeX)*($icut_x+1)-1+($CutBuffer1)}")
+            CutPos2Y=$(awk "BEGIN {print ($CutSizeY)*($icut_y+1)-1+($CutBuffer2)}")
+            # 
+            # write cut rect to file
+            echo "$CutPos1X $CutPos1Y $CutPos2X $CutPos2Y $CutCorePos1X $CutCorePos1Y $CutCorePos2X $CutCorePos2Y" >> "$CutRectListFile"
+        done
+    done
+    echo "Output to \"$CutRectListFile\"!"
+fi
+IFS=$'\n' CutRectList=($(<"$CutRectListFile"))
+
+
+
+# 
+# check existing "$CutFileListFile" and check consistency between rect list and file list.
+# 
+if [[ -f "$CutFileListFile" ]]; then
+    IFS=$'\n' CutFileList=($(<"$CutFileListFile"))
+    if [[ ${#CutFileList[@]} != ${#CutRectList[@]} ]]; then
+        #echo "Warning!"
+        mv "$CutFileListFile" "$CutFileListFile.backup"
+    fi
+fi
+
+
+# 
+# make cutouts
+# 
+if [[ ! -f "$CutFileListFile" ]]; then
+    for (( icut=0; icut<${#CutRectList[@]}; icut++ )); do
+        # 
+        # split cut rect into 4 values: x1, y1, x2, y2
+        IFS=' ' CutRect=($(echo "${CutRectList[$icut]}"))
+        #echo "CutRect = ${CutRect[@]} (${#CutRect[@]})"
+        # 
+        # prepare cut directory
+        WorkingDir=$(dirname "$InputImage")
+        CutDir="cut_$((icut+1))_rect_${CutRect[0]}_${CutRect[1]}_${CutRect[2]}_${CutRect[3]}"
+        if [[ ! -d "$WorkingDir/$CutDir" ]]; then
+            mkdir "$WorkingDir/$CutDir"
+        fi
+        # 
+        # prepare cutout image name
+        CutImage=$(basename "$InputImage" | sed -e "s/\.fits$/.cut_${CutRect[0]}_${CutRect[1]}_${CutRect[2]}_${CutRect[3]}.fits/g")
+        # 
+        # check existing cutout image file
+        if [[ ! -f "$WorkingDir/$CutDir/$CutImage" ]] || [[ $Overwrite -gt 0 ]]; then
+            # 
+            # cut the image
+            #echo "Running CrabFitsImageCrop -rect ${CutRect[0]} ${CutRect[1]} ${CutRect[2]} ${CutRect[3]} -out \"$WorkingDir/$CutDir/$CutImage\" (pwd: $(pwd))"
+            #echo "Running CrabFitsImageCrop for segmentation $((icut+1)) with rectangle ${CutRect[0]} ${CutRect[1]} ${CutRect[2]} ${CutRect[3]}"
+            CrabFitsImageCrop "$InputImage" -rect ${CutRect[0]} ${CutRect[1]} ${CutRect[2]} ${CutRect[3]} -out "$WorkingDir/$CutDir/$CutImage" >/dev/null
+            # 
+            # check output
+            if [[ ! -f "$WorkingDir/$CutDir/$CutImage" ]]; then
+                echo ""; echo "Error! Failed to run \"$CutScript\" and create \"$WorkingDir/$CutDir/$CutImage\"!"
+                echo ""; cat "$CutScriptLog"
+                exit 1
+            fi
+        fi
+        # 
+        # write CutFileListFile
+        echo "$CutDir/$CutImage" >> "$CutFileListFile"
+        
+    done
+    echo "Output to \"$CutFileListFile\"!"
+fi
+
+
+echo "astrodepth_fits_image_segmentation finished at "$(date +"%Y%m%d %Hh%Mm%Ss %Z")"."
+
+
+
+
+
+

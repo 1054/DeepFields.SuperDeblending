@@ -1,0 +1,31 @@
+#!/bin/bash
+# 
+# 
+
+source $(dirname "${BASH_SOURCE[0]}")/bin_setup.bash
+
+if [[ $# -eq 0 ]]; then echo "Usage: psfsize XXX.fits"; exit; fi
+if [[ $(type CrabPhotImageStatistics 2>/dev/null | wc -l) -eq 0 ]]; then echo "Error! CrabPhotImageStatistics was not found! Please make sure https://github.com/1054/DeepFields.SuperDeblending was installed!" >&2; exit 1; fi
+if [[ $(type CrabFitsImageArithmetic 2>/dev/null | wc -l) -eq 0 ]]; then echo "Error! CrabFitsImageArithmetic was not found! Please make sure https://github.com/1054/DeepFields.SuperDeblending was installed!" >&2; exit 1; fi
+if [[ ! -f "$1" ]]; then echo "Error! The input fits file \"$1\" does not exist!" >&2; exit 1; fi
+if [[ $# -ge 2 ]]; then t_factor=$2; else t_factor=0.5; fi
+
+debug=0
+
+# determine psf size by counting number of pixels
+CrabPhotImageStatistics "$1" > "image_psf.statistics.txt"
+t_psfmaxpixvalcol=$(cat "image_psf.statistics.txt" | grep '^#' | grep -v '^# *$' | tail -n 1 | sed 's/^# *//g' | perl -p -e 's/ +/\n/g' | nl -n ln | grep '\bMAX\b' | cut -d ' ' -f 1)
+t_psfmaxpixval=$(cat "image_psf.statistics.txt" | grep -v '^#' | head -n 1 | awk "{ if(substr(\$1,0,1)!=\"#\") {print (\$$t_psfmaxpixvalcol);} }" | head -n 1)
+if [[ $debug -ge 1 ]]; then echo t_psfmaxpixval=$t_psfmaxpixval >&2; fi
+t_psfcorepixval=$(awk "BEGIN {print ($t_psfmaxpixval * $t_factor);}")
+if [[ $debug -ge 1 ]]; then echo t_psfcorepixval=$t_psfcorepixval >&2; fi
+CrabFitsImageArithmetic "$1" ">=" "$t_psfcorepixval" "image_psf.core.fits" > /dev/null
+#CrabPhotImageStatistics "image_psf.core.fits" > "image_psf.core.statistics.txt"
+t_sumpix=$(sumpix "image_psf.core.fits")
+t_psfsize=$(awk "BEGIN {print (sqrt($t_sumpix/3.14)*2.0);}") # diameter
+if [[ $debug -ge 1 ]]; then echo t_psfsize=$t_psfsize >&2; fi
+echo $t_psfsize
+
+rm "image_psf.statistics.txt" 2>/dev/null
+rm "image_psf.core.fits" 2>/dev/null
+#rm "image_psf.core.statistics.txt"
