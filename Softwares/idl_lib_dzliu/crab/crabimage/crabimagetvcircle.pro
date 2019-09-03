@@ -109,6 +109,7 @@ PRO CrabImageTVCircle, Circles, CircleColors=CircleColors, CircleDashed=CircleDa
         ; no need to change
         CColors = CircleColors
         ;Device, COLOR=1, BITS_PER_PIXEL=8
+        Device, COLOR=1, BITS_PER_PIXEL=8, DECOMPOSED=1 ;<20170517>
     ENDIF ELSE IF SIZE(CircleColors,/TNAME) EQ "INT" THEN BEGIN
         ; no need to change
     ENDIF ELSE BEGIN

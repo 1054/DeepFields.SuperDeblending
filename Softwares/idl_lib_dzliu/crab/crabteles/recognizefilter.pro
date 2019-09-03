@@ -82,34 +82,40 @@ FUNCTION RecognizeFilter, InputText, Wavelength=S_Wavelength, Frequency=S_Freque
         IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*MIPS2[^1-9.]*' ,/FOLD_CASE)   THEN BEGIN & S_Filter='70'  & S_Wavelength=70D-6  & ENDIF
         IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*MIPS3[^1-9.]*' ,/FOLD_CASE)   THEN BEGIN & S_Filter='160' & S_Wavelength=160D-6 & ENDIF
         
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS70*'             ,/FOLD_CASE) THEN BEGIN & S_Filter='70'  & S_Wavelength=70D-6  & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS100*'            ,/FOLD_CASE) THEN BEGIN & S_Filter='100' & S_Wavelength=100D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS160*'            ,/FOLD_CASE) THEN BEGIN & S_Filter='160' & S_Wavelength=160D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS*BLUE*'          ,/FOLD_CASE) THEN BEGIN & S_Filter='70'  & S_Wavelength=70D-6  & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS*GREEN*'         ,/FOLD_CASE) THEN BEGIN & S_Filter='100' & S_Wavelength=100D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS*RED*'           ,/FOLD_CASE) THEN BEGIN & S_Filter='160' & S_Wavelength=160D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*pep*COSMOS*BLUE*'    ,/FOLD_CASE) THEN BEGIN & S_Filter='70'  & S_Wavelength=70D-6  & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*pep*COSMOS*GREEN*'   ,/FOLD_CASE) THEN BEGIN & S_Filter='100' & S_Wavelength=100D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*pep*COSMOS*RED*'     ,/FOLD_CASE) THEN BEGIN & S_Filter='160' & S_Wavelength=160D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*pgh*GOODS*BLUE*'     ,/FOLD_CASE) THEN BEGIN & S_Filter='70'  & S_Wavelength=70D-6  & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*pgh*GOODS*GREEN* '   ,/FOLD_CASE) THEN BEGIN & S_Filter='100' & S_Wavelength=100D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*pgh*GOODS*RED*'      ,/FOLD_CASE) THEN BEGIN & S_Filter='160' & S_Wavelength=160D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS1[^0-9]*'        ,/FOLD_CASE) THEN BEGIN & S_Filter='70'  & S_Wavelength=70D-6  & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS2[^0-9]*'        ,/FOLD_CASE) THEN BEGIN & S_Filter='100' & S_Wavelength=100D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS3[^0-9]*'        ,/FOLD_CASE) THEN BEGIN & S_Filter='160' & S_Wavelength=160D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS70*'             ,/FOLD_CASE) THEN BEGIN & S_Filter='70'  & S_Wavelength=71.8D-6  & ENDIF ; Dale,2017ApJ...837...90D
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS100*'            ,/FOLD_CASE) THEN BEGIN & S_Filter='100' & S_Wavelength=103D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS160*'            ,/FOLD_CASE) THEN BEGIN & S_Filter='160' & S_Wavelength=167D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS_70*'            ,/FOLD_CASE) THEN BEGIN & S_Filter='70'  & S_Wavelength=71.8D-6  & ENDIF ; Dale,2017ApJ...837...90D
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS_100*'           ,/FOLD_CASE) THEN BEGIN & S_Filter='100' & S_Wavelength=103D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS_160*'           ,/FOLD_CASE) THEN BEGIN & S_Filter='160' & S_Wavelength=167D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS*BLUE*'          ,/FOLD_CASE) THEN BEGIN & S_Filter='70'  & S_Wavelength=71.8D-6  & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS*GREEN*'         ,/FOLD_CASE) THEN BEGIN & S_Filter='100' & S_Wavelength=103D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS*RED*'           ,/FOLD_CASE) THEN BEGIN & S_Filter='160' & S_Wavelength=167D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*pep*COSMOS*BLUE*'    ,/FOLD_CASE) THEN BEGIN & S_Filter='70'  & S_Wavelength=71.8D-6  & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*pep*COSMOS*GREEN*'   ,/FOLD_CASE) THEN BEGIN & S_Filter='100' & S_Wavelength=103D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*pep*COSMOS*RED*'     ,/FOLD_CASE) THEN BEGIN & S_Filter='160' & S_Wavelength=167D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*pgh*GOODS*BLUE*'     ,/FOLD_CASE) THEN BEGIN & S_Filter='70'  & S_Wavelength=71.8D-6  & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*pgh*GOODS*GREEN* '   ,/FOLD_CASE) THEN BEGIN & S_Filter='100' & S_Wavelength=103D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*pgh*GOODS*RED*'      ,/FOLD_CASE) THEN BEGIN & S_Filter='160' & S_Wavelength=167D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS1[^0-9]*'        ,/FOLD_CASE) THEN BEGIN & S_Filter='70'  & S_Wavelength=71.8D-6  & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS2[^0-9]*'        ,/FOLD_CASE) THEN BEGIN & S_Filter='100' & S_Wavelength=103D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*PACS3[^0-9]*'        ,/FOLD_CASE) THEN BEGIN & S_Filter='160' & S_Wavelength=167D-6 & ENDIF
         
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE250*'     ,/FOLD_CASE) THEN BEGIN & S_Filter='250' & S_Wavelength=250D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE350*'     ,/FOLD_CASE) THEN BEGIN & S_Filter='350' & S_Wavelength=350D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE500*'     ,/FOLD_CASE) THEN BEGIN & S_Filter='500' & S_Wavelength=500D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*250SMAP*'      ,/FOLD_CASE) THEN BEGIN & S_Filter='250' & S_Wavelength=250D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*350SMAP*'      ,/FOLD_CASE) THEN BEGIN & S_Filter='350' & S_Wavelength=350D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*500SMAP*'      ,/FOLD_CASE) THEN BEGIN & S_Filter='500' & S_Wavelength=500D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE*PSW*'    ,/FOLD_CASE) THEN BEGIN & S_Filter='250' & S_Wavelength=250D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE*PMW*'    ,/FOLD_CASE) THEN BEGIN & S_Filter='350' & S_Wavelength=350D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE*PLW*'    ,/FOLD_CASE) THEN BEGIN & S_Filter='500' & S_Wavelength=500D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE1[^0-9]*' ,/FOLD_CASE) THEN BEGIN & S_Filter='250' & S_Wavelength=250D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE2[^0-9]*' ,/FOLD_CASE) THEN BEGIN & S_Filter='350' & S_Wavelength=350D-6 & ENDIF
-        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE3[^0-9]*' ,/FOLD_CASE) THEN BEGIN & S_Filter='500' & S_Wavelength=500D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE250*'     ,/FOLD_CASE) THEN BEGIN & S_Filter='250' & S_Wavelength=252D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE350*'     ,/FOLD_CASE) THEN BEGIN & S_Filter='350' & S_Wavelength=353D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE500*'     ,/FOLD_CASE) THEN BEGIN & S_Filter='500' & S_Wavelength=511D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE_250*'    ,/FOLD_CASE) THEN BEGIN & S_Filter='250' & S_Wavelength=252D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE_350*'    ,/FOLD_CASE) THEN BEGIN & S_Filter='350' & S_Wavelength=353D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE_500*'    ,/FOLD_CASE) THEN BEGIN & S_Filter='500' & S_Wavelength=511D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*250SMAP*'      ,/FOLD_CASE) THEN BEGIN & S_Filter='250' & S_Wavelength=252D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*350SMAP*'      ,/FOLD_CASE) THEN BEGIN & S_Filter='350' & S_Wavelength=353D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*500SMAP*'      ,/FOLD_CASE) THEN BEGIN & S_Filter='500' & S_Wavelength=511D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE*PSW*'    ,/FOLD_CASE) THEN BEGIN & S_Filter='250' & S_Wavelength=252D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE*PMW*'    ,/FOLD_CASE) THEN BEGIN & S_Filter='350' & S_Wavelength=353D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE*PLW*'    ,/FOLD_CASE) THEN BEGIN & S_Filter='500' & S_Wavelength=511D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE1[^0-9]*' ,/FOLD_CASE) THEN BEGIN & S_Filter='250' & S_Wavelength=252D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE2[^0-9]*' ,/FOLD_CASE) THEN BEGIN & S_Filter='350' & S_Wavelength=353D-6 & ENDIF
+        IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SPIRE3[^0-9]*' ,/FOLD_CASE) THEN BEGIN & S_Filter='500' & S_Wavelength=511D-6 & ENDIF
         
         IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*S2CLS*'        ,/FOLD_CASE) THEN BEGIN & S_Filter='850' & S_Wavelength=850D-6 & ENDIF
         IF S_Filter EQ "" THEN IF STRMATCH(CleanText,'*SCUBA2*'       ,/FOLD_CASE) THEN BEGIN & S_Filter='850' & S_Wavelength=850D-6 & ENDIF

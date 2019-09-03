@@ -130,6 +130,8 @@ PRO CrabStatisticLinMixRegression,            XArray, YArray,           $
         PRINTF, SaveFileLUN, 'SlopeError     = ' + STRING(FORMAT='(F0.6)', LinFitbyLINMIX.Slope[1])
         PRINTF, SaveFileLUN, 'Intercept      = ' + STRING(FORMAT='(F0.6)', LinFitbyLINMIX.Intercept[0])
         PRINTF, SaveFileLUN, 'InterceptError = ' + STRING(FORMAT='(F0.6)', LinFitbyLINMIX.Intercept[1])
+        PRINTF, SaveFileLUN, 'Correlation    = ' + STRING(FORMAT='(F0.6)', Correlation)
+        PRINTF, SaveFileLUN, 'Dispersion     = ' + STRING(FORMAT='(F0.6)', Dispersion)
         CLOSE,  SaveFileLUN
         FREE_LUN, SaveFileLUN
     ENDIF

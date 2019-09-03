@@ -25,12 +25,20 @@ PRO CrabImageXY2AD, PosX, PosY, InputFitsOrHeader, PosRA, PosDec, StartsFromOne=
     
     ; 
     EXTAST, FitsHeader, FitsAstr
-    CRPIX1 = fxpar(FitsHeader,"CRPIX1")
-    CRPIX2 = fxpar(FitsHeader,"CRPIX2")
-    CRVAL1 = fxpar(FitsHeader,"CRVAL1")
-    CRVAL2 = fxpar(FitsHeader,"CRVAL2")
-    XY2AD, CRPIX1, CRPIX2, FitsAstr, newRA1, newDec1
-    XY2AD, CRPIX1-1.0, CRPIX2-1.0, FitsAstr, newRA2, newDec2 ; as far as my test, this one is correct! XY2AD/ARRAY coordinate is different from DS9/GALFIT coordinate
+    CRPIX1 = ''; <20180219> added a pre-definition 
+    CRPIX2 = ''; <20180219> added a pre-definition 
+    CRVAL1 = ''; <20180219> added a pre-definition 
+    CRVAL2 = ''; <20180219> added a pre-definition 
+    CRPIX1 = CrabStringReadInfo(FitsHeader,"CRPIX1") ; sxpar(FitsHeader,"CRPIX1") ; <20180219> fxpar --> sxpar no difference
+    CRPIX2 = CrabStringReadInfo(FitsHeader,"CRPIX2") ; sxpar(FitsHeader,"CRPIX2") ; <20180219> fxpar --> sxpar no difference
+    CRVAL1 = CrabStringReadInfo(FitsHeader,"CRVAL1") ; sxpar(FitsHeader,"CRVAL1") ; <20180219> fxpar --> sxpar no difference
+    CRVAL2 = CrabStringReadInfo(FitsHeader,"CRVAL2") ; sxpar(FitsHeader,"CRVAL2") ; <20180219> fxpar --> sxpar no difference
+    newRA1 = 0.0D
+    newDec1 = 0.0D
+    newRA2 = 0.0D
+    newDec2 = 0.0D
+    XY2AD, DOUBLE(CRPIX1),     DOUBLE(CRPIX2),     FitsAstr, newRA1, newDec1
+    XY2AD, DOUBLE(CRPIX1)-1.0, DOUBLE(CRPIX2)-1.0, FitsAstr, newRA2, newDec2 ; as far as my test, this one is correct! XY2AD/ARRAY coordinate is different from DS9/GALFIT coordinate
     strRA1 = STRING(FORMAT='(F0.7)',newRA1)
     strRA2 = STRING(FORMAT='(F0.7)',newRA2)
     strDec1 = STRING(FORMAT='(F0.7)',newDec1)
@@ -40,14 +48,20 @@ PRO CrabImageXY2AD, PosX, PosY, InputFitsOrHeader, PosRA, PosDec, StartsFromOne=
         PRINT, FORMAT='(A,F0.2,A,F0.2,A,F0.7,A,F0.7)', "                         CRPIX1=", CRPIX1, " CRPIX2=", CRPIX2, " newRA1=", newRA1, " newDec1=",  newDec1
         PRINT, FORMAT='(A,F0.2,A,F0.2,A,F0.7,A,F0.7)', "                         CRPIX1=", CRPIX1, " CRPIX2=", CRPIX2, " newRA2=", newRA2, " newDec2=",  newDec2
     ENDIF
-    IF strRA1 EQ STRING(FORMAT='(F0.7)',CRVAL1) AND strDec1 EQ STRING(FORMAT='(F0.7)',CRVAL2) THEN BEGIN
+    
+    ; Check if PosX PosY starts from zero or one
+    IF strRA1 EQ STRING(FORMAT='(F0.7)',DOUBLE(CRVAL1)) AND strDec1 EQ STRING(FORMAT='(F0.7)',DOUBLE(CRVAL2)) THEN BEGIN
+        ;<20180219> STRING(FORMAT='(F0.7)',CRVAL1) --> STRING(FORMAT='(F0.7)',DOUBLE(CRVAL1)) ; IMPORTANT !
+        ;<20180219> STRING(FORMAT='(F0.7)',CRVAL2) --> STRING(FORMAT='(F0.7)',DOUBLE(CRVAL2)) ; IMPORTANT !
         ; if this situation, then XY2AD coordinate is consistent with PosXY coordinate, 
         IF KEYWORD_SET(Verbose) THEN BEGIN
             PRINT, FORMAT='(A,F0.2,A,F0.2,A,F0.7,A,F0.7)', "CrabImageXY2AD: Checking CRPIX1=", CRPIX1, " CRPIX2=", CRPIX2, " CRVAL1=", CRVAL1, "  CRVAL2=", CRVAL2
             PRINT, FORMAT='(A,F0.2,A,F0.2,A,F0.7,A,F0.7)', "                         CRPIX1=", CRPIX1, " CRPIX2=", CRPIX2, " newRA1=", newRA1, " newDec1=",  newDec1
         ENDIF
         XY2AD, PosX, PosY, FitsAstr, PosRA, PosDec
-    ENDIF ELSE IF strRA2 EQ STRING(FORMAT='(F0.7)',CRVAL1) AND strDec2 EQ STRING(FORMAT='(F0.7)',CRVAL2) THEN BEGIN
+    ENDIF ELSE IF strRA2 EQ STRING(FORMAT='(F0.7)',DOUBLE(CRVAL1)) AND strDec2 EQ STRING(FORMAT='(F0.7)',DOUBLE(CRVAL2)) THEN BEGIN
+        ;<20180219> STRING(FORMAT='(F0.7)',CRVAL1) --> STRING(FORMAT='(F0.7)',DOUBLE(CRVAL1)) ; IMPORTANT !
+        ;<20180219> STRING(FORMAT='(F0.7)',CRVAL2) --> STRING(FORMAT='(F0.7)',DOUBLE(CRVAL2)) ; IMPORTANT !
         ; if this situation, then XY2AD coordinate is inconsistent with PosXY coordinate, need -1.0
         IF KEYWORD_SET(Verbose) THEN BEGIN
             PRINT, FORMAT='(A,F0.2,A,F0.2,A,F0.7,A,F0.7)', "CrabImageXY2AD: Checking CRPIX1=", CRPIX1, " CRPIX2=", CRPIX2, " CRVAL1=", CRVAL1, "  CRVAL2=", CRVAL2
@@ -55,7 +69,12 @@ PRO CrabImageXY2AD, PosX, PosY, InputFitsOrHeader, PosRA, PosDec, StartsFromOne=
         ENDIF
         XY2AD, PosX-1.0, PosY-1.0, FitsAstr, PosRA, PosDec
     ENDIF ELSE BEGIN
-        MESSAGE, "CrabImageXY2AD: call XY2AD failed! Unknown problem?"
+        MESSAGE, "Call XY2AD failed! Unknown problem?", /CONTINUE
+        MESSAGE, "STRING(FORMAT='(F0.7)',DOUBLE(CRVAL1)) = " + STRING(FORMAT='(F0.7)',DOUBLE(CRVAL1)) + ", " + "strRA1 = " + strRA1, /CONTINUE
+        MESSAGE, "STRING(FORMAT='(F0.7)',DOUBLE(CRVAL2)) = " + STRING(FORMAT='(F0.7)',DOUBLE(CRVAL2)) + ", " + "strDec1 = " + strDec1, /CONTINUE
+        MESSAGE, "STRING(FORMAT='(F0.7)',DOUBLE(CRVAL1)) = " + STRING(FORMAT='(F0.7)',DOUBLE(CRVAL1)) + ", " + "strRA2 = " + strRA2, /CONTINUE
+        MESSAGE, "STRING(FORMAT='(F0.7)',DOUBLE(CRVAL2)) = " + STRING(FORMAT='(F0.7)',DOUBLE(CRVAL2)) + " (" + CRVAL2 + ")" + ", " + "strDec2 = " + strDec2, /CONTINUE
+        MESSAGE, "Error!"
     ENDELSE
     
     ; Print

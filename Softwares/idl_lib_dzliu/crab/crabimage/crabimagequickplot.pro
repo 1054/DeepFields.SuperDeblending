@@ -6,8 +6,9 @@
 PRO CrabImageQuickPlot, GalaxyImage, SavePNG=SavePNG, SaveEPS=SaveEPS, Position=Position, FitsHeaderContainingWCS=FitsHeaderContainingWCS, $
                         WithPoints=Points,  WithPointColor=PointColor, WithPointWidth=PointWidth, WithPointHeight=PointHeight, WithPointLabels=PointLabels, $
                         WithLines=LineDots, WithLineColor=LineColor, WithLineThick=LineThick, WithLineDash=LineDash, $
-                        WithCircles=Circles, WithCircleColors=CircleColors, WithCircleWidth=CircleWidth, WithCircleHeight=CircleHeight, WithCircleLabels=CircleLabels, $
-                        WithCrosses=Crosses, WithCrossColors=CrossColors, WithCrossLabels=CrossLabels, WithCrossThicks=CrossThicks, $
+                        WithCircles=Circles, WithCircleColors=CircleColors, WithCircleThicks=CircleThicks, WithCircleLabels=CircleLabels, $
+                        WithCrosses=Crosses, WithCrossColors=CrossColors, WithCrossThicks=CrossThicks, WithCrossLabels=CrossLabels, $
+                        WithColorBar=WithColorBar, $
                         TVZoom=TVZoom, TVScale=TVScale, TVNOSCL=TVNOSCL, ZScale=ZScale, ZNormalize=ZNormalize, $
                         TVWindow=TVWindow, TVTitle=TVTitle, TVPosition=TVPosition, Color=Color, $
                         TVReverseColor=TVReverseColor
@@ -292,8 +293,67 @@ PRO CrabImageQuickPlot, GalaxyImage, SavePNG=SavePNG, SaveEPS=SaveEPS, Position=
     
     
     ; Plot Circles
-    CrabImageTVCircle, Circles, CircleColors=CircleColors, CircleLabels=CircleLabels, ImageSize=ImageSize, FitsHeaderContainingWCS=FitsHeaderContainingWCS, /Silent
+    CrabImageTVCircle, Circles, CircleColors=CircleColors, CircleLabels=CircleLabels, CircleThicks=CircleThicks, ImageSize=ImageSize, FitsHeaderContainingWCS=FitsHeaderContainingWCS, /Silent
     CrabImageTVCross, Crosses, CrossColors=CrossColors, CrossLabels=CrossLabels, CrossThicks=CrossThicks, ImageSize=ImageSize, FitsHeaderContainingWCS=FitsHeaderContainingWCS, /Silent
+    
+    ; Plot Colorbar
+    IF N_ELEMENTS(WithColorBar) GT 0 THEN BEGIN
+        IF SIZE(WithColorBar,/TNAME) EQ 'STRUCT' THEN BEGIN
+            IF tag_exist(WithColorBar, 'colors') THEN BEGIN
+                IF tag_exist(WithColorBar, 'labels') THEN BEGIN
+                    IF tag_exist(WithColorBar, 'labelformat') THEN BEGIN
+                        CrabColorBar, WithColorBar.colors, Labels = WithColorBar.labels, LabelFormat = WithColorBar.labelformat
+                    ENDIF ELSE BEGIN
+                        CrabColorBar, WithColorBar.colors, Labels = WithColorBar.labels
+                    ENDELSE
+                ENDIF ELSE BEGIN
+                    CrabColorBar, WithColorBar.colors
+                ENDELSE
+            ENDIF
+        ENDIF
+    ENDIF
+    
+    ; Plot WCS Coordinate System
+    IF N_ELEMENTS(FitsHeaderContainingWCS) GT 0 THEN BEGIN
+        CrabImageXY2AD, 1, 1, FitsHeaderContainingWCS, LPosRA, LPosDec
+        CrabImageXY2AD, FIX(SXPAR(FitsHeaderContainingWCS,'NAXIS1')), FIX(SXPAR(FitsHeaderContainingWCS,'NAXIS2')), FitsHeaderContainingWCS, RPosRA, RPosDec
+        PLOT, [0.0], [0.0], POSITION=[0.0,0.0,1.0,1.0], /NODATA, /NOERASE, $
+              COLOR=cgColor('white'), XRANGE=[LPosRA,RPosRA], YRANGE=[LPosDec,RPosDec], $
+              XTICK_GET=XWcsTicks, YTICK_GET=YWcsTicks, $
+              XTICKFORMAT='(A)', YTICKFORMAT='(A)', $
+              XTHICK=3, YTHICK=3, $
+              XSTYLE=1, YSTYLE=1
+        WcsStrFullPlot = 0
+        FOR Wcsi = 0, N_ELEMENTS(XWcsTicks)-1 DO BEGIN
+            IF XWcsTicks[Wcsi] LT RPosRA OR XWcsTicks[Wcsi] GT LPosRA THEN CONTINUE
+            degdeg2hmsdms, [XWcsTicks[Wcsi], LPosDec], WcsStr
+            WcsStrRA = (STRSPLIT(WcsStr,' ',/EXTRACT))[0]
+            WcsStrDec = (STRSPLIT(WcsStr,' ',/EXTRACT))[1]
+            IF WcsStrFullPlot EQ 0 THEN BEGIN
+                WcsStrFullPlot = 1
+                XYOUTS, XWcsTicks[Wcsi], LPosDec+0.022*(RPosDec-LPosDec), WcsStrRA, /DATA, $
+                        COLOR=cgColor('white'), CHARTHICK=3, CHARSIZE=1.2, ALIGNMENT=0.5
+            ENDIF ELSE BEGIN
+                XYOUTS, XWcsTicks[Wcsi], LPosDec+0.022*(RPosDec-LPosDec), WcsStrRA, /DATA, $
+                        COLOR=cgColor('white'), CHARTHICK=3, CHARSIZE=1.2, ALIGNMENT=0.5
+            ENDELSE
+        ENDFOR
+        WcsStrFullPlot = 0
+        FOR Wcsi = 0, N_ELEMENTS(YWcsTicks)-1 DO BEGIN
+            IF YWcsTicks[Wcsi] LT LPosDec OR YWcsTicks[Wcsi] GT RPosDec THEN CONTINUE
+            degdeg2hmsdms, [RPosRA, YWcsTicks[Wcsi]], WcsStr
+            WcsStrRA = (STRSPLIT(WcsStr,' ',/EXTRACT))[0]
+            WcsStrDec = (STRSPLIT(WcsStr,' ',/EXTRACT))[1]
+            IF WcsStrFullPlot EQ 0 THEN BEGIN
+                WcsStrFullPlot = 1
+                XYOUTS, LPosRA-0.022*(LPosRA-RPosRA), YWcsTicks[Wcsi]-0.006*(RPosDec-LPosDec), WcsStrDec, /DATA, $
+                    COLOR=cgColor('white'), CHARTHICK=3, CHARSIZE=1.2, ALIGNMENT=0.0, ORIENTATION=0.0
+            ENDIF ELSE BEGIN
+                XYOUTS, LPosRA-0.022*(LPosRA-RPosRA), YWcsTicks[Wcsi]-0.006*(RPosDec-LPosDec), WcsStrDec, /DATA, $
+                    COLOR=cgColor('white'), CHARTHICK=3, CHARSIZE=1.2, ALIGNMENT=0.0, ORIENTATION=0.0
+            ENDELSE
+        ENDFOR
+    ENDIF
     
     
     ; Save EPS

@@ -1,4 +1,14 @@
-PRO CrabImageHistogram, InputArray, LOCATIONS=ZCent, NORMALIZE=NORMALIZE, NBINS=NBINS, MIN=ZMin, MAX=ZMax, MEAN=ZMean, SIGMA=ZSigma, Clip=doClip, Plot=doPlot
+PRO CrabImageHistogram, InputArray, $
+                        LOCATIONS = ZCent, $
+                        HISTOGRAM = ZHist, $
+                        NORMALIZE = NORMALIZE, $
+                        NBINS = NBINS, $
+                        ZMIN = ZMin, $
+                        ZMAX = ZMax, $
+                        ZMEAN = ZMean, $
+                        ZSIGMA = ZSigma, $
+                        Clip = doClip, $
+                        Plot = doPlot
     
     ZClip = WHERE(FINITE(InputArray),/NULL)
     ZVect = InputArray[ZClip]

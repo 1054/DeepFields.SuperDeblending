@@ -9,17 +9,24 @@
 ;                 do not print header when append
 ; 
 ; 
-PRO CrabTablePrintC, FilePathOrFileUnit, Column1, Column2, Column3, Column4, Column5, Column6, Column7, Column8, $
-                                                           Format=Format, Separator=Separator, APPEND=APPEND, Header=Header
+PRO CrabTablePrintC, FilePathOrFileUnit, Column01, Column02, Column03, Column04, Column05, Column06, Column07, Column08, Column09, Column10, $
+                                         Column11, Column12, Column13, Column14, Column15, Column16, Column17, Column18, Column19, Column20, $
+                                         Column21, Column22, Column23, Column24, Column25, Column26, Column27, Column28, Column29, Column30, $
+                                         Format=Format, Separator=Separator, APPEND=APPEND, Header=Header
     
     ; check input arguments (keywords are not included in N_PARAMS())
     IF N_PARAMS() LE 1 THEN BEGIN
         PRINT, 'Usage: CrabTablePrintC, "SomeTable.CSV", MyColumnData1, MyColumnData2, MyColumnData3'
     ENDIF
     
-    IF N_ELEMENTS(Column1) EQ 0 THEN BEGIN
-        PRINT, 'CrabTablePrintC: Error! Input column 1 is empty!'
+    IF N_ELEMENTS(Column01) EQ 0 THEN BEGIN  ;<20180217> Column1 --> Column01
+        PRINT, 'CrabTablePrintC: Error! Input column 01 is empty!'  ;<20180217> column 1 --> column 01
         RETURN
+    ENDIF
+    
+    ; check input Separator
+    IF N_ELEMENTS(Separator) EQ 0 THEN BEGIN
+        Separator = ' '
     ENDIF
     
     ; Check input Format
@@ -107,7 +114,7 @@ PRO CrabTablePrintC, FilePathOrFileUnit, Column1, Column2, Column3, Column4, Col
     FOR i=1,N_PARAMS()-1 DO BEGIN ; N_PARAMS() = 1 + NumCol
         ; 
         ; Loop each column
-        CCtitle = STRING(FORMAT='("Column",I0)',i)
+        CCtitle = STRING(FORMAT='("Column",I02)',i)  ;<20180217> I0 --> I02
         CColumn = scope_varfetch(CCtitle)
         CCcount = N_ELEMENTS(CColumn) & IF MaxRowCount LT CCcount THEN MaxRowCount=CCcount
         CHeader = scope_varname(scope_varfetch(CCtitle),LEVEL=-1) ; get the variable of this column in the caller scope
@@ -137,12 +144,12 @@ PRO CrabTablePrintC, FilePathOrFileUnit, Column1, Column2, Column3, Column4, Col
                 IF N_ELEMENTS(TMPcoo) GT 0 THEN TMPmax=MAX(ALOG10(ABS(CColumn[TMPcoo])))+1+1 ; +1 to consider the - sign
                 IF N_ELEMENTS(TMPcoo) GT 0 THEN TMPwoo=TMPmax ELSE TMPwoo=3 ; TMPwoo is the integer digits including sign mark
                 IF SIZE(CColumn,/TNAME) EQ "DOUBLE" THEN TMPpoo=7 ELSE TMPpoo=4 ; TMPpoo is the fractional width, or the precision
+                TMPcoo=WHERE(ABS(CColumn) LT 1E-3 OR ABS(CColumn) GE 1E3,/NULL)
+                IF N_ELEMENTS(TMPcoo) GT 0 THEN TMPpoo=7 ; number of digits after dot
                 TMPcoo=WHERE(ABS(CColumn) LT 1E-4 OR ABS(CColumn) GE 1E4,/NULL)
-                IF N_ELEMENTS(TMPcoo) GT 0 THEN TMPpoo=7
-                TMPcoo=WHERE(ABS(CColumn) LT 1E-6 OR ABS(CColumn) GE 1E6,/NULL)
-                IF N_ELEMENTS(TMPcoo) GT 0 THEN TMPpoo=6
+                IF N_ELEMENTS(TMPcoo) GT 0 THEN TMPpoo=6 ; number of digits after dot
                 IF N_ELEMENTS(TMPcoo) GT 0 THEN TMPcode="E"
-                IF N_ELEMENTS(TMPcoo) GT 0 THEN TMPwoo=2+4
+                IF N_ELEMENTS(TMPcoo) GT 0 THEN TMPwoo=2+4 ; the length of "E+XX"
                 TMPwoo=TMPwoo+1+TMPpoo ; +1 means including the dot
                 IF TMPwoo LT STRLEN(CHeader) THEN TMPwoo=STRLEN(CHeader) ; consider the length of header
                 TMPwide=STRING(FORMAT='(I0)',TMPwoo+2)
@@ -157,7 +164,7 @@ PRO CrabTablePrintC, FilePathOrFileUnit, Column1, Column2, Column3, Column4, Col
             IF i GT N_ELEMENTS(CCFsign) THEN CCFsign = [CCFsign,TMPsign] ELSE IF CCFsign[i-1] EQ "" THEN CCFsign[i-1] = TMPsign ELSE TMPsign = CCFsign[i-1]
             IF i GT N_ELEMENTS(CCFwide) THEN CCFwide = [CCFwide,TMPwide] ELSE IF CCFwide[i-1] EQ "" THEN CCFwide[i-1] = TMPwide ELSE TMPwide = CCFwide[i-1]
             IF i GT N_ELEMENTS(CCFprec) THEN CCFprec = [CCFprec,TMPprec] ELSE IF CCFprec[i-1] EQ "" THEN CCFprec[i-1] = TMPprec ELSE TMPprec = CCFprec[i-1]
-            PRINT, "Column "+STRING(FORMAT='(I0)',i)+": "+TMPcode+TMPsign+TMPwide+TMPprec 
+            PRINT, "Column "+STRING(FORMAT='(I02)',i)+": "+TMPcode+TMPsign+TMPwide+TMPprec  ;<20180217> I0 --> I02
         ; ENDIF ELSE BEGIN
         ;     TMPcode = CCFcode[i-1]
         ;     TMPsign = CCFsign[i-1]
@@ -214,7 +221,7 @@ PRO CrabTablePrintC, FilePathOrFileUnit, Column1, Column2, Column3, Column4, Col
     FOR i=1,N_PARAMS()-1 DO BEGIN ; N_PARAMS() = 1 + NumCol
         ;
         ; Loop each column
-        CCtitle = STRING(FORMAT='("Column",I0)',i)
+        CCtitle = STRING(FORMAT='("Column",I02)',i) ;<20180217> I0 --> I02
         CColumn = scope_varfetch(CCtitle)
         ; 
         ; Fill up column

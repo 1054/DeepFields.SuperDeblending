@@ -25,9 +25,9 @@ PRO degdeg2hmsdms, degdeg, hmsdms, Print=Print, FORMAT=FORMAT, PRECISION=PRECISI
     DHour = FIX(DegRA/180.0*12.0) 
     DMinute = FIX((DegRA/180.0*12.0-DHour)*60.0)
     DSecond = FLOAT(((DegRA/180.0*12.0-DHour)*60.0-DMinute)*60.0)
-    DArcDeg = FIX(DegDec)
-    DArcMin = FIX((DegDec-DArcDeg)*60.0)
-    DArcSec = FLOAT(((DegDec-DArcDeg)*60.0-DArcMin)*60.0)
+    DArcDeg = FIX(ABS(DegDec)) ;<20170518><fixed><bug>; ABS()
+    DArcMin = FIX((ABS(DegDec)-DArcDeg)*60.0) ;<20170518><fixed><bug>; ABS()
+    DArcSec = FLOAT(((ABS(DegDec)-DArcDeg)*60.0-DArcMin)*60.0) ;<20170518><fixed><bug>; ABS()
     StrSign = MAKE_ARRAY(N_ELEMENTS(DegDec),/STRING,VALUE="+")
     IF N_ELEMENTS(WHERE(DegDec LT 0.0, /NULL)) GT 0 THEN BEGIN
         StrSign[WHERE(DegDec LT 0.0, /NULL)] = "-"
