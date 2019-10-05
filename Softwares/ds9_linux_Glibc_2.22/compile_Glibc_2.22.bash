@@ -53,6 +53,12 @@ cp CrabFitsImageArithmetic_linux_x86_64 "$OutputDir"/
 cd ../../../
 
 
+cd CrabIO/CrabFitsIO/CrabFitsImageCopy/
+./do_Compile
+cp CrabFitsImageCopy_linux_x86_64 "$OutputDir"/
+cd ../../../
+
+
 cd CrabIO/CrabFitsIO/CrabFitsImageCrop/
 ./do_Compile
 cp CrabFitsImageCrop_linux_x86_64 "$OutputDir"/

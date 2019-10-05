@@ -91,11 +91,17 @@ if [[ $(uname -s) == Linux ]]; then
         ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
         $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64 "$@"
         # 
-    else
-        # else if the GLIBC version is higher than 2.14
+    elif [[ "$ldd_version_major" == "2" ]] && [[ $(bc <<< "$ldd_version_minor < 22") -eq 1 ]]; then
+        # if the GLIBC version is less equal 2.14
         echo ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
         ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
         $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64 "$@"
+        # 
+    else
+        # else if the GLIBC version is higher than 2.14
+        echo ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.22/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
+        ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.22/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
+        $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.22/$(basename ${BASH_SOURCE[0]})_linux_x86_64 "$@"
         # 
     fi
 fi
