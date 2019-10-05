@@ -18,7 +18,7 @@ if [[ $(uname -s) == Linux ]]; then
     # 
     # Run CrabPhotAperPhot
     echo "*** TEST 3 *****************************"
-    CrabPhotAperPhot
+    ~/Cloud/Github/DeepFields.SuperDeblending/Softwares/CrabPhotAperPhot
 fi
 
 
