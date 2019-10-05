@@ -28,6 +28,8 @@
 if [[ $(uname -s) == Linux ]]; then
     # 
     # Get system glibc version
+    echo ldd --version
+    ldd --version
     ldd_version_major=$(ldd --version | head -n 1 | tr -s ' ' | cut -d ' ' -f 4 | cut -d '.' -f 1)
     ldd_version_minor=$(ldd --version | head -n 1 | tr -s ' ' | cut -d ' ' -f 4 | cut -d '.' -f 2)
     # 
