@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# 20191005 a40238 ldd 2.22
+# 
 
 OutputDir=$(perl -MCwd -e 'print Cwd::abs_path shift' $(dirname "${BASH_SOURCE[0]}"))
 
