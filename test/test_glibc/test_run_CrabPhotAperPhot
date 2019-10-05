@@ -9,6 +9,12 @@ if [[ $(uname -s) == Linux ]]; then
     export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/test_lib:$LD_LIBRARY_PATH"
     # 
     # Run CrabPhotAperPhot
+    ~/Cloud/Github/DeepFields.SuperDeblending/Softwares/ds9_linux_Glibc_2.14/CrabPhotAperPhot_linux_x86_64
+    # 
+    # Run CrabPhotAperPhot
+    ~/Cloud/Github/DeepFields.SuperDeblending/Softwares/ds9_linux_Glibc_2.22/CrabPhotAperPhot_linux_x86_64
+    # 
+    # Run CrabPhotAperPhot
     CrabPhotAperPhot
 fi
 
