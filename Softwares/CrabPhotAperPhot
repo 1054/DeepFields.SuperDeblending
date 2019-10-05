@@ -34,8 +34,8 @@ if [[ $(uname -s) == Linux ]]; then
     ldd_version_minor=$(ldd --version | head -n 1 | tr -s ' ' | cut -d ' ' -f 4 | cut -d '.' -f 2)
     # 
     # Check gcc libstdc++.so required glibc version
-    echo ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
-    libstdcpp_file=$(ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64" | grep "libstdc++.so.6" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 3)
+    echo ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
+    libstdcpp_file=$(ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64" | grep "libstdc++.so.6" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 3)
     echo "libstdcpp_file=$libstdcpp_file"
     if [[ "$libstdcpp_file"x != x ]]; then
         echo objdump -p "$libstdcpp_file" | grep "GLIBC_"
