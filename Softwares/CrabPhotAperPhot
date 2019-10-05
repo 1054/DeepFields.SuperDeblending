@@ -37,12 +37,12 @@ if [[ $(uname -s) == Linux ]]; then
     # 
     # Check executable lib dependency
     #if [[ $# -eq 0 ]]; then
-    #    echo ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
-    #    ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
+    #    echo ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
+    #    ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
     #fi
     # 
     # Find the dependent gcc libstdc++.so and check its required glibc version
-    libstdcpp_file=$(ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64" 2>/dev/null | grep "libstdc++.so.6" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 3)
+    libstdcpp_file=$(ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64" 2>/dev/null | grep "libstdc++.so.6" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 3)
     #echo "libstdcpp_file=$libstdcpp_file"
     if [[ "$libstdcpp_file"x != x ]]; then
         #echo objdump -p "$libstdcpp_file" | grep "GLIBC_"
@@ -126,13 +126,13 @@ if [[ $(uname -s) == Linux ]]; then
     fi
     # 
     if [[ "$ldd_version_major" == "2" ]] && [[ $(bc <<< "$ldd_version_minor < 14") -eq 1 ]]; then
-        # if the GLIBC version is less equal 2.14
+        # if the GLIBC version is less than 2.14 (e.g., 2.5 - 2.13)
         #echo ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
         #ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
         $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64 "$@"
         # 
     elif [[ "$ldd_version_major" == "2" ]] && [[ $(bc <<< "$ldd_version_minor < 22") -eq 1 ]]; then
-        # if the GLIBC version is less equal 2.14
+        # if the GLIBC version is less than 2.22 (e.g., 2.14 - 2.21)
         #echo ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
         #ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
         $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64 "$@"
