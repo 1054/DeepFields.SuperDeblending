@@ -1,0 +1,16 @@
+#!/bin/bash
+# 
+# 
+# Testing on Linux
+if [[ $(uname -s) == Linux ]]; then
+    # 
+    # TEST
+    echo export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/test_lib:$LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/test_lib:$LD_LIBRARY_PATH"
+    # 
+    # Run CrabPhotAperPhot
+    CrabPhotAperPhot
+fi
+
+
+

@@ -33,25 +33,41 @@ if [[ $(uname -s) == Linux ]]; then
     # 
     # Check gcc libstdc++.so required glibc version
     libstdcpp_file=$(ldd $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64 | grep "libstdc++.so.6" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 3)
+    echo "libstdcpp_file=$libstdcpp_file"
     if [[ "$libstdcpp_file"x != x ]]; then
-        list_glibc_versions=($(objdump -p "$libstdcpp_file" | grep "GLIBC_" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 4 | sed -e 's/GLIBC_//g' | sort -t'.' -k2 -r))
+        list_glibc_versions=($(objdump -p "$libstdcpp_file" | grep "GLIBC_" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 4 | sed -e 's/GLIBC_//g' | sort -t'.' -k2 -n -r))
         if [[ ${#list_glibc_versions[@]} -gt 0 ]]; then
             glibc_version_major=$(echo "${list_glibc_versions[0]}" | cut -d '.' -f 1)
             glibc_version_minor=$(echo "${list_glibc_versions[0]}" | cut -d '.' -f 2)
-            if [[ $glibc_version_major -gt $ldd_version_major ]] || ([[ $glibc_version_major -eq $ldd_version_major ]] && [[ $glibc_version_minor -gt $ldd_version_minor ]]); then
-                if [[ -d "$(dirname ${BASH_SOURCE[0]})/lib64_linux_GLIBC_${glibc_version_major}_${glibc_version_minor}"  ]]; then
-                    # if the gcc on the current machine requires a higher GLIBC version than the operation system has, 
-                    # we try to use our stored lib64_linux_GLIBC_2_*/libc.so.6
-                    echo export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/lib64_linux_GLIBC_${glibc_version_major}_${glibc_version_minor}:$LD_LIBRARY_PATH"
-                    export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/lib64_linux_GLIBC_${glibc_version_major}_${glibc_version_minor}:$LD_LIBRARY_PATH"
-                    ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
-                    #ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
-                    # 
-                    ldd_version_major=$glibc_version_major
-                    ldd_version_minor=$glibc_version_minor
-                #else
+            if ([[ $glibc_version_major -gt $ldd_version_major ]]) || \
+               ([[ $glibc_version_major -eq $ldd_version_major ]] && [[ $glibc_version_minor -gt $ldd_version_minor ]]); then
+                # 
+                # if the gcc on the current machine requires a higher GLIBC version than the operation system has, 
+                # we try to find an available one in our directory "lib64_linux_GLIBC_*/libc.so.6"
+                # 
+                list_avail_versions=($(find "$(dirname ${BASH_SOURCE[0]})" -maxdepth 1 -mindepth 1 -type d -name "lib64_linux_GLIBC_*"))
+                has_avail_version=0
+                for (( i = 0; i < ${#list_avail_versions[@]}; i++ )); do
+                    avail_glibc_folder=$(basename "${list_avail_versions[i]}")
+                    avail_version_major=$(echo "avail_glibc_folder" | sed -e 's/lib64_linux_GLIBC_//g' | cut -d '_' -f 1)
+                    avail_version_minor=$(echo "avail_glibc_folder" | sed -e 's/lib64_linux_GLIBC_//g' | cut -d '_' -f 1)
+                    # if we have any available version equal or higher than the gcc required glibc version, then we use it
+                    if ([[ $avail_version_major -gt $glibc_version_minor ]]) || \
+                       ([[ $avail_version_major -eq $glibc_version_minor ]] && [[ $avail_version_minor -ge $glibc_version_minor ]]); then
+                        # 
+                        echo export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/$avail_glibc_folder:$LD_LIBRARY_PATH"
+                        export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/$avail_glibc_folder:$LD_LIBRARY_PATH"
+                        # 
+                        ldd_version_major=$avail_version_major
+                        ldd_version_minor=$avail_version_minor
+                        # 
+                        has_avail_version=1
+                        break
+                    fi
+                done
+                #if [[ $has_avail_version -eq 0 ]]; then
                 #    # print error <TODO>
-                fi
+                #fi
             fi
         fi
     fi

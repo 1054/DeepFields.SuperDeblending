@@ -1,0 +1,18 @@
+/usr/lib64/gcc/x86_64-suse-linux/4.8/libstdc++.so 
+
+objdump -p /usr/lib64/gcc/x86_64-suse-linux/4.8/libstdc++.so | grep "GLIBC_"
+    0x09691a75 0x00 51 GLIBC_2.2.5
+    0x0d696913 0x00 50 GLIBC_2.3
+    0x06969194 0x00 53 GLIBC_2.14
+    0x06969198 0x00 49 GLIBC_2.18
+    0x06969196 0x00 47 GLIBC_2.16
+    0x0d696913 0x00 46 GLIBC_2.3
+    0x06969197 0x00 45 GLIBC_2.17
+    0x09691972 0x00 43 GLIBC_2.3.2
+    0x09691a75 0x00 42 GLIBC_2.2.5
+
+
+
+
+
+

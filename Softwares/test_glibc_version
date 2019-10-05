@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cat << EOF | grep "GLIBC_" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 4 | sed -e 's/GLIBC_//g' | sort -t'.' -k2 -n -r
+    0x0d696913 0x00 39 GLIBC_2.3
+    0x09691a75 0x00 36 GLIBC_2.2.5
+    0x06969194 0x00 41 GLIBC_2.14
+    0x0d696913 0x00 37 GLIBC_2.3
+    0x09691972 0x00 34 GLIBC_2.3.2
+    0x09691a75 0x00 33 GLIBC_2.2.5
+EOF
+
+
