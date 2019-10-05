@@ -30,7 +30,9 @@ if [[ $(uname -s) == Linux ]]; then
     ldd_version_minor=$(ldd --version | head -n 1 | tr -s ' ' | cut -d ' ' -f 4 | cut -d '.' -f 2)
     if [[ "$ldd_version_major" == "2" ]] && [[ "$ldd_version_minor" == "12" ]]; then
         # if the GLIBC version is exactly 2.12, we use our copied lib64_linux_GLIBC_2_12/libc.so.6
+        echo export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/lib64_linux_GLIBC_2_12:$LD_LIBRARY_PATH"
         export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/lib64_linux_GLIBC_2_12:$LD_LIBRARY_PATH"
+        ldd $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64
         $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64 "$@"
         # 
     elif [[ "$ldd_version_major" == "2" ]] && [[ $(bc <<< "$ldd_version_minor < 14") -eq 1 ]]; then
