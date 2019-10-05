@@ -1,0 +1,13 @@
+#!/bin/bash
+# 
+
+$(dirname ${BASH_SOURCE[0]})/test_bash_arg "$*" # 1 arg
+
+$(dirname ${BASH_SOURCE[0]})/test_bash_arg "$@" # respects quotes
+
+$(dirname ${BASH_SOURCE[0]})/test_bash_arg $* # ignores quotes, expands '*' even in quotes.
+
+$(dirname ${BASH_SOURCE[0]})/test_bash_arg $@ # ignores quotes, expands '*' even in quotes.
+
+exit
+

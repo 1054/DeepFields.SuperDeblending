@@ -1,0 +1,5 @@
+#!/bin/bash
+# 
+
+$(dirname ${BASH_SOURCE[0]})/test_bash_arg ab 1 "123 abc 789" adsf
+

@@ -1,0 +1,7 @@
+
+On some machine, glibc "/lib64/libc.so" is too old to be compatible with 
+the gcc c++ lib "/opt/core-4.0-amd64/gnu/gcc/4.9.3/lib64/libstdc++.so.6". 
+
+So I have to adjust LD_LIBRARY_PATH and provide the corresponding libc.so 
+in, e.g., "lib64_linux_GLIBC_2_12". 
+

@@ -23,24 +23,33 @@
 #=  xpaset
 # 
 # for ff in $(cat CrabFitsHeader | grep "^#= " | tr -s ' ' | cut -d ' ' -f 2); do cp CrabFitsHeader $ff; done
-#   
 # 
 # Linux
 if [[ $(uname -s) == Linux ]]; then
-    if [[ $(bc <<< "$(ldd --version | head -n 1 | tr -s ' ' | cut -d ' ' -f 4 | cut -d '.' -f 2)<14") -eq 1 ]]; then
-        # the supercomputer planer has an old GLIBC version
-        $(dirname $0)/ds9_linux_Glibc_2.12/$(basename $0)_linux_x86_64 $*
+    ldd_version_major=$(ldd --version | head -n 1 | tr -s ' ' | cut -d ' ' -f 4 | cut -d '.' -f 1)
+    ldd_version_minor=$(ldd --version | head -n 1 | tr -s ' ' | cut -d ' ' -f 4 | cut -d '.' -f 2)
+    if [[ "$ldd_version_major" == "2" ]] && [[ "$ldd_version_minor" == "12" ]]; then
+        # if the GLIBC version is exactly 2.12, we use our copied lib64_linux_GLIBC_2_12/libc.so.6
+        export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/lib64_linux_GLIBC_2_12:$LD_LIBRARY_PATH"
+        $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64 "$@"
+        # 
+    elif [[ "$ldd_version_major" == "2" ]] && [[ $(bc <<< "$ldd_version_minor < 14") -eq 1 ]]; then
+        # else if the GLIBC version is less equal 2.14
+        $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64 "$@"
+        # 
     else
-        $(dirname $0)/ds9_linux_Glibc_2.14/$(basename $0)_linux_x86_64 $*
+        # else if the GLIBC version is higher than 2.14
+        $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64 "$@"
+        # 
     fi
 fi
 # Darwin
 if [[ $(uname -s) == Darwin ]]; then
-    $(dirname $0)/ds9_mac/$(basename $0)_mac $*
+    $(dirname ${BASH_SOURCE[0]})/ds9_mac/$(basename ${BASH_SOURCE[0]})_mac "$@"
 fi
 # Cygwin
 if [[ $(uname -s) == *CYGWIN* ]]; then
-    $(dirname $0)/ds9_cygwin/$(basename $0)_cygwin_x86.exe $*
+    $(dirname ${BASH_SOURCE[0]})/ds9_cygwin/$(basename ${BASH_SOURCE[0]})_cygwin_x86.exe "$@"
 fi
 
 

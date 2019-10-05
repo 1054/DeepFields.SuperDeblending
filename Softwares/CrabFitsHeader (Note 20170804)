@@ -3,4 +3,5 @@
 # 
 # Using "$@" will cause problem, when the input argument is the star character with single quotes '*'. "$@" will parse '*' to other things, but using $* is fine. 
 # 
+# 20191005 --> This is wrong. Should use "$@". 
 # 
