@@ -35,7 +35,11 @@ if [[ $(uname -s) == Linux ]]; then
     libstdcpp_file=$(ldd $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64 | grep "libstdc++.so.6" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 3)
     echo "libstdcpp_file=$libstdcpp_file"
     if [[ "$libstdcpp_file"x != x ]]; then
+        echo objdump -p "$libstdcpp_file" | grep "GLIBC_"
         list_glibc_versions=($(objdump -p "$libstdcpp_file" | grep "GLIBC_" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 4 | sed -e 's/GLIBC_//g' | sort -t'.' -k2 -n -r))
+        for (( i = 0; i < ${#list_glibc_versions[@]}; i++ )); do
+            echo -e "\t${list_glibc_versions[i]}"
+        done
         if [[ ${#list_glibc_versions[@]} -gt 0 ]]; then
             glibc_version_major=$(echo "${list_glibc_versions[0]}" | cut -d '.' -f 1)
             glibc_version_minor=$(echo "${list_glibc_versions[0]}" | cut -d '.' -f 2)
