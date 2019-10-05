@@ -66,8 +66,8 @@ if [[ $(uname -s) == Linux ]]; then
                     avail_version_minor=$(echo "$avail_glibc_folder" | sed -e 's/lib64_linux_GLIBC_//g' | cut -d '_' -f 2)
                     echo "Checking available glibc folder $avail_glibc_folder, version $avail_version_major.$avail_version_minor"
                     # if we have any available version equal or higher than the gcc required glibc version, then we use it
-                    if ([[ $avail_version_major -gt $glibc_version_minor ]]) || \
-                       ([[ $avail_version_major -eq $glibc_version_minor ]] && [[ $avail_version_minor -ge $glibc_version_minor ]]); then
+                    if ([[ $avail_version_major -gt $glibc_version_major ]]) || \
+                       ([[ $avail_version_major -eq $glibc_version_major ]] && [[ $avail_version_minor -ge $glibc_version_minor ]]); then
                         # 
                         echo export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/$avail_glibc_folder:$LD_LIBRARY_PATH"
                         export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/$avail_glibc_folder:$LD_LIBRARY_PATH"
