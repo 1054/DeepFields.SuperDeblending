@@ -98,6 +98,25 @@ cd ../../../
 
 
 
+gcc ../ttyecho.c -o ttyecho_linux_x86_64
+
+
+
+
+tar -xzf ../xpa_source/xpa-2.1.15.tar.gz
+cd xpa-2.1.15/
+./configure
+make
+cp xpaaccess  ../xpaaccess_linux_x86_64
+cp xpaget     ../xpaget_linux_x86_64
+cp xpainfo    ../xpainfo_linux_x86_64
+cp xpamb      ../xpamb_linux_x86_64
+cp xpans      ../xpans_linux_x86_64
+cp xpaset     ../xpaset_linux_x86_64
+cp libxpa.a   ../
+cd ../
+rm -rf xpa-2.1.15
+
 
 
 
