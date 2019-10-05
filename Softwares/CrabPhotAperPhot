@@ -26,28 +26,46 @@
 # 
 # Linux
 if [[ $(uname -s) == Linux ]]; then
+    # 
+    # Get system glibc version
     ldd_version_major=$(ldd --version | head -n 1 | tr -s ' ' | cut -d ' ' -f 4 | cut -d '.' -f 1)
     ldd_version_minor=$(ldd --version | head -n 1 | tr -s ' ' | cut -d ' ' -f 4 | cut -d '.' -f 2)
-    if [[ "$ldd_version_major" == "2" ]] && [[ "$ldd_version_minor" == "5" ]]; then
-        # if the GLIBC version is exactly 2.5, we use our copied lib64_linux_GLIBC_2_5/libc.so.6
-        echo export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/lib64_linux_GLIBC_2_5:$LD_LIBRARY_PATH"
-        export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/lib64_linux_GLIBC_2_5:$LD_LIBRARY_PATH"
-        ldd $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64
-        $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64 "$@"
-        # 
-    elif [[ "$ldd_version_major" == "2" ]] && [[ "$ldd_version_minor" == "12" ]]; then
-        # if the GLIBC version is exactly 2.12, we use our copied lib64_linux_GLIBC_2_12/libc.so.6
-        echo export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/lib64_linux_GLIBC_2_12:$LD_LIBRARY_PATH"
-        export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/lib64_linux_GLIBC_2_12:$LD_LIBRARY_PATH"
-        ldd $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64
-        $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64 "$@"
-        # 
-    elif [[ "$ldd_version_major" == "2" ]] && [[ $(bc <<< "$ldd_version_minor < 14") -eq 1 ]]; then
-        # else if the GLIBC version is less equal 2.14
+    # 
+    # Check gcc libstdc++.so required glibc version
+    libstdcpp_file=$(ldd $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64 | grep "libstdc++.so.6" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 3)
+    if [[ "$libstdcpp_file"x != x ]]; then
+        list_glibc_versions=($(objdump -p "$libstdcpp_file" | grep "GLIBC_" | sed -e 's/^ *//g' | tr -s ' ' | cut -d ' ' -f 4 | sed -e 's/GLIBC_//g' | sort -t'.' -k2 -r))
+        if [[ ${#list_glibc_versions[@]} -gt 0 ]]; then
+            glibc_version_major=$(echo "${list_glibc_versions[0]}" | cut -d '.' -f 1)
+            glibc_version_minor=$(echo "${list_glibc_versions[0]}" | cut -d '.' -f 2)
+            if [[ $glibc_version_major -gt $ldd_version_major ]] || ([[ $glibc_version_major -eq $ldd_version_major ]] && [[ $glibc_version_minor -gt $ldd_version_minor ]]); then
+                if [[ -d "$(dirname ${BASH_SOURCE[0]})/lib64_linux_GLIBC_${glibc_version_major}_${glibc_version_minor}"  ]]; then
+                    # if the gcc on the current machine requires a higher GLIBC version than the operation system has, 
+                    # we try to use our stored lib64_linux_GLIBC_2_*/libc.so.6
+                    echo export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/lib64_linux_GLIBC_${glibc_version_major}_${glibc_version_minor}:$LD_LIBRARY_PATH"
+                    export LD_LIBRARY_PATH="$(dirname ${BASH_SOURCE[0]})/lib64_linux_GLIBC_${glibc_version_major}_${glibc_version_minor}:$LD_LIBRARY_PATH"
+                    ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
+                    #ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
+                    # 
+                    ldd_version_major=$glibc_version_major
+                    ldd_version_minor=$glibc_version_minor
+                #else
+                #    # print error <TODO>
+                fi
+            fi
+        fi
+    fi
+    # 
+    if [[ "$ldd_version_major" == "2" ]] && [[ $(bc <<< "$ldd_version_minor < 14") -eq 1 ]]; then
+        # if the GLIBC version is less equal 2.14
+        echo ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
+        ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
         $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.12/$(basename ${BASH_SOURCE[0]})_linux_x86_64 "$@"
         # 
     else
         # else if the GLIBC version is higher than 2.14
+        echo ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
+        ldd "$(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64"
         $(dirname ${BASH_SOURCE[0]})/ds9_linux_Glibc_2.14/$(basename ${BASH_SOURCE[0]})_linux_x86_64 "$@"
         # 
     fi
