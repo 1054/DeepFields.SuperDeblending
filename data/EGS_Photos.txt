@@ -1,0 +1,5 @@
+# IRAC images of the Extended Groth Strip (EGS), released on February 2008, at the link https://www.cfa.harvard.edu/irac/egs/
+IRAC1  https://www.cfa.harvard.edu/irac/egs/egs_irac_mos_3.6.fits  
+IRAC2  https://www.cfa.harvard.edu/irac/egs/egs_irac_mos_4.5.fits  
+IRAC3  https://www.cfa.harvard.edu/irac/egs/egs_irac_mos_5.8.fits  
+IRAC4  https://www.cfa.harvard.edu/irac/egs/egs_irac_mos_8.0.fits  

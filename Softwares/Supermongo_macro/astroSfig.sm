@@ -2146,6 +2146,9 @@ calc_FIR_lines 01
     do _calc_i=1,1 {
         set _calc_v = 1232.47622 / (1.0+($1))      echo HF(1-0) @ $(_calc_v) GHz
         set _calc_v = 835.07895 / (1.0+($1))       echo CH+(1-0) @ $(_calc_v) GHz
+        set _calc_v = 909.1588 / (1.0+($1))        echo OH+(101-012) @ $(_calc_v) GHz
+        set _calc_v = 971.8053 / (1.0+($1))        echo OH+(122-011) @ $(_calc_v) GHz
+        set _calc_v = 1033.118 / (1.0+($1))        echo OH+(112-012) @ $(_calc_v) GHz
     }
     do _calc_i=1,1 {
         set _calc_v = 88.6316023 / (1.0+($1))      echo HCN(1-0) @ $(_calc_v) GHz

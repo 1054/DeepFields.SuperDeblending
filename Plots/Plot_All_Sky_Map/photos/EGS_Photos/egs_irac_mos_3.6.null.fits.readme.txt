@@ -1,0 +1,14 @@
+wget https://www.cfa.harvard.edu/irac/egs/egs_irac_mos_3.6.fits
+
+#~/Cloud/Github/DeepFields.SuperDeblending/Softwares/CrabFitsImageArithmetic egs_irac_mos_3.6.fits times 0 egs_irac_mos_3.6.null.fits
+python
+import numpy as np
+from astropy.io import fits
+image, header = fits.getdata('egs_irac_mos_3.6.fits', header=True)
+image = (image*0+1).astype(np.int16)
+header['BITPIX'] = 16
+hdu = fits.PrimaryHDU(image, header=header)
+hdu.writeto('egs_irac_mos_3.6.null.fits', overwrite=True)
+
+gzip egs_irac_mos_3.6.null.fits
+

@@ -459,6 +459,10 @@ for (( j=0; j<${#AstroDepth_INP_IMAGE_SCI[@]}; j++ )); do
         echo "Fit galfit priors with varied position with the threshold: totrms > ${AstroDepth_INP_galfit_prior_vary_position_threshold_totrms}!"
         echo "${AstroDepth_INP_galfit_prior_vary_position_threshold_totrms}" > "fit_galfit_prior_vary_position_threshold_totrms"
     fi
+    if [[ ${#AstroDepth_INP_galfit_prior_vary_position_maximum_arcsec[@]} -gt 0 ]]; then
+        echo "Fit galfit priors with varied position up to a maximum of angular distance in units of arcsec: > ${AstroDepth_INP_galfit_prior_vary_position_maximum_arcsec}!"
+        echo "${AstroDepth_INP_galfit_prior_vary_position_maximum_arcsec}" > "fit_galfit_prior_vary_position_maximum_arcsec"
+    fi
     if [[ ${#AstroDepth_INP_galfit_prior_fit_gaussian_threshold_magerr[@]} -gt 0 ]]; then
         echo "Fit galfit priors with Gaussian models with the threshold: magerr > ${AstroDepth_INP_galfit_prior_fit_gaussian_threshold_magerr}!"
         echo "${AstroDepth_INP_galfit_prior_fit_gaussian_threshold_magerr}" > "fit_galfit_prior_fit_gaussian_threshold_magerr"

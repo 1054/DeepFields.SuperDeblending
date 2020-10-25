@@ -1,0 +1,15 @@
+# Wavelength   Wavelength_str                      
+  1e5          10cm
+  2e5          20cm
+  24           24um
+  100          100um
+  250          250um
+  350          350um
+  500          500um
+  870          870um
+  1160         1160um
+  1204         1204um
+  1218         1218um
+  1303         1303um
+  2000         2000um
+  3000         3000um

@@ -1,0 +1,19 @@
+ax0 is log10(1+redshift).
+ax1 is log10(wavelength) in units of log10(um).
+ax2 is log10(SFR) in units of log10(solMass/yr).
+values are log10(flux) in units of log10(mJy).
+
+To interpolated the flux given a redshift, wavelength and SFR:
+    import numpy as np
+    from astropy.table import Table
+    import scipy.interpolate
+    from scipy.interpolate import LinearNDInterpolator
+    tb = Table.read('datatable_Plot_SED_Templates_fluxes_for_interpolation', format='ascii')
+    output_ax2 = np.log10(output_lgSFR)
+    output_ax1 = np.log10(output_wavelength)
+    output_ax0 = np.log10(1.0+np.array(output_redshift))
+    spliner = LinearNDInterpolator(tb['points'], tb['values'])
+    output_flux = 10**(spliner(np.column_stack((output_ax0, output_ax1, output_ax2))))
+
+Produced by "/Users/dzliu/Cloud/Github/DeepFields.SuperDeblending/Plots/Plot_SED_Templates/do_plot_sed_templates_flux_interpolation_with_python.py".
+

@@ -1,6 +1,7 @@
-Plot_SED_Templates
+Plot_SED_Templates 01
     #  
     #  echo "macro read do_plot_sed_templates.sm Plot_SED_Templates" | sm
+    #  echo "macro read do_plot_sed_templates.sm Plot_SED_Templates 200" | sm
     #  
     # 
     device postencap "Plot_SED_Templates_v1.eps"
@@ -38,9 +39,10 @@ Plot_SED_Templates
     #set ilist = 4.0,7.5,0.5
     #set ilist = {1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0}
     #set ilist = {0.2 0.5 1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0 7.0}
-    #set ilist = {1.0 1.2 1.5 1.7 2.0 2.5 3.0 4.0 5.0 6.0 7.0}
+    set ilist = {1.0 1.2 1.5 1.7 2.0 2.5 3.0 4.0 5.0 6.0 7.0}
     #set ilist = 0.5,10.5,0.5
-    set ilist = 0.5,6.5,0.5
+    #set ilist = 0.5,6.5,0.5
+    #set ilist = {0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 5.5 6.0 6.5 7.0 7.5}
     foreach i ilist {
         # 
         set zvar = float($i)
@@ -98,7 +100,12 @@ Plot_SED_Templates
         #set norm_star = 1e3 # normalization factor for stellar SED, converting Jy to mJy ? [TODO: WHAT UNIT???]
         #set m2l_star = 1.0 # rest-frame-K-band mass-to-light ratio
         # - try 20170720
-        set mass_star = 10**10.0 # [Msun] #<TODO># 
+        #set mass_star = 10**10.5 # [Msun] #<TODO># 
+        #set ebv_star = 0.4 # E(B-V) #<TODO>#
+        #set norm_star = 1e3 # normalization factor for stellar SED, converting Jy to mJy ? [TODO: WHAT UNIT???]
+        #set m2l_star = 1.0 # rest-frame-K-band mass-to-light ratio
+        # - try 20200910
+        set mass_star = 10**10.5 # [Msun] #<TODO># 
         set ebv_star = 0.5 # E(B-V) #<TODO>#
         set norm_star = 1e3 # normalization factor for stellar SED, converting Jy to mJy ? [TODO: WHAT UNIT???]
         set m2l_star = 1.0 # rest-frame-K-band mass-to-light ratio
@@ -291,9 +298,9 @@ Plot_SED_Templates
         #set flux = flux / norm
         # 
         # normalize to SFR = 250.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
-        set norm_to_SFR = 250.0
-        set norm = 3e12/1e10/norm_to_SFR
-        set flux = flux / norm
+        #set norm_to_SFR = 250.0
+        #set norm = 3e12/1e10/norm_to_SFR
+        #set flux = flux / norm
         # 
         # normalize to SFR = 50.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
         #set norm_to_SFR = 50.0
@@ -304,6 +311,15 @@ Plot_SED_Templates
         #set norm_to_SFR = 20.0
         #set norm = 3e12/1e10/norm_to_SFR
         #set flux = flux / norm
+        # 
+        # normalize to SFR = 2.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
+        if($?1) {
+            set norm_to_SFR = $1
+        } else {
+            set norm_to_SFR = 600.0
+        }
+        set norm = 3e12/1e10/norm_to_SFR
+        set flux = flux / norm
         # 
         # 
         # 
@@ -329,6 +345,24 @@ Plot_SED_Templates
         set L_TIR = calc_ltir(wave,flux,zvar)
         if($i==0){define print_noheader 0 print  "Output/expected_L_TIR_v1.5.txt" '%15g%15g\n' {zvar L_TIR}} else {
                   define print_noheader 1 print +"Output/expected_L_TIR_v1.5.txt" '%15g%15g\n' {zvar L_TIR} define print_noheader 0}
+        # 
+        # spline K-band 2.5 um
+        set wave_K = 2.5
+        set flux_K = get_flux_splined(wave_K)
+        if($i==0){define print_noheader 0 print  "Output/expected_flux_K_v1.txt" '%15g%15g\n' {zvar flux_K}} else {
+                  define print_noheader 1 print +"Output/expected_flux_K_v1.txt" '%15g%15g\n' {zvar flux_K} define print_noheader 0}
+        # 
+        # spline IRAC1 3.6 um
+        set wave_IRAC1 = 3.6
+        set flux_IRAC1 = get_flux_splined(wave_IRAC1)
+        if($i==0){define print_noheader 0 print  "Output/expected_flux_IRAC1_v1.txt" '%15g%15g\n' {zvar flux_IRAC1}} else {
+                  define print_noheader 1 print +"Output/expected_flux_IRAC1_v1.txt" '%15g%15g\n' {zvar flux_IRAC1} define print_noheader 0}
+        # 
+        # spline IRAC2 4.5 um
+        set wave_IRAC2 = 4.5
+        set flux_IRAC2 = get_flux_splined(wave_IRAC2)
+        if($i==0){define print_noheader 0 print  "Output/expected_flux_IRAC2_v1.txt" '%15g%15g\n' {zvar flux_IRAC2}} else {
+                  define print_noheader 1 print +"Output/expected_flux_IRAC2_v1.txt" '%15g%15g\n' {zvar flux_IRAC2} define print_noheader 0}
         # 
         # spline 24 um
         set wave_24um = 24
@@ -389,6 +423,18 @@ Plot_SED_Templates
         spline wave flux wave_1303um flux_1303um
         if($i==0){define print_noheader 0 print  "Output/expected_flux_1303um_v1.txt" '%15g%15g\n' {zvar flux_1303um}} else {
                   define print_noheader 1 print +"Output/expected_flux_1303um_v1.txt" '%15g%15g\n' {zvar flux_1303um} define print_noheader 0}
+        # 
+        # spline 2000 um
+        set wave_2000um = 2000.
+        spline wave flux wave_2000um flux_2000um
+        if($i==0){define print_noheader 0 print  "Output/expected_flux_2000um_v1.txt" '%15g%15g\n' {zvar flux_2000um}} else {
+                  define print_noheader 1 print +"Output/expected_flux_2000um_v1.txt" '%15g%15g\n' {zvar flux_2000um} define print_noheader 0}
+        # 
+        # spline 3000 um
+        set wave_3000um = 3000.
+        spline wave flux wave_3000um flux_3000um
+        if($i==0){define print_noheader 0 print  "Output/expected_flux_3000um_v1.txt" '%15g%15g\n' {zvar flux_3000um}} else {
+                  define print_noheader 1 print +"Output/expected_flux_3000um_v1.txt" '%15g%15g\n' {zvar flux_3000um} define print_noheader 0}
         # 
         # spline 1e5 um 3GHz
         set wave_10cm = 1e5
@@ -465,8 +511,8 @@ Plot_SED_Templates
     #expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot IRAC SPLASH 3.6 detection limit
-    set f1sig = 0.22e-3/3.0  # for COSMOS SPLASH IRAC "all.irac.1.mosaic.fits" -- Laigle+2016 3-sigma mAB 25.5
-    set nsig = 5.0
+    set f1sig = 0.000229087/3.0  # for COSMOS SPLASH IRAC "all.irac.1.mosaic.fits" -- Laigle+2016 3-sigma mAB 25.5
+    set nsig = 3.0
     ##(short vertical dashed line style)
     ltype 0 lweight 10
     ctype firebrick rel $(lg(3.6)-0.08) $(lg(f1sig*nsig)) draw $(lg(3.6)+0.08) $(lg(f1sig*nsig))
@@ -474,8 +520,8 @@ Plot_SED_Templates
     expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot IRAC SPLASH 4.5 detection limit
-    set f1sig = 0.22e-3/3.0  # for COSMOS SPLASH IRAC "all.irac.1.mosaic.fits" -- Laigle+2016 3-sigma mAB 25.5
-    set nsig = 5.0
+    set f1sig = 0.000229087/3.0  # for COSMOS SPLASH IRAC "all.irac.1.mosaic.fits" -- Laigle+2016 3-sigma mAB 25.5
+    set nsig = 3.0
     ##(short vertical dashed line style)
     ltype 0 lweight 10
     ctype firebrick rel $(lg(4.5)-0.08) $(lg(f1sig*nsig)) draw $(lg(4.5)+0.08) $(lg(f1sig*nsig))
@@ -483,8 +529,8 @@ Plot_SED_Templates
     expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot UVISTA Ks 2.15um detection limit
-    set f1sig = 0.22e-3/3.0  # for COSMOS SPLASH IRAC "all.irac.1.mosaic.fits" -- Laigle+2016 3-sigma mAB 25.5
-    set nsig = 5.0
+    set f1sig = 0.00057544/3.0  # for COSMOS UVISTA -- Laigle+2016 3-sigma mAB 24.5
+    set nsig = 3.0
     ##(short vertical dashed line style)
     ltype 0 lweight 10
     ctype royalblue rel $(lg(2.15)-0.08) $(lg(f1sig*nsig)) draw $(lg(2.15)+0.08) $(lg(f1sig*nsig))
@@ -574,6 +620,22 @@ Plot_SED_Templates
     #expand 1.05 relocate $(lg(870)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{870um}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
     #expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
+    # overplot ALMA ~900um (308GHz, band 7) detection limit
+    #set f1sig = 0.1 # <20170417> -- dzliu -- ALMA 1-sigma 0.06 mJy
+    #set nsig = 3.0
+    #ltype 0 lweight 10
+    #ctype magenta rel $(lg(870)-0.08) $(lg(f1sig*nsig)) draw $(lg(870)+0.08) $(lg(f1sig*nsig))
+    #expand 1.05 relocate $(lg(870)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{870um}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
+    #expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
+    # overplot ALMA 870um (345GHz, band 7) detection limit
+    set f1sig = 0.2 # <20200910> -- dzliu -- typical ALMA 1-sigma 0.5 mJy
+    set nsig = 5.0
+    ltype 0 lweight 10
+    ctype magenta rel $(lg(870)-0.08) $(lg(f1sig*nsig)) draw $(lg(870)+0.08) $(lg(f1sig*nsig))
+    expand 1.05 relocate $(lg(870)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{ALMA 870um}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
+    expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
     # overplot ALMA 1204um (249GHz) detection limit
     #set f1sig = 0.06 # <20170417> -- dzliu -- ALMA 1-sigma 0.06 mJy
     #set nsig = 5.0
@@ -591,12 +653,28 @@ Plot_SED_Templates
     #-20170416-# expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot ALMA 1303um (230GHz) detection limit
-    set f1sig = 0.06 # <20170417> -- dzliu -- ALMA 1-sigma 0.06 mJy
+    #set f1sig = 0.06 # <20170417> -- dzliu -- ALMA 1-sigma 0.06 mJy
+    #set nsig = 5.0
+    #ltype 0 lweight 10
+    #ctype magenta rel $(lg(1303)-0.08) $(lg(f1sig*nsig)) draw $(lg(1303)+0.08) $(lg(f1sig*nsig))
+    #expand 1.05 relocate $(lg(1303)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{ALMA 230GHz}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
+    #expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
+    # overplot ALMA 1303um (230GHz) detection limit
+    set f1sig = 0.2 # <20200910> -- dzliu -- typical ALMA 1-sigma 0.5 mJy
     set nsig = 5.0
     ltype 0 lweight 10
     ctype magenta rel $(lg(1303)-0.08) $(lg(f1sig*nsig)) draw $(lg(1303)+0.08) $(lg(f1sig*nsig))
-    expand 1.05 relocate $(lg(1303)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{ALMA 230GHz}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
+    expand 1.05 relocate $(lg(1303)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{ALMA 1.3mm}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
     expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
+    # overplot ALMA 2350um (130GHz) detection limit
+    #set f1sig = 0.0135 # <20170417> -- dzliu -- ALMA 1-sigma rms 13.5 uJy for 6.22 hrs total time
+    #set nsig = 3.0
+    #ltype 0 lweight 10
+    #ctype magenta rel $(lg(2350)-0.08) $(lg(f1sig*nsig)) draw $(lg(2350)+0.08) $(lg(f1sig*nsig))
+    #expand 1.05 relocate $(lg(2350)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{ALMA 130GHz}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
+    #expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot PACS 100um detection limit
     ##(long vertical dashed line style)

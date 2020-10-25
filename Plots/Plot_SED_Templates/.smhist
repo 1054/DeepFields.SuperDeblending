@@ -1,94 +1,3 @@
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_colors.sm Plot_SED_Templates_Optical_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates_optical_near_ir_colors.sm Plot_SED_Templates_Opt_NIR_Colors
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-calc 2.99792e5/238.
-calc 0.44*3
-quit
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
 macro read do_plot_sed_templates.sm Plot_SED_Templates
 QUIT
 macro read do_plot_sed_templates.sm Plot_SED_Templates
@@ -524,3 +433,182 @@ calc_FIR_lines 5.0
 calc_FIR_lines 6.0
 calc 3.55*24.
 quit
+load astroPhot2.sm
+QUIT
+load astroSfig.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 1.00000000e-02
+QUIT
+load astroPhot.sm
+QUIT
+load astroPhot.sm
+QUIT
+load astroPhot.sm
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 1.00000000e-02
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 1.54758735e-02
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 2.39502662e-02
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 3.70651291e-02
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 5.73615251e-02
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 8.87719709e-02
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 1.37382380e-01
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 2.12611233e-01
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 3.29034456e-01
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 5.09209564e-01
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 7.88046282e-01
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 1.21957046e+00
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 1.88739182e+00
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 2.92090372e+00
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 4.52035366e+00
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 6.99564216e+00
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 1.08263673e+01
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 1.67547492e+01
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 2.59294380e+01
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 4.01280703e+01
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 6.21016942e+01
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 9.61077966e+01
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 1.48735211e+02
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 2.30180731e+02
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 3.56224789e+02
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 5.51288979e+02
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 8.53167852e+02
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 1.32035178e+03
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 2.04335972e+03
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 3.16227766e+03
+QUIT
+load astroPhot.sm
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+convert_flux2mag cosmos AB 24.5 0.1
+convert_mag2flux cosmos AB 24.5 0.1
+convert_mag2flux cosmos AB 25.5 0.1
+quit
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
