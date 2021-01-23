@@ -1,0 +1,7 @@
+The code below dose not work on some Ubuntu linux:
+$(ldd --version | head -n 1 | tr -s ' ' | cut -d ' ' -f 4 | cut -d '.' -f 2)
+
+should use:
+$(ldd --version | head -n 1 | perl -p -e 's/.* +([0-9.]+)/\1/g' | cut -d '.' -f 2)
+
+

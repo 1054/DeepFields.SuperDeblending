@@ -146,8 +146,8 @@ if __name__ == "__main__":
     
     
     
-    hdu = fits.open('datatables/datatable_ID_RA_DEC_GOODSN_850.fits.gz')[1]
-    data2 = hdu.data
+    hdu2 = fits.open('datatables/datatable_ID_RA_DEC_GOODSN_850.fits.gz')[1]
+    data2 = hdu2.data
     data2_ra = data2['RA']
     data2_dec = data2['Dec']
     
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     m_dec = data_dec # np.median(data_dec)
     xs, ys = base_map(m_ra+angle_shift, m_dec)
     ax.hexbin(xs, ys, gridsize=(5,5)) # here we do not plot millions of data points but use hexbin -- https://python-graph-gallery.com/84-hexbin-plot-with-matplotlib/
-    ax.annotate('COSMOS', xy=(0.001, 1.001), color='#000000', ha='left', va='bottom', xycoords=ax.transAxes, zorder=10, fontsize=18, fontweight='bold')
+    ax.annotate('COSMOS (real size, 2 sq. degrees)', xy=(0.001, 1.001), color='#000000', ha='left', va='bottom', xycoords=ax.transAxes, zorder=10, fontsize=18, fontweight='bold')
     plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
     fig.savefig('Plot_All_Sky_Map_COSMOS.pdf')
     #plt.show(block=True)
