@@ -1,7 +1,0 @@
-# /Applications/exceltk/exceltk is the tool downloaded from https://github.com/fanfeilong/exceltk
-# run the following code in bash shell as `bash < a_dzliu_collection_of_deep_field_data_listsData.ReadMe.txt`
-# but do not forget to close Excel first!
-/Applications/exceltk/exceltk -t md -p 2 -xls a_dzliu_collection_of_deep_field_data_lists.xlsx
-ls a_dzliu_collection_of_deep_field_data_listsData.md
-echo "Then open \"a_dzliu_collection_of_deep_field_data_listsData.md\" with sublime text and press Ctrl+Alt+Shift+T to reformat it with sublime text MarkdownTableFormatter package (if installed)"
-

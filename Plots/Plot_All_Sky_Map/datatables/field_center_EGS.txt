@@ -1,3 +1,0 @@
-# Field RA Dec RA_hms Dec_dms
-EGS 214.75000 52.80000 14:19:00.0 +52:48:00 
-
