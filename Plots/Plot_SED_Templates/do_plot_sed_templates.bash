@@ -33,7 +33,9 @@ ls -1d "Output"
 ls "Plot_SED_Templates_v1.eps"
 ls "Plot_SED_Templates_v1.pdf"
 
-echo "macro read do_plot_sed_templates_flux_versus_z_IRAC.sm Plot_SED_Templates_Flux_versus_z" | sm > /dev/null
+#echo "macro read do_plot_sed_templates_flux_versus_z_IRAC.sm Plot_SED_Templates_Flux_versus_z" | sm > /dev/null
+echo "macro read do_plot_sed_templates_flux_versus_z.sm Plot_SED_Templates_Flux_versus_z" | sm > /dev/null
 
 ls -1d "Output"
-ls "Output/Plot_SED_Templates_Flux_versus_z_IRAC_v1.pdf"
+#ls "Output/Plot_SED_Templates_Flux_versus_z_IRAC_v1.pdf"
+ls "Output/Plot_SED_Templates_Flux_versus_z_v1.pdf"

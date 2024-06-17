@@ -1,0 +1,88 @@
+Plot_SED_Templates_Flux_versus_z
+    #  
+    #  echo "macro read do_plot_sed_templates_flux_versus_z.sm Plot_SED_Templates_Flux_versus_z" | sm
+    #  
+    ###!cp "../expected_flux_24um_v1.txt" "expected_flux_24um_v20151110.txt"
+    ###!cp "../expected_flux_10cm_v1.txt" "expected_flux_10cm_v20151110.txt"
+    # 
+    chdir "Output_v20210730a"
+    # 
+    data "expected_flux_24um_v1.txt" read {zvar 1 flux_24um 2}
+    data "expected_flux_10cm_v1.txt" read {zvar 1 flux_10cm 2}
+    set flux_24um = lg(flux_24um)+3
+    set flux_10cm = lg(flux_10cm)+3
+    # 
+    set f3sig_24um = 0.0100*1000*3.0 # - for 24um we can use rms = 10uJy
+    set f3sig_10cm = 0.0006*1000*3.0 # - showing 3GHz in radio (not 1.4GHz), rms = 0.6uJy
+    # 
+    device postencap "Plot_SED_Templates_Flux_versus_z_v1.eps"
+    define TeX_strings 1
+    xtcolours
+    erase
+    limits 0 7 $(lg(0.0005)+3) $(lg(50)+3) ticksize 1 1 -1 10 location 5200 31000 5200 22000
+    ctype default   ltype 0 expand 1.5 lweight 3.0 box
+    ctype firebrick ltype 0 expand 2.0 lweight 3.5 connect zvar flux_24um   do_shade_24um
+    ctype firebrick ltype 1 expand 2.0 lweight 7.0 rel $fx1 $(lg(f3sig_24um)) draw $fx2 $(lg(f3sig_24um)) 
+    ctype firebrick ltype 0 expand 2.0 lweight 4.0 expand 1.15 putlabel 7 "3\sigma \ detection limit at 24{\mu}m "
+    ctype default   ltype 0 expand 2.0
+    ctype royalblue ltype 0 expand 2.0 lweight 6.0 connect zvar flux_10cm   do_shade_10cm
+    ctype royalblue ltype 2 expand 2.0 lweight 8.0 rel $fx1 $(lg(f3sig_10cm)) draw $fx2 $(lg(f3sig_10cm))
+    ctype royalblue ltype 0 expand 2.0 lweight 4.0 expand 0.50 puts " "
+    ctype royalblue ltype 0 expand 2.0 lweight 4.0 expand 1.15 putlabel 1 "3\sigma \ detection limit at 3GHz "
+    ctype default   ltype 0 expand 2.0 
+    ctype default   ltype 0 expand 1.2 relocate (12000 $(20400-1400*0)) puts Flux from SED templates normalized
+    ctype default   ltype 0 expand 1.2 relocate (12000 $(20400-1400*1)) puts to S_{850{\mu}m}=5.0\,mJy (4{\sigma}_{850{\mu}m}) in EGS
+    ctype firebrick ltype 0 expand 1.2 relocate 1.5 $(lg(600)) putlabel 4 "24{\mu}m flux"
+    ctype royalblue ltype 0 expand 1.2 relocate 1.5 $(lg(21))  putlabel 4 "3GHz flux"
+    ctype default   ltype 0 expand 1.8 xlabel "z"
+    ctype default   ltype 0 expand 1.8 ylabel "Flux Density [{\mu}Jy]"
+    ctype default   ltype 0 expand 1.5
+    # 
+    device nodevice
+    !ps2pdf -dEPSCrop "Plot_SED_Templates_Flux_versus_z_v1.eps"
+    !pdfcrop -margin 5 "Plot_SED_Templates_Flux_versus_z_v1.pdf" "Plot_SED_Templates_Flux_versus_z_v1.pdf"
+
+
+do_shade_24um
+    set shade_x = 0,7,0.01
+    spline zvar flux_24um shade_x shade_y
+    set shade_c = shade_y>=lg(f3sig_24um)
+    set shade_x = shade_x if(shade_c)
+    set shade_y = shade_y if(shade_c)
+    set shade_x = $(shade_x[0]) concat shade_x
+    set shade_y = $fy1 concat shade_y # $(lg(f3sig_24um)) concat shade_y
+    #echo $(shade_x[0]) $(shade_x[dimen(shade_x)-1]) #--> 0 3.53
+    set shade_x = shade_x concat $(shade_x[dimen(shade_x)-1]+0.01)
+    set shade_y = shade_y concat $fy1 # $(lg(f3sig_24um))
+    ltype 0 lweight 1.2 angle 70 shade 220 shade_x shade_y angle 0 lweight 4.0
+
+
+do_shade_10cm
+    set shade_x = 0,7,0.1
+    spline zvar flux_10cm shade_x shade_y
+    set shade_c = shade_y>=lg(f3sig_10cm)
+    set shade_x = shade_x if(shade_c)
+    set shade_y = shade_y if(shade_c)
+    set shade_x = $(shade_x[0]) concat shade_x
+    set shade_y = $fy1 concat shade_y # $(lg(f3sig_10cm)) concat shade_y
+    set shade_x = shade_x concat $(shade_x[dimen(shade_x)-1])
+    set shade_y = shade_y concat $fy1 # $(lg(f3sig_10cm))
+    ltype 0 lweight 1.2 angle 60 shade 180 shade_x shade_y angle 0 lweight 4.0
+
+
+do_shade_24um_undetectable
+    set shade_x = 0,7,0.1
+    spline zvar flux_24um shade_x shade_y
+    set shade_c = shade_y<lg(f3sig_24um)
+    set shade_x = shade_x if(shade_c)
+    set shade_y = shade_y if(shade_c)
+    set shade_x = $(shade_x[0]) concat shade_x
+    set shade_y = $fy1 concat shade_y # $(lg(f3sig_24um)) concat shade_y
+    set shade_x = shade_x concat $(shade_x[dimen(shade_x)-1])
+    set shade_y = shade_y concat $fy1 # $(lg(f3sig_24um))
+    ltype 0 lweight 1.2 angle 70 shade 220 shade_x shade_y angle 0 lweight 4.0
+
+
+
+
+

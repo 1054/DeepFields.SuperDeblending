@@ -1,0 +1,667 @@
+Plot_SED_Templates 01
+    #  
+    #  echo "macro read do_plot_sed_templates.sm Plot_SED_Templates" | sm
+    #  echo "macro read do_plot_sed_templates.sm Plot_SED_Templates 200" | sm
+    #  
+    # 
+    device postencap "Plot_SED_Templates_v1.eps"
+    define TeX_strings 1
+    xtcolours
+    xtcoloursRGB
+    location 5200 31000 5000 26000
+    erase
+    #limits -0.5 6.0 -3.5 3
+    #limits -0.5 6.0 -4.5 3
+    #limits -0.5 $(lg(4e5)) -4.5 3
+    #limits $(lg(1.0)) $(lg(4e5)) -4.5 3 #<20160930>#
+    #limits $(lg(0.01)) $(lg(4e5)) -6.5 3 #<20161229>#
+    #limits $(lg(1.0)) $(lg(4e5)) -4.9 3 #<20170417>#
+    limits $(lg(1.0)) $(lg(4e5)) -4.9 4 #<20170628>#
+    ticksize -1 10 -1 10
+    expand 1.5 lweight 3.0
+    ctype default box
+    ctype default xlabel "Observing Wavelength [{\mu}m]"
+    ctype default ylabel "Flux Density [mJy]"
+    # 
+    load astroSfig.sm 
+    # 
+    # 
+    # backup and mkdir
+    backup_Output
+    # 
+    # 
+    # Read Magdis u,z 
+    data "Magdis/README_dliu" read {narr 2 zarr 6}
+    # 
+    # 
+    # Loop redshifts
+    #set ilist = 3.0,5.5,0.25
+    #set ilist = 4.0,7.5,0.5
+    #set ilist = {1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0}
+    #set ilist = {0.2 0.5 1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0 7.0}
+    set ilist = {1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0 7.0 8.0}
+    #set ilist = 0.5,10.5,0.5
+    #set ilist = 0.5,6.5,0.5
+    #set ilist = {0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 5.5 6.0 6.5 7.0 7.5}
+    foreach i ilist {
+        # 
+        set zvar = float($i)
+        spline zarr narr zvar nvar
+        set oneplusz = 1.0+zvar
+        set nvar = (nvar>14) ?  14 : int(nvar)
+        set nvar = (nvar<=0) ?   1 : int(nvar)
+        echo ""
+        echo "z = "$(zvar)", U = "$(nvar)
+        ### set nvar = (nvar>=0) ? 101 : int(nvar) # <TODO> uncomment this to plot SB SED
+        # 
+        set wvar = -2,6.5,0.01
+        # 
+        # 
+        # load FIR-to-Radio SED Templates
+        #<TODO><DEBUG># set nvar = 1
+        data "Magdis/sed_z"$(nvar)"_U"$(nvar)"_radio.txt" read {wave_mfir 1 flux_mfir 2}
+        set flux_mfir = flux_mfir * wave_mfir # flux_mfir / (2.99792458e14/wave_mfir) # convert from vfv to fv
+        set lumi_mfir = calc_ltir_daddi(wave_mfir, flux_mfir)
+        set flux_mfir = flux_mfir / lumi_mfir # normalize to LIR = 1 Lsun
+        set lumi_mfir = calc_ltir_daddi(wave_mfir, flux_mfir) # check that the above flux is normalized to LIR = 1 Lsun.
+        #<20161229><dzliu># ---- redshift-evolving qIR
+        macro read fit_engine_v20210130a_fixed_qIR_2p5.sm
+        define xname $(nvar)
+        set xxWS = lg(wave_mfir)
+        set wsfr$xname = wave_mfir if(xxWS>-1 && xxWS<5.6)
+        set fsfr$xname = flux_mfir if(xxWS>-1 && xxWS<5.6)
+        echo "go_Changing_qIR_with_z"
+        go_Changing_qIR_with_z $i
+        set xxDX = 0,dimen(flux_mfir)-1 
+        set xxDX = xxDX if(xxWS>-1 && xxWS<5.6)
+        set flux_mfir[xxDX] = fsfr$xname""_for_qIR_with_z
+        set xxLX = calc_ltir(wsfr$xname * oneplusz, original_fIR, $i)
+        set xxLX = calc_ltir(wsfr$xname * oneplusz, changeto_fIR, $i)
+        #<20161229><dzliu># ----
+        set lumi_mfir = calc_ltir(wave_mfir * oneplusz, flux_mfir, $i)
+        set flux_mfir = flux_mfir / lumi_mfir * 3e12 # <TODO> normalize to LIR = 3e12 Lsun
+        set lumi_mfir = calc_ltir(wave_mfir * oneplusz, flux_mfir, $i)
+        set wave_mfir = wave_mfir
+        # 
+        set wvec = lg(wave_mfir)
+        set fvec = lg(flux_mfir)
+        spline wvec fvec wvar fvar
+        set wave_mfir = 10**wvar
+        set flux_mfir = 10**fvar
+        set flux_mfir = (wave_mfir<1.0) ? 1e-20 : flux_mfir
+        # 
+        # 
+        # load BC03 Stellar SED Templates
+        data "BC03/base03_3_cost_z02_chab" read {wave_chab 1 flux_chab 12} 
+        set wave_chab = wave_chab/10000 # [um]
+        # -
+        #set mass_star = 10**11.28 # [Msun] #<TODO># GN20 value
+        #set ebv_star = 1.0 # E(B-V) #<TODO>#
+        #set norm_star = 1e3 # normalization factor for stellar SED, converting Jy to mJy ? [TODO: WHAT UNIT???]
+        #set m2l_star = 1.0 # rest-frame-K-band mass-to-light ratio
+        # - try 20170720
+        #set mass_star = 10**10.5 # [Msun] #<TODO># 
+        #set ebv_star = 0.4 # E(B-V) #<TODO>#
+        #set norm_star = 1e3 # normalization factor for stellar SED, converting Jy to mJy ? [TODO: WHAT UNIT???]
+        #set m2l_star = 1.0 # rest-frame-K-band mass-to-light ratio
+        # - try 20200910
+        set mass_star = 10**10.5 # [Msun] #<TODO># 
+        set ebv_star = 0.5 # E(B-V) #<TODO>#
+        set norm_star = 1e3 # normalization factor for stellar SED, converting Jy to mJy ? [TODO: WHAT UNIT???]
+        set m2l_star = 1.0 # rest-frame-K-band mass-to-light ratio
+        # - 
+        #set lum_star = calc_sint(lg(wave_chab), flux_chab) / lg(exp(1.0))
+        #echo "lum_star = "$(sprintf('%e',lum_star))" Lsun (rest-frame-K-band)"
+        if($i>0) {
+            #<TODO># compute stellar SED normalization factor using rest-frame-K-band mass-to-light ratio
+            set wave_log10 = lg(wave_chab)
+            set flux_log10 = lg(flux_chab)
+            set wave_Ks = 2.15 # rest-frame-K-band wavelength [um]
+            set flux_Ks = get_flux_splined(wave_Ks)
+            set lumi_Ks = flux_Ks * 1000.0 * (4*pi*(calc_lumdist($i))**2) # rest-frame-K-band luminosity [Lsun], 1.0 is the 
+            #echo "flux_Ks = "$(sprintf('%e',flux_Ks))" ???? (rest-frame-K-band)"
+            #echo "lumi_Ks = "$(sprintf('%e',lumi_Ks))" ???? (rest-frame-K-band)"
+            #echo "lumi_star = "$(sprintf('%e',lumi_star))" Lsun (rest-frame-K-band)"
+            set norm_star = (mass_star / m2l_star) / lumi_Ks
+        }
+        #set norm_star = 0.0
+        echo "norm_star = "$(norm_star)
+        set flux_chab = norm_star * flux_chab * 10**(-0.4*ebv_star*(-0.88+2.7/wave_chab)) # <TODO> the factor of stellar component
+        # 
+        set wvec = lg(wave_chab)
+        set fvec = lg(flux_chab)
+        spline wvec fvec wvar fvar
+        set flux_star = 10**fvar
+        set wave_star = 10**wvar
+        set flux_star = (wave_star>160.0) ? 1e-20 : flux_star
+        # 
+        # 
+        # 
+        # combine flux
+        set flux = (flux_mfir + flux_star)
+        set wave = wave_mfir * oneplusz
+        # 
+        # 
+        # 
+        # log wave flux
+        set wave_lg = lg(wave)
+        set flux_lg = lg(flux)
+        #<20170101># # 
+        #<20170101># # grid wave flux -- 20160930 email from Matthieu Bethermin - comments on goodsn-cat-v20160914a-main 
+        #<20170101># #                -- what is this weird little bump around 1 cm in the SED
+        #<20170101># #                -- dzliu: after regridding wave and flux, the weird little bump disappears! <20160930>
+        #<20170101># set wave_lg_ng = wave_lg
+        #<20170101># set flux_lg_ng = flux_lg
+        #<20170101># set wave_lg_grid = -1,6,.01
+        #<20170101># spline wave_lg flux_lg wave_lg_grid flux_lg_grid
+        #<20170101># set wave_lg = wave_lg_grid
+        #<20170101># set flux_lg = flux_lg_grid
+        # 
+        # 
+        # 
+        # smooth curve to resember instrumental filter-like response curve
+        set flux_us = flux_lg # unsmoothed
+        smooth flux_lg flux_sm 13
+        set flux = 10**flux_sm
+        # 
+        # 
+        # 
+        # calc log for get_flux_splined()
+        set wave_log10 = lg(wave)
+        set flux_log10 = lg(flux)
+        # 
+        # 
+        # 
+        # normalize
+        set norm = 1.0
+        # 
+        # normalize to radio 2e5 um 7.5 uJy
+        #set wave_2e5um = 2e5
+        #spline wave flux wave_2e5um flux_2e5um
+        #set norm = flux_2e5um / 7.5e-3 # <TODO> normalize to f2e5um = 7.5 uJy
+        #set flux = flux / norm
+        #spline wave flux wave_2e5um flux_2e5um
+        # 
+        # normalize to 24 um 18 uJy
+        ##set wave_24um = 24
+        ##spline wave flux wave_24um flux_24um
+        ##set norm = flux_24um / 18e-3 # <TODO> normalize to f24 = 18 uJy
+        ##set flux = flux / norm
+        ##spline wave flux wave_24um flux_24um
+        # 
+        # normalize to 250 um 5.94 mJy
+        ##set wave_250um = 250
+        ##spline wave flux wave_250um flux_250um
+        ##set norm = flux_250um / 5.94 # <TODO> normalize to f250 = 5.94 mJy (3-sigma)
+        ##set flux = flux / norm
+        ##spline wave flux wave_250um flux_250um
+        # 
+        # normalize to 350 um 7.44 mJy
+        ##set wave_350um = 350
+        ##spline wave flux wave_350um flux_350um
+        ##set norm = flux_350um / 7.44 # <TODO> normalize to f350 = 7.44 mJy (3-sigma)
+        ##set flux = flux / norm
+        # 
+        # normalize to 350 um 6.22 mJy <20160524>
+        #set wave_350um = 350
+        #set flux_350um = get_flux_splined(wave_350um)
+        #set norm = flux_350um / 6.22 # <TODO> normalize to f350 = 6.22 mJy (3-sigma)
+        #set flux = flux / norm
+        # 
+        # normalize to 350 um 8.0 mJy <20210130>
+        #set wave_350um = 350
+        #set flux_350um = get_flux_splined(wave_350um)
+        #set norm = flux_350um / 8.00 # <TODO> normalize to f350 = 8.00 mJy (3-sigma COSMOS)
+        #set flux = flux / norm
+        # 
+        # normalize to 500 um 5 mJy
+        ##set wave_500um = 500
+        ##spline wave flux wave_500um flux_500um
+        ##set norm = flux_500um / 5.0 # <TODO> normalize to f500 = 5.0 mJy
+        ##set flux = flux / norm
+        ##set flux_500um = 5.0 # mJy
+        # 
+        # normalize to 870 um XXX mJy
+        #set wave_870um = 870
+        #spline wave flux wave_870um flux_870um
+        #set norm = flux_870um / 8.0 # 3.748 # normalize to f870 = XXX mJy
+        #set flux = flux / norm
+        #set flux_870um = 8.0 # 3.748 # mJy
+        # 
+        # normalize to 1160 um 1.12 mJy
+        #set wave_1160um = 1160
+        #spline wave flux wave_1160um flux_1160um
+        #set norm = flux_1160um / 1.12 # normalize to f1160 = XXX mJy
+        #set flux = flux / norm
+        #set flux_1160um = 1.12 # mJy
+        # 
+        # normalize to 1175 um 2.0 mJy -- NOEMA 1mm 255 GHz
+        #set wave_1175um = 1175.656698
+        #spline wave flux wave_1175um flux_1175um
+        #set norm = flux_1175um / 2.0
+        #set flux = flux / norm
+        #set flux_1175um = 2.0 # mJy
+        # 
+        # normalize to 1200 um 0.45 mJy
+        ##set wave_1200um = 1200
+        ##spline wave flux wave_1200um flux_1200um
+        ##set norm = flux_1200um / 0.045 # normalize to f1200 = 0.45 mJy
+        ##set flux = flux / norm
+        ##set flux_1200um = 0.045 # mJy
+        # 
+        # normalize to 1200 um 0.27 mJy -- 20160520 edaddi -- for GOODSN
+        ##set wave_1200um = 1200
+        ##spline wave flux wave_1200um flux_1200um
+        ##set norm = flux_1200um / 0.27 # normalize to f1200 = 0.27 mJy, the NIKA2 survey PI Lagache proposed goal
+        ##set flux = flux / norm
+        ##set flux_1200um = 0.27 # mJy
+        # 
+        # normalize to 1200 um 0.27 mJy -- 20160520 edaddi -- for COSMOS
+        ##set wave_1200um = 1200
+        ##spline wave flux wave_1200um flux_1200um
+        ##set norm = flux_1200um / 0.8 # normalize to f1200 = 0.8 mJy, the NIKA2 survey PI Lagache proposed goal
+        ##set flux = flux / norm
+        ##set flux_1200um = 0.8 # mJy
+        # 
+        # normalize to 1250 um XXX mJy
+        #set wave_1250um = 1250
+        #spline wave flux wave_1250um flux_1250um
+        #set norm = flux_1250um / 2.388 # normalize to f1250 = XXX mJy
+        #set flux = flux / norm
+        #set flux_1250um = 2.388 # mJy
+        # 
+        # normalize to 1260 um 1.32 mJy -- 20170414 dzliu ALMA 230+246GHz continuum detection limit -- for COSMOS
+        #set wave_1260um = 1260
+        #spline wave flux wave_1260um flux_1260um
+        #set norm = flux_1260um / 1.32 
+        #set flux = flux / norm
+        #set flux_1260um = 1.32 # mJy
+        # 
+        # normalize to 10 cm (3 GHz) 10 uJy
+        #set wave_10cm = 2.99792458e5/3
+        #spline wave flux wave_10cm flux_10cm
+        #set norm = flux_10cm / 10e-3
+        #set flux = flux / norm
+        #set flux_10cm = 10e-3 # mJy
+        # 
+        # normalize to 10 cm (3 GHz) 4.5 uJy -- 20210730
+        set wave_10cm = 2.99792458e5/3
+        spline wave flux wave_10cm flux_10cm
+        set norm = flux_10cm / 1.8e-3
+        set flux = flux / norm
+        set flux_10cm = 10e-3 # mJy
+        set sfr = 300. / norm # template LIR 3e12
+        # 
+        # normalize to SFR = 150.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
+        ##set norm = 3e12/1e10/150.0
+        ##set flux = flux / norm
+        # 
+        # normalize to SFR = 800.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
+        #set norm_to_SFR = 800.0
+        #set norm = 3e12/1e10/norm_to_SFR
+        #set flux = flux / norm
+        # 
+        # normalize to SFR = 500.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
+        #set norm_to_SFR = 500.0
+        #set norm = 3e12/1e10/norm_to_SFR
+        #set flux = flux / norm
+        # 
+        # normalize to SFR = 300.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
+        #set norm_to_SFR = 300.0
+        #set norm = 3e12/1e10/norm_to_SFR
+        #set flux = flux / norm
+        # 
+        # normalize to SFR = 250.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
+        #set norm_to_SFR = 250.0
+        #set norm = 3e12/1e10/norm_to_SFR
+        #set flux = flux / norm
+        # 
+        # normalize to SFR = 50.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
+        #set norm_to_SFR = 50.0
+        #set norm = 3e12/1e10/norm_to_SFR
+        #set flux = flux / norm
+        # 
+        # normalize to SFR = 20.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
+        #set norm_to_SFR = 20.0
+        #set norm = 3e12/1e10/norm_to_SFR
+        #set flux = flux / norm
+        # 
+        # normalize to SFR = 2.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR) (20210130 commnented out)
+        #if($?1) {
+        #    set norm_to_SFR = $1
+        #} else {
+        #    set norm_to_SFR = 600.0
+        #}
+        #set norm = 3e12/1e10/norm_to_SFR
+        #set flux = flux / norm
+        # 
+        # 
+        # 
+        # calc log after normalization
+        set wave_lg = lg(wave)
+        set flux_lg = lg(flux)
+        # 
+        # 
+        # 
+        # calc log after normalization for get_flux_splined()
+        set wave_log10 = lg(wave)
+        set flux_log10 = lg(flux)
+        # 
+        # 
+        # 
+        # spline L_TIR
+        set L_TIR = 3e12 / norm
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_L_TIR_v1.txt" '%15g%15g\n' {zvar L_TIR}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_L_TIR_v1.txt" '%15g%15g\n' {zvar L_TIR} define print_noheader 0}
+        # 
+        # spline L_TIR
+        load astroSfig.sm
+        set L_TIR = calc_ltir(wave,flux,zvar)
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_L_TIR_v1.5.txt" '%15g%15g\n' {zvar L_TIR}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_L_TIR_v1.5.txt" '%15g%15g\n' {zvar L_TIR} define print_noheader 0}
+        # 
+        # spline K-band 2.5 um
+        set wave_K = 2.5
+        set flux_K = get_flux_splined(wave_K)
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_K_v1.txt" '%15g%15g\n' {zvar flux_K}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_K_v1.txt" '%15g%15g\n' {zvar flux_K} define print_noheader 0}
+        # 
+        # spline IRAC1 3.6 um
+        set wave_IRAC1 = 3.6
+        set flux_IRAC1 = get_flux_splined(wave_IRAC1)
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_IRAC1_v1.txt" '%15g%15g\n' {zvar flux_IRAC1}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_IRAC1_v1.txt" '%15g%15g\n' {zvar flux_IRAC1} define print_noheader 0}
+        # 
+        # spline IRAC2 4.5 um
+        set wave_IRAC2 = 4.5
+        set flux_IRAC2 = get_flux_splined(wave_IRAC2)
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_IRAC2_v1.txt" '%15g%15g\n' {zvar flux_IRAC2}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_IRAC2_v1.txt" '%15g%15g\n' {zvar flux_IRAC2} define print_noheader 0}
+        # 
+        # spline 24 um
+        set wave_24um = 24
+        set flux_24um = get_flux_splined(wave_24um)
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_24um_v1.txt" '%15g%15g\n' {zvar flux_24um}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_24um_v1.txt" '%15g%15g\n' {zvar flux_24um} define print_noheader 0}
+        # 
+        # spline 100 um
+        set wave_100um = 100
+        spline wave flux wave_100um flux_100um
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_100um_v1.txt" '%15g%15g\n' {zvar flux_100um}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_100um_v1.txt" '%15g%15g\n' {zvar flux_100um} define print_noheader 0}
+        # 
+        # spline 250 um
+        set wave_250um = 250
+        spline wave flux wave_250um flux_250um
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_250um_v1.txt" '%15g%15g\n' {zvar flux_250um}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_250um_v1.txt" '%15g%15g\n' {zvar flux_250um} define print_noheader 0}
+        # 
+        # spline 350 um
+        set wave_350um = 350
+        spline wave flux wave_350um flux_350um
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_350um_v1.txt" '%15g%15g\n' {zvar flux_350um}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_350um_v1.txt" '%15g%15g\n' {zvar flux_350um} define print_noheader 0}
+        # 
+        # spline 500 um
+        set wave_500um = 500
+        spline wave flux wave_500um flux_500um
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_500um_v1.txt" '%15g%15g\n' {zvar flux_500um}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_500um_v1.txt" '%15g%15g\n' {zvar flux_500um} define print_noheader 0}
+        # 
+        # spline 850 um
+        set wave_850um = 850
+        spline wave flux wave_850um flux_850um
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_850um_v1.txt" '%15g%15g\n' {zvar flux_850um}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_850um_v1.txt" '%15g%15g\n' {zvar flux_850um} define print_noheader 0}
+        # 
+        # spline 870 um
+        set wave_870um = 870
+        spline wave flux wave_870um flux_870um
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_870um_v1.txt" '%15g%15g\n' {zvar flux_870um}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_870um_v1.txt" '%15g%15g\n' {zvar flux_870um} define print_noheader 0}
+        # 
+        # spline 1160 um
+        set wave_1160um = 1160
+        spline wave flux wave_1160um flux_1160um
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_1160um_v1.txt" '%15g%15g\n' {zvar flux_1160um}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_1160um_v1.txt" '%15g%15g\n' {zvar flux_1160um} define print_noheader 0}
+        # 
+        # spline 1204 um 249GHz
+        set wave_1204um = 1204.
+        spline wave flux wave_1204um flux_1204um
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_1204um_v1.txt" '%15g%15g\n' {zvar flux_1204um}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_1204um_v1.txt" '%15g%15g\n' {zvar flux_1204um} define print_noheader 0}
+        # 
+        # spline 1218 um 246GHz
+        set wave_1218um = 1218
+        spline wave flux wave_1218um flux_1218um
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_1218um_v1.txt" '%15g%15g\n' {zvar flux_1218um}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_1218um_v1.txt" '%15g%15g\n' {zvar flux_1218um} define print_noheader 0}
+        # 
+        # spline 1303 um 230GHz
+        set wave_1303um = 1303.
+        spline wave flux wave_1303um flux_1303um
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_1303um_v1.txt" '%15g%15g\n' {zvar flux_1303um}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_1303um_v1.txt" '%15g%15g\n' {zvar flux_1303um} define print_noheader 0}
+        # 
+        # spline 2000 um
+        set wave_2000um = 2000.
+        spline wave flux wave_2000um flux_2000um
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_2000um_v1.txt" '%15g%15g\n' {zvar flux_2000um}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_2000um_v1.txt" '%15g%15g\n' {zvar flux_2000um} define print_noheader 0}
+        # 
+        # spline 3000 um
+        set wave_3000um = 3000.
+        spline wave flux wave_3000um flux_3000um
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_3000um_v1.txt" '%15g%15g\n' {zvar flux_3000um}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_3000um_v1.txt" '%15g%15g\n' {zvar flux_3000um} define print_noheader 0}
+        # 
+        # spline 1e5 um 3GHz
+        set wave_10cm = 1e5
+        set flux_10cm = get_flux_splined(wave_10cm)
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_10cm_v1.txt" '%15g%15g\n' {zvar flux_10cm}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_10cm_v1.txt" '%15g%15g\n' {zvar flux_10cm} define print_noheader 0}
+        # 
+        # spline 2e5 um 1.4GHz
+        set wave_20cm = 2e5
+        set flux_20cm = get_flux_splined(wave_20cm)
+        if($i==0){define print_noheader 0 print  "Output_v20210730a/expected_flux_20cm_v1.txt" '%15g%15g\n' {zvar flux_20cm}} else {
+                  define print_noheader 1 print +"Output_v20210730a/expected_flux_20cm_v1.txt" '%15g%15g\n' {zvar flux_20cm} define print_noheader 0}
+        # 
+        # print message
+        echo ""
+        echo "** z = "$i", L_TIR = "$(L_TIR)
+        # 
+        # remove edge channels which have spline issue
+        set filters = 0,dimen(flux_lg)-1
+        set flux_lg = flux_lg if(filters>5)
+        set wave_lg = wave_lg if(filters>5)
+        # 
+        # plot the curve of the template SED
+        # <added> show curve in dahsed line when at z>=3.5, when 24 undetected but radio detected
+        if($i>=3.5) {ltype 2 lweight 2.5} else {ltype 0 lweight 1.5}
+        ctypeRGB $($i*38+35)
+        ctypeRGB $($i*24+35)
+        connect wave_lg flux_lg
+        # 
+        # show the redshift text
+        if(!is_vector(legend_pos_y)) {set legend_pos_y = $fy2-0.60-0.35-0.35} else {set legend_pos_y = legend_pos_y - 0.35}
+        expand 1.05 lweight 3.0 relocate 4.0 $(legend_pos_y) 
+        puts z=$(sprintf('%0.1f',float($i))) SFR=$(sprintf('%0.0f',float(sfr)))
+        ##expand 1.05 lweight 3.0 relocate $(lg(1)+0.10*$i) $(lg(0.5)-0.35*$i) puts z=$(sprintf('%0.1f',float($i)))
+        expand 1.5 lweight 3.0
+        ltype 0
+        ###ptype 4 0 expand 2.5 lweight 3.0 points (lg(wave_500um)) (lg(flux_500um))
+        ###ptype 4 1 expand 1.5 lweight 3.0
+        #ltype 2 lweight 1.0 connect (lg(wave_chab)) (lg(flux_chab/norm_500um))
+        #ltype 0 lweight 1.5
+    }
+    # 
+    # overplot VLA 3GHz detection limit
+    set f1sig = 0.6e-3  # 20210730 --
+    set nsig = 3.0
+    ##(short vertical dashed line style)
+    ltype 0 lweight 10
+    ctype firebrick rel $(lg(1e5)-0.08) $(lg(f1sig*nsig)) draw $(lg(1e5)+0.08) $(lg(f1sig*nsig))
+    expand 1.35 relocate $(lg(1e5)-0.31) $(lg(f1sig*nsig)-0.50) angle 70 lweight 3.0 
+    putlabel 4 $(nsig)\sigma_{3GHz}"="
+    expand 1.25 relocate $(lg(1e5)+0.11) $(lg(f1sig*nsig)) angle 70 lweight 3.0 
+    putlabel 4 ""$(sprintf('%0.1f',f1sig*nsig*1000)) {\mu}Jy ""
+    #expand 1.05 relocate $(lg(1e5)-0.01) $(lg(f1sig*nsig)) angle 90 lweight 3.0 putlabel 4 $(nsig)\sigma_{3GHz}=$(sprintf('%0.1f',f1sig*nsig*1000)) {\mu}Jy ""
+    expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
+    # overplot SPIRE 350um detection limit
+    set f1sig = 8.0/3.0 # 20210130
+    set nsig = 3.0
+    ltype 0 lweight 10
+    ctype orangered rel $(lg(350)-0.08) $(lg(f1sig*nsig)) draw $(lg(350)+0.08) $(lg(f1sig*nsig))
+    expand 1.05 relocate $(lg(350)-0.01) $(lg(f1sig*nsig)) angle 90 lweight 3.0 putlabel 4 $(nsig)\sigma_{350{\mu}m}=$(sprintf('%0.1f',f1sig*nsig)) mJy  ""
+    expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
+    # overplot SCUBA2 850um 5~mJy
+    #set f1sig = 5.0/4.0 # 20210130
+    set f1sig = 0.46 # 20210730, 1-sigma 0.46 mJy, over 70 arcmin^2.
+    set nsig = 4.0
+    ltype 0 lweight 10
+    ctype seagreen rel $(lg(870)-0.08) $(lg(f1sig*nsig)) draw $(lg(870)+0.08) $(lg(f1sig*nsig))
+    expand 0.85 relocate $(lg(870)-0.01-0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.0 putlabel 4 $(nsig)\sigma_{SCUBA-2 850{\mu}m}=$(sprintf('%0.1f',f1sig*nsig)) mJy  ""
+    expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
+    # overplot ALMA 870um (345GHz, band 7) detection limit
+    #set f1sig = 0.15 # <20170417> -- dzliu -- ALMA 1-sigma 0.06 mJy
+    #set nsig = 5.0
+    #ltype 0 lweight 10
+    #ctype magenta rel $(lg(870)-0.08) $(lg(f1sig*nsig)) draw $(lg(870)+0.08) $(lg(f1sig*nsig))
+    ##expand 1.05 relocate $(lg(870)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{ALMA 870um}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
+    ##expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
+    # overplot PACS 100um detection limit
+    ##(long vertical dashed line style)
+    ##ctype royalblue ltype 1 rel      1.8   $(lg(0.18))   #draw 2.2 $(lg(0.18))
+    ##ctype royalblue ltype 4 rel      1.8   $(lg(0.18*3)) draw 2.2 $(lg(0.18*3))
+    ##ctype royalblue ltype 1 rel $(lg(100)) $(lg(0.18*3)) draw $(lg(100)) $fy1
+    ##ctype royalblue ltype 4 rel $(lg(100)) $(lg(0.18*3)) draw $(lg(100)) $(lg(0.18*10))
+    ##expand 0.95 relocate        $(lg(100)) $(lg(0.18)-0.05) #putlabel 2 1\sigma_{100{\mu}m}=0.18 mJy
+    ##expand 1.5
+    ##(short vertical dashed line style) 
+    ##ltype 0 lweight 10
+    ##ctype royalblue rel $(lg(100)-0.08) $(lg(0.18*3)) draw $(lg(100)+0.08) $(lg(0.18*3))
+    ##expand 0.95 # relocate $(lg(100)) $(lg(0.18)-0.05) # putlabel 2 1\sigma_{100{\mu}m}=0.18 mJy
+    ##expand 1.5 ltype 0 lweight 3.0
+    # 
+    # overplot MIPS 24um detection limit
+    set f1sig = 0.010 # 20210130
+    ##(long vertical dashed line style)
+    ##ctype navyblue ltype 1 rel    1.18   $(lg(f1sig))   #draw 1.58 $(lg(f1sig))
+    ##ctype navyblue ltype 4 rel    1.18   $(lg(f1sig*3)) draw 1.58 $(lg(f1sig*3))
+    ##ctype navyblue ltype 1 rel $(lg(24)) $(lg(f1sig*3)) draw $(lg(24)) $fy1
+    ##ctype navyblue ltype 4 rel $(lg(24)) $(lg(f1sig*3)) draw $(lg(24)) $(lg(f1sig*10))
+    ##expand 0.95 relocate       $(lg(24)) $(lg(f1sig)-0.05) #putlabel 2 1\sigma_{24{\mu}m}=$(f1sig) mJy
+    ##expand 1.5
+    ##(short vertical dashed line style)
+    ltype 0 lweight 10
+    ctype royalblue rel $(lg(24)-0.08) $(lg(f1sig*3)) draw $(lg(24)+0.08) $(lg(f1sig*3))
+    expand 1.05 relocate $(lg(24)-0.01) $(lg(f1sig*3)) angle 90 lweight 3.0 putlabel 4 3\sigma_{24{\mu}m}=$(sprintf('%0.0f',f1sig*3*1000)) {\mu}Jy  ""
+    expand 1.5 ltype 0 lweight 3.0 angle 0
+    # 
+    # 
+    ctype default 
+    expand 1.35 lweight 3.0 relocate 0.3 $($fy2-0.55) puts "SED Templates"
+    expand 1.10 lweight 3.0 relocate 0.3 $($fy2-0.95) puts "Stellar + Dust + Radio (qIR=2.5)"
+    #expand 1.10 lweight 3.0 relocate 0.3 $($fy2-0.95) puts "Magdis et al. (2012) + radio (qIR=2.5)"
+    #expand 1.10 lweight 3.0 relocate 0.3 $($fy2-1.35) puts "see Liu et al. (2018 ApJ 853, 172)"
+    #expand 0.95 lweight 3.0 relocate 0.3 $($fy2-0.95) puts "BC03 + Magdis et al. (2012) + radio (qIR=2.5)"
+    expand 1.5  lweight 3.0
+    ctype default ltype 0
+    # 
+    # print normalization information if normalize to SFR
+    if(is_vector(norm_to_SFR)) {
+        #<20170628># relocate $($fx1+0.05*$($fx2-$fx1)) $($fy1+0.70*$($fy2-$fy1))
+        relocate $($fx1+0.05*$($fx2-$fx1)) $($fy1+0.79*$($fy2-$fy1))
+        ctype red lweight 4.0 expand 1.45 puts "SFR normalized to"
+        ctype red lweight 4.0 expand 1.45 puts $(sprintf('%0.1f',norm_to_SFR))" M_{\odot} yr^{-1}"
+        unset norm_to_SFR
+    }
+    # 
+    ctype default
+    ticksize 0 0 0 0
+    device nodevice
+    !ps2pdf -dEPSCrop "Plot_SED_Templates_v1.eps"
+    !pdfcrop -margin 10 "Plot_SED_Templates_v1.pdf" "Plot_SED_Templates_v1.pdf"
+    !cp "Plot_SED_Templates_v1"* "Output_v20210730a"/
+
+
+
+calc_ltir_daddi 02
+    if(!$?2) {return}
+    set www0 = lg($1) # lg($1) must be in uniform grid
+    set fff0 = ($2)
+    set fff0 = (fff0)/10**(www0) # make it vLv
+    set fff0 = fff0 if((www0)>lg(8)&&(www0)<lg(1000))
+    define Lbol $(sum(fff0)*(www0[1]-www0[0])/lg(exp(1)))
+    echo "calc_ltir_daddi: L_IR_8_1000 = "$Lbol" Lsun"
+    set $0 = $Lbol
+
+
+
+backup_Output 00
+    !test -d "Output_v20210730a"
+    if(0==$exit_status) {
+        !test -d "Output_v20210730a.backup"
+        if(0==$exit_status) {
+            !test -d "Output_v20210730a.backup.backup"
+            if(0==$exit_status) {
+                !rm -rf "Output_v20210730a.backup.backup"
+                echo "rm -rf Output_v20210730a.backup.backup"
+            }
+            !mv "Output_v20210730a.backup" "Output_v20210730a.backup.backup"
+            echo mv "Output_v20210730a.backup" "Output_v20210730a.backup.backup"
+        }
+        !mv "Output_v20210730a" "Output_v20210730a.backup"
+        echo mv "Output_v20210730a" "Output_v20210730a.backup"
+    }
+    !mkdir "Output_v20210730a" 2>/dev/null
+
+
+
+get_flux_splined 01
+    # input wavelength in linear space, spline in log space and output flux in linear space. 
+    if(is_vector(wave_log10) && is_vector(flux_log10)) {
+        set wwww_log10 = lg($1)
+        spline wave_log10 flux_log10 wwww_log10 ffff_log10
+        set $0 = 10**(ffff_log10)
+        return
+    }
+
+
+
+
+ctypeRGB 01
+    if($1>255) {
+        ctype Rainbow255
+    } else {
+        ctype Rainbow$(sprintf('%03d',$((int($1)-int($1)%15))))
+    }
+
+xtcoloursRGB
+    # 
+    add_ctype Rainbow255  248   12   18
+    add_ctype Rainbow240  238   17    0
+    add_ctype Rainbow225  255   51   17
+    add_ctype Rainbow210  255   68   34
+    add_ctype Rainbow195  255  102   68
+    add_ctype Rainbow180  255  153   51
+    add_ctype Rainbow165  254  174   45
+    add_ctype Rainbow150  204  187   51
+    add_ctype Rainbow135  208  195   16
+    add_ctype Rainbow120  170  204   34
+    add_ctype Rainbow105  105  208   37
+    add_ctype Rainbow090   34  204  170
+    add_ctype Rainbow075   18  189  185
+    add_ctype Rainbow060   17  170  187
+    add_ctype Rainbow045   68   68  221
+    add_ctype Rainbow030   51   17  187
+    add_ctype Rainbow015   59   12  189
+    add_ctype Rainbow000   68   34  153
+
+

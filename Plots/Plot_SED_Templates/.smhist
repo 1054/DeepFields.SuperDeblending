@@ -1,149 +1,3 @@
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-quit
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-calc 1./9.
-quit
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-calc 49577.7**2/(6.3)
-calc 28202.5**2/4.3
-calc 390150529.7/184972327
-quit
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
-QUIT
-macro read do_plot_sed_templates.sm Plot_SED_Templates
 QUIT
 macro read do_plot_sed_templates.sm Plot_SED_Templates
 QUIT
@@ -611,4 +465,288 @@ QUIT
 load astroPhot.sm
 QUIT
 macro read do_plot_sed_templates.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130_for_VLA_proposal.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130a_S350_8mJy.sm Plot_SED_Templates 600
+QUIT
+macro read do_plot_sed_templates_v20210130b_S850_5mJy.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130a_S350_8mJy.sm Plot_SED_Templates 600
+QUIT
+macro read do_plot_sed_templates_v20210130b_S850_5mJy.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130a_S350_8mJy.sm Plot_SED_Templates 600
+QUIT
+macro read do_plot_sed_templates_v20210130b_S850_5mJy.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130a_S350_8mJy.sm Plot_SED_Templates 600
+QUIT
+macro read do_plot_sed_templates_v20210130b_S850_5mJy.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130a_S350_8mJy.sm Plot_SED_Templates 600
+QUIT
+macro read do_plot_sed_templates_v20210130b_S850_5mJy.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130a_S350_8mJy.sm Plot_SED_Templates 600
+QUIT
+macro read do_plot_sed_templates_v20210130b_S850_5mJy.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130a_S350_8mJy.sm Plot_SED_Templates 600
+QUIT
+macro read do_plot_sed_templates_v20210130b_S850_5mJy.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130a_S350_8mJy.sm Plot_SED_Templates 600
+QUIT
+macro read do_plot_sed_templates_v20210130b_S850_5mJy.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130a_S350_8mJy.sm Plot_SED_Templates 600
+QUIT
+macro read do_plot_sed_templates_v20210130b_S850_5mJy.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130a_S350_8mJy.sm Plot_SED_Templates 600
+QUIT
+macro read do_plot_sed_templates_v20210130b_S850_5mJy.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210130a_S350_8mJy.sm Plot_SED_Templates 600
+QUIT
+macro read do_plot_sed_templates_v20210130b_S850_5mJy.sm Plot_SED_Templates 600
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210201a_S3GHz_1p5uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210201b_S3GHz_3p9uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210201b_S3GHz_3p9uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210201b_S3GHz_3p9uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730a_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730b_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730b_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730b_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730b_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730b_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730b_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+load astroPhot.sm
+QUIT
+macro read do_plot_sed_templates_v20210730a_S3GHz_1p8uJy.sm Plot_SED_Templates
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
+QUIT
+macro read do_plot_sed_templates.sm Plot_SED_Templates
 QUIT

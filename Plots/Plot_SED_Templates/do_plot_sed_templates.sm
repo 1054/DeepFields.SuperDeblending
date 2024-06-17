@@ -39,7 +39,8 @@ Plot_SED_Templates 01
     #set ilist = 4.0,7.5,0.5
     #set ilist = {1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0}
     #set ilist = {0.2 0.5 1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0 7.0}
-    set ilist = {1.0 1.2 1.5 1.7 2.0 2.5 3.0 4.0 5.0 6.0 7.0}
+    #[20230706]#set ilist = {1.0 1.2 1.5 1.7 2.0 2.5 3.0 4.0 5.0 6.0 7.0}
+    set ilist = {1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 5.5 6.0 6.5 7.0}
     #set ilist = 0.5,10.5,0.5
     #set ilist = 0.5,6.5,0.5
     #set ilist = {0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 5.5 6.0 6.5 7.0 7.5}
@@ -190,11 +191,11 @@ Plot_SED_Templates 01
         ##spline wave flux wave_24um flux_24um
         # 
         # normalize to 250 um 5.94 mJy
-        ##set wave_250um = 250
-        ##spline wave flux wave_250um flux_250um
-        ##set norm = flux_250um / 5.94 # <TODO> normalize to f250 = 5.94 mJy (3-sigma)
-        ##set flux = flux / norm
-        ##spline wave flux wave_250um flux_250um
+        set wave_250um = 250
+        spline wave flux wave_250um flux_250um
+        set norm = flux_250um / 5.94 # <TODO> normalize to f250 = 5.94 mJy (3-sigma)
+        set flux = flux / norm
+        spline wave flux wave_250um flux_250um
         # 
         # normalize to 350 um 7.44 mJy
         ##set wave_350um = 350
@@ -313,13 +314,13 @@ Plot_SED_Templates 01
         #set flux = flux / norm
         # 
         # normalize to SFR = 2.0 Msun/yr (Chabrier IMF LTIR = 1e10*SFR)
-        if($?1) {
-            set norm_to_SFR = $1
-        } else {
-            set norm_to_SFR = 600.0
-        }
-        set norm = 3e12/1e10/norm_to_SFR
-        set flux = flux / norm
+        #[20230706]#if($?1) {
+        #[20230706]#    set norm_to_SFR = $1
+        #[20230706]#} else {
+        #[20230706]#    set norm_to_SFR = 600.0
+        #[20230706]#}
+        #[20230706]#set norm = 3e12/1e10/norm_to_SFR
+        #[20230706]#set flux = flux / norm
         # 
         # 
         # 
@@ -493,13 +494,13 @@ Plot_SED_Templates 01
     #-20170417-# expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot VLA 3GHz detection limit
-    set f1sig = 11.5e-3/5.0  # 20170417 -- for COSMOS VLA 3GHz survey PI Smolcic -- http://adsabs.harvard.edu/abs/2017arXiv170309713S
-    set nsig = 5.0
-    ##(short vertical dashed line style)
-    ltype 0 lweight 10
-    ctype firebrick rel $(lg(1e5)-0.08) $(lg(f1sig*nsig)) draw $(lg(1e5)+0.08) $(lg(f1sig*nsig))
-    expand 1.05 relocate $(lg(1e5)-0.01) $(lg(f1sig*nsig)) angle 90 lweight 3.0 putlabel 4 $(nsig)\sigma_{3GHz}=$(sprintf('%0.2f',f1sig*nsig*1000)) {\mu}Jy ""
-    expand 1.5 ltype 0 lweight 3.0 angle 0
+    #[20230706]#set f1sig = 11.5e-3/5.0  # 20170417 -- for COSMOS VLA 3GHz survey PI Smolcic -- http://adsabs.harvard.edu/abs/2017arXiv170309713S
+    #[20230706]#set nsig = 5.0
+    #[20230706]###(short vertical dashed line style)
+    #[20230706]#ltype 0 lweight 10
+    #[20230706]#ctype firebrick rel $(lg(1e5)-0.08) $(lg(f1sig*nsig)) draw $(lg(1e5)+0.08) $(lg(f1sig*nsig))
+    #[20230706]#expand 1.05 relocate $(lg(1e5)-0.01) $(lg(f1sig*nsig)) angle 90 lweight 3.0 putlabel 4 $(nsig)\sigma_{3GHz}=$(sprintf('%0.2f',f1sig*nsig*1000)) {\mu}Jy ""
+    #[20230706]#expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot IRAC 8.0 detection limit
     #set f1sig = 0.22e-3  # 20170417 -- for COSMOS SPLASH IRAC "all.irac.4.mosaic.fits" -- rms 0.026 MJy/sr, pixscale 0.6 arcsec, so 1-sigma ~ 0.026 * 2.350443e-5 * 0.6**2 * 1e6 ~ 0.22 uJy
@@ -511,31 +512,31 @@ Plot_SED_Templates 01
     #expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot IRAC SPLASH 3.6 detection limit
-    set f1sig = 0.000229087/3.0  # for COSMOS SPLASH IRAC "all.irac.1.mosaic.fits" -- Laigle+2016 3-sigma mAB 25.5
-    set nsig = 3.0
-    ##(short vertical dashed line style)
-    ltype 0 lweight 10
-    ctype firebrick rel $(lg(3.6)-0.08) $(lg(f1sig*nsig)) draw $(lg(3.6)+0.08) $(lg(f1sig*nsig))
-    expand 0.95 relocate $(lg(3.6)-0.01) $(lg(f1sig*nsig)) angle 90 lweight 3.0 putlabel 4 IRAC1 # putlabel 4 $(nsig)\sigma=$(sprintf('%0.2f',f1sig*nsig*1000)) {\mu}Jy ""
-    expand 1.5 ltype 0 lweight 3.0 angle 0
+    #[20230706]#set f1sig = 0.000229087/3.0  # for COSMOS SPLASH IRAC "all.irac.1.mosaic.fits" -- Laigle+2016 3-sigma mAB 25.5
+    #[20230706]#set nsig = 3.0
+    #[20230706]###(short vertical dashed line style)
+    #[20230706]#ltype 0 lweight 10
+    #[20230706]#ctype firebrick rel $(lg(3.6)-0.08) $(lg(f1sig*nsig)) draw $(lg(3.6)+0.08) $(lg(f1sig*nsig))
+    #[20230706]#expand 0.95 relocate $(lg(3.6)-0.01) $(lg(f1sig*nsig)) angle 90 lweight 3.0 putlabel 4 IRAC1 # putlabel 4 $(nsig)\sigma=$(sprintf('%0.2f',f1sig*nsig*1000)) {\mu}Jy ""
+    #[20230706]#expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot IRAC SPLASH 4.5 detection limit
-    set f1sig = 0.000229087/3.0  # for COSMOS SPLASH IRAC "all.irac.1.mosaic.fits" -- Laigle+2016 3-sigma mAB 25.5
-    set nsig = 3.0
-    ##(short vertical dashed line style)
-    ltype 0 lweight 10
-    ctype firebrick rel $(lg(4.5)-0.08) $(lg(f1sig*nsig)) draw $(lg(4.5)+0.08) $(lg(f1sig*nsig))
-    expand 0.95 relocate $(lg(4.5)+0.03) $(lg(f1sig*nsig)) angle 90 lweight 3.0 putlabel 4 IRAC2 # putlabel 4 $(nsig)\sigma=$(sprintf('%0.2f',f1sig*nsig*1000)) {\mu}Jy ""
-    expand 1.5 ltype 0 lweight 3.0 angle 0
+    #[20230706]#set f1sig = 0.000229087/3.0  # for COSMOS SPLASH IRAC "all.irac.1.mosaic.fits" -- Laigle+2016 3-sigma mAB 25.5
+    #[20230706]#set nsig = 3.0
+    #[20230706]###(short vertical dashed line style)
+    #[20230706]#ltype 0 lweight 10
+    #[20230706]#ctype firebrick rel $(lg(4.5)-0.08) $(lg(f1sig*nsig)) draw $(lg(4.5)+0.08) $(lg(f1sig*nsig))
+    #[20230706]#expand 0.95 relocate $(lg(4.5)+0.03) $(lg(f1sig*nsig)) angle 90 lweight 3.0 putlabel 4 IRAC2 # putlabel 4 $(nsig)\sigma=$(sprintf('%0.2f',f1sig*nsig*1000)) {\mu}Jy ""
+    #[20230706]#expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot UVISTA Ks 2.15um detection limit
-    set f1sig = 0.00057544/3.0  # for COSMOS UVISTA -- Laigle+2016 3-sigma mAB 24.5
-    set nsig = 3.0
-    ##(short vertical dashed line style)
-    ltype 0 lweight 10
-    ctype royalblue rel $(lg(2.15)-0.08) $(lg(f1sig*nsig)) draw $(lg(2.15)+0.08) $(lg(f1sig*nsig))
-    expand 1.05 relocate $(lg(2.15)-0.01) $(lg(f1sig*nsig)) angle 90 lweight 3.0 putlabel 4 $(nsig)\sigma_{K_s} # putlabel 4 $(nsig)\sigma=$(sprintf('%0.2f',f1sig*nsig*1000)) {\mu}Jy ""
-    expand 1.5 ltype 0 lweight 3.0 angle 0
+    #[20230706]#set f1sig = 0.00057544/3.0  # for COSMOS UVISTA -- Laigle+2016 3-sigma mAB 24.5
+    #[20230706]#set nsig = 3.0
+    #[20230706]###(short vertical dashed line style)
+    #[20230706]#ltype 0 lweight 10
+    #[20230706]#ctype royalblue rel $(lg(2.15)-0.08) $(lg(f1sig*nsig)) draw $(lg(2.15)+0.08) $(lg(f1sig*nsig))
+    #[20230706]#expand 1.05 relocate $(lg(2.15)-0.01) $(lg(f1sig*nsig)) angle 90 lweight 3.0 putlabel 4 $(nsig)\sigma_{K_s} # putlabel 4 $(nsig)\sigma=$(sprintf('%0.2f',f1sig*nsig*1000)) {\mu}Jy ""
+    #[20230706]#expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot NIKA2 1.2mm detection limit
     ##set f1sig = 0.8/3.0 # 20160520 -- edaddi -- for COSMOS NIKA2 survey PI Lagache -- proposed goal
@@ -629,12 +630,12 @@ Plot_SED_Templates 01
     #expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot ALMA 870um (345GHz, band 7) detection limit
-    set f1sig = 0.2 # <20200910> -- dzliu -- typical ALMA 1-sigma 0.5 mJy
-    set nsig = 5.0
-    ltype 0 lweight 10
-    ctype magenta rel $(lg(870)-0.08) $(lg(f1sig*nsig)) draw $(lg(870)+0.08) $(lg(f1sig*nsig))
-    expand 1.05 relocate $(lg(870)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{ALMA 870um}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
-    expand 1.5 ltype 0 lweight 3.0 angle 0
+    #[20230706]#set f1sig = 0.2 # <20200910> -- dzliu -- typical ALMA 1-sigma 0.5 mJy
+    #[20230706]#set nsig = 5.0
+    #[20230706]#ltype 0 lweight 10
+    #[20230706]#ctype magenta rel $(lg(870)-0.08) $(lg(f1sig*nsig)) draw $(lg(870)+0.08) $(lg(f1sig*nsig))
+    #[20230706]#expand 1.05 relocate $(lg(870)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{ALMA 870um}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
+    #[20230706]#expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot ALMA 1204um (249GHz) detection limit
     #set f1sig = 0.06 # <20170417> -- dzliu -- ALMA 1-sigma 0.06 mJy
@@ -661,12 +662,12 @@ Plot_SED_Templates 01
     #expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot ALMA 1303um (230GHz) detection limit
-    set f1sig = 0.2 # <20200910> -- dzliu -- typical ALMA 1-sigma 0.5 mJy
-    set nsig = 5.0
-    ltype 0 lweight 10
-    ctype magenta rel $(lg(1303)-0.08) $(lg(f1sig*nsig)) draw $(lg(1303)+0.08) $(lg(f1sig*nsig))
-    expand 1.05 relocate $(lg(1303)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{ALMA 1.3mm}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
-    expand 1.5 ltype 0 lweight 3.0 angle 0
+    #[20230706]#set f1sig = 0.2 # <20200910> -- dzliu -- typical ALMA 1-sigma 0.5 mJy
+    #[20230706]#set nsig = 5.0
+    #[20230706]#ltype 0 lweight 10
+    #[20230706]#ctype magenta rel $(lg(1303)-0.08) $(lg(f1sig*nsig)) draw $(lg(1303)+0.08) $(lg(f1sig*nsig))
+    #[20230706]#expand 1.05 relocate $(lg(1303)-0.01+0.025) $(lg(f1sig*nsig)) angle 90 lweight 3.5 putlabel 4 $(nsig)\sigma_{ALMA 1.3mm}=$(sprintf('%0.2f',f1sig*nsig)) mJy  ""
+    #[20230706]#expand 1.5 ltype 0 lweight 3.0 angle 0
     # 
     # overplot ALMA 2350um (130GHz) detection limit
     #set f1sig = 0.0135 # <20170417> -- dzliu -- ALMA 1-sigma rms 13.5 uJy for 6.22 hrs total time

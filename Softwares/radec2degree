@@ -28,12 +28,17 @@
 if [[ $(uname -s) == Linux ]]; then
     # 
     # Get system glibc version
-    #echo ldd --version
-    ldd_version_major=$(ldd --version | head -n 1 | tr -s ' ' | cut -d ' ' -f 4 | cut -d '.' -f 1)
-    ldd_version_minor=$(ldd --version | head -n 1 | tr -s ' ' | cut -d ' ' -f 4 | cut -d '.' -f 2)
-    if [[ $# -eq 0 ]]; then
-        echo "system ldd glibc version: $ldd_version_major.$ldd_version_minor"
+    ldd_versions=($(ldd --version | head -n 1 | perl -p -e 's/.* ([0-9.]+) *$/\1/g' | perl -p -e 's/\./ /g'))
+    if [[ ${#ldd_versions[@]} -ge 2 ]]; then
+        ldd_version_major="${ldd_versions[0]}"
+        ldd_version_minor="${ldd_versions[1]}"
+    else
+        echo "Error! Could not find the ldd --version major and minor version numbers: $(ldd --version)"
+        exit 255
     fi
+    #if [[ $# -eq 0 ]]; then
+    #    echo "system ldd glibc version: $ldd_version_major.$ldd_version_minor"
+    #fi
     # 
     # Check executable lib dependency
     #if [[ $# -eq 0 ]]; then

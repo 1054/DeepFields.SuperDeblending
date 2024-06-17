@@ -16,6 +16,7 @@ RESUMEINDEX=0
 STARTSOURCE=0 # <Added> start from id
 FINALSOURCE=-1 # <Added> final upto id
 ZFIXEDPARAM="" # <Added><20170308><dzliu>
+NCPU=10
 #echo CURRENTBAND=$CURRENTBAND
 #echo CATALOGFILE=$CATALOGFILE
 #echo EXCLUDEFILE=$EXCLUDEFILE
@@ -47,6 +48,7 @@ if [[ $* == *-finish*         ]]; then FINALSOURCE=$(echo $* | sed -e 's/.*-fini
 if [[ $* == *-upto*           ]]; then FINALSOURCE=$(echo $* | sed -e 's/.*-upto[ ]*\([^ -]*\).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -upto parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
 if [[ $* == *-end*            ]]; then FINALSOURCE=$(echo $* | sed -e 's/.*-end[ ]*\([^ -]*\).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -end parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
 if [[ $* == *-z-fixed*        ]]; then ZFIXEDPARAM=$(echo $* | sed -e 's/.*-z-fixed[ ]*\([^ ]*\).*/\1/g'); echo ZFIXEDPARAM=$ZFIXEDPARAM; echo "We will fix redshift to $ZFIXEDPARAM (negative means not fixed even to spec-z)!"; fi
+if [[ $* == *-ncpu*           ]]; then NCPU=$(echo $* | sed -e 's/.*-ncpu[ ]*\([^ ]*\).*/\1/g'); echo NCPU=$NCPU; echo "Processing with NCPU $NCPU!"; fi
 #exit
 # 
 # 
@@ -173,14 +175,16 @@ for i in $runsedid; do
             echo "echo EXCLUDEFILE=$EXCLUDEFILE" >> "fit_parallel_HDFN/run_$i.sh"
             if [[ $(hostname) == *planer* ]]; then
 	            echo "export PATH=/dsm/upgal/data/dliu/supermongo/bin:\$PATH" >> "fit_parallel_HDFN/run_$i.sh"
-                echo "echo macro read AGN_N.sm AGN_Parallel $CATALOGFILE $i | sm -f /dsm/upgal/data/dliu/supermongo/lib/sm/.sm | tee fit_parallel_HDFN/log_$i.txt" >> "fit_parallel_HDFN/run_$i.sh"
+                #echo "echo macro read AGN_N.sm AGN_Parallel $CATALOGFILE $i | sm -f /dsm/upgal/data/dliu/supermongo/lib/sm/.sm | tee fit_parallel_HDFN/log_$i.txt" >> "fit_parallel_HDFN/run_$i.sh"
+                echo "echo macro read do_Galsed.sm do_Galsed $CATALOGFILE $i | sm -f /dsm/upgal/data/dliu/supermongo/lib/sm/.sm | tee fit_parallel_HDFN/log_$i.txt" >> "fit_parallel_HDFN/run_$i.sh"
             else
                 #echo "echo macro read AGN_N.sm AGN_Parallel $CATALOGFILE $i | sm | tee fit_parallel_HDFN/log_$i.txt" >> "fit_parallel_HDFN/run_$i.sh"
                 echo "sm << EOF | tee fit_parallel_HDFN/log_$i.txt" >> "fit_parallel_HDFN/run_$i.sh"
                 if [[ x"$ZFIXEDPARAM" != x ]]; then
                     echo "set z_fixed = {$(echo $ZFIXEDPARAM | sed -e 's/,/ /g')}" >> "fit_parallel_HDFN/run_$i.sh"
                 fi
-                echo "macro read AGN_N.sm AGN_Parallel $CATALOGFILE $i" >> "fit_parallel_HDFN/run_$i.sh"
+                #echo "macro read AGN_N.sm AGN_Parallel $CATALOGFILE $i" >> "fit_parallel_HDFN/run_$i.sh"
+                echo "macro read do_Galsed.sm do_Galsed $CATALOGFILE $i" >> "fit_parallel_HDFN/run_$i.sh"
                 echo "quit" >> "fit_parallel_HDFN/run_$i.sh"
                 echo "EOF" >> "fit_parallel_HDFN/run_$i.sh"
                 echo "" >> "fit_parallel_HDFN/run_$i.sh"
@@ -189,10 +193,10 @@ for i in $runsedid; do
             cat "fit_parallel_HDFN/run_$i.sh"
             echo "-------------------------------------------------------------------------------------"
             if [[ $TRIALDRYRUN == 0 ]]; then
-                if [[ $(hostname) == *planer* || $(hostname) == *irfucoast* ]]; then 
+                if [[ $(hostname) == *planer* || $(hostname) == *coast* || $(hostname) == *irfucoast* ]]; then 
                     echo $(hostname)
                     echo Counting qsub task "$(showq | grep $USER | wc -l)"
-                    while      [[   30  -le "$(showq | grep $USER | wc -l)" ]]; do
+                    while      [[ $NCPU -le "$(showq | grep $USER | wc -l)" ]]; do
                     sleep           12
                     echo Counting qsub task "$(showq | grep $USER | wc -l)"
                     done
@@ -202,16 +206,16 @@ for i in $runsedid; do
                     qsub -l walltime=3:15:00 "fit_parallel_HDFN/run_$i.sh"
                     echo Sleeping 3s
                     sleep 3
-                elif [[ $(hostname) == *"astro-node"* || $(hostname) == *"aida42198"* ]]; then 
+                elif [[ $(hostname) == *"astro-node"* || $(hostname) == *"aida42198"* || $(hostname) == *"Ubuntu"* ]]; then 
                     echo $(hostname)
                     echo "Counting screen task "$(screen -ls | grep "galsed_" | wc -l)
-                    while       [[   20  -le    $(screen -ls | grep "galsed_" | wc -l) ]]; do
+                    while       [[ $NCPU -le    $(screen -ls | grep "galsed_" | wc -l) ]]; do
                     sleep            30
                     echo "Counting screen task "$(screen -ls | grep "galsed_" | wc -l)
                     done
                     echo               "$PWD/fit_parallel_HDFN/run_$i.sh"
                     echo Adding screen task "fit_parallel_HDFN/run_$i.sh"
-                    screen -d -S "galsed_$(date +%s)_$i" -m bash -c "source ~/Softwares/DeepFields.Superdeblending/Softwares/SETUP; $PWD/fit_parallel_HDFN/run_$i.sh"
+                    screen -d -S "galsed_$(date +%s)_$i" -m bash -c "source \$HOME/Cloud/Github/DeepFields.Superdeblending/Softwares/SETUP; $PWD/fit_parallel_HDFN/run_$i.sh"
                     echo Sleeping 3s
                     sleep 3
                 else 

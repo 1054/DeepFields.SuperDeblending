@@ -455,12 +455,15 @@ if [[ ! -f "List_of_Segmented_Sci_Images.txt" ]] || \
         RmsImage="$CopiedRmsDir/$ProcId/$RmsImageName.$RmsImageSuffix"
         # 
         # determine psf size
+        echo "Determining psf size for $PsfImage"
         PsfImageSizeF=$(psfsize "$PsfImage")
-        if [[ $(awk "BEGIN {if($PsfImageSizeF<10) print 1; else print 0;}") -eq 1 ]]; then
+        echo "Determined psf size $PsfImageSizeF"
+        if [[ $(awk "BEGIN {if($PsfImageSizeF<5) print 1; else print 0;}") -eq 1 ]]; then
             PsfImageSizeI=5
         else
-            PsfImageSizeI=$(awk "BEGIN {print round($PsfImageSizeF);}")
+            PsfImageSizeI=$(awk "BEGIN {printf \"%d\",($PsfImageSizeF);}")
         fi
+        echo "Determined psf size integer $PsfImageSizeI"
         # 
         # get sci image size
         IFS=' ' SciImageSize=($(gethead "$SciImage" NAXIS1 NAXIS2))

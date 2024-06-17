@@ -13,13 +13,13 @@ if [[ $# -ge 2 ]]; then t_factor=$2; else t_factor=0.5; fi
 debug=0
 
 # determine psf size by counting number of pixels
-CrabPhotImageStatistics "$1" > "image_psf.statistics.txt"
+CrabPhotImageStatistics "$1" 2>/dev/null > "image_psf.statistics.txt"
 t_psfmaxpixvalcol=$(cat "image_psf.statistics.txt" | grep '^#' | grep -v '^# *$' | tail -n 1 | sed 's/^# *//g' | perl -p -e 's/ +/\n/g' | nl -n ln | grep '\bMAX\b' | cut -d ' ' -f 1)
 t_psfmaxpixval=$(cat "image_psf.statistics.txt" | grep -v '^#' | head -n 1 | awk "{ if(substr(\$1,0,1)!=\"#\") {print (\$$t_psfmaxpixvalcol);} }" | head -n 1)
 if [[ $debug -ge 1 ]]; then echo t_psfmaxpixval=$t_psfmaxpixval >&2; fi
 t_psfcorepixval=$(awk "BEGIN {print ($t_psfmaxpixval * $t_factor);}")
 if [[ $debug -ge 1 ]]; then echo t_psfcorepixval=$t_psfcorepixval >&2; fi
-CrabFitsImageArithmetic "$1" ">=" "$t_psfcorepixval" "image_psf.core.fits" > /dev/null
+CrabFitsImageArithmetic "$1" ">=" "$t_psfcorepixval" "image_psf.core.fits" > /dev/null 2>&1
 #CrabPhotImageStatistics "image_psf.core.fits" > "image_psf.core.statistics.txt"
 t_sumpix=$(sumpix "image_psf.core.fits")
 t_psfsize=$(awk "BEGIN {print (sqrt($t_sumpix/3.14)*2.0);}") # diameter
