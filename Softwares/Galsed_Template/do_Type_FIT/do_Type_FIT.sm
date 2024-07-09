@@ -1,73 +1,105 @@
-go 02
+go 03
     # 
-    #  macro read do_Type_FIT.sm go 100 $fcut
+    #  macro read do_Type_FIT.sm go field band $fcut
+    #  macro read do_Type_FIT.sm go goodsn 100 $fcut
     # 
     if($?1) {
-      if('$1'=='100') {
-        define band 100
-        if($?2) {define fcut$band $2} else {define fcut$band 0.30} # 0.30 # cutting f+2*df
-        #define fsig$band 0.30 # 1-sigma flux from 100um simulation 0.3028 mJy
-        #define fmax$band 1.50
-        define fsig$band 0.32 #<20170103><dzliu><daddi># posteriori 1-sigma flux from our superdeblending photometry
-        define fmax$band 3.00 #<20170103><dzliu><daddi># 
-      }
-      if('$1'=='160') {
-        define band 160
-        if($?2) {define fcut$band $2} else {define fcut$band 1.10} # 1.10  # cutting f+2*df
-        #define fsig$band 0.70 # 1-sigma flux from 160um simulation 0.6951 mJy
-        #define fmax$band 3.00
-        define fsig$band 0.68 #<20170103><dzliu><daddi># posteriori 1-sigma flux from our superdeblending photometry
-        define fmax$band 3.00 #<20170103><dzliu><daddi># 
-      }
-      if('$1'=='250') {
-        define band 250
-        if($?2) {define fcut$band $2} else {define fcut$band 5.20} # 5.20  # cutting f+2*df
-        #define fsig$band 1.77 # 1-sigma flux from 250um simulation 1.77 mJy
-        #define fmax$band 11.0
-        define fsig$band 1.57 #<20170103><dzliu><daddi># posteriori 1-sigma flux from our superdeblending photometry
-        define fmax$band 11.0 #<20170103><dzliu><daddi># 
-      }
-      if('$1'=='350') {
-        define band 350
-        if($?2) {define fcut$band $2} else {define fcut$band 6.60} # 6.60 _DenserThanOne_  # cutting f+2*df
-        #define fsig$band 2.20 # 1-sigma flux from 350um simulation 2.20 mJy
-        #define fmax$band 15.0 
-        define fsig$band 2.07 #<20170103><dzliu><daddi># posteriori 1-sigma flux from our superdeblending photometry
-        define fmax$band 13.0 #<20170103><dzliu><daddi># 
-      }
-      if('$1'=='500') {
-        define band 500
-        if($?2) {define fcut$band $2} else {define fcut$band 7.44} # 7.44  # cutting f+2*df
-        #define fsig$band 2.48 # 1-sigma flux from 500um simulation 2.48 mJy
-        #define fmax$band 15.0
-        define fsig$band 2.57 #<20170103><dzliu><daddi># posteriori 1-sigma flux from our superdeblending photometry
-        define fmax$band 15.0 #<20170103><dzliu><daddi># 
-      }
-      if('$1'=='850') {
-        define band 850
-        if($?2) {define fcut$band $2} else {define fcut$band 1.20} # 1.20  # cutting f+2*df
-        #define fsig$band 1.20 # 1-sigma flux from S2CLS 850um paper http://arxiv.org/pdf/1607.03904v1.pdf Abstract -- or Figure 5
-        #define fmax$band 10.0
-        define fsig$band 0.94 #<20170103><dzliu><daddi># posteriori 1-sigma flux from our superdeblending photometry
-        define fmax$band 6.00 #<20170103><dzliu><daddi># 
-      }
-      if('$1'=='1160') {
-        define band 1160
-        if($?2) {define fcut$band $2} else {define fcut$band 0.66} # 0.66  # cutting f+2*df
-        #define fsig$band 0.66 # 1-sigma flux from 1160um simulation 0.66 mJy
-        #define fmax$band 3.00
-        define fsig$band 0.66 #<20170103><dzliu><daddi># posteriori 1-sigma flux from our superdeblending photometry
-        define fmax$band 3.00 #<20170103><dzliu><daddi># 
-      }
-      if(!$?band) {
-        print 'Error! Input \"$1\" must be one of 100 160 250 350 500 850 1160\n' {}
-        define aaa 0
-        define aaa ?
-        echo ""
-        return
-      }
+        if('$1'=='goodsn' || '$1'=='GOODSN') {
+            define field goodsn
+            define FieldArea $(10.0*16.0*3600.0)
+            define FieldGoodArea $(111.0*3600.0)
+        }
+        if('$1'=='goodss' || '$1'=='GOODSS') {
+            define field goodss
+            define FieldArea $(10.0*16.0*3600.0)
+            define FieldGoodArea $(111.0*3600.0)
+        }
+        if('$1'=='cosmos' || '$1'=='COSMOS') {
+            define field cosmos
+            define FieldArea $(1.6*3600.0*3600.0)
+            define FieldGoodArea $(1.0*3600.0*3600.0)
+        }
+        if('$1'=='ssa2' || '$1'=='SSA2') {
+            define field ssa2
+            define FieldArea $(20.0*20.0*3600.0)
+            define FieldGoodArea $(20.0*20.0*3600.0)
+        }
+        if(!$?field) {
+            print 'Error! Input \"$1\" must be one of goodsn goodss cosmos ssa2\n' {}
+            define aaa 0
+            define aaa ?
+            echo ""
+            return
+        }
     } else {
-        print 'Usage: macro read do_Type_FIT.sm go \$band\n' {}
+        print 'Usage: macro read do_Type_FIT.sm go \$field \$band\n' {}
+        return
+    }
+    # 
+    if($?2) {
+        if('$2'=='100') {
+            define band 100
+            if($?3) {define fcut$band $3} else {define fcut$band 0.30} # 0.30 # cutting f+2*df
+            define fsig$band 0.32 # posteriori 1-sigma flux from our superdeblending photometry
+            define fmax$band 3.00 # max plotting range
+        }
+        if('$2'=='160') {
+            define band 160
+            if($?3) {define fcut$band $3} else {define fcut$band 1.10} # 1.10  # cutting f+2*df
+            define fsig$band 0.68 # posteriori 1-sigma flux from our superdeblending photometry
+            define fmax$band 3.00 # max plotting range
+        }
+        if('$2'=='250') {
+            define band 250
+            if($?3) {define fcut$band $3} else {define fcut$band 5.20} # 5.20  # cutting f+2*df
+            define fsig$band 1.57 # posteriori 1-sigma flux from our superdeblending photometry
+            define fmax$band 11.0 # max plotting range
+        }
+        if('$2'=='350') {
+            define band 350
+            if($?3) {define fcut$band $3} else {define fcut$band 6.60} # 6.60 _DenserThanOne_  # cutting f+2*df
+            define fsig$band 2.07 # posteriori 1-sigma flux from our superdeblending photometry
+            define fmax$band 13.0 # max plotting range
+        }
+        if('$2'=='500') {
+            define band 500
+            if($?3) {define fcut$band $3} else {define fcut$band 7.44} # 7.44  # cutting f+2*df
+            define fsig$band 2.57 # posteriori 1-sigma flux from our superdeblending photometry
+            define fmax$band 15.0 # max plotting range
+        }
+        if('$2'=='850') {
+            define band 850
+            if($?3) {define fcut$band $3} else {define fcut$band 1.20} # 1.20  # cutting f+2*df
+            define fsig$band 0.94 # posteriori 1-sigma flux from our superdeblending photometry
+            define fmax$band 6.00 # max plotting range
+        }
+        if('$2'=='1100') {
+            define band 1100
+            if($?3) {define fcut$band $3} else {define fcut$band 0.66} # 0.66  # cutting f+2*df
+            define fsig$band 0.66 # posteriori 1-sigma flux from our superdeblending photometry
+            define fmax$band 3.00 # max plotting range
+            if('$field'=='ssa2') {
+                define fsig$band 0.74
+            }
+        }
+        if('$2'=='1160') {
+            define band 1160
+            if($?3) {define fcut$band $3} else {define fcut$band 0.66} # 0.66  # cutting f+2*df
+            define fsig$band 0.66 # posteriori 1-sigma flux from our superdeblending photometry
+            define fmax$band 3.00 # max plotting range
+            if('$field'=='ssa2') {
+                define fsig$band 0.74
+            }
+        }
+        if(!$?band) {
+            print 'Error! Input \"$2\" must be one of 100 160 250 350 500 850 1160\n' {}
+            define aaa 0
+            define aaa ?
+            echo ""
+            return
+        }
+    } else {
+        print 'Usage: macro read do_Type_FIT.sm go \$field \$band\n' {}
         return
     }
     define useprevdetect 1
@@ -88,10 +120,12 @@ do_select 01
     #     3. the Shuowen's prior list
     # 
     if(!$?hasreaddata) {
-    macro read read_sed_files.sm read_sed_files
-    macro read read_catalog_file.sm read_catalog_file
-    macro read astroPhot.sm }
+        macro read read_sed_files.sm read_sed_files
+        macro read read_catalog_file.sm read_catalog_file
+        macro read astroPhot.sm
+    }
     macro read crowdiness.sm
+    #echo "$band" $band $?band "$1" $1 $?1
     if($?band && $?1) {
         if($?fcut$band && is_vector(xf$band) && is_vector(xe$band)) {
             
@@ -123,8 +157,13 @@ do_select 01
                 if('$band'=='500') { 
                     set fit$band = fit$band + 2* (f350>3.*df350)
                 }
+                # if('$band'=='1100') { 
+                #     # no previous detection band, this is the first band
+                # }
                 if('$band'=='1160') { 
-                    set fit$band = fit$band + 2* (f500>3.*df500)
+                    if (is_vector(f500) && is_vector(df500)) {
+                        set fit$band = fit$band + 2* (f500>3.*df500)
+                    }
                 }
             }
             
@@ -143,6 +182,11 @@ do_select 01
                 set rexc$band = 0 #<TODO>#
             }
             set $0 = fit$band
+        } else {
+            echo "Failed to check $?fcut$band && is_vector(xf$band) && is_vector(xe$band)"
+            echo "$?fcut$band:" $?fcut$band
+            echo "is_vector(xf$band):" $(is_vector(xf$band))
+            echo "is_vector(xe$band):" $(is_vector(xe$band))
         }
     }
     return
@@ -154,7 +198,7 @@ read_data
     # 
     ##define band 100
     ##define fcut$band 0.0
-    if($?band) {
+    if($?field && $?band) {
         # 
         # read data
         # 
@@ -163,11 +207,11 @@ read_data
         define hasreaddata 1
         
         macro read astroPhot.sm
-        set_goodsn_photometry_constants_$band
+        set_$field""_photometry_constants_$band
         set PSFFWHM = $rBeam_$band
         set PSFArea = pi/(4.0*ln(2))*PSFFWHM**2
-        set GOODSNArea = 10.0*16.0*3600.0
-        set GOODSNGoodArea = 111.0*3600.0
+        #set GOODSNArea = $FieldFullArea # 10.0*16.0*3600.0
+        #set GOODSNGoodArea = $FieldGoodArea # 111.0*3600.0
         # 
         # compute crowdiness
         # 
@@ -238,10 +282,10 @@ calc_number_count_versus_cutting_flux
         set yfit = do_select(fcut)
         set nsou = sum(yfit>0)+$numadditional # plus Shuowen's list
         set ncut = sum(yfit<=0)
-        set rsou = nsou/GOODSNArea*PSFArea
+        set rsou = nsou/$FieldArea*PSFArea
         set gyfit = yfit if(goodArea)
         set gnsou = sum(gyfit)+$numadditional # in goodArea, number of sources # plus Shuowen's list
-        set grsou = gnsou/GOODSNGoodArea*PSFArea
+        set grsou = gnsou/$FieldGoodArea*PSFArea
         if($i==0) {
             print "log_cutting_flux_"$band"_temp.txt" '\#   fcut    ncut    nsou    rsou   gnsou   grsou\n\#\n' {}
             define print_noheader 1

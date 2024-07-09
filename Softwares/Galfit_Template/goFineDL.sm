@@ -13,11 +13,12 @@ xSet_default
     define max_noise      0     # 
     define mag_start      0     # 
     define Xback          0.0   # background pixel value
-    define ystep          80    # segmentation
-    define xstep          80    # segmentation
-    define g_buff         20    # segmentation
+    define ystep          35    # segmentation
+    define xstep          35    # segmentation
+    define g_buff         15    # segmentation
     define f_buff         1     # segmentation
     define use_prior_mags 0     # if 1, --> check you define xm$imax to a meaningful guess start for the mag
+    define use_prior_size 0     # new to be implemented, see "goPriorDL.sm"
     define vary_positions 0     # if 1, allow positions of bright objects to vary
     define fix_astrometry 1     # if 1, account for astrometry variations defined elsewhere
     define make_residuals 0     # if 1, --> check you define xm$imax to a meaningful guess start for the mag
@@ -27,7 +28,7 @@ xSet_default
     define doFit          1     # step of the fit
     define doPara         1     # step of the parallel
     define doParallel     1     # 
-    define doPostParallel 1     # 
+    define doPostParallel 0     # 
 
 
 xSet_24
@@ -70,7 +71,8 @@ noise_XXX
     print  do.cl 'images\nimutil\n' {}
     print +do.cl 'imstat $imax_name_rms[%.0f:%.0f,%.0f:%.0f] nclip=0 >> aaa_noise \n' {x1 x2 y1 y2}
     print +do.cl 'logout\n\n' {}
-    !cl -old < do.cl >> /dev/null 2>&1
+    ##!cl -old < do.cl >> /dev/null 2>&1
+    !iraf_cl_exec_file do.cl
     define print_noheader $pref_noheader
     # 
     if($?verbose) {define pref_verbose $verbose} else {define pref_verbose 0}  ###<Added><DZLIU>###
@@ -90,216 +92,224 @@ noise_XXX
 
 
 Fit_XXX        
-        # if not doPostParallel, the delete summary_run and do a fresh new fitting
-        if($?doPostParallel==0) {
-            if(is_file(summary_run)) {
-                echo !rm summary_run
-                !\rm summary_run
-            }
+    # if not doPostParallel, the delete summary_run and do a fresh new fitting
+    if($?doPostParallel==0) {
+        if(is_file(summary_run)) {
+            echo !rm summary_run
+            !\rm summary_run
         }
-        
-        # get image size
-        echo "Doing Fit_XXX"
-        define print_noheader 1
-        macro read goPriorDL.sm gPriors
-        
-        # get image pixel noise
-        if('$imax' != '20cm' ) {
-            noise_XXX
-        } else {
-            echo "20cm does not do noise"
-        }
-        
-        
-        ###<DZLIU><Modified>### 
-        if($?doPostParallel==1){                         ###<Added><DZLIU>### doParallel
-            echo doPostParallel!                         ###<Added><DZLIU>### doParallel
-            return                                       ###<Added><DZLIU>### doParallel
-        }                                                ###<Added><DZLIU>### doParallel
-        # define aaa ?                                   ###<Added><DZLIU>### doParallel
-        ###<DZLIU><Modified>### 
-        
-        
-        ## fit in x-y sections
-        vecminmax y$imax min max
-        set y_pos = 0,$max+$ystep,$ystep
-        set y_pos = y_pos>=1 ? y_pos : 1 set y_pos = y_pos<=$imax_ysize ? y_pos : $imax_ysize
-        set ii=1,dimen(y_pos)-1
-        vecminmax x$imax  min max
-        set x_pos = 0,$max+$xstep,$xstep
-        set x_pos = x_pos>=1 ? x_pos : 1 set x_pos = x_pos<=$imax_xsize ? x_pos : $imax_xsize
-        set yy=1,dimen(x_pos)-1
-        set Lx1 = x_pos-$f_buff-$g_buff set Lx1 = Lx1>=1 ? Lx1 : 1 set Lx1 = Lx1<=$imax_xsize ? Lx1 : $imax_xsize
-        set Lx2 = x_pos+$f_buff+$g_buff set Lx2 = Lx2>=1 ? Lx2 : 1 set Lx2 = Lx2<=$imax_xsize ? Lx2 : $imax_xsize
-        set Ly1 = y_pos-$f_buff-$g_buff set Ly1 = Ly1>=1 ? Ly1 : 1 set Ly1 = Ly1<=$imax_ysize ? Ly1 : $imax_ysize
-        set Ly2 = y_pos+$f_buff+$g_buff set Ly2 = Ly2>=1 ? Ly2 : 1 set Ly2 = Ly2<=$imax_ysize ? Ly2 : $imax_ysize
-        
-        
-        define runid 0
-        echo RUNS $(dimen(y_pos)*dimen(x_pos))
-        #define aaa ?
-        
-        
-        foreach xar yy {
-            foreach var ii {
-                # select sources inside current box
-                set coo = y$imax <y_pos[$var] && y$imax >y_pos[$var-1] && x$imax <x_pos[$xar] && x$imax >x_pos[$xar-1]
+    }
+    
+    # get image size, idF, raF, deF, x$imax, y$imax, xm, xmaj, xmin, xpa
+    echo "Doing Fit_XXX"
+    define print_noheader 1
+    macro read goPriorDL.sm gPriors
+
+    if(is_vector(xm)) {
+        set m$imax = xm
+    } else {
+        set m$imax = raF*0.0 + $mag_start
+    }
+    
+    # get image pixel noise
+    if('$imax' != '20cm' ) {
+        noise_XXX
+    } else {
+        echo "20cm does not do noise"
+    }
+
+    # set fix1 fix2 for x and y if vary_positions
+    if($vary_positions) {
+        set fix1 = raF*0.0 + 1
+        set fix2 = deF*0.0 + 1
+    } else {
+        set fix1 = raF*0.0 + 0
+        set fix2 = deF*0.0 + 0
+    }
+    
+    
+    ###<DZLIU><Modified>### 
+    if($?doPostParallel==1 && $doPostParallel==1){   ###<Added><DZLIU>### doParallel
+        echo doPostParallel!                         ###<Added><DZLIU>### doParallel
+        return                                       ###<Added><DZLIU>### doParallel
+    }                                                ###<Added><DZLIU>### doParallel
+    # define aaa ?                                   ###<Added><DZLIU>### doParallel
+    ###<DZLIU><Modified>### 
+    
+    
+    ## fit in x-y sections
+    vecminmax y$imax min max
+    set y_pos = 0,$max+$ystep,$ystep
+    set y_pos = y_pos>=1 ? y_pos : 1 set y_pos = y_pos<=$imax_ysize ? y_pos : $imax_ysize
+    set ii=1,dimen(y_pos)-1
+    vecminmax x$imax  min max
+    set x_pos = 0,$max+$xstep,$xstep
+    set x_pos = x_pos>=1 ? x_pos : 1 set x_pos = x_pos<=$imax_xsize ? x_pos : $imax_xsize
+    set yy=1,dimen(x_pos)-1
+    set Lx1 = x_pos-$f_buff-$g_buff set Lx1 = Lx1>=1 ? Lx1 : 1 set Lx1 = Lx1<=$imax_xsize ? Lx1 : $imax_xsize
+    set Lx2 = x_pos+$f_buff+$g_buff set Lx2 = Lx2>=1 ? Lx2 : 1 set Lx2 = Lx2<=$imax_xsize ? Lx2 : $imax_xsize
+    set Ly1 = y_pos-$f_buff-$g_buff set Ly1 = Ly1>=1 ? Ly1 : 1 set Ly1 = Ly1<=$imax_ysize ? Ly1 : $imax_ysize
+    set Ly2 = y_pos+$f_buff+$g_buff set Ly2 = Ly2>=1 ? Ly2 : 1 set Ly2 = Ly2<=$imax_ysize ? Ly2 : $imax_ysize
+    
+    
+    define runid 0
+    echo RUNS $(dimen(y_pos)*dimen(x_pos))
+    #define aaa ?
+    
+    
+    foreach xar yy {
+        foreach var ii {
+            # select sources inside current box
+            set coo = y$imax <y_pos[$var] && y$imax >y_pos[$var-1] && x$imax <x_pos[$xar] && x$imax >x_pos[$xar-1]
+            if($max_noise>0) {set coo = coo && noi$imax <$max_noise}
+            if(sum(coo)) {
+                # select more sources in the extended buffer area
+                set coo = y$imax <y_pos[$var]+$g_buff && y$imax >y_pos[$var-1]-$g_buff && x$imax <x_pos[$xar]+$g_buff && x$imax >x_pos[$xar-1]-$g_buff # allow for ext objects
                 if($max_noise>0) {set coo = coo && noi$imax <$max_noise}
-                if(sum(coo)) {
-                    # select more sources in the extended buffer area
-                    set coo = y$imax <y_pos[$var]+$g_buff && y$imax >y_pos[$var-1]-$g_buff && x$imax <x_pos[$xar]+$g_buff && x$imax >x_pos[$xar-1]-$g_buff # allow for ext objects
-                    if($max_noise>0) {set coo = coo && noi$imax <$max_noise}
-                    define runid $($runid+1)
-                    set xx$imax  = x$imax  if(coo)
-                    set yy$imax  = y$imax  if(coo)
-                    set nn$imax  = noi$imax  if(coo)
-                    set mm$imax  = m$imax  if(coo)
-                    set Xfix1    = fix1    if(coo)
-                    set Xfix2    = fix2    if(coo)
-                    if($fit_gaussian) {
-                        set Xfwhm = xmaj if(coo)
-                        set Xaxis_ratio = xmin/xmaj if(coo)
-                        set XPA = xpa if(coo)
-                    } # end if($fit_gaussian)
-        
-                    echo $runid [$(x_pos[$xar-1]):$(x_pos[$xar]),$(y_pos[$var-1]):$(y_pos[$var])] [$(Lx1[$xar-1]):$(Lx2[$xar]),$(Ly1[$var-1]):$(Ly2[$var])] ($xar*$var=$($xar*$var)~/~$(dimen(y_pos)*dimen(x_pos)))
-                    
-                    load astroGalfit.sm
-                    TODOTODO
-                    TODO
-                    TODO
-                    TODO
-                    TODO
-                    TODO
-                    TODO
-                    TODO
-                    
-                    define aa_file "HSO_$imax"".INPUT"
-                    #print $aa_file 'A) $imax_name".fits" \n B) tmp.fits \n C) $imax_name_rms".fits" \n D) $imax_name_psf".fits" \n E) $psf_resampl \n F) none \n G) HSO_$imax"".CONSTRAINTS \n J) 0 \n K) 0.06   0.06 \n O) both \n P) 0 \n S) 0 \n' {}   # original always used version for galfit 2.0
-                    print $aa_file 'A) $imax_name".fits" \n' {} 
-                    print +$aa_file 'B) tmp.fits \n' {}
-                    print +$aa_file 'C) $imax_name_rms".fits" \n' {}
-                    print +$aa_file 'D) $imax_name_psf".fits" \n' {}
-                    print +$aa_file 'E) $psf_resampl \n' {}
-                    print +$aa_file 'F) none \n' {}
-                    print +$aa_file 'G) HSO_$imax"".CONSTRAINTS \n' {}
-                    print +$aa_file 'J) 0 \n K) 0.06   0.06 \n O) regular \n P) 0 \n \n' {}
-                    print +$aa_file 'H) $(Lx1[$xar-1]) $(Lx2[$xar]) $(Ly1[$var-1]) $(Ly2[$var]) \n' {}
-                    print +$aa_file 'I) $(5*($g_buff+$f_buff)) $(5*($g_buff+$f_buff)) \n' {} # convolution box size 
-        
-                    #!cat $aa_file
-        
-        # entering the objects to fit
-        set p1 = xx$imax set p2 = yy$imax set p3 =  mm$imax
-        set Xresi = Xfix1*0+1
-        if($make_residuals) {set Xresi=Xresi*0}
-        if(!$fit_gaussian) { # psf
-        print +$aa_file '\n 0) psf \n 1) %.3f %.3f %.0f %.0f \n 3) %.3f  %.0f \n Z) 0  \n \n' {p1 p2 Xfix1 Xfix2 p3 Xresi} # 3) put to 0 --> this one fixes the mags #  --> RESIDUALS  ###<Modified><20140402><DZLIU>### %d => %.0f
-        } else { #gaussian with 3 parameters (fixed), fit only total magnitude
-        print +$aa_file '\n 0) gaussian \n 1) %.3f %.3f %.0f %.0f \n 3) %.3f  %d \n 4) %.3f 0 \n 8) %.3f 0 \n 9) %.3f 0 \n 10) 0 0 \n Z) 0  \n \n' {p1 p2 Xfix1 Xfix2 p3 Xresi Xfwhm Xaxis_ratio XPA} # 3) put to 0 --> this one fixes the mags #  --> RESIDUALS     4) -->1 fit FWHM     8) -->1 fit b/a
-        }
-        if(!$fit_sky) {
-        print +$aa_file '\n 0) sky \n 1) $Xback 0 \n 2) 0 0 \n 3) 0 0 \n Z) 0  \n \n' {}      
-        } else {
-        print +$aa_file '\n 0) sky \n 1) $Xback 1 \n 2) 0 0 \n 3) 0 0 \n Z) 0  \n \n' {}      # 1) to 1 --> allow sky to vary
-        }
-        
-        print +summary_run '$runid $(dimen(xx$imax)) $(x_pos[$xar-1]) $(x_pos[$xar]) $(y_pos[$var-1]) $(y_pos[$var]) $(Lx1[$xar-1]) $(Lx2[$xar]) $(Ly1[$var-1]) $(Ly2[$var]) \n' {}
+                define runid $($runid+1)
+                set xx$imax  = x$imax  if(coo)
+                set yy$imax  = y$imax  if(coo)
+                set nn$imax  = noi$imax  if(coo)
+                set mm$imax  = m$imax  if(coo)
+                set Xfix1    = fix1    if(coo)
+                set Xfix2    = fix2    if(coo)
+                if($fit_gaussian) {
+                    set Xfwhm = xmaj if(coo)
+                    set Xaxis_ratio = xmin/xmaj if(coo)
+                    set XPA = xpa if(coo)
+                } # end if($fit_gaussian)
+    
+                echo $runid [$(x_pos[$xar-1]):$(x_pos[$xar]),$(y_pos[$var-1]):$(y_pos[$var])] [$(Lx1[$xar-1]):$(Lx2[$xar]),$(Ly1[$var-1]):$(Ly2[$var])] ($xar*$var=$($xar*$var)~/~$(dimen(y_pos)*dimen(x_pos)))
+                
+                ## load astroGalfit.sm
+                ## TODO: to implement sersic fitting, use astroGalfit.sm
+                
+                define aa_file "HSO_$imax"".INPUT"
+                #print $aa_file 'A) $imax_name".fits" \n B) tmp.fits \n C) $imax_name_rms".fits" \n D) $imax_name_psf".fits" \n E) $psf_resampl \n F) none \n G) HSO_$imax"".CONSTRAINTS \n J) 0 \n K) 0.06   0.06 \n O) both \n P) 0 \n S) 0 \n' {}   # original always used version for galfit 2.0
+                print $aa_file 'A) $imax_name".fits" \n' {} 
+                print +$aa_file 'B) tmp.fits \n' {}
+                print +$aa_file 'C) $imax_name_rms".fits" \n' {}
+                print +$aa_file 'D) $imax_name_psf".fits" \n' {}
+                print +$aa_file 'E) $psf_resampl \n' {}
+                print +$aa_file 'F) none \n' {}
+                print +$aa_file 'G) HSO_$imax"".CONSTRAINTS \n' {}
+                print +$aa_file 'J) 0 \n K) 0.06   0.06 \n O) regular \n P) 0 \n \n' {}
+                print +$aa_file 'H) $(Lx1[$xar-1]) $(Lx2[$xar]) $(Ly1[$var-1]) $(Ly2[$var]) \n' {}
+                print +$aa_file 'I) $(5*($g_buff+$f_buff)) $(5*($g_buff+$f_buff)) \n' {} # convolution box size 
+    
+                #!cat $aa_file
+            
+                # entering the objects to fit
+                set p1 = xx$imax set p2 = yy$imax set p3 =  mm$imax
+                set Xresi = Xfix1*0+1
+                if($make_residuals) {set Xresi=Xresi*0}
+                if(!$fit_gaussian) { # psf
+                print +$aa_file '\n 0) psf \n 1) %.3f %.3f %.0f %.0f \n 3) %.3f  %.0f \n Z) 0  \n \n' {p1 p2 Xfix1 Xfix2 p3 Xresi} # 3) put to 0 --> this one fixes the mags #  --> RESIDUALS  ###<Modified><20140402><DZLIU>### %d => %.0f
+                } else { #gaussian with 3 parameters (fixed), fit only total magnitude
+                print +$aa_file '\n 0) gaussian \n 1) %.3f %.3f %.0f %.0f \n 3) %.3f  %d \n 4) %.3f 0 \n 8) %.3f 0 \n 9) %.3f 0 \n 10) 0 0 \n Z) 0  \n \n' {p1 p2 Xfix1 Xfix2 p3 Xresi Xfwhm Xaxis_ratio XPA} # 3) put to 0 --> this one fixes the mags #  --> RESIDUALS     4) -->1 fit FWHM     8) -->1 fit b/a
+                }
+                if(!$fit_sky) {
+                    print +$aa_file '\n 0) sky \n 1) $Xback 0 \n 2) 0 0 \n 3) 0 0 \n Z) 0  \n \n' {}      
+                } else {
+                    print +$aa_file '\n 0) sky \n 1) $Xback 1 \n 2) 0 0 \n 3) 0 0 \n Z) 0  \n \n' {}      # 1) to 1 --> allow sky to vary
+                }
+                
+                print +summary_run '$runid $(dimen(xx$imax)) $(x_pos[$xar-1]) $(x_pos[$xar]) $(y_pos[$var-1]) $(y_pos[$var]) $(Lx1[$xar-1]) $(Lx2[$xar]) $(Ly1[$var-1]) $(Ly2[$var]) \n' {}
 
-        set oo=1,dimen(xx$imax) 
-        print HSO_$imax".CONSTRAINTS" '   %d   mag -10 to $mag_toofaint  \n' {oo}
-        if($vary_positions) {
-        define max_vary 1
-        if('$imax'=='16') {define max_vary 1}
-        if('$imax'=='24') {define max_vary 1}
-        if('$imax'=='100') {define max_vary 1}
-        if('$imax'=='160') {define max_vary 1}
-        if('$imax'== '20cm') {define max_vary 2}
-        print +HSO_$imax".CONSTRAINTS" '   %d   x -$max_vary $max_vary  \n' {oo}
-        print +HSO_$imax".CONSTRAINTS" '   %d   y -$max_vary $max_vary  \n' {oo}
-        } else {
-        define max_vary 0
-        }
-        if($fit_gaussian) {
-        set mXfwhm = Xfwhm*3+10
-        print +HSO_$imax".CONSTRAINTS" '   %d   4) 0.1 to %.2f  \n' {oo Xfwhm}
-        print +HSO_$imax".CONSTRAINTS" '   %d   8) 0.05 to 1  \n' {oo}
-        }
+                set oo=1,dimen(xx$imax) 
+                print HSO_$imax".CONSTRAINTS" '   %d   mag -10 to $mag_toofaint  \n' {oo}
+                if($vary_positions) {
+                define max_vary 1
+                if('$imax'=='16') {define max_vary 1}
+                if('$imax'=='24') {define max_vary 1}
+                if('$imax'=='100') {define max_vary 1}
+                if('$imax'=='160') {define max_vary 1}
+                if('$imax'== '20cm') {define max_vary 2}
+                print +HSO_$imax".CONSTRAINTS" '   %d   x -$max_vary $max_vary  \n' {oo}
+                print +HSO_$imax".CONSTRAINTS" '   %d   y -$max_vary $max_vary  \n' {oo}
+                } else {
+                    define max_vary 0
+                }
+                if($fit_gaussian) {
+                    set mXfwhm = Xfwhm*3+10
+                    print +HSO_$imax".CONSTRAINTS" '   %d   4) 0.1 to %.2f  \n' {oo Xfwhm}
+                    print +HSO_$imax".CONSTRAINTS" '   %d   8) 0.05 to 1  \n' {oo}
+                }
 
-        ###<DZLIU><Modified>### #!/dsm/upgal/data/edaddi/galfit/galfit $aa_file
-        ###<DZLIU><Modified>### !/Users/edaddi/software/galfit $aa_file
-        ###<DZLIU><Modified>### if(is_file("fit.log") || $make_residuals) { 
-        ###<DZLIU><Modified>### !\mv fit.log fit$runid".log" 
-        ###<DZLIU><Modified>### !\cp tmp.fits tmp$runid".fits"
-        ###<DZLIU><Modified>### } else { echo CRASH !!!!!!!
-        ###<DZLIU><Modified>### define aaa ?}
-        ###<DZLIU><Modified>### 
-        if($?doParallel==0&&$?doPostParallel==0) {                              ###<Added><DZLIU>### 
-            #!galfit -imax 500 $aa_file > "fit.stdout"                          ###<Modified><DZLIU>### 
-            !galfit $aa_file > "fit.stdout"                                     ###<Modified><DZLIU>### 
-            if(is_file("fit.log") || $make_residuals) { 
-                !\mv fit.log    fit$runid".log"                                 ###<Modified><DZLIU>###
-                !\mv fit.stdout fit$runid".stdout"                              ###<Modified><DZLIU>###
-                !\cp tmp.fits   fit$runid".fits"                                ###<Modified><DZLIU>###
-                #!\cp tmp.fits   tmp$runid".fits"                               ###<Modified><DZLIU>###
-                #!\cp HSO_$imax".INPUT" HSO_$imax"."$runid".INPUT"              ###<Modified><DZLIU>###
-                #!\cp HSO_$imax".CONSTRAINTS" HSO_$imax"."$runid".CONSTRAINTS"  ###<Modified><DZLIU>###
-                !\cp HSO_$imax".INPUT"       fit$runid".input"                  ###<Modified><DZLIU>###
-                !\cp HSO_$imax".CONSTRAINTS" fit$runid".limit"                  ###<Modified><DZLIU>###
-            } else {
-                echo CRASH !!!!!!!
-                echo CRASH !!!!!!!
-                echo CRASH !!!!!!!
-                echo CRASH !!!!!!!
-                echo CRASH !!!!!!!
-                echo CRASH !!!!!!!
-                echo CRASH !!!!!!!
-                echo CRASH !!!!!!!
-                echo CRASH !!!!!!!
-                echo CRASH !!!!!!!
-                define aaa ? 
-            }
-        } else {                                                                  ###<Added><DZLIU>### doParallel
-            if($vary_positions) {                                                 ###<Added><DZLIU>### doParallel
-                define idBox "boxgalfit_vary/box"$runid                           ###<Added><DZLIU>### doParallel
-                define idRun "boxgalfit_vary/runbox"$runid".sh"                   ###<Added><DZLIU>### doParallel
-                define idTar "../doing"$imax".box.galfit_vary"                    ###<Added><DZLIU>### doParallel
-            } else {                                                              ###<Added><DZLIU>### doParallel
-                define idBox "boxgalfit/box"$runid                                ###<Added><DZLIU>### doParallel
-                define idRun "boxgalfit/runbox"$runid".sh"                        ###<Added><DZLIU>### doParallel
-                define idTar "../doing"$imax".box.galfit"                         ###<Added><DZLIU>### doParallel
-            }                                                                     ###<Added><DZLIU>### doParallel
-            if($?doParallel==1) {                                                 ###<Added><DZLIU>### doParallel
-                !rm -rf                        $idBox                             ###<Added><DZLIU>### doParallel
-                !mkdir -p                      $idBox                             ###<Added><DZLIU>### doParallel
-                !cp HSO_$imax.INPUT            $idBox/                            ###<Added><DZLIU>### doParallel
-                !cp HSO_$imax.CONSTRAINTS      $idBox/                            ###<Added><DZLIU>### doParallel
-                !ln -fs ../$imax_name.fits     $idBox/$imax_name.fits             ###<Added><DZLIU>### doParallel
-                !ln -fs ../$imax_name_rms.fits $idBox/$imax_name_rms.fits         ###<Added><DZLIU>### doParallel
-                !ln -fs ../$imax_name_psf.fits $idBox/$imax_name_psf.fits         ###<Added><DZLIU>### doParallel
-                print  runqsub '\#!/bin/bash\n' {}                                ###<Added><DZLIU>### doParallel
-                print +runqsub 'set -e\n' {}                                      ###<Added><DZLIU>### doParallel
-                print +runqsub 'cd box$runid\n' {}                                ###<Added><DZLIU>### doParallel
-                print +runqsub 'if [[ -f fit.log ]]; then rm fit.log; fi\n' {}    ###<Added><DZLIU>### doParallel
-                print +runqsub 'if [[ -f galfit.01 ]]; then rm galfit.*; fi\n' {} ###<Added><DZLIU>### doParallel
-                print +runqsub 'galfit HSO_$imax.INPUT > HSO_$imax.STDOUT\n' {}   ###<Added><DZLIU>### doParallel
-                print +runqsub 'ln -fs fit.log fit$runid.log\n' {}                ###<Added><DZLIU>### doParallel
-                print +runqsub 'chmod 777 *\n' {}                                 ###<Added><DZLIU>### doParallel
-                print +runqsub '\n' {}                                            ###<Added><DZLIU>### doParallel
-                !mv runqsub $idRun                                                ###<Added><DZLIU>### doParallel
-                if($runid==1 && 1==1) {                                           ###<Added><DZLIU>### doParallel
-                !cp $imax_name.fits     $idBox/../$imax_name.fits                 ###<Added><DZLIU>### doParallel
-                !cp $imax_name_rms.fits $idBox/../$imax_name_rms.fits             ###<Added><DZLIU>### doParallel
-                !cp $imax_name_psf.fits $idBox/../$imax_name_psf.fits             ###<Added><DZLIU>### doParallel
-                }                                                                 ###<Added><DZLIU>### doParallel
-            }                                                                     ###<Added><DZLIU>### doParallel
-            ### return
-        } # end if($?doParallel==0&&$?doPostParallel==0)
-        ###<DZLIU><Modified>### 
-        #define aaa ?
-        } # end if(sum(coo))
+                ###<DZLIU><Modified>### #!/dsm/upgal/data/edaddi/galfit/galfit $aa_file
+                ###<DZLIU><Modified>### !/Users/edaddi/software/galfit $aa_file
+                ###<DZLIU><Modified>### if(is_file("fit.log") || $make_residuals) { 
+                ###<DZLIU><Modified>### !\mv fit.log fit$runid".log" 
+                ###<DZLIU><Modified>### !\cp tmp.fits tmp$runid".fits"
+                ###<DZLIU><Modified>### } else { echo CRASH !!!!!!!
+                ###<DZLIU><Modified>### define aaa ?}
+                ###<DZLIU><Modified>### 
+                if($?doParallel==0&&$?doPostParallel==0) {                              ###<Added><DZLIU>### 
+                    #!galfit -imax 500 $aa_file > "fit.stdout"                          ###<Modified><DZLIU>### 
+                    !galfit $aa_file > "fit.stdout"                                     ###<Modified><DZLIU>### 
+                    if(is_file("fit.log") || $make_residuals) { 
+                        !\mv fit.log    fit$runid".log"                                 ###<Modified><DZLIU>###
+                        !\mv fit.stdout fit$runid".stdout"                              ###<Modified><DZLIU>###
+                        !\cp tmp.fits   fit$runid".fits"                                ###<Modified><DZLIU>###
+                        #!\cp tmp.fits   tmp$runid".fits"                               ###<Modified><DZLIU>###
+                        #!\cp HSO_$imax".INPUT" HSO_$imax"."$runid".INPUT"              ###<Modified><DZLIU>###
+                        #!\cp HSO_$imax".CONSTRAINTS" HSO_$imax"."$runid".CONSTRAINTS"  ###<Modified><DZLIU>###
+                        !\cp HSO_$imax".INPUT"       fit$runid".input"                  ###<Modified><DZLIU>###
+                        !\cp HSO_$imax".CONSTRAINTS" fit$runid".limit"                  ###<Modified><DZLIU>###
+                    } else {
+                        echo CRASH !!!!!!!
+                        echo CRASH !!!!!!!
+                        echo CRASH !!!!!!!
+                        echo CRASH !!!!!!!
+                        echo CRASH !!!!!!!
+                        echo CRASH !!!!!!!
+                        echo CRASH !!!!!!!
+                        echo CRASH !!!!!!!
+                        echo CRASH !!!!!!!
+                        echo CRASH !!!!!!!
+                        define aaa ? 
+                    }
+                } else {                                                                  ###<Added><DZLIU>### doParallel
+                    if($vary_positions) {                                                 ###<Added><DZLIU>### doParallel
+                        define idBox "boxgalfit_vary/box"$runid                           ###<Added><DZLIU>### doParallel
+                        define idRun "boxgalfit_vary/runbox"$runid".sh"                   ###<Added><DZLIU>### doParallel
+                        define idTar "../doing"$imax".box.galfit_vary"                    ###<Added><DZLIU>### doParallel
+                    } else {                                                              ###<Added><DZLIU>### doParallel
+                        define idBox "boxgalfit/box"$runid                                ###<Added><DZLIU>### doParallel
+                        define idRun "boxgalfit/runbox"$runid".sh"                        ###<Added><DZLIU>### doParallel
+                        define idTar "../doing"$imax".box.galfit"                         ###<Added><DZLIU>### doParallel
+                    }                                                                     ###<Added><DZLIU>### doParallel
+                    if($?doParallel==1) {                                                 ###<Added><DZLIU>### doParallel
+                        !rm -rf                        $idBox                             ###<Added><DZLIU>### doParallel
+                        !mkdir -p                      $idBox                             ###<Added><DZLIU>### doParallel
+                        !cp HSO_$imax.INPUT            $idBox/                            ###<Added><DZLIU>### doParallel
+                        !cp HSO_$imax.CONSTRAINTS      $idBox/                            ###<Added><DZLIU>### doParallel
+                        !ln -fs ../$imax_name.fits     $idBox/$imax_name.fits             ###<Added><DZLIU>### doParallel
+                        !ln -fs ../$imax_name_rms.fits $idBox/$imax_name_rms.fits         ###<Added><DZLIU>### doParallel
+                        !ln -fs ../$imax_name_psf.fits $idBox/$imax_name_psf.fits         ###<Added><DZLIU>### doParallel
+                        print  runqsub '\#!/bin/bash\n' {}                                ###<Added><DZLIU>### doParallel
+                        print +runqsub 'set -e\n' {}                                      ###<Added><DZLIU>### doParallel
+                        print +runqsub 'cd box$runid\n' {}                                ###<Added><DZLIU>### doParallel
+                        print +runqsub 'if [[ -f fit.log ]]; then rm fit.log; fi\n' {}    ###<Added><DZLIU>### doParallel
+                        print +runqsub 'if [[ -f galfit.01 ]]; then rm galfit.*; fi\n' {} ###<Added><DZLIU>### doParallel
+                        print +runqsub 'galfit HSO_$imax.INPUT > HSO_$imax.STDOUT\n' {}   ###<Added><DZLIU>### doParallel
+                        print +runqsub 'ln -fs fit.log fit$runid.log\n' {}                ###<Added><DZLIU>### doParallel
+                        print +runqsub 'chmod 777 *\n' {}                                 ###<Added><DZLIU>### doParallel
+                        print +runqsub '\n' {}                                            ###<Added><DZLIU>### doParallel
+                        !mv runqsub $idRun                                                ###<Added><DZLIU>### doParallel
+                        if($runid==1 && 1==1) {                                           ###<Added><DZLIU>### doParallel
+                        !cp $imax_name.fits     $idBox/../$imax_name.fits                 ###<Added><DZLIU>### doParallel
+                        !cp $imax_name_rms.fits $idBox/../$imax_name_rms.fits             ###<Added><DZLIU>### doParallel
+                        !cp $imax_name_psf.fits $idBox/../$imax_name_psf.fits             ###<Added><DZLIU>### doParallel
+                        }                                                                 ###<Added><DZLIU>### doParallel
+                    }                                                                     ###<Added><DZLIU>### doParallel
+                    ### return
+                } # end if($?doParallel==0&&$?doPostParallel==0)
+                ###<DZLIU><Modified>### 
+                #define aaa ?
+            } # end if(sum(coo))
         } # end foreach var ii
-        } # end foreach xar yy
+    } # end foreach xar yy
 
 
 
@@ -338,7 +348,9 @@ Rebuild_XXX
         }}}
         ### print +do.cl 'imdel tmp*fits\n' {} ###<Modified><20141030><DzLIU>###
         print +do.cl 'logout\n\n' {}       ###<Modified><DZLIU>### double \n\n
-        !cl -old < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+        ###!cl -old < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+        !iraf_cl_exec_file do.cl
+        !cp do.cl doRebuildMap.cl
         ###<DZLIU><Modified>### 
         
         set m$imax  = x$imax*0+99
@@ -480,7 +492,7 @@ Rebuild_XXX
 
         define RaR $imax
         !\mv results_$RaR results_$RaR"_"$xdate
-                !\mv FIT_$field""_$RaR"_Map.fits" FIT_$field""_$RaR"_Map_"$xdate".fits"
+        !\mv FIT_$field""_$RaR"_Map.fits" FIT_$field""_$RaR"_Map_"$xdate".fits"
         
         ###<DZLIU><Modified>### output final result info
         ###<DZLIU><Modified>### print  results_$RaR"_"$xdate".info"  'imax $imax \n imax_name $imax_name \n imax_name_rms $imax_name_rms \n' {}
@@ -505,7 +517,8 @@ makeBigMap    00    define print_noheader 1
             print +do.cl 'imdel FIT_$field""_$imax""_Map.fits  \n' {}
             print +do.cl 'imarith $imax_name * 0 null.fits \n' {}
             print +do.cl 'imarith null.fits + 0 null.fits\n logout\n' {}
-            !cl -old < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+            ###!cl -old < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+            !iraf_cl_exec_file do.cl
             
             if(is_file("null.fits")) {
             print do.cl  'images \n imutil \n' {}
@@ -514,7 +527,9 @@ makeBigMap    00    define print_noheader 1
             #print +do.cl 'imcopy $imax_name FIT_$field""_$imax""_Map.fits[1,append]\nlogout\n' {} #<20180213># report error about overwrite mode...
             print +do.cl 'imcopy $imax_name FIT_$field""_$imax""_Map.fits[residual,1,append]\n' {} #<20180213># 
             print +do.cl 'logout\n' {}
-            !cl < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+            ###!cl < do.cl >> /dev/null 2>&1 ###<Modified><DZLIU>### stdout to null
+            !iraf_cl_exec_file do.cl
+            !cp do.cl doMakeBigMap.cl
             } else {echo CRASH   galfit did not work in makeBigMap
             define aaa ?}
 
@@ -2002,6 +2017,23 @@ R_BAND_X 04
             set df$imax = f$imax*e$imax/1.08   # 
             
             go_simulation_based_correction_recipes
+            
+            print "results_"$imax"_"$xdate"__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
+
+
+
+
+R_BAND_X_NoBiasCorr 04
+            define field $1
+            define imax $2
+            define xdate $3
+            define vary_positions $4
+            define rrrr_name "results_"$imax"_"$xdate ###<Modified><DZLIU>### NO vary FOR 1160
+            data $rrrr_name read <x$imax 1 y$imax 2 m$imax 4 e$imax 5 noi$imax 3 ra$imax 6 de$imax 7 id$imax 8>
+            load astroPhot.sm
+            set_$field""_photometry_constants_$imax
+            set f$imax = 10**(-0.4*m$imax)*$h_$imax/$m_$imax # *1000
+            set df$imax = f$imax*e$imax/1.08   # 
             
             print "results_"$imax"_"$xdate"__fluxes.txt" '%15.0f%15g%15g\n' <id$imax f$imax df$imax>
 

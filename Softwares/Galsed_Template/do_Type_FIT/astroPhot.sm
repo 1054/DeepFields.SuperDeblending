@@ -154,6 +154,9 @@ convert_flux2mag 04
     if('$1'=='cosmos' && !$?h_$2) {
         set_cosmos_photometry_constants_$2
     }
+    if('$1'=='ssa2' && !$?h_$2) {
+        set_ssa2_photometry_constants_$2
+    }
     #if(!is_vector($3)) { print 'astroPhot::convert_flux2mag: Error! Vector $3 is invalid!\n' {} return }
     #if(!is_vector($4)) { print 'astroPhot::convert_flux2mag: Error! Vector $4 is invalid!\n' {} return }
     if(!$?h_$2)        { print 'astroPhot::convert_flux2mag: Error! Could not determin h_$2!\n' {} return }
@@ -864,6 +867,30 @@ set_goodsn_photometry_constants_850 00
     define PsfPhoto_850 "TODO"
     define DirPhoto_850 "TODO:NONEED"
 
+set_goodsn_photometry_constants_1100 00
+    # set JCMT/AzTEC photometry constants
+    define h_1100        $(1/40.788)       # photometry fudge factor from Jy/beam definition, for 3-arcsec pixels, 1.133*18.0**2/3.0**2 = 62.04308
+    define m_1100        1                 # photometry fudge factor from PEP, from use of finite PSF  (divise)
+    define mJy_1100      1.0               # converting pixel flux to mJy
+    define mBias_1100    0.0               # 
+    define fBias_1100    0.0               # mJy
+    define rBeam_1100    18.0              # FWHM of PSF in arcsec # (JCMT) AzTEC
+    set_default_astrometry_constants 1100
+    define xStep_1100    75  # box x length, from Dr. Daddi's goFine.sm
+    define yStep_1100    75  # box x length, from Dr. Daddi's goFine.sm
+    define gBuff_1100    80  # box buffer length g, from Dr. Daddi's goFine.sm
+    define fBuff_1100    1   # box buffer length f, from Dr. Daddi's goFine.sm
+    set_default_telescope_constants 1100
+    define SkyValue_1100  0.0            # Jy/pixel
+    define PixScale_1100  3.0            # arcsec
+    define Telescop_1100 "JCMT"          # 
+    define BandName_1100 "AzTEC"         # 
+    define BandWave_1100  1100           # um
+    define SciPhoto_1100 "aztec_flux"
+    define RmsPhoto_1100 "aztec_rms"
+    define PsfPhoto_1100 "aztec_psf"
+    define DirPhoto_1100 "/data/AstroDepth/GOODSN_Photo/AZTEC"
+
 set_goodsn_photometry_constants_1160 00
     # set JCMT/AzTEC+IRAM/MAMBO photometry constants
     #define h_1160       $(1/10.37)        # photometry fudge factor from Jy/beam definition, for big pixels
@@ -1110,6 +1137,59 @@ get_goodsn_photometry_photoset 01
     get_goodsn_photometry_photo $SciPhoto_$1.fits
     get_goodsn_photometry_photo $RmsPhoto_$1.fits
     get_goodsn_photometry_photo $PsfPhoto_$1.fits
+
+
+
+
+
+set_ssa2_photometry_constants_1100 00
+    # set JCMT/AzTEC photometry constants
+    define h_1100        $(1/40.788)       # photometry fudge factor from Jy/beam definition, for 3-arcsec pixels, 1.133*18.0**2/3.0**2 = 62.04308
+    define m_1100        1                 # photometry fudge factor from PEP, from use of finite PSF  (divise)
+    define mJy_1100      1.0               # converting pixel flux to mJy
+    define mBias_1100    0.0               # 
+    define fBias_1100    0.0               # mJy
+    define rBeam_1100    18.0              # FWHM of PSF in arcsec # (JCMT) AzTEC
+    set_default_astrometry_constants 1100
+    define xStep_1100    75  # box x length
+    define yStep_1100    75  # box x length
+    define gBuff_1100    80  # box buffer length g
+    define fBuff_1100    1   # box buffer length f
+    set_default_telescope_constants 1100
+    define SkyValue_1100  0.0            # Jy/pixel
+    define PixScale_1100  3.0            # arcsec
+    define Telescop_1100 "JCMT"          # 
+    define BandName_1100 "AzTEC"         # 
+    define BandWave_1100  1100           # um
+    define SciPhoto_1100 "aztec_flux"
+    define RmsPhoto_1100 "aztec_rms"
+    define PsfPhoto_1100 "aztec_psf"
+    define DirPhoto_1100 "/data/AstroDepth/SSA2_Photo/AZTEC"
+
+set_ssa2_photometry_constants_1160 00
+    # set JCMT/AzTEC photometry constants
+    define h_1160        $(1/40.788)       # photometry fudge factor from Jy/beam definition, for 3-arcsec pixels, 1.133*18.0**2/3.0**2 = 62.04308
+    define m_1160        1                 # photometry fudge factor from PEP, from use of finite PSF  (divise)
+    define mJy_1160      1.0               # converting pixel flux to mJy
+    define mBias_1160    0.0               # 
+    define fBias_1160    0.0               # mJy
+    define rBeam_1160    18.0              # FWHM of PSF in arcsec # (JCMT) AzTEC
+    set_default_astrometry_constants 1160
+    define xStep_1160    75  # box x length
+    define yStep_1160    75  # box x length
+    define gBuff_1160    80  # box buffer length g
+    define fBuff_1160    1   # box buffer length f
+    set_default_telescope_constants 1160
+    define SkyValue_1160  0.0            # Jy/pixel
+    define PixScale_1160  3.0            # arcsec
+    define Telescop_1160 "JCMT"          # 
+    define BandName_1160 "AzTEC"         # 
+    define BandWave_1160  1160           # um
+    define SciPhoto_1160 "aztec_flux"
+    define RmsPhoto_1160 "aztec_rms"
+    define PsfPhoto_1160 "aztec_psf"
+    define DirPhoto_1160 "/data/AstroDepth/SSA2_Photo/AZTEC"
+
 
 
 

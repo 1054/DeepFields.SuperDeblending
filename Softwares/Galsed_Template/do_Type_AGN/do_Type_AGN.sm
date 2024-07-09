@@ -12,11 +12,23 @@ do_Type_AGN
        !is_vector(xeRad) && is_vector(xe20cm)) {
         set xfRad = xf20cm # mJy
         set xeRad = xe20cm # mJy
+    } else {
+        if(!is_vector(xfRad) && is_vector(xf10cm) && \
+           !is_vector(xeRad) && is_vector(xe10cm)) {
+            set xfRad = xf10cm # mJy
+            set xeRad = xe10cm # mJy
+        }
     }
     if(!is_vector(radio) && is_vector(f20cm) && \
        !is_vector(eradio) && is_vector(df20cm)) {
         set radio = f20cm * 1e3 # make it uJy
         set eradio = df20cm * 1e3 # make it uJy
+    } else {
+        if(!is_vector(radio) && is_vector(f10cm) && \
+           !is_vector(eradio) && is_vector(df10cm)) {
+            set radio = f10cm # make it uJy
+            set eradio = df10cm # make it uJy
+        }
     }
     # 
     # classify radio AGN types

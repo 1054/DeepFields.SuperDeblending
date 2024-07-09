@@ -52,8 +52,10 @@ do_Galsed 02
 		# 
 		# Define output bands
 		# 
-		set out_Waves = {70 100 160 250 350 500 850 1160 1200 1250 2000 2050 1e5 2e5}
-		set out_Bands = {70 100 160 250 350 500 850 1160 1200 1250 2000 2050 10cm 20cm}
+		#set out_Waves = {70 100 160 250 350 500 850 1160 1200 1250 2000 2050 1e5 2e5}
+		#set out_Bands = {70 100 160 250 350 500 850 1160 1200 1250 2000 2050 10cm 20cm}
+		set out_Waves = {70 100 160 250 350 500 850 1100 1160 1200 1250 2000 2050 1e5 2e5}
+		set out_Bands = {70 100 160 250 350 500 850 1100 1160 1200 1250 2000 2050 10cm 20cm}
 		set out_Fluxes = out_Waves * 0.0
 		set out_Errors = out_Waves * 0.0
 		set out_Params = {STR AGN SFR TOT _zz}

@@ -9,6 +9,9 @@ if [[ x"$SUPERDEBLENDDIR" == x"" ]]; then
     echo "Error! Supderdeblending Softwares were not prepared well!"
     echo "Please make sure you have \"DeepFields.Supderdeblending\" from \"https://github.com/1054/DeepFields.Supderdeblending\""
     echo "and have run \"source DeepFields.Supderdeblending/Softwares/SETUP\" in BASH shell!"
+    exit 255
+else
+    echo "SUPERDEBLENDDIR = $SUPERDEBLENDDIR"
 fi
 # 
 # Print usage if has no user input
@@ -465,18 +468,36 @@ fi
 #if [[ ! -f "goSimu.sm" && -f "../goSimu.sm" ]]; then ln -fs "../goSimu.sm"; fi
 
 if [[ ! -f "goFineDL.sm" ]] && [[ ! -L "goFineDL.sm" ]]; then 
-    echo "Warning! \"goFineDL.sm\" was not found! Linking from \"$(dirname ${BASH_SOURCE[0]})/Galfit_Template/goFineDL.sm\"!"
-    ln -fs "$(dirname ${BASH_SOURCE[0]})/Galfit_Template/goFineDL.sm"
+    echo "Warning! \"goFineDL.sm\" was not found! Linking from \"${SUPERDEBLENDDIR}/Galfit_Template/goFineDL.sm\"!"
+    set +e
+    ln -fs "${SUPERDEBLENDDIR}/Galfit_Template/goFineDL.sm"
+    if [[ ! -f "goFineDL.sm" ]] && [[ ! -L "goFineDL.sm" ]]; then
+        echo cp "${SUPERDEBLENDDIR}/Galfit_Template/goFineDL.sm" ./
+        cp "${SUPERDEBLENDDIR}/Galfit_Template/goFineDL.sm" ./
+    fi
+    set -e
 fi
 
 if [[ ! -f "goSimuDL.sm" ]] && [[ ! -L "goSimuDL.sm" ]]; then 
-    echo "Warning! \"goSimuDL.sm\" was not found! Linking from \"$(dirname ${BASH_SOURCE[0]})/Galfit_Template/goSimuDL.sm\"!"
-    ln -fs "$(dirname ${BASH_SOURCE[0]})/Galfit_Template/goSimuDL.sm"
+    echo "Warning! \"goSimuDL.sm\" was not found! Linking from \"${SUPERDEBLENDDIR}/Galfit_Template/goSimuDL.sm\"!"
+    set +e
+    ln -fs "${SUPERDEBLENDDIR}/Galfit_Template/goSimuDL.sm"
+    if [[ ! -f "goSimuDL.sm" ]] && [[ ! -L "goSimuDL.sm" ]]; then
+        echo cp "${SUPERDEBLENDDIR}/Galfit_Template/goSimuDL.sm" ./
+        cp "${SUPERDEBLENDDIR}/Galfit_Template/goSimuDL.sm" ./
+    fi
+    set -e
 fi
 
 if [[ ! -f "goPriorDL.sm" ]] && [[ ! -L "goPriorDL.sm" ]]; then 
-    echo "Warning! \"goPriorDL.sm\" was not found! Linking from \"$(dirname ${BASH_SOURCE[0]})/Galfit_Template/goPriorDL.sm\"!"
-    ln -fs "$(dirname ${BASH_SOURCE[0]})/Galfit_Template/goPriorDL.sm"
+    echo "Warning! \"goPriorDL.sm\" was not found! Linking from \"${SUPERDEBLENDDIR}/Galfit_Template/goPriorDL.sm\"!"
+    set +e
+    ln -fs "${SUPERDEBLENDDIR}/Galfit_Template/goPriorDL.sm"
+    if [[ ! -f "goPriorDL.sm" ]] && [[ ! -L "goPriorDL.sm" ]]; then
+        echo cp "${SUPERDEBLENDDIR}/Galfit_Template/goPriorDL.sm" ./
+        cp "${SUPERDEBLENDDIR}/Galfit_Template/goPriorDL.sm" ./
+    fi
+    set -e
 fi
 
 # if [[ ! -f "run_image_util.sm" ]]; then ln -fs "../run_image_util.sm"; fi

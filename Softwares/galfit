@@ -4,7 +4,9 @@
 #
 # Linux
 if [[ $(uname -s) == Linux ]]; then
-    if [[ $(bc <<< "$(ldd --version | head -n 1 | tr -s ' ' | cut -d ' ' -f 4 | cut -d '.' -f 2)<12") -eq 1 ]]; then
+    if [[ $(ldd --version | head -n 1 | tr -s ' ' | grep 'Ubuntu GLIBC' | wc -l) -gt 0 ]]; then
+        $(dirname $(readlink -f $0))/galfit_linux_ubuntu/galfit "$@"
+    elif [[ $(bc <<< "$(ldd --version | head -n 1 | tr -s ' ' | sed -e 's/Ubuntu GLIBC/GLIBC/g' | cut -d ' ' -f 4 | cut -d '.' -f 2)<12") -eq 1 ]]; then
         # the supercomputer planer has an old GLIBC version 2.5
         $(dirname $(readlink -f $0))/galfit_linux_Glibc_2.10/galfit3rhel "$@"
     else

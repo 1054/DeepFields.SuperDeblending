@@ -39,7 +39,7 @@ fi
 #echo ${GalfitBoxList[1]}
 #echo ${GalfitRunList[1]}
 #echo ${#GalfitBoxList[@]}
-#echo ${#GalfitRunList[@]}
+echo "${GalfitRunList[@]} (${#GalfitRunList[@]})"
 if [[ ${#GalfitBoxList[@]} != ${#GalfitRunList[@]} ]]; then
     echo "boxgalfit directory not fully prepared!"
     echo "please prepare the data like this:"
@@ -76,12 +76,14 @@ fi
 STARTSOURCE=0 # <Added> start from id
 FINALSOURCE=-1 # <Added> final upto id
 GALFITOVERWRITE=0 # <Added> overwrite
+NCPU=8
 if [[ $* == *-start*          ]]; then STARTSOURCE=$(echo $* | perl -p -e 's/.*-start[ ]*([^ -]*).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -start parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
 if [[ $* == *-begin*          ]]; then STARTSOURCE=$(echo $* | perl -p -e 's/.*-begin[ ]*([^ -]*).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -begin parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
 if [[ $* == *-from*           ]]; then STARTSOURCE=$(echo $* | perl -p -e 's/.*-from[ ]*([^ -]*).*/\1/g'); echo STARTSOURCE=$STARTSOURCE; if [[ $STARTSOURCE != *[[:digit:]]* ]]; then echo "Error! -from parameter invalid!"; exit; else echo "We will start from $STARTSOURCE (including)!"; fi; fi
 if [[ $* == *-finish*         ]]; then FINALSOURCE=$(echo $* | perl -p -e 's/.*-finish[ ]*([^ -]*).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -finish parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
 if [[ $* == *-upto*           ]]; then FINALSOURCE=$(echo $* | perl -p -e 's/.*-upto[ ]*([^ -]*).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -upto parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
 if [[ $* == *-end*            ]]; then FINALSOURCE=$(echo $* | perl -p -e 's/.*-end[ ]*([^ -]*).*/\1/g'); echo FINALSOURCE=$FINALSOURCE; if [[ $FINALSOURCE != *[[:digit:]]* ]]; then echo "Error! -end parameter invalid!"; exit; else echo "We will finish upto $FINALSOURCE (including)!"; fi; fi
+if [[ $* == *-ncpu*           ]]; then NCPU=$(echo $* | perl -p -e 's/.*-ncpu[ ]*([^ -]*).*/\1/g'); echo NCPU=$NCPU; if [[ $NCPU != *[[:digit:]]* ]]; then echo "Error! -ncpu parameter invalid!"; exit; else echo "We will run with NCPU=$NCPU!"; fi; fi
 if [[ $* == *-overwrite*      ]]; then GALFITOVERWRITE=1; echo "We will overwrite the galfit fitting result e.g. fit.log fit.out fit.fits in each box!"; fi
 # 
 # 
@@ -113,7 +115,7 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
             echo "${GalfitBoxList[i]}"
             # 
             # check hostname
-            if [[ $(hostname) == *planer* || $(hostname) == irfucoast* ]]; then
+            if [[ $NCPU -gt 1 ]] && ([[ $(hostname) == *planer* ]] || [[ $(hostname) == irfucoast* ]]); then
                 echo Checking hostname $(hostname)
                 cp  "${GalfitRunList[i]}"                                                             "${GalfitRunList[i]}.$(hostname).sh"
                 sed -i -e "2 i export PATH=$SUPERDEBLENDDIR:\$PATH"                                   "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> prepend the $PATH where one can find galfit
@@ -123,7 +125,7 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
                 sed -i -e "s%^.*/galfit %galfit %g"                                                   "${GalfitRunList[i]}.$(hostname).sh"
                 echo "chmod 777 *"                                                                 >> "${GalfitRunList[i]}.$(hostname).sh"
                 echo Counting qsub task "$(showq | grep $USER | wc -l)"
-                while      [[   30  -le "$(showq | grep $USER | wc -l)" ]]; do
+                while      [[ $NCPU -le "$(showq | grep $USER | wc -l)" ]]; do
                 sleep           18
                 echo Counting qsub task "$(showq | grep $USER | wc -l)"
                 done
@@ -134,7 +136,7 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
                 qsub -l walltime=3:15:00 "${GalfitRunList[i]}.$(hostname).sh"
                 echo Sleeping 4s
                 sleep 4
-            elif [[ $(hostname) == "astro-node"* || $(hostname) == "aida"* ]]; then
+            elif [[ $NCPU -gt 1 ]] && ([[ $(hostname) == "astro-node"* ]] || [[ $(hostname) == "aida"* ]] || [[ $(hostname) == "DL-VM-Ubuntu" ]]); then
                 echo Checking hostname $(hostname)
                 cp  "${GalfitRunList[i]}"                           "${GalfitRunList[i]}.$(hostname).sh"
                 sed -i -e "2 i export PATH=$SUPERDEBLENDDIR:\$PATH" "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> prepend the $PATH where one can find galfit
@@ -145,7 +147,7 @@ for (( i = 0; i < ${#GalfitBoxList[@]}; i++ )); do
                 sed -i -e "s%^.*/galfit %galfit %g"                 "${GalfitRunList[i]}.$(hostname).sh"   # <TODO> assume the galfit is already in your $PATH
                 chmod a+x                                           "${GalfitRunList[i]}.$(hostname).sh"
                 echo "Counting screen task "$(screen -ls | grep "galfit_" | wc -l)
-                while       [[   20  -le    $(screen -ls | grep "galfit_" | wc -l) ]]; do
+                while       [[ $NCPU -le    $(screen -ls | grep "galfit_" | wc -l) ]]; do
                 sleep            10
                 echo "Counting screen task "$(screen -ls | grep "galfit_" | wc -l)
                 done

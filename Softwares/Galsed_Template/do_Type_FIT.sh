@@ -14,6 +14,7 @@
 
 GALSED_CATALOG=""
 GALSED_RESULTS=()
+GALSED_FIELD="GOODSN"
 GALSED_BAND=""
 GALSED_FCUT=""
 
@@ -23,6 +24,14 @@ GALSED_FCUT=""
 while [[ $# -gt 0 ]]; do
     
     case "$1" in
+                
+        "-field") shift
+                 while [[ $# -gt 0 ]]; do
+                     if [[ "$1" != "-"* ]]; then
+                         GALSED_FIELD="$1"
+                     else break; fi; shift
+                 done
+                 ;;
                 
         "-band") shift
                  while [[ $# -gt 0 ]]; do
@@ -61,6 +70,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+echo GALSED_FIELD="$GALSED_FIELD"
 echo GALSED_BAND="$GALSED_BAND"
 echo GALSED_FCUT="$GALSED_FCUT"
 echo GALSED_CATALOG="$GALSED_CATALOG"
@@ -69,8 +79,8 @@ echo GALSED_RESULTS="${GALSED_RESULTS[@]}"
 # 
 # Check variables
 # 
-if [[ x"$GALSED_BAND" == x"" || x"$GALSED_FCUT" == x"" || x"$GALSED_CATALOG" == x"" || x"${GALSED_RESULTS[@]}" == x"" ]]; then
-    echo ""; echo "Usage: "; echo " ./do_Type_FIT.sh -band 100 -fcut 0.5 -catalog RadioOwenMIPS24_*.txt -sedresults ResLMT*.txt"; echo ""; exit
+if [[ x"$GALSED_FIELD" == x"" || x"$GALSED_BAND" == x"" || x"$GALSED_FCUT" == x"" || x"$GALSED_CATALOG" == x"" || x"${GALSED_RESULTS[@]}" == x"" ]]; then
+    echo ""; echo "Usage: "; echo " ./do_Type_FIT.sh -field goodsn -band 100 -fcut 0.5 -catalog RadioOwenMIPS24_*.txt -sedresults ResLMT*.txt"; echo ""; exit
 fi
 
 # 
@@ -121,8 +131,8 @@ if [[ -f "do_Type_FIT/plot_cutting_flux_$GALSED_BAND.pdf" ]]; then mv "do_Type_F
 # 
 # Run do_Type_FIT.sm
 # 
-echo "cd into $(dirname ${BASH_SOURCE})/do_Type_FIT/"; echo "sm <<< \"macro read do_Type_FIT.sm go $GALSED_BAND $GALSED_FCUT\""; echo "-----------------------------------------------------------------------------"
-bash -c "cd $(dirname ${BASH_SOURCE})/do_Type_FIT/; sm <<< \"macro read do_Type_FIT.sm go $GALSED_BAND $GALSED_FCUT\""; echo "-----------------------------------------------------------------------------"
+echo "cd into $(dirname ${BASH_SOURCE})/do_Type_FIT/"; echo "sm <<< \"macro read do_Type_FIT.sm go $GALSED_FIELD $GALSED_BAND $GALSED_FCUT\""; echo "-----------------------------------------------------------------------------"
+bash -c "cd $(dirname ${BASH_SOURCE})/do_Type_FIT/; sm <<< \"macro read do_Type_FIT.sm go $GALSED_FIELD $GALSED_BAND $GALSED_FCUT\""; echo "-----------------------------------------------------------------------------"
 
 # 
 # Print message

@@ -59,6 +59,9 @@ cp "${deploy_script_dir}"/fit_engine.sm .
 cp -r "${deploy_script_dir}"/Magdis    .
 cp "${deploy_script_dir}"/Mullaney_AGN_table3.txt   .
 cp "${deploy_script_dir}"/convert_datatable_for_sed_fitting.sm   .
+cp -ri "${deploy_script_dir}"/do_Type_AGN* ./
+cp -ri "${deploy_script_dir}"/do_Type_SED* ./
+cp -ri "${deploy_script_dir}"/do_Type_FIT* ./
 date "+%Y-%m-%d %H:%M:%S %Z" > "ReadMe_deploy_files.txt"
 echo "Copied from \"${deploy_script_dir}\"" >> "ReadMe_deploy_files.txt"
 echo "" >> "ReadMe_deploy_files.txt"
