@@ -1762,6 +1762,7 @@ go_simulation_based_correction_recipes 00
             define rBeam_500 36.3 #<TODO># PSF FWHM at each band
             define rBeam_850 14.8
             define rBeam_850_NMF 11.
+            define rBeam_1100 18.
             define rBeam_1160 19.5 #<TODO># PSF FWHM at each band
             # 
             if(is_file("run_simu_stats_v11.sm")) {

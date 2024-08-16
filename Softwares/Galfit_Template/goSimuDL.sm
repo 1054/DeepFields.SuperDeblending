@@ -48,6 +48,7 @@ goSS 00
         !cp "xpriorGN_MAG_"$imax"_"$xdate".txt" "xpriorGN_MAG_"$imax"_"$xdate"_vary.txt"
         return
     }
+
     ###<Added><DzLIU><20141123>###
     ###<Added><DzLIU><20170510>###
     
@@ -55,7 +56,7 @@ goSS 00
     
     #<20170801># 
     echo Doing xdo_sizes for $imax_name
-    macro read goFine.sm xdo_sizes
+    macro read goFineDL.sm xdo_sizes
     echo Done  xdo_sizes NAXIS1=$imax_xsize NAXIS2=$imax_ysize
     !echo 1 1 > aaa_goSS_xy2sky_input
     !echo $imax_xsize $imax_ysize >> aaa_goSS_xy2sky_input
@@ -183,15 +184,32 @@ SimuX 00
                 set mag_si = $mag0+($mag1-$mag0)*random($Nsimu)
                 set mag_pr = mag_si * 0.0 + $mag_start
                 get_coordX
+                macro read goPriorDL.sm
                 gPriors
             } else {
                 # must have already run goSS => xm_si, fix1_si, fix2_si
                 set mag_si = mag_si
                 set mag_pr = xm_si
+                macro read goPriorDL.sm
                 gPriors
             }
+
+            if(is_vector(xm)) {
+                set m$imax = xm
+            } else {
+                set m$imax = raF*0.0 + $mag_start
+            }
+
+            # set fix1 fix2 for x and y if vary_positions
+            if($vary_positions) {
+                set fix1 = raF*0.0 + 1
+                set fix2 = deF*0.0 + 1
+            } else {
+                set fix1 = raF*0.0 + 0
+                set fix2 = deF*0.0 + 0
+            }
             
-            macro read goFine.sm xdo_sizes
+            macro read goFineDL.sm xdo_sizes
             
             # <20160914> note that after goSS or gPriors, xdate already contains vary if defined vary_positions
             define outfile "xsimuGN_OUT_"$imax"_"$xdate".txt"                         ###<20160914><DZLIU### moved to here
@@ -450,15 +468,16 @@ goRead  00
                 # Select the simulated object
                 set mm = ResultMags[dimen(ResultMags)-1] # _mag[dimen(_mag)-1] # the simulated object is the last fitted source
                 set ee = ResultMagsErr[dimen(ResultMagsErr)-1] # _err[dimen(_err)-1] # the simulated object is the last fitted source
+
+                # Load photometry constants
+                #load astroPhot.sm
+                macro read astrodepth_photometry_constants.sm
+                set_$field""_photometry_constants_$imax
                 
-                # Compute residual image flux -- #<ADD><20151220><dzliu># -- new and better written fresidual.sm code
+                # Compute residual image flux
                 load fresidual.sm
-                load astroPhot.sm
-                set_goodsn_photometry_constants_$imax
-                set ResABS = fresidual_inPixel("simu3.fits[3]",$($f_buff+$g_buff+1),$($f_buff+$g_buff+1),$($rBeam_$imax/$PixScale_$imax/2.0)) #<FIXED><20151221># fits[3] not [2]
-                                                !\cp aaa_fresidual_aperphot_* $idBox/
-                                               # FIT_goodsn_100_Map_201512_vary.fits[2] is the residual frame
-                                               # BUT simu2.fits[3] fit.fits[3] are the residual frame
+                set ResABS = fresidual_inPixel("simu3.fits[3]",$($f_buff+$g_buff+1),$($f_buff+$g_buff+1),$($rBeam_$imax/$PixScale_$imax/2.0))
+                !\cp aaa_fresidual_aperphot_* $idBox/
                 set ResPixObsABS = ResABS
                 
                 # Compute crowdedness/crowdiness

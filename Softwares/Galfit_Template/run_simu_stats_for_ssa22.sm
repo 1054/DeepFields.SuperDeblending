@@ -9,25 +9,25 @@ run_simu_stats_for_ssa22 03
     #     macro read run_simu_stats_for_ssa22.sm run_simu_stats_for_ssa22 goodsn 850_NMF 20170506
     #     
     #     echo "macro read run_simu_stats_for_ssa22.sm run_simu_stats_for_ssa22 goodsn 100 20151201" | sm | tee log_run_simu_stats_for_ssa22_20160913.txt
-    #     pdfjoin --rotateoversize 'false' sim_diagram_output_for_ssa22/*{bin,fbias,dfcorr}*.pdf
+    #     pdfjoin --rotateoversize 'false' sim_out_dir/*{bin,fbias,dfcorr}*.pdf
     #     
     #     echo "macro read run_simu_stats_for_ssa22.sm run_simu_stats_for_ssa22 goodsn 160 20151201" | sm | tee log_run_simu_stats_for_ssa22_20160913.txt
-    #     pdfjoin --rotateoversize 'false' sim_diagram_output_for_ssa22/*{bin,fbias,dfcorr}*.pdf
+    #     pdfjoin --rotateoversize 'false' sim_out_dir/*{bin,fbias,dfcorr}*.pdf
     #     
     #     echo "macro read run_simu_stats_for_ssa22.sm run_simu_stats_for_ssa22 goodsn 250 20151201" | sm | tee log_run_simu_stats_for_ssa22_20160913.txt
-    #     pdfjoin --rotateoversize 'false' sim_diagram_output_for_ssa22/*{bin,fbias,dfcorr}*.pdf
+    #     pdfjoin --rotateoversize 'false' sim_out_dir/*{bin,fbias,dfcorr}*.pdf
     #     
     #     echo "macro read run_simu_stats_for_ssa22.sm run_simu_stats_for_ssa22 goodsn 350 20151201" | sm | tee log_run_simu_stats_for_ssa22_20160913.txt
-    #     pdfjoin --rotateoversize 'false' sim_diagram_output_for_ssa22/*{bin,fbias,dfcorr}*.pdf
+    #     pdfjoin --rotateoversize 'false' sim_out_dir/*{bin,fbias,dfcorr}*.pdf
     #     
     #     echo "macro read run_simu_stats_for_ssa22.sm run_simu_stats_for_ssa22 goodsn 500 20151201" | sm | tee log_run_simu_stats_for_ssa22_20160913.txt
-    #     pdfjoin --rotateoversize 'false' sim_diagram_output_for_ssa22/*{bin,fbias,dfcorr}*.pdf
+    #     pdfjoin --rotateoversize 'false' sim_out_dir/*{bin,fbias,dfcorr}*.pdf
     #     
     #     echo "macro read run_simu_stats_for_ssa22.sm run_simu_stats_for_ssa22 goodsn 1160 20151201" | sm | tee log_run_simu_stats_for_ssa22_20160913.txt
-    #     pdfjoin --rotateoversize 'false' sim_diagram_output_for_ssa22/*{bin,fbias,dfcorr}*.pdf
+    #     pdfjoin --rotateoversize 'false' sim_out_dir/*{bin,fbias,dfcorr}*.pdf
     #     
     #     echo "macro read run_simu_stats_for_ssa22.sm run_simu_stats_for_ssa22 850 20160812" | sm | tee log_run_simu_stats_for_ssa22_20160913.txt
-    #     pdfjoin --rotateoversize 'false' sim_diagram_output_for_ssa22/*{bin,fbias,dfcorr,hist}*.pdf
+    #     pdfjoin --rotateoversize 'false' sim_out_dir/*{bin,fbias,dfcorr,hist}*.pdf
     # 
     # Update:
     #     2015-12 do fbias and dfcorr step by step together
@@ -36,15 +36,16 @@ run_simu_stats_for_ssa22 03
     #.    2017-02-23    Now accepts 3 input arguments: field, band and date. 
     # 
     
-    if($?3==0){
-        print 'Usage: \n' {} 
-        print '       macro read run_simu_stats_for_ssa22.sm run_simu_stats_for_ssa22 \$field \$imax \$xdate\n' {} return
-    }
+    #if($?3==0){
+    #    print 'Usage: \n' {} 
+    #    print '       macro read run_simu_stats_for_ssa22.sm run_simu_stats_for_ssa22 \$field \$imax \$xdate\n' {} return
+    #}
     
     load crabStat.sm
     load crabPlot.sm
     load crabPlotHistogram.sm
     load astroPhot.sm
+    macro read astrodepth_photometry_constants.sm
     
     if($?2==0) {
         print 'Usage: \n' {} 
@@ -54,7 +55,7 @@ run_simu_stats_for_ssa22 03
         return
     } else {
         if($?3==0) {
-            define field goodsn
+            define field ssa2
             define imax  $1
             define xdate $2
         } else {
@@ -67,20 +68,15 @@ run_simu_stats_for_ssa22 03
         #define xtype ( whatis(set_$field""_photometry_constants_$imax) )
         if( whatis(set_$field""_photometry_constants_$imax) != 3) {
             print 'Error! Could not recognize field \"$field\" or band \"$imax\"! \n' {}
-            print 'Please contact liudz1054@gmail.com to have a check on \"astroPhot.sm\"!\n' {}
+            print 'Please define function set_$field""_photometry_constants_$imax in astrodepth_photometry_constants.sm!\n' {}
             return
         }
     }
-    #echo '$field'
-    #echo '$imax'
-    #echo '$xdate'
-    #return
     
     
     define imax_name "xsimuGN_OUT_"$imax"_"$xdate".txt"
     define imax_mags "xpriorGN_MAG_"$imax"_"$xdate".txt"
-    #define rrrr_name "results_"$1"_201500" #<TODO>#
-    define outdir    "sim_diagram_output_for_ssa22"
+    define outdir    "sim_out_dir"
     
     if(!is_file($imax_name)) {
         print 'Error! $imax_name was not found!\n\n' {}
@@ -139,7 +135,7 @@ run_simu_stats_for_ssa22 03
     }
     
     # <TODO> filter some outliers? <20170104> by flux range
-    if(1) {
+    if(0) {
         #set flag_outlier = (sm<1.6) # use only flux > 3.3-sigma = 6.6 mJy -- finding that flux < 3.3-sigma sources have very good Gaussian statistics. The problem is flux > 3.3-sigma sources. 
         #set flag_outlier = (sm>0.4) # use only flux < 10-sigma = 20.0 mJy
         #set flag_outlier = (sm>0.64) # use only flux < 8-sigma = 16.0 mJy
@@ -147,7 +143,7 @@ run_simu_stats_for_ssa22 03
         #set flag_outlier = (mm<2.0) # use only flux > 2.0mJy
         #set flag_outlier = (sm<1.6 && mm<2.0) # use only flux > 3.3-sigma = 6.6 mJy
         #set flag_outlier = (sm>0.16 && sm<1.6 && mm<2.0) # use only flux > 6.6 mJy && flux < 25mJy (3-sigma to 12-sigma)
-        set_$1""_photometry_constants_$imax
+        set_$field""_photometry_constants_$imax
         define fBias_$imax 0.0
         #<TODO><20170105b><dzliu># define loSigma 1
         #<TODO><20170105b><dzliu># define hiSigma 15
@@ -507,7 +503,7 @@ run_simu_stats_for_sim_data_input 01
     # define 
     define field "cosmos"
     define imax "ALMA"
-    define outdir "sim_diagram_output_for_ssa22"
+    define outdir "sim_out_dir"
     # 
     # check outdir
     !mkdir $outdir 2>/dev/null
@@ -1620,7 +1616,7 @@ go_correct_three_step_recipes
     if(!is_vector(f$imax))   {print 'go_correct_three_steps: Error! f$imax was not set!\n' {}             define _lets_go_ 0}
     if(!is_vector(df$imax))  {print 'go_correct_three_steps: Error! df$imax was not set!\n' {}            define _lets_go_ 0}
     if(!is_vector(noi$imax)) {print 'go_correct_three_steps: Error! noi$imax was not set!\n' {}           define _lets_go_ 0}
-    if(!$_lets_go_) { define aaa ? return } # check failed, return # <TODO> still needs to check sim_diagram_output_for_ssa22
+    if(!$_lets_go_) { define aaa ? return } # check failed, return # <TODO> still needs to check sim_out_dir
     # go correct fbias
     # go correct df
     set fit_coo = (x$imax!=-99&&y$imax!=-99)
@@ -1656,59 +1652,59 @@ go_correct_three_step_recipes
         print "aaa_crowdedness.txt" '%15g%15.0f%15.3f%15.3f%15g%15g\n' <crow$imax id$imax x$imax y$imax f$imax df$imax>
     }
     # load simulation-based correction functions
-    if(is_file("sim_diagram_output_for_ssa22/FUN_fbias_1_xy.txt")) { 
-          data "sim_diagram_output_for_ssa22/FUN_fbias_1_xy.txt"  read {FUN_fbias_1_x 1 FUN_fbias_1_y 2}
+    if(is_file("sim_out_dir/FUN_fbias_1_xy.txt")) { 
+          data "sim_out_dir/FUN_fbias_1_xy.txt"  read {FUN_fbias_1_x 1 FUN_fbias_1_y 2}
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_fbias_1_xy.txt")) {
-          data "sim_diagram_output_for_ssa22/FUN_fbias_2_xy.txt"  read {FUN_fbias_2_x 1 FUN_fbias_2_y 2}
+    if(is_file("sim_out_dir/FUN_fbias_1_xy.txt")) {
+          data "sim_out_dir/FUN_fbias_2_xy.txt"  read {FUN_fbias_2_x 1 FUN_fbias_2_y 2}
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_fbias_3_xy.txt")) { 
-          data "sim_diagram_output_for_ssa22/FUN_fbias_3_xy.txt"  read {FUN_fbias_3_x 1 FUN_fbias_3_y 2}
+    if(is_file("sim_out_dir/FUN_fbias_3_xy.txt")) { 
+          data "sim_out_dir/FUN_fbias_3_xy.txt"  read {FUN_fbias_3_x 1 FUN_fbias_3_y 2}
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_fbias_1.txt")) { 
-          data "sim_diagram_output_for_ssa22/FUN_fbias_1.txt"  read FUN_fbias_1  1
+    if(is_file("sim_out_dir/FUN_fbias_1.txt")) { 
+          data "sim_out_dir/FUN_fbias_1.txt"  read FUN_fbias_1  1
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_fbias_1.txt")) {
-          data "sim_diagram_output_for_ssa22/FUN_fbias_2.txt"  read FUN_fbias_2  1
+    if(is_file("sim_out_dir/FUN_fbias_1.txt")) {
+          data "sim_out_dir/FUN_fbias_2.txt"  read FUN_fbias_2  1
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_fbias_3.txt")) { 
-          data "sim_diagram_output_for_ssa22/FUN_fbias_3.txt"  read FUN_fbias_3  1
+    if(is_file("sim_out_dir/FUN_fbias_3.txt")) { 
+          data "sim_out_dir/FUN_fbias_3.txt"  read FUN_fbias_3  1
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_dfcorr_1_xy.txt")) { 
-          data "sim_diagram_output_for_ssa22/FUN_dfcorr_1_xy.txt" read {FUN_dfcorr_1_x 1 FUN_dfcorr_1_y 2}
+    if(is_file("sim_out_dir/FUN_dfcorr_1_xy.txt")) { 
+          data "sim_out_dir/FUN_dfcorr_1_xy.txt" read {FUN_dfcorr_1_x 1 FUN_dfcorr_1_y 2}
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_dfcorr_2_xy.txt")) { 
-          data "sim_diagram_output_for_ssa22/FUN_dfcorr_2_xy.txt" read {FUN_dfcorr_2_x 1 FUN_dfcorr_2_y 2}
+    if(is_file("sim_out_dir/FUN_dfcorr_2_xy.txt")) { 
+          data "sim_out_dir/FUN_dfcorr_2_xy.txt" read {FUN_dfcorr_2_x 1 FUN_dfcorr_2_y 2}
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_dfcorr_3_xy.txt")) { 
-          data "sim_diagram_output_for_ssa22/FUN_dfcorr_3_xy.txt" read {FUN_dfcorr_3_x 1 FUN_dfcorr_3_y 2}
+    if(is_file("sim_out_dir/FUN_dfcorr_3_xy.txt")) { 
+          data "sim_out_dir/FUN_dfcorr_3_xy.txt" read {FUN_dfcorr_3_x 1 FUN_dfcorr_3_y 2}
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_dfcorr_1.txt")) { 
-          data "sim_diagram_output_for_ssa22/FUN_dfcorr_1.txt" read FUN_dfcorr_1 1
+    if(is_file("sim_out_dir/FUN_dfcorr_1.txt")) { 
+          data "sim_out_dir/FUN_dfcorr_1.txt" read FUN_dfcorr_1 1
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_dfcorr_2.txt")) { 
-          data "sim_diagram_output_for_ssa22/FUN_dfcorr_2.txt" read FUN_dfcorr_2 1
+    if(is_file("sim_out_dir/FUN_dfcorr_2.txt")) { 
+          data "sim_out_dir/FUN_dfcorr_2.txt" read FUN_dfcorr_2 1
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_dfcorr_3.txt")) { 
-          data "sim_diagram_output_for_ssa22/FUN_dfcorr_3.txt" read FUN_dfcorr_3 1
+    if(is_file("sim_out_dir/FUN_dfcorr_3.txt")) { 
+          data "sim_out_dir/FUN_dfcorr_3.txt" read FUN_dfcorr_3 1
     }
-    if(is_file("sim_diagram_output_for_ssa22/NOM_fbias_1.txt")) { 
-          data "sim_diagram_output_for_ssa22/NOM_fbias_1.txt"  read NOM_fbias_1  1
+    if(is_file("sim_out_dir/NOM_fbias_1.txt")) { 
+          data "sim_out_dir/NOM_fbias_1.txt"  read NOM_fbias_1  1
     }
-    if(is_file("sim_diagram_output_for_ssa22/NOM_fbias_2.txt")) { 
-          data "sim_diagram_output_for_ssa22/NOM_fbias_2.txt"  read NOM_fbias_2  1
+    if(is_file("sim_out_dir/NOM_fbias_2.txt")) { 
+          data "sim_out_dir/NOM_fbias_2.txt"  read NOM_fbias_2  1
     }
-    if(is_file("sim_diagram_output_for_ssa22/NOM_fbias_3.txt")) { 
-          data "sim_diagram_output_for_ssa22/NOM_fbias_3.txt"  read NOM_fbias_3  1
+    if(is_file("sim_out_dir/NOM_fbias_3.txt")) { 
+          data "sim_out_dir/NOM_fbias_3.txt"  read NOM_fbias_3  1
     }
-    if(is_file("sim_diagram_output_for_ssa22/NOM_dfcorr_1.txt")) { 
-          data "sim_diagram_output_for_ssa22/NOM_dfcorr_1.txt" read NOM_dfcorr_1 1
+    if(is_file("sim_out_dir/NOM_dfcorr_1.txt")) { 
+          data "sim_out_dir/NOM_dfcorr_1.txt" read NOM_dfcorr_1 1
     }
-    if(is_file("sim_diagram_output_for_ssa22/NOM_dfcorr_2.txt")) { 
-          data "sim_diagram_output_for_ssa22/NOM_dfcorr_2.txt" read NOM_dfcorr_2 1
+    if(is_file("sim_out_dir/NOM_dfcorr_2.txt")) { 
+          data "sim_out_dir/NOM_dfcorr_2.txt" read NOM_dfcorr_2 1
     }
-    if(is_file("sim_diagram_output_for_ssa22/NOM_dfcorr_3.txt")) { 
-          data "sim_diagram_output_for_ssa22/NOM_dfcorr_3.txt" read NOM_dfcorr_3 1
+    if(is_file("sim_out_dir/NOM_dfcorr_3.txt")) { 
+          data "sim_out_dir/NOM_dfcorr_3.txt" read NOM_dfcorr_3 1
     }
     # correct negative flux and negative df
     set df$imax = df$imax<0 ? 1e10 : df$imax
@@ -1716,25 +1712,25 @@ go_correct_three_step_recipes
     # macro read run_simu_stats_for_ssa22.sm
     stats_med noi$imax noi$imax""_median noi$imax""_siqr
     # 
-    if(is_file("sim_diagram_output_for_ssa22/FUN_dfcorr_1.txt")) {
+    if(is_file("sim_out_dir/FUN_dfcorr_1.txt")) {
         go_correct_fbias   1   (lg(df$imax/noi$imax))      "\sigma_{galfit}/\sigma_{rms\,noise}"
         go_correct_df      1   (lg(df$imax/noi$imax))      "\sigma_{galfit}/\sigma_{rms\,noise}"
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_dfcorr_2.txt")) {
+    if(is_file("sim_out_dir/FUN_dfcorr_2.txt")) {
         go_correct_fbias   2   (lg(fres$imax/noi$imax))    "S_{residual}/\sigma_{rms\,noise}"
         go_correct_df      2   (lg(fres$imax/noi$imax))    "S_{residual}/\sigma_{rms\,noise}"
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_dfcorr_3.txt")) {
+    if(is_file("sim_out_dir/FUN_dfcorr_3.txt")) {
         go_correct_fbias   3   (lg(crow$imax))         "crowdedness"
         go_correct_df      3   (lg(crow$imax))         "crowdedness"
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_dfcorr_fpeakRMS.txt")) {
-        data "sim_diagram_output_for_ssa22/FUN_dfcorr_fpeakRMS.txt" read FUN_dfcorr_fpeakRMS 1
+    if(is_file("sim_out_dir/FUN_dfcorr_fpeakRMS.txt")) {
+        data "sim_out_dir/FUN_dfcorr_fpeakRMS.txt" read FUN_dfcorr_fpeakRMS 1
         go_correct_fbias   fpeakRMS   (lg(fpeakRMS$imax))         "fpeakRMS"
         go_correct_df      fpeakRMS   (lg(fpeakRMS$imax))         "fpeakRMS"
     }
-    if(is_file("sim_diagram_output_for_ssa22/FUN_dfcorr_maj.txt")) {
-        data "sim_diagram_output_for_ssa22/FUN_dfcorr_maj.txt" read FUN_dfcorr_maj 1
+    if(is_file("sim_out_dir/FUN_dfcorr_maj.txt")) {
+        data "sim_out_dir/FUN_dfcorr_maj.txt" read FUN_dfcorr_maj 1
         go_correct_fbias   maj   ((maj$imax))         "maj"
         go_correct_df      maj   ((maj$imax))         "maj"
     }

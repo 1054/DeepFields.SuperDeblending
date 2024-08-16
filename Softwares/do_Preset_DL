@@ -39,12 +39,12 @@ if [ $# -lt 3 ]; then
       echo "       # Second we need to make sure \"astroPhot.sm\" has \"set_goodsn_photometry_constants_20cm_Morrison\" subroutine"
       echo "       # Then we need to make sure softwares \"Supermongo\", \"IRAF\", \"galfit\", \"CrabFitsHeader\", \"CrabPhotAperPhot\" are ready"
       echo "       # Then we go"
-      echo "       do_$1 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -fitsname-sci GOODSN_1_4GHz_dzliu -fitsname-rms GOODSN_1_4GHz_rms_dzliu"
+      echo "       do_${1}_DL 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -fitsname-sci GOODSN_1_4GHz_dzliu -fitsname-rms GOODSN_1_4GHz_rms_dzliu"
       echo "       cd boxgalfit/; do_GalfitRunqsub; cd ../"
-      echo "       do_$1 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -fitsname-sci GOODSN_1_4GHz_dzliu -fitsname-rms GOODSN_1_4GHz_rms_dzliu -postparallel"
-      echo "       do_$1 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -fitsname-sci GOODSN_1_4GHz_dzliu -fitsname-rms GOODSN_1_4GHz_rms_dzliu -vary"
+      echo "       do_${1}_DL 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -fitsname-sci GOODSN_1_4GHz_dzliu -fitsname-rms GOODSN_1_4GHz_rms_dzliu -postparallel"
+      echo "       do_${1}_DL 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -fitsname-sci GOODSN_1_4GHz_dzliu -fitsname-rms GOODSN_1_4GHz_rms_dzliu -vary"
       echo "       cd boxgalfit_vary/; do_GalfitRunqsub; cd ../"
-      echo "       do_$1 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -fitsname-sci GOODSN_1_4GHz_dzliu -fitsname-rms GOODSN_1_4GHz_rms_dzliu -vary -postparallel"
+      echo "       do_${1}_DL 20cm 201500 -catalog irac_mips_fluxes_hdfn.dat -fitsname-sci GOODSN_1_4GHz_dzliu -fitsname-rms GOODSN_1_4GHz_rms_dzliu -vary -postparallel"
       echo "       "
     fi
     exit
@@ -496,6 +496,17 @@ if [[ ! -f "goPriorDL.sm" ]] && [[ ! -L "goPriorDL.sm" ]]; then
     if [[ ! -f "goPriorDL.sm" ]] && [[ ! -L "goPriorDL.sm" ]]; then
         echo cp "${SUPERDEBLENDDIR}/Galfit_Template/goPriorDL.sm" ./
         cp "${SUPERDEBLENDDIR}/Galfit_Template/goPriorDL.sm" ./
+    fi
+    set -e
+fi
+
+if [[ ! -f "astrodepth_photometry_constants.sm" ]] && [[ ! -L "astrodepth_photometry_constants.sm" ]]; then 
+    echo "Warning! \"astrodepth_photometry_constants.sm\" was not found! Linking from \"${SUPERDEBLENDDIR}/astrodepth_photometry_constants.sm\"!"
+    set +e
+    ln -fs "${SUPERDEBLENDDIR}/astrodepth_photometry_constants.sm"
+    if [[ ! -f "astrodepth_photometry_constants.sm" ]] && [[ ! -L "astrodepth_photometry_constants.sm" ]]; then
+        echo cp "${SUPERDEBLENDDIR}/astrodepth_photometry_constants.sm" ./
+        cp "${SUPERDEBLENDDIR}/astrodepth_photometry_constants.sm" ./
     fi
     set -e
 fi

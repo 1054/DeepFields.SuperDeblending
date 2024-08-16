@@ -1,0 +1,181 @@
+#!/bin/bash
+# 
+
+set -e
+
+set -e
+
+if [[ -z "$SUPERDEBLENDDIR" ]]; then
+    source $(dirname "${BASH_SOURCE[0]}")/Softwares/SETUP
+fi
+
+. "$SUPERDEBLENDDIR"/do_Preset_DL Galfit $*
+# --> this outputs spdb_preset_${DG_IMAX}.sm
+
+
+# 
+for checkfile in "goFineDL.sm" "goPriorDL.sm" "goSimuDL.sm" "spdb_photometry_constants_1100.sm"; do
+    [[ ! -f $checkfile ]] && echo "Error! \"$checkfile\" was not found!" && exit
+done
+
+# 
+DG_FAKE=0
+DG_MAG0=0
+DG_MAG1=0
+DG_NSIM=6000
+# 
+if [[ $* == *-mag0* ]]; then
+DG_MAG0=`expr "$*" : '.*-mag0[\ \t]*\([0-9eE\.\+\-]*\)'`
+fi
+# 
+if [[ $* == *-mag1* ]]; then
+DG_MAG1=`expr "$*" : '.*-mag1[\ \t]*\([0-9eE\.\+\-]*\)'`
+fi
+# 
+if [[ $* == *-number* ]]; then
+DG_NSIM=`expr "$*" : '.*-number[\ \t]*\([0-9eE\.\+\-]*\)'`
+fi
+# 
+if [[ $* == *-nsim* ]]; then
+DG_NSIM=`expr "$*" : '.*-nsim[\ \t]*\([0-9eE\.\+\-]*\)'`
+fi
+# 
+echo 
+echo define mag0 $DG_MAG0
+echo define mag1 $DG_MAG1
+echo define Nsimu $DG_NSIM
+echo 
+# 
+# 
+sm << EOF | tee $DG_FLOG".smlog"
+    
+    ####################################
+    #      PREPARE FITTING PARAMS      #
+    ####################################
+    echo input spdb_preset_${DG_IMAX}.sm
+    input spdb_preset_${DG_IMAX}.sm
+    data "${DG_CATA}" read {idF 1 raF 2 deF 3}
+
+    ####   EXCLUDE
+    define exclude_file "${DG_FSED}.txt"
+    if(is_file(\$exclude_file)) {
+        data \$exclude_file
+        read {idS 1 raS 2 deS 3 flagExclude 4}
+        set  idF = idF if(flagExclude==0) set idIncl = idF set idExcl = idS if(flagExclude==1)
+        set  raF = raF if(flagExclude==0) set raIncl = raF set raExcl = raS if(flagExclude==1)
+        set  deF = deF if(flagExclude==0) set deIncl = deF set deExcl = deS if(flagExclude==1)
+        echo "We exclude "\$(sum(flagExclude))" faint sources during the fitting, and only fit "\$(dimen(flagExclude)-sum(flagExclude))" sources."
+        echo " "
+    } else {
+        echo "We do not exclude faint sources here."
+        echo " "
+    }
+    
+    ####   INCLUDE
+    define include_file "${DG_CATB}"
+    if(is_file(\$include_file)) {
+        data \$include_file
+        read  {idN 1 raN 2 deN 3}
+        set    idF = idF concat idN   set  idAdds = idN
+        set    raF = raF concat raN   set  raAdds = raN
+        set    deF = deF concat deN   set  deAdds = deN
+        echo "We include "\$(dimen(idN))" additional sources selected from the residual maps. "
+        echo "Coordinates are stored in ${DG_CATB}"
+        echo "Now we are fitting "\$(dimen(idF))" sources."
+        echo " "
+    } else {
+        echo "We do not include additional sources here."
+        echo " "
+    }
+    
+    ####   TODO: FIT EXCLUDE SOURCES INSTEAD OF INCLUDE SOURCES <Added><20141030><DzLIU>
+    if(2==$DG_PFIT) {
+        set idF = idExcl
+        set raF = raExcl
+        set deF = deExcl
+        echo "TODO: Now we do not fit included sources on faint-source-subtracted map, instead we fit excluded sources on fitted-sources-subtracted map!"
+        echo " "
+    }
+    
+    ####   WE NOW HAVE NNNN SOURCES TO FIT
+    if(dimen(idF)>0) {
+        echo "We now have "\$(dimen(idF))" sources to be fit."
+        echo " "
+        
+        
+        #####################
+        #      PARALLEL     #
+        #####################
+        # LOAD PARALLEL
+        if(1==$DG_PARA) {
+            define doParallel 1
+            echo 
+            echo "We are preparing all galfit inputs for later parallel fitting on planer!"
+            echo " "
+        }
+        # POST PARALLEL
+        if(2==$DG_PARA) {
+            define doPostParallel 1
+            echo 
+            echo "We are processing post parallel data now!"
+        }
+        ###    FAKE DETECTION
+        if(1==$DG_FAKE) {
+            define doFakeDetection 1
+            !echo "We are simulating in fake detection mode!"
+            !echo " "
+        }
+        
+        
+        ########################
+        #        GALSIM        #
+        ########################
+        
+        ###### 
+        define use_prior_mags $DG_PRIM #<Modified><20160327><DZLIU>#
+        define vary_positions $DG_VARY #<Modified><20160327><DZLIU>#
+        define fix_astrometry 1
+        define make_residuals 0
+        ######
+        define Nsimu $DG_NSIM
+        define mag0  $DG_MAG0 ###<TODO><20140321><DZLIU>### median(df)=7.36uJy thus 10-sigma-mag=-1.47
+        define mag1  $DG_MAG1 ###<TODO><20140321><DZLIU>### median(df)=7.36uJy thus 1-sigma-mag=+1.03
+        ###### 
+        #define g_buff 74 ###<TODO><20160815><DZLIU>### for 850um ONLY!
+        #define f_buff 1  ###<TODO><20160815><DZLIU>### for 850um ONLY!
+        ###### 
+        
+        
+        echo 
+        device x11
+        macro read goSimuDL.sm goSS
+        #!cp "xpriorGN_RAD_"\$imax"_"\$xdate".txt" "xpriorGN_MultiBand_Priors"
+        
+        
+        echo 
+        data "xpriorGN_RAD_"\$imax"_"\$xdate".txt" read {Xid_ 1 Xra_ 2 Xde_ 3}
+        set x_si = Xra_ set y_si = Xde_ define print_noheader 0
+        echo 
+        macro read goSimuDL.sm SimuX
+        
+        echo 
+        echo SM Galsim Finished!
+        
+    } else {
+        echo 
+        echo "We now have no source to fit? Abort!"
+        echo 
+        echo SM Galsim Failed!
+    }
+    
+    
+    ####################
+    #      FINISH      #
+    ####################
+    quit
+EOF
+# 
+# 
+echo 
+echo Done!
+exit
